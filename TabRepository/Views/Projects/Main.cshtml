@@ -1,0 +1,311 @@
+﻿@model IEnumerable<TabRespository.Models.Project>
+@{
+    ViewBag.Title = "Main";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<p></p>
+<div id="buttonsWrapper" style="width: 100%">
+    <div id="newProjectButton" style="float: right;">
+        @Html.ActionLink("New Project", "New", "Projects", null, new { @class = "btn btn-primary" })
+    </div>
+    <div id="newTabButtonWrapper">
+        <button class="btn btn-primary" disabled>New Tab</button>
+    </div>
+    <div id="newTabVersionButtonWrapper">
+        <button class="btn btn-primary" disabled>New Tab Version</button>
+    </div>
+</div>
+<p></p>
+<link href="~/Content/style.css" rel="stylesheet" />
+<link href="~/Content/main.css?v={125}" rel="stylesheet" />
+
+<div id="treeTableContainer">
+    <div id="treeWrapper">
+        <div id="jstree">
+            <ul>
+                @foreach (var project in Model)
+                {
+                    <li id="project @project.Id">
+                        @project.Name
+                        @foreach (var tab in project.Tabs)
+                        {
+                            <ul>
+                                <li id="tab @tab.Id">@tab.Name</li>
+                            </ul>
+                        }
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+    <div id="splitter"></div>
+    <div id="tabVersionsTableWrapper">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th width="25%">Description</th>
+                    <th width="25%">Tab Version</th>
+                    <th width="15%">Contributor</th>
+                    <th width="15%">Date Added</th>
+                    <th width="10%"></th>
+                    <th width="10%"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Select a tab</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<p></p>
+
+<div id='tabFormModal' class='modal fade' data-url='@Url.Action("GetTabFormPartialView", "Tabs")'>
+    <div id='tabFormContainer'>
+    </div>
+</div>
+
+<div id='projectFormModal' class='modal fade' data-url='@Url.Action("GetProjectFormPartialView", "Projects")'>
+    <div id='projectFormContainer'>
+    </div>
+</div>
+
+<div id='tabVersionFormModal' class='modal fade' data-url='@Url.Action("GetTabVersionFormPartialView", "TabVersions")'>
+    <div id='tabVersionFormContainer'>
+    </div>
+</div>
+
+@section scripts
+{
+    @*<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>*@
+    @Scripts.Render("~/Scripts/jstree.min.js")
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/Scripts/bootstrap.js")
+    @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
+    @*@Scripts.Render("~/Scripts/datatables/jquery.datatables.js")
+    @Scripts.Render("~/Scripts/datatables/datatables.bootstrap.js")*@
+
+    <script>
+    $(document).ready(function () {
+        
+
+        $(function () {
+            $("#jstree").jstree({
+                "core": {
+                    check_callback: true
+                }
+            });
+
+        })
+
+        var currentModal;
+
+        // Selecting a node
+        // When a node is selected determine if it is a tab or project and display the corresponding table
+        // Tab: Tab versions table, Project: Empty table
+        $("#jstree").on("select_node.jstree", function (e, data) {
+            // This syntax is needed to get nodeId in "tab 1" format instead of ["tab 1"] format
+            var nodeId = $("#jstree").jstree().get_selected(true)[0].id;
+
+            if (nodeId.substring(0, 3) == 'tab') {
+                nodeId = nodeId.substring(4);
+
+                var $tabVersionsTableWrapper = $('#tabVersionsTableWrapper'),
+                url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
+
+                $.get(url, function (data) {
+                    $('#tabVersionsTableWrapper').empty().append(data);
+
+                });
+                $('#newTabButtonWrapper').empty().append('<button class="btn btn-primary" disabled>New Tab</button>');
+
+                var actionLink = '@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = -1 }, new { @class = "btn btn-primary", id = "newTabVersionButton" })'
+                actionLink = actionLink.replace('-1', nodeId);
+                $('#newTabVersionButtonWrapper').empty().append(actionLink);
+            }
+            else if (nodeId.substring(0, 7) == 'project') {
+                nodeId = nodeId.substring(8);
+                var actionLink = '@Html.ActionLink("New Tab", "New", "Tabs", new { id = -1 }, new { @class = "btn btn-primary", id = "newTabButton" })'
+                actionLink = actionLink.replace('-1', nodeId);
+                $('#newTabButtonWrapper').empty().append(actionLink);
+                $('#newTabVersionButtonWrapper').empty().append('<button class="btn btn-primary" disabled>New Tab Version</button>');
+
+                url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
+
+                $.get(url, function (data) {
+                    $('#tabVersionsTableWrapper').empty().append(data);
+                })
+            }
+        });
+
+        // Deleting a tab version
+        $(document).on("click", "#delete", function (e, data) {
+            e.preventDefault();
+            var href = this.href;
+            
+            bootbox.confirm("Are you sure you wish to delete this tab version? This cannot be undone.", function (result) {
+                if (result) {
+                    $.post(href, function (data) {
+                        var nodeId = $("#jstree").jstree().get_selected(true)[0].id;
+                        // Update tab versions table 
+                        if (nodeId.substring(0, 3) == 'tab') {
+                            nodeId = nodeId.substring(4);
+
+                            var $tabVersionsTableWrapper = $('#tabVersionsTableWrapper'),
+                            url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
+                            $.get(url, function (data) {
+                                $('#tabVersionsTableWrapper').empty().append(data);
+                            });
+                        }
+                        else if (nodeId.substring(0, 7) == 'project') {
+                            nodeId = nodeId.substring(8);
+                            url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
+                            $.get(url, function (data) {
+                                $('#tabVersionsTableWrapper').empty().append(data);
+                            })
+                        }
+                    });
+                }
+            }) 
+            
+
+        });
+
+        // Show modal for new tab
+        $(document).on("click", "#newTabButton", function (e, data) {
+            e.preventDefault();
+
+            var url = $('#tabFormModal').data('url');
+
+            var nodeId = $("#jstree").jstree().get_selected(true)[0].id;
+            if (nodeId.substring(0, 7) == 'project') {
+                nodeId = nodeId.substring(8);
+
+                url = url + "?id=" + nodeId;
+
+                $.get(url, function (data) {
+                    $('#tabFormContainer').html(data);
+
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($("#tabForm"));
+
+                    currentModal = $('#tabFormModal');
+                    currentModal.modal('show');
+                });
+            }
+        });
+
+        // Show modal for new project
+        $(document).on("click", "#newProjectButton", function (e, data) {
+            e.preventDefault();
+
+            var url = $('#projectFormModal').data('url');
+
+            $.get(url, function (data) {
+                $('#projectFormContainer').html(data);
+
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($("#projectForm"));
+
+                currentModal = $('#projectFormModal');
+                currentModal.modal('show');
+            });
+        });
+
+        // Show modal for new tab version
+        $(document).on("click", "#newTabVersionButton", function (e, data) {
+            e.preventDefault();
+
+            var url = $('#tabVersionFormModal').data('url');
+
+            var nodeId = $("#jstree").jstree().get_selected(true)[0].id;
+            if (nodeId.substring(0, 3) == 'tab') {
+                nodeId = nodeId.substring(4);
+
+                url = url + "?id=" + nodeId;
+
+                $.get(url, function (data) {
+                    $('#tabVersionFormContainer').html(data);
+
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($("#tabVersionForm"));
+
+                    currentModal = $('#tabVersionFormModal');
+                    currentModal.modal('show');
+                });
+            }
+        });
+
+        // Trick to get file data to come over via Ajax, though this does not replace the table in the partial view
+        window.addEventListener("submit", function (e) {
+            var formHtml = e.target;
+            var form = $("#" + formHtml.id);
+            var formAgain = document.forms["projectForm"];
+
+            // We're either adding/updating a tab, project, or tab version
+            if (form.valid()) {
+                if (formHtml.dataset.ajax) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    var xhr = new XMLHttpRequest();
+                    xhr.open(formHtml.method, formHtml.action);
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState == 4 && xhr.status == 200) {
+                            if (formHtml.dataset.ajaxUpdate) {
+                                var updateTarget = document.querySelector(formHtml.dataset.ajaxUpdate);
+                                if (updateTarget) {
+                                    updateTarget.innerHTML = xhr.responseText;
+                                }
+                            }
+                        }
+                    };
+                    xhr.send(new FormData(formHtml));
+
+                    currentModal.modal('hide');
+
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                // Replace tab version table with returned html (either new table or empty table)
+                                $('#tabVersionsTableWrapper').empty().append(xhr.responseText);
+
+                                // Here I'm replacing the tabversion table, which include tab id
+                                // Then I'm using that tab id to identify the jstree node
+                                if (formHtml.id === "tabForm") {
+                                    // Create new tab node and select it - expand and deselect project node
+                                    var currentNode = $("#jstree").jstree().get_selected(true)[0];
+                                    $("#jstree").jstree().open_node(currentNode.id, false, false);
+                                    $("#jstree").jstree().create_node(currentNode.id, { id: "tab " + $("#tabId").text(), text: $("#tabName").text() }, "last", false, false);
+                                    $("#jstree").jstree().deselect_node(currentNode.id, false, false);
+                                    $("#jstree").jstree().select_node("tab " + $("#tabId").text(), false, false);
+                                }
+                                // This will handle new project
+                                else if (formHtml.id === "projectForm") {
+                                    var currentNode = $("#jstree").jstree().get_selected(true)[0];
+                                    $("#jstree").jstree().deselect_node(currentNode.id, false, false);
+                                    $("#jstree").jstree().create_node("#", { id: "project " + $("#projectId").text(), text: $("#projectName").text() }, "last", false, false);
+                                    $("#jstree").jstree().select_node("project " + $("#projectId").text(), false, false);
+                                }
+                            } else {
+                                handleSaveError(xhr.status);
+                            }
+                        }
+                    };
+                }                
+            }
+        }, true);
+
+        function handleSaveError(statusCode) {
+            bootbox.alert("Unable to save. Error code: " + statusCode);
+        }
+    });
+</script>
+}
+

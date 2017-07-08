@@ -1,0 +1,34 @@
+﻿#treeTableContainer {
+    display: flex;
+    margin: auto;
+}
+
+#treeWrapper {
+    width: 250px;
+    height: 400px;
+    overflow: auto;
+    border: 2px solid gray; 
+}
+
+#jstree {
+    flex: 0;
+    height: 100%;
+}
+
+#splitter {
+    width: 10px;
+}
+
+#tabVersionsTableWrapper {
+    width:80%;
+}
+
+#buttonsWrapper {
+    display: flex;
+}
+
+#newTabButtonWrapper {
+    margin-left: auto;
+    margin-right: 0;
+}
+

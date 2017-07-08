@@ -1,0 +1,45 @@
+﻿@model TabRespository.ViewModels.TabVersionIndexViewModel
+
+<h2 hidden id="tabId">@Model.TabId</h2>
+<h2 hidden id="tabName">@Model.TabName</h2>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th width="25%">Description</th>
+            <th width="25%">Download</th>
+            <th width="15%">Contributor</th>
+            <th width="15%">Date Added</th>
+            <th width="15%">Version</th>
+            <th width="10%"></th>
+            <th width="10%"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var tabVersion in Model.TabVersions)
+        {
+            <tr>
+                <td>@tabVersion.Description</td>
+                <td>@Html.ActionLink(@tabVersion.TabFile.Name, "Download", "TabFiles", new { id = tabVersion.TabFile.Id }, null)</td>
+                <td>@tabVersion.User.UserName</td>
+                <td>@tabVersion.DateCreated</td>
+                <td>@tabVersion.Version</td>
+                @if (Path.GetExtension(tabVersion.TabFile.Name).Contains(".gp"))
+                {
+                    <td>@Html.ActionLink("Listen", "Player", "TabFiles", new { id = tabVersion.TabFile.Id }, new { @class = "btn btn-primary" })</td>
+                }
+                else
+                {
+                    <td><button class="btn btn-primary" disabled>Listen</button></td>
+                }
+                <td>
+                    @*<button class="btn btn-danger" id="delete">Delete</button>*@
+                    @Html.ActionLink("Delete", "AjaxDelete", "TabVersions", new { id = tabVersion.Id }, new { @class = "btn btn-danger", id = "delete" })
+                    @*, onclick = "return confirm('Are you sure you wish to delete this tab version? This cannot be undone.');" })*@
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+

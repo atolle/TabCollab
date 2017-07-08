@@ -1,0 +1,43 @@
+﻿@model TabRespository.ViewModels.TabFormViewModel
+
+
+<div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">New Tab for Project @Model.ProjectName</h4>
+        </div>
+        <div class="modal-body">
+            @*@using (Html.BeginForm("AjaxSave", "Tabs", FormMethod.Post, new { enctype = "multipart/form-data" }))*@
+            @using (Ajax.BeginForm("AjaxSave", "Tabs", null , new { enctype = "multipart/form-data", id = "tabForm" }))
+            {
+                @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
+                <div class="form-group">
+                    @Html.LabelFor(t => t.Name)
+                    @Html.TextBoxFor(t => t.Name, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(t => t.Name)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(t => t.Description)
+                    @Html.TextBoxFor(t => t.Description, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(t => t.Description)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(t => t.FileData)
+                    @Html.TextBoxFor(t => t.FileData, new { type = "file", @class = "btn btn-default" })
+                    @Html.ValidationMessageFor(t => t.FileData)
+                </div>
+                @Html.HiddenFor(t => t.ProjectId)
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary" id="tabSave" @*data-dismiss="modal"*@> Save</button>
+            }
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
+}
+
+

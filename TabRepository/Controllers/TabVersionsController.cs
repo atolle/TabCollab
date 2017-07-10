@@ -77,7 +77,7 @@ namespace TabRespository.Controllers
                         tabFile.TabData = fileBytes;
                     }
 
-                    tabFile.Name = viewModel.FileData.Name;
+                    tabFile.Name = viewModel.FileData.FileName;
                     tabFile.DateCreated = DateTime.Now;
                 }
 
@@ -86,10 +86,10 @@ namespace TabRespository.Controllers
                     // Create new TabVersion
                     UserId = User.GetUserId(),
                     Version = currentVersion + 1,        // Maybe do MAX(Version) + 1
-                    //TabFileId = file.Id,
                     Description = viewModel.Description,
                     DateCreated = DateTime.Now,
-                    TabId = tab.Id
+                    Tab = tab,
+                    TabFile = tabFile
                 };
 
                 _context.TabFiles.Add(tabFile);

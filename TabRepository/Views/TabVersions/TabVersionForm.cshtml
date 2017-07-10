@@ -8,8 +8,7 @@
 
 <p>Tab Name: @Model.TabName</p>
 
-@using (Html.BeginForm("Save", "TabVersions", FormMethod.Post, new { enctype = "multipart/form-data" }))
-{
+<form id="tabversion-form" asp-controller="TabVersions" asp-action="Save" data-ajax="true" data-ajax-method="POST" enctype="multipart/form-data">
     @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
     <div class="form-group">
         @Html.LabelFor(t => t.Description)
@@ -24,9 +23,4 @@
     @Html.HiddenFor(t => t.TabId)
     @Html.AntiForgeryToken()
     <button type="submit" class="btn btn-primary"> Save</button>
-}
-
-@section scripts
-{
-    @Scripts.Render("~/bundles/jqueryval")
-}
+</form>

@@ -24,7 +24,7 @@
                 <td>@tabVersion.User.UserName</td>
                 <td>@tabVersion.DateCreated</td>
                 <td>@tabVersion.Version</td>
-                @if (Path.GetExtension(tabVersion.TabFile.Name).Contains(".gp"))
+                @if (System.IO.Path.GetExtension(tabVersion.TabFile.Name).Contains(".gp"))
                 {
                     <td>@Html.ActionLink("Listen", "Player", "TabFiles", new { id = tabVersion.TabFile.Id }, new { @class = "btn btn-primary" })</td>
                 }

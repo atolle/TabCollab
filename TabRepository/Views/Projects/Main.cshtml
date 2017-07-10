@@ -6,7 +6,7 @@
 
 <p></p>
 <div id="buttonsWrapper" style="width: 100%">
-    <div id="newProjectButton" style="float: right;">
+    <div id="newProjectButton">
         @Html.ActionLink("New Project", "New", "Projects", null, new { @class = "btn btn-primary" })
     </div>
     <div id="newTabButtonWrapper">
@@ -17,8 +17,8 @@
     </div>
 </div>
 <p></p>
-<link href="~/Content/style.css" rel="stylesheet" />
-<link href="~/Content/main.css?v={125}" rel="stylesheet" />
+<link href="~/css/jstreestyle.css" rel="stylesheet" />
+<link href="~/css/main.css?v={125}" rel="stylesheet" />
 
 <div id="treeTableContainer">
     <div id="treeWrapper">
@@ -85,10 +85,10 @@
 @section scripts
 {
     @*<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>*@
-    @Scripts.Render("~/Scripts/jstree.min.js")
-    @Scripts.Render("~/bundles/jqueryval")
-    @Scripts.Render("~/Scripts/bootstrap.js")
-    @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
+    <script src="~/js/jstree.min.js"></script>
+    <script src="~/js/jqueryval.js"></script>
+    <script src="~/js/bootstrap.js"></script>
+    <script src="~/js/jquery.unobtrusive-ajax.min.js"></script>
     @*@Scripts.Render("~/Scripts/datatables/jquery.datatables.js")
     @Scripts.Render("~/Scripts/datatables/datatables.bootstrap.js")*@
 
@@ -194,7 +194,7 @@
                     $('#tabFormContainer').html(data);
 
                     // Client side validation for dynamic modal injection
-                    $.validator.unobtrusive.parse($("#tabForm"));
+                    $.validator.unobtrusive.parse($("#tab-form"));
 
                     currentModal = $('#tabFormModal');
                     currentModal.modal('show');
@@ -212,7 +212,7 @@
                 $('#projectFormContainer').html(data);
 
                 // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#projectForm"));
+                $.validator.unobtrusive.parse($("#project-form"));
 
                 currentModal = $('#projectFormModal');
                 currentModal.modal('show');
@@ -235,7 +235,7 @@
                     $('#tabVersionFormContainer').html(data);
 
                     // Client side validation for dynamic modal injection
-                    $.validator.unobtrusive.parse($("#tabVersionForm"));
+                    $.validator.unobtrusive.parse($("#tabversion-form"));
 
                     currentModal = $('#tabVersionFormModal');
                     currentModal.modal('show');
@@ -247,7 +247,7 @@
         window.addEventListener("submit", function (e) {
             var formHtml = e.target;
             var form = $("#" + formHtml.id);
-            var formAgain = document.forms["projectForm"];
+            var formAgain = document.forms["project-form"];
 
             // We're either adding/updating a tab, project, or tab version
             if (form.valid()) {
@@ -278,7 +278,7 @@
 
                                 // Here I'm replacing the tabversion table, which include tab id
                                 // Then I'm using that tab id to identify the jstree node
-                                if (formHtml.id === "tabForm") {
+                                if (formHtml.id === "tab-form") {
                                     // Create new tab node and select it - expand and deselect project node
                                     var currentNode = $("#jstree").jstree().get_selected(true)[0];
                                     $("#jstree").jstree().open_node(currentNode.id, false, false);
@@ -287,9 +287,11 @@
                                     $("#jstree").jstree().select_node("tab " + $("#tabId").text(), false, false);
                                 }
                                 // This will handle new project
-                                else if (formHtml.id === "projectForm") {
+                                else if (formHtml.id === "project-form") {
                                     var currentNode = $("#jstree").jstree().get_selected(true)[0];
-                                    $("#jstree").jstree().deselect_node(currentNode.id, false, false);
+                                    if (currentNode != null) {
+                                        $("#jstree").jstree().deselect_node(currentNode.id, false, false);
+                                    }
                                     $("#jstree").jstree().create_node("#", { id: "project " + $("#projectId").text(), text: $("#projectName").text() }, "last", false, false);
                                     $("#jstree").jstree().select_node("project " + $("#projectId").text(), false, false);
                                 }

@@ -9,9 +9,7 @@
             <h4 class="modal-title">New Tab for Project @Model.ProjectName</h4>
         </div>
         <div class="modal-body">
-            @*@using (Html.BeginForm("AjaxSave", "Tabs", FormMethod.Post, new { enctype = "multipart/form-data" }))*@
-            @using (Ajax.BeginForm("AjaxSave", "Tabs", null , new { enctype = "multipart/form-data", id = "tabForm" }))
-            {
+            <form id="tab-form" asp-controller="Tabs" asp-action="AjaxSave" data-ajax="true" data-ajax-method="POST" enctype="multipart/form-data">
                 @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
                 <div class="form-group">
                     @Html.LabelFor(t => t.Name)
@@ -30,8 +28,8 @@
                 </div>
                 @Html.HiddenFor(t => t.ProjectId)
                 @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-primary" id="tabSave" @*data-dismiss="modal"*@> Save</button>
-            }
+                <button type="submit" class="btn btn-primary" id="tabSave" @*data-dismiss="modal" *@> Save</button>
+            </form>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

@@ -8,8 +8,7 @@
             <h4 class="modal-title">New Project</h4>
         </div>
         <div class="modal-body">
-            @using (Ajax.BeginForm("AjaxSave", "Projects", null, new { id = "projectForm" }))
-            {
+            <form id="project-form" asp-controller="Projects" asp-action="AjaxSave" data-ajax="true" data-ajax-method="POST">
                 @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
                 <div class="form-group">
                     @Html.LabelFor(m => m.Name)
@@ -24,7 +23,7 @@
                 @Html.HiddenFor(m => m.Id)
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn btn-primary"> Save</button>
-            }
+            </form>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

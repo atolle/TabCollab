@@ -139,7 +139,7 @@ namespace TabRespository.Controllers
                             tabFile.TabData = fileBytes;
                         }
 
-                        tabFile.Name = viewModel.FileData.Name;
+                        tabFile.Name = viewModel.FileData.FileName;
                         tabFile.DateCreated = DateTime.Now;
                     }
 
@@ -147,7 +147,7 @@ namespace TabRespository.Controllers
                     Tab tab = new Tab()
                     {
                         UserId = User.GetUserId(),
-                        ProjectId = _context.Projects.Single(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId).Id,
+                        Project = _context.Projects.Single(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId),
                         Name = viewModel.Name,
                         Description = viewModel.Description,
                         DateCreated = DateTime.Now,
@@ -162,15 +162,15 @@ namespace TabRespository.Controllers
                         Description = viewModel.Description,    // TO TABFILE AND VICE VERSA
                         UserId = tab.UserId,                    // CHICKEN AND THE EGG PROBLEM
                         DateCreated = tab.DateCreated,
-                        TabId = tab.Id
+                        Tab = tab,
+                        TabFile = tabFile
                     };
 
-                    //tabVersion.TabFileId = file.Id;
+                    tabVersion.TabFile = tabFile;
 
                     _context.Tabs.Add(tab);
                     _context.TabVersions.Add(tabVersion);
                     _context.TabFiles.Add(tabFile);
-
                     _context.SaveChanges();
 
                     // Redirect to list of tabs for current Project
@@ -183,7 +183,7 @@ namespace TabRespository.Controllers
                     return RedirectToAction("GetEmptyTabVersionsTable", "TabVersions", null);
                 }
             }
-            catch
+            catch (Exception e)
             {
                 // Need to return JSON failure to form
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);

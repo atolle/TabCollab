@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;
 using System.Linq;
@@ -141,7 +141,7 @@ namespace TabRespository.Controllers
                             tabFile.TabData = fileBytes;
                         }
 
-                        tabFile.Name = viewModel.FileData.Name;
+                        tabFile.Name = viewModel.FileData.FileName;
                         tabFile.DateCreated = DateTime.Now;
                     }
                   
@@ -150,10 +150,10 @@ namespace TabRespository.Controllers
                         // Create new TabVersion
                         UserId = User.GetUserId(),
                         Version = currentVersion + 1,        // Maybe do MAX(Version) + 1
-                        //TabFileId = file.Id,
                         Description = viewModel.Description,
                         DateCreated = DateTime.Now,
-                        TabId = tab.Id
+                        Tab = tab,
+                        TabFile = tabFile 
                     };
 
                     _context.TabFiles.Add(tabFile);
@@ -206,9 +206,12 @@ namespace TabRespository.Controllers
 
             var viewModel = new TabVersionIndexViewModel()
             {
-                TabVersions = _context.TabVersions.Where(v => v.UserId == currentUserId && v.TabId == id).ToList(),
+                TabVersions = _context.TabVersions
+                    .Include(v => v.TabFile)
+                    .Include(v => v.User)
+                    .Where(v => v.UserId == currentUserId && v.TabId == id).ToList(),
                 TabName = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId).Name,
-                TabId = (int) id,
+                TabId = id,
                 ProjectId = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId).ProjectId
             };
 

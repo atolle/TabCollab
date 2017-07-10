@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using TabRepository;
@@ -150,7 +151,9 @@ namespace TabRespository.Controllers
             string currentUserId = User.GetUserId();
 
             // Return a list of all Projects belonging to the current user
-            var projects = _context.Projects.Where(p => p.UserId == currentUserId).ToList();
+            var projects = _context.Projects
+                .Include(p => p.Tabs)
+                .Where(p => p.UserId == currentUserId).ToList();
 
             return View(projects);
         }

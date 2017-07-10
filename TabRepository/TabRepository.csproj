@@ -11,6 +11,13 @@
   <PropertyGroup>
     <UserSecretsId>aspnet-TabRepository-397cdc68-2ec5-44a5-9cf2-11afdba9c7e0</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="wwwroot\css\32px.png" />
+    <Content Include="wwwroot\css\40px.png" />
+    <Content Include="wwwroot\css\jstreestyle.css" />
+    <Content Include="wwwroot\css\throbber.gif" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="1.1.2" />

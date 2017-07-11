@@ -73,7 +73,11 @@ namespace TabRepository
                 app.UseExceptionHandler("/Home/Error");
             }
 
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions()
+            {   // Introduces security risk - should change later
+                // Need to be able to server default.sf2 soundfont for player
+                ServeUnknownFileTypes = true
+            });
 
             app.UseIdentity();
 

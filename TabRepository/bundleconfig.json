@@ -24,7 +24,7 @@
   {
     "outputFileName": "wwwroot/js/lib.js",
     "inputFiles": [
-      "wwwroot/js/jquery-{version}.js",
+      "wwwroot/js/jquery-1.10.2.js",
       "wwwroot/js/bootstrap.js",
       "wwwroot/js/respond.js",
       "wwwroot/js/bootbox.min.js"
@@ -33,7 +33,7 @@
   {
     "outputFileName": "wwwroot/js/jquery.js",
     "inputFiles": [
-      "wwwroot/js/jquery-{version}.js"
+      "wwwroot/js/jquery-1.10.2.js"
     ]
   },
   {
@@ -43,7 +43,7 @@
     ]
   },
   {
-    "outputFileName": "wwwroot/js/alphatab.js",
+    "outputFileName": "wwwroot/js/alphatab-bundle.js",
     "inputFiles": [
       "wwwroot/js/AlphaTab.js",
       "wwwroot/js/jquery.alphaTab.js",

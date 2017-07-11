@@ -41,7 +41,7 @@ namespace TabRespository.Controllers
         // TODO: Add user validation to this method
         public ViewResult Player(int id)
         {
-            ViewBag.Url = "http://localhost:55414/TabFiles/Download/" + id.ToString();
+            ViewBag.Id = id.ToString();
             return View(); 
         }
     }

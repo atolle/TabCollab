@@ -16,6 +16,7 @@
     <Content Include="wwwroot\css\32px.png" />
     <Content Include="wwwroot\css\40px.png" />
     <Content Include="wwwroot\css\jstreestyle.css" />
+    <Content Include="wwwroot\css\player.css" />
     <Content Include="wwwroot\css\throbber.gif" />
   </ItemGroup>
   <ItemGroup>

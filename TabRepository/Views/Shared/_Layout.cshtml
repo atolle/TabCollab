@@ -69,7 +69,11 @@
         <script src="~/js/site.min.js" asp-append-version="true"></script>
     </environment>
     
-    <script src="~/js/lib.js"></script>
+    @*Bundle later*@
+    <script src="~/js/jquery-1.10.2.js"></script>
+    <script src="~/js/bootstrap.js"></script>
+    <script src="~/js/respond.js"></script>
+    <script src="~/js/bootbox.min.js"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

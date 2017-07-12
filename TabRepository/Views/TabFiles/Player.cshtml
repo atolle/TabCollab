@@ -6,29 +6,14 @@
 <h2></h2>
 
 <link href="~/css/player.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.min.css" integrity="sha256-6b+gYy3DG/roKdQiHqp1FJYFQkaZdM6ohUpGyFyUAGk=" crossorigin="anonymous" />
 
-<div id="spinner" style="min-height: 500px">
-    <p align="center" style="font-size: 160%"> Loading tab... </p>
-    <div class="sk-fading-circle">
-        <div class="sk-circle1 sk-circle"></div>
-        <div class="sk-circle2 sk-circle"></div>
-        <div class="sk-circle3 sk-circle"></div>
-        <div class="sk-circle4 sk-circle"></div>
-        <div class="sk-circle5 sk-circle"></div>
-        <div class="sk-circle6 sk-circle"></div>
-        <div class="sk-circle7 sk-circle"></div>
-        <div class="sk-circle8 sk-circle"></div>
-        <div class="sk-circle9 sk-circle"></div>
-        <div class="sk-circle10 sk-circle"></div>
-        <div class="sk-circle11 sk-circle"></div>
-        <div class="sk-circle12 sk-circle"></div>
-    </div>
-</div>
-
-<div id="alphaTab" data-file="@Url.Action("Download", "TabFiles", new { ViewBag.Id })" data-tracks="0"></div>
+<div id="alphaTab" class="alphaTab" data-file="@Url.Action("Download", "TabFiles", new { ViewBag.Id })" data-tracks="0"
+     data-player="@Url.Content("~/misc/default.sf2")"></div>
 
 @section scripts
 {
+    <script src="~/js/bootstrap-slider.min.js"></script>
     <script src="~/js/AlphaTab.js"></script>
     <script src="~/js/jquery.alphaTab.js"></script>
     <script src="~/js/swfobject.js"></script>
@@ -36,137 +21,61 @@
     <script src="~/js/jquery.alphaTab.alphaSynth.js"></script>
 
     <script type="text/javascript">
-        var playerReady = false;
-        var playerState = 0;
         var at = $('#alphaTab');
-        var spinner = document.getElementById('spinner');
 
         //
-        // 1. Initialize track selector
-        var tracks = [];
-        at.on('loaded', function (e) {
-            spinner.parentNode.removeChild(spinner);
-            var score = e.originalEvent.detail;
-            var trackList = $('#trackList');
-            trackList.empty();
-
-            for (var i = 0; i < score.Tracks.length; i++) {
-                // build list item for track
-                var li = $('<li></li>');
-                var a = $('<a href="#"></a>')
-                    .data('track', score.Tracks[i].Index)
-                    .append('<input type="checkbox" />')
-                    .append(score.Tracks[i].Name)
-
-                    // here we build the new track list and render it
-                    .on('click', function (e) {
-                        var track = $(this).data('track');
-                        var index = tracks.indexOf(track);
-                        if (index > -1) {
-                            tracks.splice(index, 1);
-                            $(this).find('input').prop('checked', false);
-                        }
-                        else {
-                            tracks.push(track);
-                            tracks.sort(),
-                            $(this).find('input').prop('checked', true);
-                        }
-
-                        // render new tracks
-                        at.alphaTab('tracks', tracks);
-
-                        $(e.target).blur();
-
-                        return false;
-                    });
-                li.append(a);
-                trackList.append(li);
-            }
+        // 1. setup events
+        at.on('alphaTab.soundFontLoad', function (e, progress) {
+            var percentage = ((progress.loaded / progress.total) * 100) | 0;
+            $('#soundFontProgress').css('width', percentage + '%').text(percentage + '%');
         });
-
-        // update track list after rendering finished
-        at.on('rendered', function (e) {
-            // load track indices
-            tracks = at.alphaTab('tracks');
-            for (var i = 0; i < tracks.length; i++) {
-                tracks[i] = tracks[i].Index;
-            }
-
-            // check checkboxes
-            $('#trackList li a').each(function () {
-                var track = $(this).data('track');
-                var isSelected = tracks.indexOf(track) > -1;
-                $(this).find('input').prop('checked', isSelected);
-            });
-
-            console.log(tracks);
+        at.on('alphaTab.soundFontLoaded', function () {
+            $('#soundFontProgressMenuItem').hide();
+        });
+        at.on('alphaTab.playerReady', function () {
+            $('#loadingInfo').hide();
+            $('#playPause').prop('disabled', false).removeAttr('disabled');
+            $('#stop').prop('disabled', false).removeAttr('disabled');
+            updateControls();
+        });
+        at.on('alphaTab.playerStateChanged', function () {
+            updateControls();
         });
 
         //
         // 2. Load alphaTab
-        at.alphaTab({
-            useWorker: true
-        });
+        at.alphaTab();
 
         //
-        // 3. Initialize Player and Setup Player UI
-        var as = at.alphaTab('playerInit'); // init alphaSynth
+        // 3. Setup UI controls and use API to control the playback
 
-        as.On('ready', function (r) {
-            // load default data
-            as.LoadSoundFontUrl('@Url.Content("~/misc/default.sf2")');
-        });
-        as.On('soundFontLoad', function (loaded, full) {
-            var percentage = ((loaded / full) * 100) | 0;
-            $('#soundFontProgress').css('width', percentage + '%').text(percentage + '%');
-        });
-        as.On('soundFontLoaded', function () {
-            $('#soundFontProgressMenuItem').hide();
-        });
-        as.On('readyForPlay', function (r) {
-            playerReady = r;
-            updateControls();
-        });
-        as.On('playerStateChanged', function (s) {
-            playerState = s;
-            updateControls();
+        $('#print').click(function () {
+            at.alphaTab('print');
         });
 
         $('#playPause').click(function () {
-            if (playerState == 1) {
-                as.Pause();
-            }
-            else {
-                as.Play();
-            }
+            at.alphaTab('playPause');
         });
+
         $('#stop').click(function () {
-            as.Stop();
+            at.alphaTab('stop');
+        });
+
+        $('#playbackSpeedSelector a').click(function () {
+            var playbackSpeed = $(this).data('value');
+            at.alphaTab('playbackSpeed', playbackSpeed);
+            $('#playbackSpeed').text($(this).text());
         });
 
         function updateControls() {
-            if (!playerReady) {
-                $('#loadingInfo').show()
-                $('#controls button').attr('disabled', 'disabled');
-            }
-            else {
-                $('#loadingInfo').hide()
-                $('#playPause').prop('disabled', false);
-                $('#stop').prop('disabled', false);
-                $('#playPause').removeAttr('disabled');
-                switch (playerState) {
-                    case 0: // stopped
-                        $('#playPause').removeClass('glyphicon-pause').addClass('glyphicon-play');
-                        break;
-                    case 1: // playing
-                        $('#playPause').removeClass('glyphicon-play').addClass('glyphicon-pause');
-                        $('#stop').removeAttr('disabled').removeClass('disabled');
-                        break;
-                    case 2: // paused
-                        $('#playPause').removeClass('glyphicon-pause').addClass('glyphicon-play');
-                        $('#stop').removeAttr('disabled').removeClass('disabled');
-                        break;
-                }
+            var playerState = at.alphaTab('playerState');
+            switch (playerState) {
+                case 0: // stopped/paused
+                    $('#playPause').removeClass('glyphicon-pause').addClass('glyphicon-play');
+                    break;
+                case 1: // playing
+                    $('#playPause').removeClass('glyphicon-play').addClass('glyphicon-pause');
+                    break;
             }
         }
 
@@ -178,23 +87,112 @@
 
             var layout = $(this).data('layout');
             var scrollmode = $(this).data('scrollmode');
+
+            at.removeClass('horizontal page');
+            at.addClass(layout);
+
             // update renderer
-            var renderer = at.alphaTab('renderer');
-            renderer.Settings.Layout.Mode = layout;
-            renderer.Invalidate();
+            at.alphaTab('layout', layout);
 
             // update player
-            var cursorOptions = at.alphaTab('cursorOptions');
-            cursorOptions.autoScroll = scrollmode;
+            at.alphaTab('autoScroll', scrollmode);
             $('body,html').animate({
                 scrollTop: 0
             }, 300);
-
-            at.alphaTab('playerCursorUpdateBeat', cursorOptions.currentBeat);
         });
 
         //
-        // 4. Add cursors (optional)
-        at.alphaTab('playerCursor');
-    </script>
+        // 4. Track selector
+        var tracks = [];
+        // keep dropdown open
+        $('#trackList').on('click', function (e) {
+            e.stopPropagation();
+        });
+        at.on('alphaTab.loaded', function (e, score) {
+            var trackList = $('#trackList');
+            trackList.empty();
+
+            for (var i = 0; i < score.Tracks.length; i++) {
+                // build list item for track
+                var li = $('<li></li>')
+                    .data('track', score.Tracks[i].Index)
+                    ;
+
+                // show/hide button and track title
+                var title = $('<div class="title"></div>');
+                li.append(title);
+
+                var showHide = $('<i class="glyphicon glyphicon-eye-close showHide"></i>');
+                title.append(showHide);
+                title.append(score.Tracks[i].Name);
+                title.on('click', function (e) {
+                    var track = $(this).closest('li').data('track');
+                    tracks = [track];
+                    $(this).find('.showHide').removeClass('glyphicon-eye-close').addClass('glyphicon-eye-open');
+
+                    // render new tracks
+                    at.alphaTab('tracks', tracks);
+                });
+
+                // solo and mute buttons
+                var soloMute = $('<div class="btn-group btn-group-xs"></div>');
+                var solo = $('<button type="button" class="btn btn-default solo">Solo</button>');
+                solo.on('click', function (e) {
+                    $(this).toggleClass('checked');
+                    var isSolo = $(this).hasClass('checked');
+                    var track = $(this).closest('li').data('track');
+                    at.alphaTab('soloTrack', track, isSolo);
+                });
+
+                var mute = $('<button type="button" class="btn btn-default mute">Mute</button>');
+                mute.on('click', function (e) {
+                    $(this).toggleClass('checked');
+                    var isMute = $(this).hasClass('checked');
+                    var track = $(this).closest('li').data('track');
+                    at.alphaTab('muteTrack', track, isMute);
+                });
+                soloMute.append(solo).append(mute);
+                li.append(soloMute);
+
+                // volume slider
+                var volume = $('<input type="text" />')
+                    .on('slide', function (e) {
+                        var track = $(this).closest('li').data('track');
+                        at.alphaTab('trackVolume', track, e.value);
+                    });
+                li.append(volume);
+                volume.slider({
+                    min: 0,
+                    max: 16,
+                    step: 1,
+                    value: score.Tracks[i].PlaybackInfo.Volume,
+                    handle: 'square'
+                })
+
+                trackList.append(li);
+            }
+        });
+        at.on('alphaTab.rendered', function (e) {
+            // load track indices
+            tracks = at.alphaTab('tracks');
+            for (var i = 0; i < tracks.length; i++) {
+                tracks[i] = tracks[i].Index;
+            }
+
+            // check checkboxes
+            $('#trackList li').each(function () {
+                var track = $(this).data('track');
+                var isSelected = tracks.indexOf(track) > -1;
+                if (isSelected) {
+                    $(this).find('.showHide').removeClass('glyphicon-eye-close').addClass('glyphicon-eye-open');
+                }
+                else {
+                    $(this).find('.showHide').removeClass('glyphicon-eye-open').addClass('glyphicon-eye-close');
+                }
+            });
+        });
+
+
+</script>
+
 }

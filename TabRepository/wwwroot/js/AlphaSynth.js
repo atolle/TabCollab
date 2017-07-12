@@ -167,10 +167,9 @@ var Float32Array = Float32Array || Array;
 
 var AlphaSynth = AlphaSynth || {};
 AlphaSynth.Main = AlphaSynth.Main || {};
-AlphaSynth.Main.AlphaSynthApi = function (alphaSynthScriptFile) {
-    this.RealInstance = null;
-    this.Ready = false;
-    this.ReadyForPlay = false;
+AlphaSynth.Main.AlphaSynthApi = function () {
+};
+AlphaSynth.Main.AlphaSynthApi.Create = function (alphaSynthScriptFile) {
     // var swf = SwfObject;
     var supportsWebAudio = !!window.ScriptProcessorNode;
     var supportsWebWorkers = !!window.Worker;
@@ -202,146 +201,25 @@ AlphaSynth.Main.AlphaSynthApi = function (alphaSynthScriptFile) {
     }
     if (supportsWebAudio && !forceFlash) {
         AlphaSynth.Util.Logger.Info("Will use webworkers for synthesizing and web audio api for playback");
-        this.RealInstance = new AlphaSynth.Main.AlphaSynthWebWorkerApi(alphaSynthScriptFile);
+        return new AlphaSynth.Main.AlphaSynthWebWorkerApi(new AlphaSynth.Main.AlphaSynthWebAudioOutput(), alphaSynthScriptFile);
     }
-    else if (supportsWebWorkers) {
+    if (supportsWebWorkers) {
         AlphaSynth.Util.Logger.Info("Will use webworkers for synthesizing and flash for playback");
-        this.RealInstance = new AlphaSynth.Main.AlphaSynthFlashPlayerApi(alphaSynthScriptFile);
+        return new AlphaSynth.Main.AlphaSynthWebWorkerApi(new AlphaSynth.Main.AlphaSynthFlashOutput(alphaSynthScriptFile), alphaSynthScriptFile);
     }
-    else {
-        AlphaSynth.Util.Logger.Error("Incompatible browser");
-        throw $CreateException(new System.Exception.ctor$$String("Incompatible browser"), new Error());
-    }
-    this.RealInstance.Startup();
+    AlphaSynth.Util.Logger.Error("Incompatible browser");
+    throw $CreateException(new System.Exception.ctor$$String("Incompatible browser"), new Error());
 };
-AlphaSynth.Main.AlphaSynthApi.prototype = {
-    Startup: function () {
-        this.RealInstance.On("ready", $CreateAnonymousDelegate(this, function () {
-            this.Ready = true;
-        }));
-        this.RealInstance.On("readyForPlay", $CreateAnonymousDelegate(this, function () {
-            this.ReadyForPlay = true;
-        }));
-        this.RealInstance.Startup();
-    },
-    IsReadyForPlay: function () {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.IsReadyForPlay();
-    },
-    GetMasterVolume: function () {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.GetMasterVolume();
-    },
-    SetMasterVolume: function (volume) {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.SetMasterVolume(volume);
-    },
-    GetPlaybackSpeed: function () {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.GetPlaybackSpeed();
-    },
-    SetPlaybackSpeed: function (playbackSpeed) {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.SetPlaybackSpeed(playbackSpeed);
-    },
-    GetState: function () {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.GetState();
-    },
-    IsSoundFontLoaded: function () {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.IsSoundFontLoaded();
-    },
-    IsMidiLoaded: function () {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.IsMidiLoaded();
-    },
-    Play: function () {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.Play();
-    },
-    Pause: function () {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.Pause();
-    },
-    PlayPause: function () {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.PlayPause();
-    },
-    Stop: function () {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.Stop();
-    },
-    SetPositionTick: function (tick) {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.SetPositionTick(tick);
-    },
-    SetPositionTime: function (millis) {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.SetPositionTime(millis);
-    },
-    LoadSoundFontUrl: function (url) {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.LoadSoundFontUrl(url);
-    },
-    LoadSoundFontBytes: function (data) {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.LoadSoundFontBytes(data);
-    },
-    LoadMidiUrl: function (url) {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.LoadMidiUrl(url);
-    },
-    LoadMidiBytes: function (data) {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.LoadMidiBytes(data);
-    },
-    SetLogLevel: function (level) {
-        AlphaSynth.Util.Logger.LogLevel = level;
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.SetLogLevel(level);
-    },
-    On: function (events, fn) {
-        if (this.RealInstance == null)
-            return;
-        this.RealInstance.On(events, fn);
-        if (events == "readyForPlay" && this.Ready) {
-            fn();
-        }
-    }
-};
-$StaticConstructor(function () {
-    AlphaSynth.Main.AlphaSynthApi.AlphaSynthId = "AlphaSynth";
-});
 AlphaSynth.Main.AlphaSynthFlashOutput = function (alphaSynthRoot) {
     this._alphaSynthRoot = null;
     this._id = null;
     this._swfId = null;
     this._swfContainer = null;
     this._playbackSpeed = 0;
+    this.Ready = null;
     this.SampleRequest = null;
     this.Finished = null;
-    this.PositionChanged = null;
-    this.ReadyChanged = null;
+    this.SamplesPlayed = null;
     this._alphaSynthRoot = alphaSynthRoot;
     var lastSlash = this._alphaSynthRoot.lastIndexOf("/");
     if (lastSlash != -1) {
@@ -368,21 +246,10 @@ AlphaSynth.Main.AlphaSynthFlashOutput.prototype = {
             id: this._id,
             sampleRate: 44100
         }, {
-            allowScriptAccess: "always"
-        }, {
-            id: this._swfId
-        });
-    },
-    SetPlaybackSpeed: function (playbackSpeed) {
-        document.getElementById(this._swfId).AlphaSynthSetPlaybackSpeed(playbackSpeed);
-    },
-    SequencerFinished: function () {
-        document.getElementById(this._swfId).AlphaSynthSequencerFinished();
-    },
-    AddSamples: function (samples) {
-        var uint8 = new Uint8Array(samples.buffer);
-        var b64 = window.btoa(String.fromCharCode.apply(null, uint8));
-        document.getElementById(this._swfId).AlphaSynthAddSamples(b64);
+                allowScriptAccess: "always"
+            }, {
+                id: this._swfId
+            });
     },
     Play: function () {
         document.getElementById(this._swfId).AlphaSynthPlay();
@@ -390,11 +257,23 @@ AlphaSynth.Main.AlphaSynthFlashOutput.prototype = {
     Pause: function () {
         document.getElementById(this._swfId).AlphaSynthPause();
     },
-    Stop: function () {
-        document.getElementById(this._swfId).AlphaSynthStop();
+    SequencerFinished: function () {
+        document.getElementById(this._swfId).AlphaSynthSequencerFinished();
     },
-    Seek: function (position) {
-        document.getElementById(this._swfId).AlphaSynthSeek(position);
+    AddSamples: function (samples) {
+        var uint8 = new Uint8Array(samples.buffer);
+        var fromCharCode = String.fromCharCode;
+        var b64 = window.btoa(fromCharCode.apply(null, uint8));
+        document.getElementById(this._swfId).AlphaSynthAddSamples(b64);
+    },
+    ResetSamples: function () {
+        document.getElementById(this._swfId).AlphaSynthResetSamples();
+    },
+    add_Ready: function (value) {
+        this.Ready = $CombineDelegates(this.Ready, value);
+    },
+    remove_Ready: function (value) {
+        this.Ready = $RemoveDelegate(this.Ready, value);
     },
     add_SampleRequest: function (value) {
         this.SampleRequest = $CombineDelegates(this.SampleRequest, value);
@@ -408,17 +287,11 @@ AlphaSynth.Main.AlphaSynthFlashOutput.prototype = {
     remove_Finished: function (value) {
         this.Finished = $RemoveDelegate(this.Finished, value);
     },
-    add_PositionChanged: function (value) {
-        this.PositionChanged = $CombineDelegates(this.PositionChanged, value);
+    add_SamplesPlayed: function (value) {
+        this.SamplesPlayed = $CombineDelegates(this.SamplesPlayed, value);
     },
-    remove_PositionChanged: function (value) {
-        this.PositionChanged = $RemoveDelegate(this.PositionChanged, value);
-    },
-    add_ReadyChanged: function (value) {
-        this.ReadyChanged = $CombineDelegates(this.ReadyChanged, value);
-    },
-    remove_ReadyChanged: function (value) {
-        this.ReadyChanged = $RemoveDelegate(this.ReadyChanged, value);
+    remove_SamplesPlayed: function (value) {
+        this.SamplesPlayed = $RemoveDelegate(this.SamplesPlayed, value);
     }
 };
 $StaticConstructor(function () {
@@ -428,8 +301,13 @@ $StaticConstructor(function () {
     AlphaSynth.Main.AlphaSynthFlashOutput.NextId = 0;
     AlphaSynth.Main.AlphaSynthFlashOutput.Lookup = {};
 });
+AlphaSynth.Main.AlphaSynthFlashOutput.OnReady = function (id) {
+    if (AlphaSynth.Main.AlphaSynthFlashOutput.Lookup.hasOwnProperty(id)) {
+        AlphaSynth.Main.AlphaSynthFlashOutput.Lookup[id].Ready();
+    }
+};
 AlphaSynth.Main.AlphaSynthFlashOutput.OnSampleRequest = function (id) {
-    if (AlphaSynth.Main.AlphaSynthFlashOutput.Lookup.hasOwnProperty(id) && AlphaSynth.Main.AlphaSynthFlashOutput.Lookup[id].SampleRequest != null) {
+    if (AlphaSynth.Main.AlphaSynthFlashOutput.Lookup.hasOwnProperty(id)) {
         AlphaSynth.Main.AlphaSynthFlashOutput.Lookup[id].SampleRequest();
     }
 };
@@ -438,14 +316,9 @@ AlphaSynth.Main.AlphaSynthFlashOutput.OnFinished = function (id) {
         AlphaSynth.Main.AlphaSynthFlashOutput.Lookup[id].Finished();
     }
 };
-AlphaSynth.Main.AlphaSynthFlashOutput.OnPositionChanged = function (id, position) {
-    if (AlphaSynth.Main.AlphaSynthFlashOutput.Lookup.hasOwnProperty(id) && AlphaSynth.Main.AlphaSynthFlashOutput.Lookup[id].PositionChanged != null) {
-        AlphaSynth.Main.AlphaSynthFlashOutput.Lookup[id].PositionChanged(position);
-    }
-};
-AlphaSynth.Main.AlphaSynthFlashOutput.OnReadyChanged = function (id, isReady) {
-    if (AlphaSynth.Main.AlphaSynthFlashOutput.Lookup.hasOwnProperty(id) && AlphaSynth.Main.AlphaSynthFlashOutput.Lookup[id].ReadyChanged != null) {
-        AlphaSynth.Main.AlphaSynthFlashOutput.Lookup[id].ReadyChanged(isReady);
+AlphaSynth.Main.AlphaSynthFlashOutput.OnSamplesPlayed = function (id, samples) {
+    if (AlphaSynth.Main.AlphaSynthFlashOutput.Lookup.hasOwnProperty(id)) {
+        AlphaSynth.Main.AlphaSynthFlashOutput.Lookup[id].SamplesPlayed(samples);
     }
 };
 AlphaSynth.Main.AlphaSynthWebAudioOutput = function () {
@@ -455,30 +328,40 @@ AlphaSynth.Main.AlphaSynthWebAudioOutput = function () {
     this._audioNode = null;
     this._circularBuffer = null;
     this._finished = false;
-    this._currentTime = 0;
-    this._playbackSpeed = 0;
+    this.Ready = null;
+    this.SamplesPlayed = null;
     this.SampleRequest = null;
     this.Finished = null;
-    this.PositionChanged = null;
-    this.ReadyChanged = null;
 };
 AlphaSynth.Main.AlphaSynthWebAudioOutput.prototype = {
     get_SampleRate: function () {
         return this._context.sampleRate | 0;
     },
     Open: function () {
-        this._playbackSpeed = 1;
         this._finished = false;
         this._circularBuffer = new AlphaSynth.Ds.CircularSampleBuffer(40960);
         window.AudioContext = window.AudioContext || window.webkitAudioContext;
         this._context = new AudioContext();
-        this._currentTime = 0;
+        // possible fix for Web Audio in iOS 9 (issue #4)
+        var ctx = this._context;
+        if (ctx.state == "suspended") {
+            var resume = null;
+            resume = $CreateAnonymousDelegate(this, function (e) {
+                ctx.resume();
+                window.setTimeout($CreateAnonymousDelegate(this, function () {
+                    if (ctx.state == "running") {
+                        document.body.removeEventListener("touchend", resume, false);
+                    }
+                }), 0);
+            });
+            document.body.addEventListener("touchend", resume, false);
+        }
         // create an empty buffer source (silence)
         this._buffer = this._context.createBuffer(2, 4096, this._context.sampleRate);
         // create a script processor node which will replace the silence with the generated audio
         this._audioNode = this._context.createScriptProcessor(4096, 0, 2);
         this._audioNode.onaudioprocess = $CreateDelegate(this, this.GenerateSound);
-        this.OnReadyChanged(true);
+        this.Ready();
     },
     Play: function () {
         this.RequestBuffers();
@@ -497,25 +380,14 @@ AlphaSynth.Main.AlphaSynthWebAudioOutput.prototype = {
         this._source = null;
         this._audioNode.disconnect(0);
     },
-    Stop: function () {
-        this._finished = true;
-        if (this._source != null) {
-            this._source.stop(0);
-        }
-        this._currentTime = 0;
-        this._source = null;
-        this._circularBuffer.Clear();
-        this._audioNode.disconnect(0);
-    },
-    Seek: function (position) {
-        this._currentTime = position;
-        this._circularBuffer.Clear();
-    },
     SequencerFinished: function () {
         this._finished = true;
     },
     AddSamples: function (f) {
         this._circularBuffer.Write(f, 0, f.length);
+    },
+    ResetSamples: function () {
+        this._circularBuffer.Clear();
     },
     RequestBuffers: function () {
         // if we fall under the half of buffers
@@ -534,9 +406,7 @@ AlphaSynth.Main.AlphaSynthWebAudioOutput.prototype = {
         var samples = left.length + right.length;
         if (this._circularBuffer.get_Count() < samples) {
             if (this._finished) {
-                if (this.Finished != null)
-                    this.Finished();
-                this.Stop();
+                this.Finished();
             }
         }
         else {
@@ -547,17 +417,23 @@ AlphaSynth.Main.AlphaSynthWebAudioOutput.prototype = {
                 left[i] = buffer[s++];
                 right[i] = buffer[s++];
             }
-            this._currentTime += (left.length / this.get_SampleRate()) * 1000 * this._playbackSpeed;
-        }
-        if (this.PositionChanged != null) {
-            this.PositionChanged(this._currentTime | 0);
+            this.SamplesPlayed(left.length);
         }
         if (!this._finished) {
             this.RequestBuffers();
         }
     },
-    SetPlaybackSpeed: function (playbackSpeed) {
-        this._playbackSpeed = playbackSpeed;
+    add_Ready: function (value) {
+        this.Ready = $CombineDelegates(this.Ready, value);
+    },
+    remove_Ready: function (value) {
+        this.Ready = $RemoveDelegate(this.Ready, value);
+    },
+    add_SamplesPlayed: function (value) {
+        this.SamplesPlayed = $CombineDelegates(this.SamplesPlayed, value);
+    },
+    remove_SamplesPlayed: function (value) {
+        this.SamplesPlayed = $RemoveDelegate(this.SamplesPlayed, value);
     },
     add_SampleRequest: function (value) {
         this.SampleRequest = $CombineDelegates(this.SampleRequest, value);
@@ -570,23 +446,6 @@ AlphaSynth.Main.AlphaSynthWebAudioOutput.prototype = {
     },
     remove_Finished: function (value) {
         this.Finished = $RemoveDelegate(this.Finished, value);
-    },
-    add_PositionChanged: function (value) {
-        this.PositionChanged = $CombineDelegates(this.PositionChanged, value);
-    },
-    remove_PositionChanged: function (value) {
-        this.PositionChanged = $RemoveDelegate(this.PositionChanged, value);
-    },
-    add_ReadyChanged: function (value) {
-        this.ReadyChanged = $CombineDelegates(this.ReadyChanged, value);
-    },
-    remove_ReadyChanged: function (value) {
-        this.ReadyChanged = $RemoveDelegate(this.ReadyChanged, value);
-    },
-    OnReadyChanged: function (isReady) {
-        var handler = this.ReadyChanged;
-        if (handler != null)
-            handler(isReady);
     }
 };
 $StaticConstructor(function () {
@@ -598,476 +457,517 @@ AlphaSynth.Main.AlphaSynthWebWorker = function (main) {
     this._main = null;
     this._main = main;
     this._main.addEventListener("message", $CreateDelegate(this, this.HandleMessage), false);
-    this._player = new AlphaSynth.Player.SynthPlayer();
+    this._player = new AlphaSynth.AlphaSynth();
     this._player.add_PositionChanged($CreateDelegate(this, this.OnPositionChanged));
     this._player.add_PlayerStateChanged($CreateDelegate(this, this.OnPlayerStateChanged));
     this._player.add_Finished($CreateDelegate(this, this.OnFinished));
-    this._player.add_SoundFontLoad($CreateDelegate(this, this.OnSoundFontLoad));
     this._player.add_SoundFontLoaded($CreateDelegate(this, this.OnSoundFontLoaded));
     this._player.add_SoundFontLoadFailed($CreateDelegate(this, this.OnSoundFontLoadFailed));
-    this._player.add_MidiLoad($CreateDelegate(this, this.OnMidiLoad));
+    this._player.add_SoundFontLoadFailed($CreateDelegate(this, this.OnSoundFontLoadFailed));
     this._player.add_MidiLoaded($CreateDelegate(this, this.OnMidiLoaded));
     this._player.add_MidiLoadFailed($CreateDelegate(this, this.OnMidiLoadFailed));
-    this._player.add_ReadyForPlay($CreateDelegate(this, this.OnReadyForPlay));
-    this.OnReady();
+    this._player.add_ReadyForPlayback($CreateDelegate(this, this.OnReadyForPlayback));
+    this._main.postMessage({
+        cmd: "alphaSynth.ready"
+    });
 };
 AlphaSynth.Main.AlphaSynthWebWorker.prototype = {
     HandleMessage: function (e) {
         var data = e.data;
         var cmd = data["cmd"];
         switch (cmd) {
-            case "play":
-                this.Play();
+            case "alphaSynth.setLogLevel":
+                AlphaSynth.Util.Logger.LogLevel = data["value"];
                 break;
-            case "pause":
-                this.Pause();
-                break;
-            case "isReadyForPlay":
-                this._main.postMessage({
-                    cmd: "isReadyForPlay",
-                    value: this.IsReadyForPlay()
-                }
-);
-                break;
-            case "getMasterVolume":
-                this._main.postMessage({
-                    cmd: "getMasterVolume",
-                    value: this._player.get_MasterVolume()
-                }
-);
-                break;
-            case "setMasterVolume":
+            case "alphaSynth.setMasterVolume":
                 this._player.set_MasterVolume(data["value"]);
                 break;
-            case "getPlaybackSpeed":
-                this._main.postMessage({
-                    cmd: "getPlaybackSpeed",
-                    value: this._player.Sequencer.PlaybackSpeed
-                }
-);
-                break;
-            case "setPlaybackSpeed":
+            case "alphaSynth.setPlaybackSpeed":
                 this._player.set_PlaybackSpeed(data["value"]);
                 break;
-            case "playPause":
-                this.PlayPause();
+            case "alphaSynth.setTickPosition":
+                this._player.set_TickPosition(data["value"]);
                 break;
-            case "stop":
-                this.Stop();
+            case "alphaSynth.setTimePosition":
+                this._player.set_TimePosition(data["value"]);
                 break;
-            case "setPositionTick":
-                this.SetPositionTick(data["tick"]);
+            case "alphaSynth.setPlaybackRange":
+                this._player.set_PlaybackRange(data["value"]);
                 break;
-            case "setPositionTime":
-                this.SetPositionTime(data["time"]);
+            case "alphaSynth.setIsLooping":
+                this._player.set_IsLooping(data["value"]);
                 break;
-            case "loadSoundFontUrl":
-                this.LoadSoundFontUrl(data["url"]);
+            case "alphaSynth.play":
+                this._player.Play();
                 break;
-            case "loadSoundFontBytes":
-                this.LoadSoundFontBytes(data["data"]);
+            case "alphaSynth.pause":
+                this._player.Pause();
                 break;
-            case "loadMidiUrl":
-                this.LoadMidiUrl(data["url"]);
+            case "alphaSynth.playPause":
+                this._player.PlayPause();
                 break;
-            case "loadMidiBytes":
-                this.LoadMidiBytes(data["data"]);
+            case "alphaSynth.stop":
+                this._player.Stop();
                 break;
-            case "getState":
-                this._main.postMessage({
-                    cmd: "getState",
-                    value: this.GetState()
-                }
-);
+            case "alphaSynth.loadSoundFontBytes":
+                this._player.LoadSoundFont(data["data"]);
                 break;
-            case "isSoundFontLoaded":
-                this._main.postMessage({
-                    cmd: "isSoundFontLoaded",
-                    value: this.IsSoundFontLoaded()
-                }
-);
+            case "alphaSynth.loadMidiBytes":
+                this._player.LoadMidi(data["data"]);
                 break;
-            case "isMidiLoaded":
-                this._main.postMessage({
-                    cmd: "isMidiLoaded",
-                    value: this.IsMidiLoaded()
-                }
-);
+            case "alphaSynth.setChannelMute":
+                this._player.SetChannelMute(data["channel"], data["mute"]);
                 break;
-            case "setLogLevel":
-                this.SetLogLevel(data["level"]);
+            case "alphaSynth.setChannelSolo":
+                this._player.SetChannelSolo(data["channel"], data["solo"]);
+                break;
+            case "alphaSynth.setChannelVolume":
+                this._player.SetChannelVolume(data["channel"], data["volume"]);
+                break;
+            case "alphaSynth.setChannelProgram":
+                this._player.SetChannelProgram(data["channel"], data["program"]);
+                break;
+            case "alphaSynth.resetChannelStates":
+                this._player.ResetChannelStates();
                 break;
         }
-    },
-    IsReadyForPlay: function () {
-        return this._player.get_IsReady();
-    },
-    Play: function () {
-        this._player.Play();
-    },
-    Pause: function () {
-        this._player.Pause();
-    },
-    PlayPause: function () {
-        this._player.PlayPause();
-    },
-    Stop: function () {
-        this._player.Stop();
-    },
-    SetPositionTick: function (tick) {
-        this._player.set_TickPosition(tick);
-    },
-    SetPositionTime: function (millis) {
-        this._player.set_TimePosition(millis);
-    },
-    LoadSoundFontUrl: function (url) {
-        this._player.LoadSoundFontUrl(url);
-    },
-    LoadSoundFontBytes: function (data) {
-        this._player.LoadSoundFontBytes(data);
-    },
-    LoadMidiUrl: function (url) {
-        this._player.LoadMidiUrl(url);
-    },
-    LoadMidiBytes: function (data) {
-        this._player.LoadMidiBytes(data);
-    },
-    GetState: function () {
-        return this._player.State;
-    },
-    IsSoundFontLoaded: function () {
-        return this._player.IsSoundFontLoaded;
-    },
-    IsMidiLoaded: function () {
-        return this._player.IsMidiLoaded;
-    },
-    GetMasterVolume: function () {
-        return this._player.get_MasterVolume();
-    },
-    SetMasterVolume: function (volume) {
-        this._player.set_MasterVolume(volume);
-    },
-    GetPlaybackSpeed: function () {
-        return this._player.get_PlaybackSpeed();
-    },
-    SetPlaybackSpeed: function (playbackSpeed) {
-        this._player.set_PlaybackSpeed(playbackSpeed);
-    },
-    OnReady: function () {
-        this._main.postMessage({
-            cmd: "ready"
-        }
-);
     },
     OnPositionChanged: function (sender, e) {
         this._main.postMessage({
-            cmd: "positionChanged",
+            cmd: "alphaSynth.positionChanged",
             currentTime: e.CurrentTime,
             endTime: e.EndTime,
             currentTick: e.CurrentTick,
             endTick: e.EndTick
-        }
-);
+        });
     },
     OnPlayerStateChanged: function (sender, e) {
         this._main.postMessage({
-            cmd: "playerStateChanged",
+            cmd: "alphaSynth.playerStateChanged",
             state: e.State
-        }
-);
+        });
     },
-    OnFinished: function (sender, e) {
+    OnFinished: function (isLooping) {
         this._main.postMessage({
-            cmd: "finished"
-        }
-);
-    },
-    OnSoundFontLoad: function (sender, e) {
-        this._main.postMessage({
-            cmd: "soundFontLoad",
-            loaded: e.Loaded,
-            total: e.Total
-        }
-);
+            cmd: "alphaSynth.finished",
+            isLooping: isLooping
+        });
     },
     OnSoundFontLoaded: function (sender, e) {
         this._main.postMessage({
-            cmd: "soundFontLoaded"
-        }
-);
+            cmd: "alphaSynth.soundFontLoaded"
+        });
     },
     OnSoundFontLoadFailed: function (sender, e) {
         this._main.postMessage({
-            cmd: "soundFontLoadFailed"
-        }
-);
-    },
-    OnMidiLoad: function (sender, e) {
-        this._main.postMessage({
-            cmd: "midiLoad",
-            loaded: e.Loaded,
-            total: e.Total
-        }
-);
+            cmd: "alphaSynth.soundFontLoadFailed"
+        });
     },
     OnMidiLoaded: function (sender, e) {
         this._main.postMessage({
-            cmd: "midiFileLoaded"
-        }
-);
+            cmd: "alphaSynth.midiLoaded"
+        });
     },
     OnMidiLoadFailed: function (sender, e) {
         this._main.postMessage({
-            cmd: "midiFileLoadFailed"
-        }
-);
+            cmd: "alphaSynth.midiLoaded"
+        });
     },
-    OnReadyForPlay: function (sender, e) {
+    OnReadyForPlayback: function (sender, e) {
         this._main.postMessage({
-            cmd: "readyForPlay",
-            value: this.IsReadyForPlay()
-        }
-);
+            cmd: "alphaSynth.readyForPlayback"
+        });
     },
     SendLog: function (level, s) {
         this._main.postMessage({
-            cmd: "log",
+            cmd: "alphaSynth.log",
             level: level,
             message: s
-        }
-);
-    },
-    SetLogLevel: function (level) {
-        AlphaSynth.Util.Logger.LogLevel = level;
+        });
     }
 };
-AlphaSynth.Main.AlphaSynthWebWorkerApiBase = function (player, alphaSynthScriptFile) {
-    this._alphaSynthScriptFile = null;
+$StaticConstructor(function () {
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdPrefix = "alphaSynth.";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdInitialize = "alphaSynth.initialize";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdSetLogLevel = "alphaSynth.setLogLevel";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdSetMasterVolume = "alphaSynth.setMasterVolume";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdSetPlaybackSpeed = "alphaSynth.setPlaybackSpeed";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdSetTickPosition = "alphaSynth.setTickPosition";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdSetTimePosition = "alphaSynth.setTimePosition";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdSetPlaybackRange = "alphaSynth.setPlaybackRange";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdSetIsLooping = "alphaSynth.setIsLooping";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdPlay = "alphaSynth.play";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdPause = "alphaSynth.pause";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdPlayPause = "alphaSynth.playPause";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdStop = "alphaSynth.stop";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdLoadSoundFontBytes = "alphaSynth.loadSoundFontBytes";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdLoadMidiBytes = "alphaSynth.loadMidiBytes";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdSetChannelMute = "alphaSynth.setChannelMute";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdSetChannelSolo = "alphaSynth.setChannelSolo";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdSetChannelVolume = "alphaSynth.setChannelVolume";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdSetChannelProgram = "alphaSynth.setChannelProgram";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdResetChannelStates = "alphaSynth.resetChannelStates";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdReady = "alphaSynth.ready";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdReadyForPlayback = "alphaSynth.readyForPlayback";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdPositionChanged = "alphaSynth.positionChanged";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdPlayerStateChanged = "alphaSynth.playerStateChanged";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdFinished = "alphaSynth.finished";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdSoundFontLoaded = "alphaSynth.soundFontLoaded";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdSoundFontLoadFailed = "alphaSynth.soundFontLoadFailed";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdMidiLoaded = "alphaSynth.midiLoaded";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdMidiLoadFailed = "alphaSynth.midiLoadFailed";
+    AlphaSynth.Main.AlphaSynthWebWorker.CmdLog = "alphaSynth.log";
+    if (!self.document) {
+        var main = self;
+        main.addEventListener("message", function (e) {
+            var data = e.data;
+            var cmd = data["cmd"];
+            switch (cmd) {
+                case "alphaSynth.initialize":
+                    AlphaSynth.Player.WebWorkerOutput.PreferredSampleRate = data["sampleRate"];
+                    new AlphaSynth.Main.AlphaSynthWebWorker(main);
+                    break;
+            }
+        }, false);
+    }
+});
+AlphaSynth.Main.AlphaSynthWebWorkerApi = function (player, alphaSynthScriptFile) {
     this._synth = null;
-    this._player = null;
-    this._isPlayerReady = false;
-    this._isWorkerReady = false;
+    this._output = null;
     this._events = null;
-    this._player = player;
-    this._player.add_ReadyChanged($CreateDelegate(this, this.PlayerReadyChanged));
-    this._player.add_PositionChanged($CreateDelegate(this, this.PlayerPositionChanged));
-    this._player.add_SampleRequest($CreateDelegate(this, this.PlayerSampleRequest));
-    this._player.add_Finished($CreateDelegate(this, this.PlayerFinished));
+    this._workerIsReadyForPlayback = false;
+    this._workerIsReady = false;
+    this._outputIsReady = false;
+    this._state = AlphaSynth.PlayerState.Paused;
+    this._logLevel = AlphaSynth.Util.LogLevel.None;
+    this._masterVolume = 0;
+    this._playbackSpeed = 0;
+    this._isSoundFontLoaded = false;
+    this._isMidiLoaded = false;
+    this._tickPosition = 0;
+    this._timePosition = 0;
+    this._isLooping = false;
+    this._playbackRange = null;
+    this._output = player;
+    this._output.add_Ready($CreateDelegate(this, this.OnOutputReady));
+    this._output.add_SamplesPlayed($CreateDelegate(this, this.OnOutputSamplesPlayed));
+    this._output.add_SampleRequest($CreateDelegate(this, this.OnOutputSampleRequest));
+    this._output.add_Finished($CreateDelegate(this, this.OnOutputFinished));
     this._events = {};
-    this._alphaSynthScriptFile = alphaSynthScriptFile;
-    // create web worker
-    this._synth = new Worker(this.CreateWorkerUrl());
-};
-AlphaSynth.Main.AlphaSynthWebWorkerApiBase.prototype = {
-    CreateWorkerUrl: function () {
-        var source = "self.onmessage = function(e) {\r\n                if(e.data.cmd == \'playerReady\') {\r\n                    importScripts(e.data.alphaSynthScript);\r\n                    AlphaSynth.Player.WebWorkerOutput.PreferredSampleRate = e.data.sampleRate;\r\n                    new AlphaSynth.Main.AlphaSynthWebWorker(self);\r\n                }\r\n            }";
-        window.URL = window.URL || window.webkitURL;;
-        window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;;
-        var blob;
+    this._output.Open();
+    try {
+        this._synth = new Worker(alphaSynthScriptFile);
+    }
+    catch ($$e1) {
+        // fallback to blob worker 
         try {
-            blob = new Blob([source], {
-                type: "application/javascript"
-            });
+            var script = "importScripts(\'" + alphaSynthScriptFile + "\')";
+            var blob = new Blob([script]);
+            this._synth = new Worker(window.URL.createObjectURL(blob));
         }
-        catch ($$e1) {
-            var builder = new BlobBuilder();
-            builder.append(source);
-            blob = builder.getBlob();
+        catch (e) {
+            AlphaSynth.Util.Logger.Error("Failed to create WebWorker: " + e);
+            // TODO: fallback to synchronous mode
         }
-        return URL.createObjectURL(blob);
+    }
+    this._synth.addEventListener("message", $CreateDelegate(this, this.HandleWorkerMessage), false);
+    this._synth.postMessage({
+        cmd: "alphaSynth.initialize",
+        sampleRate: this._output.get_SampleRate()
+    });
+    this.set_MasterVolume(1);
+    this.set_PlaybackSpeed(1);
+};
+AlphaSynth.Main.AlphaSynthWebWorkerApi.prototype = {
+    get_IsReady: function () {
+        return this._workerIsReady && this._outputIsReady;
     },
-    Startup: function () {
-        // start player
-        this._player.Open();
-        // start worker
-        this._synth.addEventListener("message", $CreateDelegate(this, this.HandleWorkerMessage), false);
+    get_IsReadyForPlayback: function () {
+        return this._workerIsReadyForPlayback;
+    },
+    get_State: function () {
+        return this._state;
+    },
+    get_LogLevel: function () {
+        return AlphaSynth.Util.Logger.LogLevel;
+    },
+    set_LogLevel: function (value) {
+        AlphaSynth.Util.Logger.LogLevel = value;
         this._synth.postMessage({
-            cmd: "playerReady",
-            alphaSynthScript: this._alphaSynthScriptFile,
-            sampleRate: this._player.get_SampleRate()
+            cmd: "alphaSynth.setLogLevel",
+            value: value
         });
     },
-    IsReadyForPlay: function () {
+    get_MasterVolume: function () {
+        return this._masterVolume;
+    },
+    set_MasterVolume: function (value) {
+        value = AlphaSynth.Synthesis.SynthHelper.ClampF(value, 0, 10);
+        this._masterVolume = value;
         this._synth.postMessage({
-            cmd: "isReadyForPlay"
+            cmd: "alphaSynth.setMasterVolume",
+            value: value
+        });
+    },
+    get_PlaybackSpeed: function () {
+        return this._playbackSpeed;
+    },
+    set_PlaybackSpeed: function (value) {
+        value = AlphaSynth.Synthesis.SynthHelper.ClampD(value, 0.125, 8);
+        this._playbackSpeed = value;
+        this._synth.postMessage({
+            cmd: "alphaSynth.setPlaybackSpeed",
+            value: value
+        });
+    },
+    get_TickPosition: function () {
+        return this._tickPosition;
+    },
+    set_TickPosition: function (value) {
+        if (value < 0) {
+            value = 0;
+        }
+        this._tickPosition = value;
+        this._synth.postMessage({
+            cmd: "alphaSynth.setTickPosition",
+            value: value
+        });
+    },
+    get_TimePosition: function () {
+        return this._timePosition;
+    },
+    set_TimePosition: function (value) {
+        if (value < 0) {
+            value = 0;
+        }
+        this._timePosition = value;
+        this._synth.postMessage({
+            cmd: "alphaSynth.setTimePosition",
+            value: value
+        });
+    },
+    get_IsLooping: function () {
+        return this._isLooping;
+    },
+    set_IsLooping: function (value) {
+        this._isLooping = value;
+        this._synth.postMessage({
+            cmd: "alphaSynth.setIsLooping",
+            value: value
+        });
+    },
+    get_PlaybackRange: function () {
+        return this._playbackRange;
+    },
+    set_PlaybackRange: function (value) {
+        if (value != null) {
+            if (value.StartTick < 0) {
+                value.StartTick = 0;
+            }
+            if (value.EndTick < 0) {
+                value.EndTick = 0;
+            }
+        }
+        this._playbackRange = value;
+        this._synth.postMessage({
+            cmd: "alphaSynth.setPlaybackRange",
+            value: value
         });
     },
     Play: function () {
         this._synth.postMessage({
-            cmd: "play"
+            cmd: "alphaSynth.play"
         });
     },
     Pause: function () {
         this._synth.postMessage({
-            cmd: "pause"
+            cmd: "alphaSynth.pause"
         });
     },
     PlayPause: function () {
         this._synth.postMessage({
-            cmd: "playPause"
+            cmd: "alphaSynth.playPause"
         });
     },
     Stop: function () {
         this._synth.postMessage({
-            cmd: "stop"
+            cmd: "alphaSynth.stop"
         });
     },
-    SetPositionTick: function (tick) {
+    LoadSoundFont: function (data) {
+        if (typeof (data) == "string") {
+            var url = data;
+            AlphaSynth.Util.Logger.Info("Start loading Soundfont from url " + url);
+            var request = new XMLHttpRequest();
+            request.open("GET", url, true);
+            request.responseType = "arraybuffer";
+            request.onload = $CreateAnonymousDelegate(this, function (e) {
+                var buffer = new Uint8Array(request.response);
+                this._synth.postMessage({
+                    cmd: "alphaSynth.loadSoundFontBytes",
+                    data: buffer
+                });
+            });
+            request.onerror = $CreateAnonymousDelegate(this, function (e) {
+                AlphaSynth.Util.Logger.Error("Loading failed: " + e.message);
+                this.TriggerEvent("soundFontLoadFailed", null);
+            });
+            request.onprogress = $CreateAnonymousDelegate(this, function (e) {
+                AlphaSynth.Util.Logger.Debug("Soundfont downloading: " + e.loaded + "/" + e.total + " bytes");
+                this.TriggerEvent("soundFontLoad", [{
+                    loaded: e.loaded,
+                    total: e.total
+                }
+                ]);
+            });
+            request.send();
+        }
+        else {
+            this._synth.postMessage({
+                cmd: "alphaSynth.loadSoundFontBytes",
+                data: data
+            });
+        }
+    },
+    LoadMidi: function (data) {
+        if (typeof (data) == "string") {
+            var url = data;
+            AlphaSynth.Util.Logger.Info("Start loading midi from url " + url);
+            var request = new XMLHttpRequest();
+            request.open("GET", url, true);
+            request.responseType = "arraybuffer";
+            request.onload = $CreateAnonymousDelegate(this, function (e) {
+                var buffer = new Uint8Array(request.response);
+                this._synth.postMessage({
+                    cmd: "alphaSynth.loadMidiBytes",
+                    data: buffer
+                });
+            });
+            request.onerror = $CreateAnonymousDelegate(this, function (e) {
+                AlphaSynth.Util.Logger.Error("Loading failed: " + e.message);
+                this.TriggerEvent("midiLoadFailed", null);
+            });
+            request.onprogress = $CreateAnonymousDelegate(this, function (e) {
+                AlphaSynth.Util.Logger.Debug("Midi downloading: " + e.loaded + "/" + e.total + " bytes");
+                this.TriggerEvent("midiLoad", [{
+                    loaded: e.loaded,
+                    total: e.total
+                }
+                ]);
+            });
+            request.send();
+        }
+        else {
+            this._synth.postMessage({
+                cmd: "alphaSynth.loadMidiBytes",
+                data: data
+            });
+        }
+    },
+    SetChannelMute: function (channel, mute) {
         this._synth.postMessage({
-            cmd: "setPositionTick",
-            tick: tick
+            cmd: "alphaSynth.setChannelMute",
+            channel: channel,
+            mute: mute
         });
     },
-    SetPositionTime: function (millis) {
+    ResetChannelStates: function () {
         this._synth.postMessage({
-            cmd: "setPositionTime",
-            time: millis
+            cmd: "alphaSynth.resetChannelStates"
         });
     },
-    LoadSoundFontUrl: function (url) {
+    SetChannelSolo: function (channel, solo) {
         this._synth.postMessage({
-            cmd: "loadSoundFontUrl",
-            url: AlphaSynth.Main.AlphaSynthWebWorkerApiBase.QualifyUrl(url)
+            cmd: "alphaSynth.setChannelSolo",
+            channel: channel,
+            solo: solo
         });
     },
-    LoadSoundFontBytes: function (data) {
+    SetChannelVolume: function (channel, volume) {
+        volume = AlphaSynth.Synthesis.SynthHelper.ClampD(volume, 0, 10);
         this._synth.postMessage({
-            cmd: "loadSoundFontBytes",
-            data: data
+            cmd: "alphaSynth.setChannelVolume",
+            channel: channel,
+            volume: volume
         });
     },
-    LoadMidiUrl: function (url) {
+    SetChannelProgram: function (channel, program) {
+        program = AlphaSynth.Synthesis.SynthHelper.ClampB(program, 0, 127);
         this._synth.postMessage({
-            cmd: "loadMidiUrl",
-            url: AlphaSynth.Main.AlphaSynthWebWorkerApiBase.QualifyUrl(url)
-        });
-    },
-    LoadMidiBytes: function (data) {
-        this._synth.postMessage({
-            cmd: "loadMidiBytes",
-            data: data
-        });
-    },
-    GetState: function () {
-        this._synth.postMessage({
-            cmd: "getState"
-        });
-    },
-    GetMasterVolume: function () {
-        this._synth.postMessage({
-            cmd: "getMasterVolume"
-        });
-    },
-    SetMasterVolume: function (volume) {
-        this._synth.postMessage({
-            cmd: "setMasterVolume",
-            value: volume
-        });
-    },
-    GetPlaybackSpeed: function () {
-        this._synth.postMessage({
-            cmd: "getPlaybackSpeed"
-        });
-    },
-    SetPlaybackSpeed: function (playbackSpeed) {
-        this._synth.postMessage({
-            cmd: "setPlaybackSpeed",
-            value: playbackSpeed
-        });
-    },
-    IsSoundFontLoaded: function () {
-        this._synth.postMessage({
-            cmd: "isSoundFontLoaded"
-        });
-    },
-    IsMidiLoaded: function () {
-        this._synth.postMessage({
-            cmd: "isMidiLoaded"
-        });
-    },
-    SetLogLevel: function (level) {
-        this._synth.postMessage({
-            cmd: "setLogLevel",
-            level: level
+            cmd: "alphaSynth.setChannelProgram",
+            channel: channel,
+            program: program
         });
     },
     HandleWorkerMessage: function (e) {
         var data = e.data;
         var cmd = data["cmd"];
         switch (cmd) {
-            case "isReadyForPlay":
-            case "getState":
-            case "getMasterVolume":
-            case "isSoundFontLoaded":
-            case "isMidiLoaded":
-                this.TriggerEvent(cmd, [data["value"]]);
+            case "alphaSynth.ready":
+                this._workerIsReady = true;
+                this.CheckReady();
                 break;
-            case "ready":
-                this._isWorkerReady = true;
-                this.CheckForReadyState();
+            case "alphaSynth.readyForPlayback":
+                this._workerIsReadyForPlayback = true;
+                this.CheckReadyForPlayback();
                 break;
-            case "positionChanged":
-                this.TriggerEvent(cmd, [data["currentTime"], data["endTime"], data["currentTick"], data["endTick"]]);
+            case "alphaSynth.positionChanged":
+                this._timePosition = data["currentTime"];
+                this._tickPosition = data["currentTick"];
+                this.TriggerEvent("positionChanged", [data]);
                 break;
-            case "playerStateChanged":
-                this.TriggerEvent(cmd, [data["state"]]);
+            case "alphaSynth.playerStateChanged":
+                this._state = data["state"];
+                this.TriggerEvent("playerStateChanged", [data]);
                 break;
-            case "finished":
-                this.TriggerEvent(cmd, null);
+            case "alphaSynth.finished":
+                this.TriggerEvent("finished", null);
                 break;
-            case "soundFontLoad":
-                this.TriggerEvent(cmd, [data["loaded"], data["total"]]);
+            case "alphaSynth.soundFontLoaded":
+                this.TriggerEvent("soundFontLoaded", null);
                 break;
-            case "soundFontLoaded":
-                this.TriggerEvent(cmd, null);
+            case "alphaSynth.soundFontLoadFailed":
+                this.TriggerEvent("soundFontLoadFailed", null);
                 break;
-            case "soundFontLoadFailed":
-                this.TriggerEvent(cmd, null);
+            case "alphaSynth.midiLoaded":
+                this._isMidiLoaded = true;
+                this.CheckReadyForPlayback();
+                this.TriggerEvent("midiFileLoaded", null);
                 break;
-            case "midiLoad":
-                this.TriggerEvent(cmd, [data["loaded"], data["total"]]);
+            case "alphaSynth.midiLoadFailed":
+                this._isSoundFontLoaded = true;
+                this.CheckReadyForPlayback();
+                this.TriggerEvent("midiFileLoadFailed", null);
                 break;
-            case "midiFileLoaded":
-                this.TriggerEvent(cmd, null);
+            case "alphaSynth.log":
+                AlphaSynth.Util.Logger.Log(data["level"], data["message"]);
                 break;
-            case "midiFileLoadFailed":
-                this.TriggerEvent(cmd, null);
+            case "alphaSynth.output.sequencerFinished":
+                this._output.SequencerFinished();
                 break;
-            case "readyForPlay":
-                this.TriggerEvent(cmd, [data["value"]]);
+            case "alphaSynth.output.addSamples":
+                this._output.AddSamples(data["samples"]);
                 break;
-            case "log":
-                this.Log(data["level"], data["message"]);
+            case "alphaSynth.output.play":
+                this._output.Play();
                 break;
-            case "playerSequencerFinished":
-                this._player.SequencerFinished();
+            case "alphaSynth.output.pause":
+                this._output.Pause();
                 break;
-            case "playerAddSamples":
-                this._player.AddSamples(data["samples"]);
-                break;
-            case "playerPlay":
-                this._player.Play();
-                break;
-            case "playerPause":
-                this._player.Pause();
-                break;
-            case "playerStop":
-                this._player.Stop();
-                break;
-            case "playerSeek":
-                this._player.Seek(data["pos"]);
-                break;
-            case "setPlaybackSpeed":
-                this._player.SetPlaybackSpeed(data["value"]);
+            case "alphaSynth.output.resetSamples":
+                this._output.ResetSamples();
                 break;
         }
     },
-    CheckForReadyState: function () {
-        this.TriggerEvent("ready", [(this._isWorkerReady && this._isPlayerReady)]);
+    CheckReady: function () {
+        if (this.get_IsReady()) {
+            this.TriggerEvent("ready", null);
+        }
     },
-    PlayerReadyChanged: function (isReady) {
-        this._isPlayerReady = isReady;
-        this.CheckForReadyState();
+    CheckReadyForPlayback: function () {
+        if (this.get_IsReadyForPlayback()) {
+            this.TriggerEvent("readyForPlayback", null);
+        }
     },
     On: function (events, action) {
         if (!this._events.hasOwnProperty(events)) {
@@ -1083,59 +983,27 @@ AlphaSynth.Main.AlphaSynthWebWorkerApiBase.prototype = {
             }
         }
     },
-    PlayerSampleRequest: function () {
+    OnOutputSampleRequest: function () {
         this._synth.postMessage({
-            cmd: "playerSampleRequest"
+            cmd: "alphaSynth.output.sampleRequest"
         });
     },
-    PlayerFinished: function () {
+    OnOutputFinished: function () {
         this._synth.postMessage({
-            cmd: "playerFinished"
+            cmd: "alphaSynth.output.finished"
         });
     },
-    PlayerPositionChanged: function (pos) {
+    OnOutputSamplesPlayed: function (samples) {
         this._synth.postMessage({
-            cmd: "playerPositionChanged",
-            pos: pos
+            cmd: "alphaSynth.output.samplesPlayed",
+            samples: samples
         });
     },
-    Log: function (level, message) {
-        switch (level) {
-            case AlphaSynth.Util.LogLevel.None:
-                console.log(message);
-                break;
-            case AlphaSynth.Util.LogLevel.Debug:
-                console.debug(message);
-                break;
-            case AlphaSynth.Util.LogLevel.Info:
-                console.info(message);
-                break;
-            case AlphaSynth.Util.LogLevel.Warning:
-                console.warn(message);
-                break;
-            case AlphaSynth.Util.LogLevel.Error:
-                console.error(message);
-                break;
-        }
+    OnOutputReady: function () {
+        this._outputIsReady = true;
+        this.CheckReady();
     }
 };
-AlphaSynth.Main.AlphaSynthWebWorkerApiBase.QualifyUrl = function (url) {
-    var img = document.createElement("img");
-    img.onerror = function (e) {
-    };
-    img.src = url;
-    url = img.src;
-    img.src = null;
-    return url;
-};
-AlphaSynth.Main.AlphaSynthFlashPlayerApi = function (alphaSynthScriptFile) {
-    AlphaSynth.Main.AlphaSynthWebWorkerApiBase.call(this, new AlphaSynth.Main.AlphaSynthFlashOutput(alphaSynthScriptFile), alphaSynthScriptFile);
-};
-$Inherit(AlphaSynth.Main.AlphaSynthFlashPlayerApi, AlphaSynth.Main.AlphaSynthWebWorkerApiBase);
-AlphaSynth.Main.AlphaSynthWebWorkerApi = function (alphaSynthScriptFile) {
-    AlphaSynth.Main.AlphaSynthWebWorkerApiBase.call(this, new AlphaSynth.Main.AlphaSynthWebAudioOutput(), alphaSynthScriptFile);
-};
-$Inherit(AlphaSynth.Main.AlphaSynthWebWorkerApi, AlphaSynth.Main.AlphaSynthWebWorkerApiBase);
 AlphaSynth.Platform = AlphaSynth.Platform || {};
 AlphaSynth.Platform.Platform = function () {
 };
@@ -1150,18 +1018,49 @@ AlphaSynth.Platform.Platform.PlatformInit = function () {
     // try to build the find the alphaTab script url in case we are not in the webworker already
     if (self.document) {
         var scriptElement = document["currentScript"];
-        // fallback to script tag that has an alphatab data attribute set.
         if (!scriptElement) {
-            scriptElement = document.querySelector("script[data-alphasynth]");
+            // try to get javascript from exception stack
+            try {
+                var error = new Error();
+                var stack = error["stack"];
+                if (!stack) {
+                    throw $CreateException(error, new Error());
+                }
+                AlphaSynth.Platform.Platform.ScriptFile = AlphaSynth.Platform.Platform.ScriptFileFromStack(stack);
+            }
+            catch (e) {
+                var stack = e["stack"];
+                if (!stack) {
+                    scriptElement = document.querySelector("script[data-alphasynth]");
+                }
+                else {
+                    AlphaSynth.Platform.Platform.ScriptFile = AlphaSynth.Platform.Platform.ScriptFileFromStack(stack);
+                }
+            }
         }
         // failed to automatically resolve
-        if (!scriptElement) {
-            console.warn("Could not automatically find alphaSynth script file for worker, please add the data-alphasynth attribute to the script tag that includes alphasynth or provide it when initializing");
-        }
-        else {
-            AlphaSynth.Platform.Platform.ScriptFile = scriptElement.src;
+        if (((AlphaSynth.Platform.Platform.ScriptFile == null) || (AlphaSynth.Platform.Platform.ScriptFile.length == 0))) {
+            if (!scriptElement) {
+                console.warn("Could not automatically find alphaSynth script file for worker, please add the data-alphasynth attribute to the script tag that includes alphaSynth or provide it when initializing alphaSynth");
+            }
+            else {
+                AlphaSynth.Platform.Platform.ScriptFile = scriptElement.src;
+            }
         }
     }
+};
+AlphaSynth.Platform.Platform.ScriptFileFromStack = function (stack) {
+    var matches = stack.match("(data:text\\/javascript(?:;[^,]+)?,.+?|(?:|blob:)(?:http[s]?|file):\\/\\/[\\/]?.+?\\/[^:\\)]*?)(?::\\d+)(?::\\d+)?");
+    if (!matches) {
+        matches = stack.match("^(?:|[^:@]*@|.+\\)@(?=data:text\\/javascript|blob|http[s]?|file)|.+?\\s+(?: at |@)(?:[^:\\(]+ )*[\\(]?)(data:text\\/javascript(?:;[^,]+)?,.+?|(?:|blob:)(?:http[s]?|file):\\/\\/[\\/]?.+?\\/[^:\\)]*?)(?::\\d+)(?::\\d+)?");
+        if (!matches) {
+            matches = stack.match("\\)@(data:text\\/javascript(?:;[^,]+)?,.+?|(?:|blob:)(?:http[s]?|file):\\/\\/[\\/]?.+?\\/[^:\\)]*?)(?::\\d+)(?::\\d+)?");
+            if (!matches) {
+                return null;
+            }
+        }
+    }
+    return matches[1];
 };
 AlphaSynth.Platform.Std = function () {
 };
@@ -1230,15 +1129,11 @@ AlphaSynth.Platform.TypeUtils.ClearShortArray = function (array) {
 };
 AlphaSynth.Player = AlphaSynth.Player || {};
 AlphaSynth.Player.WebWorkerOutput = function () {
-    this._positionChangedListeners = null;
-    this._finishedListeners = null;
-    this._sampleRequestListeners = null;
-    this._workerSelf = null;
-    this._sampleRate = 0;
-    this.PositionChanged = null;
-    this.Finished = null;
+    this._worker = null;
+    this.Ready = null;
+    this.SamplesPlayed = null;
     this.SampleRequest = null;
-    this.ReadyChanged = null;
+    this.Finished = null;
 };
 AlphaSynth.Player.WebWorkerOutput.prototype = {
     get_SampleRate: function () {
@@ -1246,48 +1141,36 @@ AlphaSynth.Player.WebWorkerOutput.prototype = {
     },
     Open: function () {
         AlphaSynth.Util.Logger.Debug("Initializing webworker worker");
-        this._workerSelf = self;
-        this._workerSelf.addEventListener("message", $CreateDelegate(this, this.HandleMessage), false);
-        this.OnReadyChanged(true);
+        this._worker = self;
+        this._worker.addEventListener("message", $CreateDelegate(this, this.HandleMessage), false);
+        this.Ready();
     },
     HandleMessage: function (e) {
         var data = e.data;
         var cmd = data["cmd"];
         switch (cmd) {
-            case "playerSampleRequest":
-                this.OnSampleRequest();
+            case "alphaSynth.output.sampleRequest":
+                this.SampleRequest();
                 break;
-            case "playerFinished":
-                this.OnFinished();
+            case "alphaSynth.output.finished":
+                this.Finished();
                 break;
-            case "playerPositionChanged":
-                this.OnPositionChanged(data["pos"]);
+            case "alphaSynth.output.samplesPlayed":
+                this.SamplesPlayed(data["samples"]);
                 break;
         }
     },
-    PostMessage: function (o) {
+    add_Ready: function (value) {
+        this.Ready = $CombineDelegates(this.Ready, value);
     },
-    add_PositionChanged: function (value) {
-        this.PositionChanged = $CombineDelegates(this.PositionChanged, value);
+    remove_Ready: function (value) {
+        this.Ready = $RemoveDelegate(this.Ready, value);
     },
-    remove_PositionChanged: function (value) {
-        this.PositionChanged = $RemoveDelegate(this.PositionChanged, value);
+    add_SamplesPlayed: function (value) {
+        this.SamplesPlayed = $CombineDelegates(this.SamplesPlayed, value);
     },
-    OnPositionChanged: function (obj) {
-        var handler = this.PositionChanged;
-        if (handler != null)
-            handler(obj);
-    },
-    add_Finished: function (value) {
-        this.Finished = $CombineDelegates(this.Finished, value);
-    },
-    remove_Finished: function (value) {
-        this.Finished = $RemoveDelegate(this.Finished, value);
-    },
-    OnFinished: function () {
-        var handler = this.Finished;
-        if (handler != null)
-            handler();
+    remove_SamplesPlayed: function (value) {
+        this.SamplesPlayed = $RemoveDelegate(this.SamplesPlayed, value);
     },
     add_SampleRequest: function (value) {
         this.SampleRequest = $CombineDelegates(this.SampleRequest, value);
@@ -1295,69 +1178,49 @@ AlphaSynth.Player.WebWorkerOutput.prototype = {
     remove_SampleRequest: function (value) {
         this.SampleRequest = $RemoveDelegate(this.SampleRequest, value);
     },
-    OnSampleRequest: function () {
-        var handler = this.SampleRequest;
-        if (handler != null)
-            handler();
+    add_Finished: function (value) {
+        this.Finished = $CombineDelegates(this.Finished, value);
     },
-    add_ReadyChanged: function (value) {
-        this.ReadyChanged = $CombineDelegates(this.ReadyChanged, value);
-    },
-    remove_ReadyChanged: function (value) {
-        this.ReadyChanged = $RemoveDelegate(this.ReadyChanged, value);
-    },
-    OnReadyChanged: function (isReady) {
-        var handler = this.ReadyChanged;
-        if (handler != null)
-            handler(isReady);
+    remove_Finished: function (value) {
+        this.Finished = $RemoveDelegate(this.Finished, value);
     },
     SequencerFinished: function () {
-        this._workerSelf.postMessage({
-            cmd: "playerSequencerFinished"
-        }
-);
+        this._worker.postMessage({
+            cmd: "alphaSynth.output.sequencerFinished"
+        });
     },
     AddSamples: function (samples) {
-        this._workerSelf.postMessage({
-            cmd: "playerAddSamples",
+        this._worker.postMessage({
+            cmd: "alphaSynth.output.addSamples",
             samples: samples
-        }
-);
+        });
     },
     Play: function () {
-        this._workerSelf.postMessage({
-            cmd: "playerPlay"
-        }
-);
+        this._worker.postMessage({
+            cmd: "alphaSynth.output.play"
+        });
     },
     Pause: function () {
-        this._workerSelf.postMessage({
-            cmd: "playerPause"
-        }
-);
+        this._worker.postMessage({
+            cmd: "alphaSynth.output.pause"
+        });
     },
-    Stop: function () {
-        this._workerSelf.postMessage({
-            cmd: "playerStop"
-        }
-);
-    },
-    Seek: function (position) {
-        this._workerSelf.postMessage({
-            cmd: "playerSeek",
-            pos: position
-        }
-);
-    },
-    SetPlaybackSpeed: function (playbackSpeed) {
-        this._workerSelf.postMessage({
-            cmd: "setPlaybackSpeed",
-            value: playbackSpeed
-        }
-);
+    ResetSamples: function () {
+        this._worker.postMessage({
+            cmd: "alphaSynth.output.resetSamples"
+        });
     }
 };
 $StaticConstructor(function () {
+    AlphaSynth.Player.WebWorkerOutput.CmdOutputPrefix = "alphaSynth.output.";
+    AlphaSynth.Player.WebWorkerOutput.CmdOutputSequencerFinished = "alphaSynth.output.sequencerFinished";
+    AlphaSynth.Player.WebWorkerOutput.CmdOutputAddSamples = "alphaSynth.output.addSamples";
+    AlphaSynth.Player.WebWorkerOutput.CmdOutputPlay = "alphaSynth.output.play";
+    AlphaSynth.Player.WebWorkerOutput.CmdOutputPause = "alphaSynth.output.pause";
+    AlphaSynth.Player.WebWorkerOutput.CmdOutputResetSamples = "alphaSynth.output.resetSamples";
+    AlphaSynth.Player.WebWorkerOutput.CmdOutputSampleRequest = "alphaSynth.output.sampleRequest";
+    AlphaSynth.Player.WebWorkerOutput.CmdOutputFinished = "alphaSynth.output.finished";
+    AlphaSynth.Player.WebWorkerOutput.CmdOutputSamplesPlayed = "alphaSynth.output.samplesPlayed";
     AlphaSynth.Player.WebWorkerOutput.PreferredSampleRate = 0;
 });
 AlphaSynth.Util = AlphaSynth.Util || {};
@@ -1369,8 +1232,24 @@ $StaticConstructor(function () {
     AlphaSynth.Util.Logger.LogLevel = AlphaSynth.Util.LogLevel.None;
     AlphaSynth.Util.Logger.LogHandler = null;
     AlphaSynth.Util.Logger.LogLevel = AlphaSynth.Util.LogLevel.Info;
-    AlphaSynth.Util.Logger.LogHandler = function (s) {
-        console.log(s);
+    AlphaSynth.Util.Logger.LogHandler = function (level, message) {
+        switch (level) {
+            case AlphaSynth.Util.LogLevel.None:
+                console.log(message);
+                break;
+            case AlphaSynth.Util.LogLevel.Debug:
+                console.debug(message);
+                break;
+            case AlphaSynth.Util.LogLevel.Info:
+                console.info(message);
+                break;
+            case AlphaSynth.Util.LogLevel.Warning:
+                console.warn(message);
+                break;
+            case AlphaSynth.Util.LogLevel.Error:
+                console.error(message);
+                break;
+        }
     };
 });
 AlphaSynth.Util.Logger.Debug = function (msg) {
@@ -1388,8 +1267,10 @@ AlphaSynth.Util.Logger.Error = function (msg) {
 AlphaSynth.Util.Logger.Log = function (logLevel, msg) {
     if (logLevel < AlphaSynth.Util.Logger.LogLevel)
         return;
-    var caller = arguments.callee.caller.caller.name;
-    AlphaSynth.Util.Logger.LogHandler(caller + "-" + msg);
+    var caller = (arguments && arguments.callee && arguments.callee.caller && arguments.callee.caller.caller ? arguments.callee.caller.caller.name : '');
+    if (AlphaSynth.Util.Logger.LogHandler != null) {
+        AlphaSynth.Util.Logger.LogHandler(logLevel, caller + "-" + msg);
+    }
 };
 AlphaSynth.Util.Logger.GetCaller = function () {
     return "";
@@ -1401,39 +1282,342 @@ AlphaSynth.Util.LogLevel = {
     Warning: 3,
     Error: 4
 };
-AlphaSynth.Util.UrlLoader = function () {
-    this.Progress = null;
-    this.Complete = null;
-    this.Url = null;
-    this.Method = null;
+AlphaSynth.AlphaSynth = function () {
+    this._sequencer = null;
+    this._synthesizer = null;
+    this._outputIsReady = false;
+    this._state = AlphaSynth.PlayerState.Paused;
+    this._logLevel = AlphaSynth.Util.LogLevel.None;
+    this._isSoundFontLoaded = false;
+    this._isMidiLoaded = false;
+    this._tickPosition = 0;
+    this._timePosition = 0;
+    this.Finished = null;
+    this.PlayerStateChanged = null;
+    this.SoundFontLoaded = null;
+    this.ReadyForPlayback = null;
+    this.SoundFontLoadFailed = null;
+    this.MidiLoaded = null;
+    this.MidiLoadFailed = null;
+    this.PositionChanged = null;
+    this.Output = null;
+    AlphaSynth.Util.Logger.Debug("Initializing player");
+    this._state = AlphaSynth.PlayerState.Paused;
+    AlphaSynth.Util.Logger.Debug("Creating output");
+    this.Output = AlphaSynth.Platform.Platform.CreateOutput();
+    this.Output.add_Ready($CreateAnonymousDelegate(this, function () {
+        this._outputIsReady = true;
+        this.CheckReadyForPlayback();
+    }));
+    this.Output.add_Finished($CreateAnonymousDelegate(this, function () {
+        // stop everything
+        this.Stop();
+        AlphaSynth.Util.Logger.Debug("Finished playback");
+        this.OnFinished(this._sequencer.IsLooping);
+        if (this._sequencer.IsLooping) {
+            this.Play();
+        }
+    }));
+    this.Output.add_SampleRequest($CreateAnonymousDelegate(this, function () {
+        // synthesize buffer
+        this._sequencer.FillMidiEventQueue();
+        this._synthesizer.Synthesize();
+        // send it to output
+        this.Output.AddSamples(this._synthesizer.SampleBuffer);
+        // tell sequencer to check whether its work is done
+        this._sequencer.CheckForStop();
+    }));
+    this.Output.add_SamplesPlayed($CreateDelegate(this, this.OnSamplesPlayed));
+    AlphaSynth.Util.Logger.Debug("Creating synthesizer");
+    this._synthesizer = new AlphaSynth.Synthesis.Synthesizer(this.Output.get_SampleRate(), 2, 441, 3, 100);
+    this._sequencer = new AlphaSynth.MidiFileSequencer(this._synthesizer);
+    this._sequencer.add_Finished($CreateDelegate(this.Output, this.Output.SequencerFinished));
+    AlphaSynth.Util.Logger.Debug("Opening output");
+    this.Output.Open();
 };
-AlphaSynth.Util.UrlLoader.prototype = {
-    Load: function () {
-        var request = new XMLHttpRequest();
-        request.open(this.Method, this.Url, true);
-        request.responseType = "arraybuffer";
-        request.onload = $CreateAnonymousDelegate(this, function (e) {
-            var buffer = new Uint8Array(request.response);
-            if (buffer != null) {
-                this.FireComplete(buffer);
-            }
-        });
-        request.onerror = $CreateAnonymousDelegate(this, function (e) {
-            AlphaSynth.Util.Logger.Error("Loading failed: " + e.message);
-        });
-        request.onprogress = $CreateAnonymousDelegate(this, function (e) {
-            this.FireProgress(e.loaded, e.total);
-        });
-        request.send();
+AlphaSynth.AlphaSynth.prototype = {
+    get_IsReady: function () {
+        return this._outputIsReady;
     },
-    FireProgress: function (loaded, full) {
-        if (this.Progress != null)
-            this.Progress(loaded, full);
+    get_IsReadyForPlayback: function () {
+        return this.get_IsReady() && this._isSoundFontLoaded && this._isMidiLoaded;
     },
-    FireComplete: function (data) {
-        if (this.Complete != null)
-            this.Complete(data);
+    get_State: function () {
+        return this._state;
+    },
+    get_LogLevel: function () {
+        return AlphaSynth.Util.Logger.LogLevel;
+    },
+    set_LogLevel: function (value) {
+        AlphaSynth.Util.Logger.LogLevel = value;
+    },
+    get_MasterVolume: function () {
+        return this._synthesizer.get_MasterVolume();
+    },
+    set_MasterVolume: function (value) {
+        value = AlphaSynth.Synthesis.SynthHelper.ClampF(value, 0, 10);
+        this._synthesizer.set_MasterVolume(value);
+    },
+    get_PlaybackSpeed: function () {
+        return this._sequencer.PlaybackSpeed;
+    },
+    set_PlaybackSpeed: function (value) {
+        value = AlphaSynth.Synthesis.SynthHelper.ClampD(value, 0.125, 8);
+        var oldSpeed = this._sequencer.PlaybackSpeed;
+        this._sequencer.PlaybackSpeed = value;
+        this.UpdateTimePosition(this._timePosition * (oldSpeed / value));
+    },
+    get_TickPosition: function () {
+        return this._tickPosition;
+    },
+    set_TickPosition: function (value) {
+        this.set_TimePosition(this._sequencer.TickPositionToTimePosition(value));
+    },
+    get_TimePosition: function () {
+        return this._timePosition;
+    },
+    set_TimePosition: function (value) {
+        AlphaSynth.Util.Logger.Debug("Seeking to position " + value + "ms");
+        // tell the sequencer to jump to the given position
+        this._sequencer.Seek(value);
+        // update the internal position 
+        this.UpdateTimePosition(value);
+        // tell the output to reset the already synthesized buffers and request data again 
+        this.Output.ResetSamples();
+    },
+    get_PlaybackRange: function () {
+        return this._sequencer.get_PlaybackRange();
+    },
+    set_PlaybackRange: function (value) {
+        this._sequencer.set_PlaybackRange(value);
+        if (value != null) {
+            this.set_TickPosition(value.StartTick);
+        }
+    },
+    get_IsLooping: function () {
+        return this._sequencer.IsLooping;
+    },
+    set_IsLooping: function (value) {
+        this._sequencer.IsLooping = value;
+    },
+    Play: function () {
+        if (this.get_State() == AlphaSynth.PlayerState.Playing || !this.get_IsReadyForPlayback())
+            return;
+        AlphaSynth.Util.Logger.Debug("Starting playback");
+        this._state = AlphaSynth.PlayerState.Playing;
+        this.OnPlayerStateChanged(new AlphaSynth.PlayerStateChangedEventArgs(this._state));
+        this.Output.Play();
+    },
+    Pause: function () {
+        if (this.get_State() == AlphaSynth.PlayerState.Paused || !this.get_IsReadyForPlayback())
+            return;
+        AlphaSynth.Util.Logger.Debug("Pausing playback");
+        this._state = AlphaSynth.PlayerState.Paused;
+        this.OnPlayerStateChanged(new AlphaSynth.PlayerStateChangedEventArgs(this._state));
+        this.Output.Pause();
+        this._synthesizer.NoteOffAll(false);
+    },
+    PlayPause: function () {
+        if (this.get_State() == AlphaSynth.PlayerState.Playing || !this.get_IsReadyForPlayback()) {
+            this.Pause();
+        }
+        else {
+            this.Play();
+        }
+    },
+    Stop: function () {
+        if (!this.get_IsReadyForPlayback())
+            return;
+        AlphaSynth.Util.Logger.Debug("Stopping playback");
+        this.Pause();
+        this.set_TickPosition(this._sequencer.get_PlaybackRange() != null ? this._sequencer.get_PlaybackRange().StartTick : 0);
+    },
+    LoadSoundFont: function (data) {
+        this.Pause();
+        var input = AlphaSynth.IO.ByteBuffer.FromBuffer(data);
+        try {
+            AlphaSynth.Util.Logger.Info("Loading soundfont from bytes");
+            var bank = new AlphaSynth.Bank.PatchBank();
+            bank.LoadSf2(input);
+            this._synthesizer.LoadBank(bank);
+            this._isSoundFontLoaded = true;
+            this.OnSoundFontLoaded();
+            AlphaSynth.Util.Logger.Info("soundFont successfully loaded");
+            this.CheckReadyForPlayback();
+        }
+        catch (e) {
+            AlphaSynth.Util.Logger.Error("Could not load soundfont from bytes " + e);
+            this.OnSoundFontLoadFailed();
+        }
+    },
+    CheckReadyForPlayback: function () {
+        if (this.get_IsReadyForPlayback()) {
+            this.OnReadyForPlayback();
+        }
+    },
+    LoadMidi: function (data) {
+        this.Stop();
+        var input = AlphaSynth.IO.ByteBuffer.FromBuffer(data);
+        try {
+            AlphaSynth.Util.Logger.Info("Loading midi from bytes");
+            var midi = new AlphaSynth.Midi.MidiFile();
+            midi.Load(input);
+            this._sequencer.LoadMidi(midi);
+            this._isMidiLoaded = true;
+            this.OnMidiLoaded();
+            AlphaSynth.Util.Logger.Info("Midi successfully loaded");
+            this.CheckReadyForPlayback();
+            this.set_TickPosition(0);
+        }
+        catch (e) {
+            AlphaSynth.Util.Logger.Error("Could not load midi from bytes " + e);
+            this.OnMidiLoadFailed();
+        }
+    },
+    SetChannelMute: function (channel, mute) {
+        this._synthesizer.SetChannelMute(channel, mute);
+    },
+    ResetChannelStates: function () {
+        this._synthesizer.ResetChannelStates();
+    },
+    SetChannelSolo: function (channel, solo) {
+        this._synthesizer.SetChannelSolo(channel, solo);
+    },
+    SetChannelVolume: function (channel, volume) {
+        volume = AlphaSynth.Synthesis.SynthHelper.ClampD(volume, 0, 10);
+        this._synthesizer.SetChannelVolume(channel, volume);
+    },
+    SetChannelProgram: function (channel, program) {
+        program = AlphaSynth.Synthesis.SynthHelper.ClampB(program, 0, 127);
+        this._sequencer.SetChannelProgram(channel, program);
+        this._synthesizer.SetChannelProgram(channel, program);
+    },
+    OnSamplesPlayed: function (sampleCount) {
+        var playedMillis = (sampleCount / this._synthesizer.SampleRate) * 1000;
+        this.UpdateTimePosition(this._timePosition + playedMillis);
+    },
+    UpdateTimePosition: function (timePosition) {
+        // update the real positions
+        var currentTime = this._timePosition = timePosition;
+        var currentTick = this._tickPosition = this._sequencer.TimePositionToTickPosition(currentTime);
+        var endTime = this._sequencer.get_EndTime();
+        var endTick = this._sequencer.EndTick;
+        AlphaSynth.Util.Logger.Debug("Position changed: (time: " + currentTime + "/" + endTime + ", tick: " + currentTick + "/" + endTime + ")");
+        this.OnPositionChanged(new AlphaSynth.PositionChangedEventArgs(currentTime, endTime, currentTick, endTick));
+    },
+    add_Finished: function (value) {
+        this.Finished = $CombineDelegates(this.Finished, value);
+    },
+    remove_Finished: function (value) {
+        this.Finished = $RemoveDelegate(this.Finished, value);
+    },
+    OnFinished: function (isLooping) {
+        var handler = this.Finished;
+        if (handler != null)
+            handler(isLooping);
+    },
+    add_PlayerStateChanged: function (value) {
+        this.PlayerStateChanged = $CombineDelegates(this.PlayerStateChanged, value);
+    },
+    remove_PlayerStateChanged: function (value) {
+        this.PlayerStateChanged = $RemoveDelegate(this.PlayerStateChanged, value);
+    },
+    OnPlayerStateChanged: function (e) {
+        var handler = this.PlayerStateChanged;
+        if (handler != null)
+            handler(this, e);
+    },
+    add_SoundFontLoaded: function (value) {
+        this.SoundFontLoaded = $CombineDelegates(this.SoundFontLoaded, value);
+    },
+    remove_SoundFontLoaded: function (value) {
+        this.SoundFontLoaded = $RemoveDelegate(this.SoundFontLoaded, value);
+    },
+    OnSoundFontLoaded: function () {
+        var handler = this.SoundFontLoaded;
+        if (handler != null)
+            handler(this, AlphaSynth.EmptyEventArgs.Instance);
+    },
+    add_ReadyForPlayback: function (value) {
+        this.ReadyForPlayback = $CombineDelegates(this.ReadyForPlayback, value);
+    },
+    remove_ReadyForPlayback: function (value) {
+        this.ReadyForPlayback = $RemoveDelegate(this.ReadyForPlayback, value);
+    },
+    OnReadyForPlayback: function () {
+        var handler = this.ReadyForPlayback;
+        if (handler != null)
+            handler(this, AlphaSynth.EmptyEventArgs.Instance);
+    },
+    add_SoundFontLoadFailed: function (value) {
+        this.SoundFontLoadFailed = $CombineDelegates(this.SoundFontLoadFailed, value);
+    },
+    remove_SoundFontLoadFailed: function (value) {
+        this.SoundFontLoadFailed = $RemoveDelegate(this.SoundFontLoadFailed, value);
+    },
+    OnSoundFontLoadFailed: function () {
+        var handler = this.SoundFontLoadFailed;
+        if (handler != null)
+            handler(this, AlphaSynth.EmptyEventArgs.Instance);
+    },
+    add_MidiLoaded: function (value) {
+        this.MidiLoaded = $CombineDelegates(this.MidiLoaded, value);
+    },
+    remove_MidiLoaded: function (value) {
+        this.MidiLoaded = $RemoveDelegate(this.MidiLoaded, value);
+    },
+    OnMidiLoaded: function () {
+        var handler = this.MidiLoaded;
+        if (handler != null)
+            handler(this, AlphaSynth.EmptyEventArgs.Instance);
+    },
+    add_MidiLoadFailed: function (value) {
+        this.MidiLoadFailed = $CombineDelegates(this.MidiLoadFailed, value);
+    },
+    remove_MidiLoadFailed: function (value) {
+        this.MidiLoadFailed = $RemoveDelegate(this.MidiLoadFailed, value);
+    },
+    OnMidiLoadFailed: function () {
+        var handler = this.MidiLoadFailed;
+        if (handler != null)
+            handler(this, AlphaSynth.EmptyEventArgs.Instance);
+    },
+    add_PositionChanged: function (value) {
+        this.PositionChanged = $CombineDelegates(this.PositionChanged, value);
+    },
+    remove_PositionChanged: function (value) {
+        this.PositionChanged = $RemoveDelegate(this.PositionChanged, value);
+    },
+    OnPositionChanged: function (e) {
+        var handler = this.PositionChanged;
+        if (handler != null)
+            handler(this, e);
     }
+};
+AlphaSynth.EmptyEventArgs = function () {
+};
+$StaticConstructor(function () {
+    AlphaSynth.EmptyEventArgs.Instance = new AlphaSynth.EmptyEventArgs();
+});
+AlphaSynth.ProgressEventArgs = function (loaded, total) {
+    this.Loaded = 0;
+    this.Total = 0;
+    this.Loaded = loaded;
+    this.Total = total;
+};
+AlphaSynth.PlayerStateChangedEventArgs = function (state) {
+    this.State = AlphaSynth.PlayerState.Paused;
+    this.State = state;
+};
+AlphaSynth.PositionChangedEventArgs = function (currentTime, endTime, currentTick, endTick) {
+    this.CurrentTime = 0;
+    this.EndTime = 0;
+    this.CurrentTick = 0;
+    this.EndTick = 0;
+    this.CurrentTime = currentTime;
+    this.EndTime = endTime;
+    this.CurrentTick = currentTick;
+    this.EndTick = endTick;
 };
 AlphaSynth.Bank = AlphaSynth.Bank || {};
 AlphaSynth.Bank.AssetManager = function () {
@@ -2474,14 +2658,14 @@ AlphaSynth.Bank.Patch.Sf2Patch.prototype = {
             voiceparams.Envelopes[1].ReleaseSf2VolumeEnvelope();
         }
     },
-    Process: function (voiceparams, startIndex, endIndex) {
+    Process: function (voiceparams, startIndex, endIndex, isMuted) {
         //--Base pitch calculation
         var basePitchFrequency = AlphaSynth.Synthesis.SynthHelper.CentsToPitch(voiceparams.SynthParams.CurrentPitch) * this.gen.Frequency;
         var pitchWithBend = basePitchFrequency * AlphaSynth.Synthesis.SynthHelper.CentsToPitch(voiceparams.PitchOffset);
         var basePitch = pitchWithBend / voiceparams.SynthParams.Synth.SampleRate;
-        var baseVolume = voiceparams.SynthParams.Synth.get_MasterVolume() * voiceparams.SynthParams.CurrentVolume * voiceparams.SynthParams.Synth.get_MixGain();
+        var baseVolume = isMuted ? 0 : voiceparams.SynthParams.Synth.get_MasterVolume() * voiceparams.SynthParams.CurrentVolume * 0.35 * voiceparams.SynthParams.MixVolume;
         //--Main Loop
-        for (var x = startIndex; x < endIndex; x += 64 * voiceparams.SynthParams.Synth.AudioChannels) {
+        for (var x = startIndex; x < endIndex; x += 128) {
             voiceparams.Envelopes[0].Increment(64);
             voiceparams.Envelopes[1].Increment(64);
             voiceparams.Lfos[0].Increment(64);
@@ -2502,7 +2686,7 @@ AlphaSynth.Bank.Patch.Sf2Patch.prototype = {
             //--Volume calculation
             var volume = AlphaSynth.Synthesis.SynthHelper.DBtoLinear(voiceparams.VolOffset + voiceparams.Envelopes[1].Value + voiceparams.Lfos[0].Value * this.modLfoToVolume) * baseVolume;
             //--Mix block based on number of channels
-            if (voiceparams.SynthParams.Synth.AudioChannels == 2)
+            if (true)
                 voiceparams.MixMonoToStereoInterp(x, volume * this.pan.Left * voiceparams.SynthParams.CurrentPan.Left, volume * this.pan.Right * voiceparams.SynthParams.CurrentPan.Right);
             else
                 voiceparams.MixMonoToMonoInterp(x, volume);
@@ -2739,7 +2923,7 @@ AlphaSynth.Bank.Patch.MultiPatch.prototype = {
     Start: function (voiceparams) {
         return false;
     },
-    Process: function (voiceparams, startIndex, endIndex) {
+    Process: function (voiceparams, startIndex, endIndex, isMuted) {
     },
     Stop: function (voiceparams) {
     },
@@ -2850,7 +3034,12 @@ AlphaSynth.Bank.SampleDataAsset = function (sample, sampleData) {
     this.End = sample.End;
     this.LoopStart = sample.StartLoop;
     this.LoopEnd = sample.EndLoop;
-    this.SampleData = AlphaSynth.Util.PcmData.Create(sampleData.BitsPerSample, sampleData.SampleData, true);
+    if ((sample.SoundFontSampleLink & AlphaSynth.Sf2.SFSampleLink.OggVobis) != 0) {
+        throw $CreateException(new System.Exception.ctor$$String("Ogg Vobis encoded soundfonts not supported"), new Error());
+    }
+    else {
+        this.SampleData = AlphaSynth.Util.PcmData.Create(sampleData.BitsPerSample, sampleData.SampleData, true);
+    }
 };
 AlphaSynth.Bank.PatchBank = function () {
     this._bank = null;
@@ -2868,7 +3057,7 @@ AlphaSynth.Bank.PatchBank.prototype = {
     },
     get_LoadedBanks: function () {
         var banks = [];
-        for (var $i2 = 0, $t2 = Object.keys(this._bank), $l2 = $t2.length, bank = $t2[$i2]; $i2 < $l2; $i2++, bank = $t2[$i2]) {
+        for (var $i2 = 0, $t2 = Object.keys(this._bank), $l2 = $t2.length, bank = $t2[$i2]; $i2 < $l2; $i2++ , bank = $t2[$i2]) {
             banks.push(AlphaSynth.Platform.Std.ParseInt(bank));
         }
         return banks.slice(0);
@@ -2882,7 +3071,7 @@ AlphaSynth.Bank.PatchBank.prototype = {
     GetPatchByName: function (bankNumber, name) {
         if (this._bank.hasOwnProperty(bankNumber)) {
             var patches = this._bank[bankNumber];
-            for (var $i3 = 0, $l3 = patches.length, patch = patches[$i3]; $i3 < $l3; $i3++, patch = patches[$i3]) {
+            for (var $i3 = 0, $l3 = patches.length, patch = patches[$i3]; $i3 < $l3; $i3++ , patch = patches[$i3]) {
                 if (patch != null && patch.Name == name) {
                     return patch;
                 }
@@ -2902,13 +3091,13 @@ AlphaSynth.Bank.PatchBank.prototype = {
         this.Name = sf.Info.BankName;
         this.Comments = sf.Info.Comments;
         //load samples
-        for (var $i4 = 0, $t4 = sf.Presets.SampleHeaders, $l4 = $t4.length, sampleHeader = $t4[$i4]; $i4 < $l4; $i4++, sampleHeader = $t4[$i4]) {
+        for (var $i4 = 0, $t4 = sf.Presets.SampleHeaders, $l4 = $t4.length, sampleHeader = $t4[$i4]; $i4 < $l4; $i4++ , sampleHeader = $t4[$i4]) {
             this._assets.SampleAssets.push(new AlphaSynth.Bank.SampleDataAsset(sampleHeader, sf.SampleData));
         }
         //create instrument regions first
         var sfinsts = this.ReadSf2Instruments(sf.Presets.Instruments);
         //load each patch
-        for (var $i5 = 0, $t5 = sf.Presets.PresetHeaders, $l5 = $t5.length, p = $t5[$i5]; $i5 < $l5; $i5++, p = $t5[$i5]) {
+        for (var $i5 = 0, $t5 = sf.Presets.PresetHeaders, $l5 = $t5.length, p = $t5[$i5]; $i5 < $l5; $i5++ , p = $t5[$i5]) {
             var globalGens = null;
             var i;
             if (p.Zones[0].Generators.length == 0 || p.Zones[0].Generators[p.Zones[0].Generators.length - 1].GeneratorType != AlphaSynth.Sf2.GeneratorEnum.Instrument) {
@@ -2956,7 +3145,7 @@ AlphaSynth.Bank.PatchBank.prototype = {
                 }
                 if (p.Zones[i].Generators[p.Zones[i].Generators.length - 1].GeneratorType == AlphaSynth.Sf2.GeneratorEnum.Instrument) {
                     var insts = sfinsts[p.Zones[i].Generators[p.Zones[i].Generators.length - 1].get_AmountInt16()];
-                    for (var $i6 = 0, $l6 = insts.length, inst = insts[$i6]; $i6 < $l6; $i6++, inst = insts[$i6]) {
+                    for (var $i6 = 0, $l6 = insts.length, inst = insts[$i6]; $i6 < $l6; $i6++ , inst = insts[$i6]) {
                         var instLoKey;
                         var instHiKey;
                         var instLoVel;
@@ -3023,7 +3212,7 @@ AlphaSynth.Bank.PatchBank.prototype = {
         }
         else {
             var genList = [];
-            for (var $i7 = 0, $l7 = gens.length, generator = gens[$i7]; $i7 < $l7; $i7++, generator = gens[$i7]) {
+            for (var $i7 = 0, $l7 = gens.length, generator = gens[$i7]; $i7 < $l7; $i7++ , generator = gens[$i7]) {
                 genList.push(generator);
             }
             if (globals != null) {
@@ -3267,24 +3456,18 @@ AlphaSynth.IO = AlphaSynth.IO || {};
 AlphaSynth.IO.ByteBuffer = function () {
     this._buffer = null;
     this._capacity = 0;
-    this._position = 0;
     this.Length = 0;
+    this.Position = 0;
 };
 AlphaSynth.IO.ByteBuffer.prototype = {
-    get_Position: function () {
-        return this._position;
-    },
-    set_Position: function (value) {
-        this._position = value;
-    },
     GetBuffer: function () {
         return this._buffer;
     },
     Reset: function () {
-        this.set_Position(0);
+        this.Position = 0;
     },
     Skip: function (offset) {
-        this.set_Position(this.get_Position() + offset);
+        this.Position += offset;
     },
     SetCapacity: function (value) {
         if (value != this._capacity) {
@@ -3301,15 +3484,15 @@ AlphaSynth.IO.ByteBuffer.prototype = {
         }
     },
     ReadByte: function () {
-        var n = this.Length - this.get_Position();
+        var n = this.Length - this.Position;
         if (n <= 0)
             return -1;
-        var b = this._buffer[this.get_Position()];
-        this.set_Position(this.get_Position() + 1);
+        var b = this._buffer[this.Position];
+        this.Position++;
         return b;
     },
     Read: function (buffer, offset, count) {
-        var n = this.Length - this.get_Position();
+        var n = this.Length - this.Position;
         if (n > count)
             n = count;
         if (n <= 0)
@@ -3317,44 +3500,12 @@ AlphaSynth.IO.ByteBuffer.prototype = {
         if (n <= 8) {
             var byteCount = n;
             while (--byteCount >= 0)
-                buffer[offset + byteCount] = this._buffer[this.get_Position() + byteCount];
+                buffer[offset + byteCount] = this._buffer[this.Position + byteCount];
         }
         else
-            buffer.set(this._buffer.subarray(this.get_Position(), this.get_Position() + n), offset);
-        this.set_Position(this.get_Position() + n);
+            buffer.set(this._buffer.subarray(this.Position, this.Position + n), offset);
+        this.Position += n;
         return n;
-    },
-    WriteByte: function (value) {
-        var buffer = new Uint8Array(1);
-        buffer[0] = value;
-        this.Write(buffer, 0, 1);
-    },
-    Write: function (buffer, offset, count) {
-        var i = this.get_Position() + count;
-        if (i > this.Length) {
-            if (i > this._capacity) {
-                this.EnsureCapacity(i);
-            }
-            this.Length = i;
-        }
-        if ((count <= 8) && (buffer != this._buffer)) {
-            var byteCount = count;
-            while (--byteCount >= 0)
-                this._buffer[this.get_Position() + byteCount] = buffer[offset + byteCount];
-        }
-        else
-            this._buffer.set(buffer.subarray(offset, offset + count), this.get_Position());
-        this.set_Position(i);
-    },
-    EnsureCapacity: function (value) {
-        if (value > this._capacity) {
-            var newCapacity = value;
-            if (newCapacity < 256)
-                newCapacity = 256;
-            if (newCapacity < this._capacity * 2)
-                newCapacity = this._capacity * 2;
-            this.SetCapacity(newCapacity);
-        }
     },
     ToArray: function () {
         var copy = new Uint8Array(this.Length);
@@ -3377,6 +3528,216 @@ AlphaSynth.IO.ByteBuffer.FromBuffer = function (data) {
     buffer._capacity = buffer.Length = data.length;
     return buffer;
 };
+AlphaSynth.MidiFileSequencer = function (synthesizer) {
+    this._synthesizer = null;
+    this._tempoChanges = null;
+    this._firstProgramEventPerChannel = null;
+    this._synthData = null;
+    this._division = 0;
+    this._eventIndex = 0;
+    this._currentTime = 0;
+    this._playbackRange = null;
+    this._playbackRangeStartTime = 0;
+    this._playbackRangeEndTime = 0;
+    this._endTime = 0;
+    this.Finished = null;
+    this.IsLooping = false;
+    this.EndTick = 0;
+    this.PlaybackSpeed = 0;
+    this._synthesizer = synthesizer;
+    this._firstProgramEventPerChannel = {};
+    this._tempoChanges = [];
+    this.PlaybackSpeed = 1;
+};
+AlphaSynth.MidiFileSequencer.prototype = {
+    get_PlaybackRange: function () {
+        return this._playbackRange;
+    },
+    set_PlaybackRange: function (value) {
+        this._playbackRange = value;
+        if (value != null) {
+            this._playbackRangeStartTime = this.TickPositionToTimePositionWithSpeed(value.StartTick, 1);
+            this._playbackRangeEndTime = this.TickPositionToTimePositionWithSpeed(value.EndTick, 1);
+        }
+    },
+    get_EndTime: function () {
+        return this._endTime / this.PlaybackSpeed;
+    },
+    Seek: function (timePosition) {
+        if (timePosition < 0) {
+            timePosition = 0;
+        }
+        // map to speed=1
+        timePosition *= this.PlaybackSpeed;
+        // ensure playback range
+        if (this.get_PlaybackRange() != null) {
+            if (timePosition < this._playbackRangeStartTime) {
+                timePosition = this._playbackRangeStartTime;
+            }
+            else if (timePosition > this._playbackRangeEndTime) {
+                timePosition = this._playbackRangeEndTime;
+            }
+        }
+        if (timePosition > (this._currentTime)) {
+            this.SilentProcess(timePosition - (this._currentTime));
+        }
+        else if (timePosition < (this._currentTime)) {
+            //we have to restart the midi to make sure we get the right state: instruments, volume, pan, etc
+            (this._currentTime) = 0;
+            this._eventIndex = 0;
+            this._synthesizer.NoteOffAll(true);
+            this._synthesizer.ResetPrograms();
+            this._synthesizer.ResetSynthControls();
+            this.SilentProcess(timePosition);
+        }
+    },
+    SilentProcess: function (milliseconds) {
+        if (milliseconds <= 0)
+            return;
+        (this._currentTime) += milliseconds;
+        while (this._eventIndex < this._synthData.length && this._synthData[this._eventIndex].Delta < (this._currentTime)) {
+            var m = this._synthData[this._eventIndex];
+            this._synthesizer.ProcessMidiMessage(m.Event);
+            this._eventIndex++;
+        }
+    },
+    LoadMidi: function (midiFile) {
+        this._tempoChanges = [];
+        // Converts midi to milliseconds for easy sequencing
+        var bpm = 120;
+        // Combine all tracks into 1 track that is organized from lowest to highest absolute time
+        if (midiFile.Tracks.length > 1 || midiFile.Tracks[0].EndTime == 0) {
+            midiFile.CombineTracks();
+        }
+        this._division = midiFile.Division;
+        this._eventIndex = 0;
+        (this._currentTime) = 0;
+        // build synth events. 
+        this._synthData = new Array(midiFile.Tracks[0].MidiEvents.length);
+        var absTick = 0;
+        var absTime = 0;
+        for (var x = 0; x < midiFile.Tracks[0].MidiEvents.length; x++) {
+            var mEvent = midiFile.Tracks[0].MidiEvents[x];
+            var synthData = this._synthData[x] = new AlphaSynth.Synthesis.SynthEvent(mEvent);
+            absTick += mEvent.DeltaTime;
+            absTime += mEvent.DeltaTime * (60000 / (bpm * midiFile.Division));
+            synthData.Delta = absTime;
+            // Update tempo
+            if (mEvent.get_Command() == AlphaSynth.Midi.Event.MidiEventTypeEnum.Meta && mEvent.get_Data1() == 81) {
+                var meta = mEvent;
+                bpm = 60000000 / meta.Value;
+                this._tempoChanges.push(new AlphaSynth.MidiFileSequencerTempoChange(bpm, absTick, ((absTime)) | 0));
+            }
+            else if (mEvent.get_Command() == AlphaSynth.Midi.Event.MidiEventTypeEnum.ProgramChange) {
+                var channel = mEvent.get_Channel();
+                if (!this._firstProgramEventPerChannel.hasOwnProperty(channel)) {
+                    this._firstProgramEventPerChannel[channel] = synthData;
+                }
+            }
+        }
+        this._endTime = absTime;
+        this.EndTick = absTick;
+    },
+    FillMidiEventQueue: function () {
+        var millisecondsPerBuffer = (this._synthesizer.MicroBufferSize / this._synthesizer.SampleRate) * 1000 * this.PlaybackSpeed;
+        for (var i = 0; i < this._synthesizer.MicroBufferCount; i++) {
+            (this._currentTime) += millisecondsPerBuffer;
+            while (this._eventIndex < this._synthData.length && this._synthData[this._eventIndex].Delta < (this._currentTime)) {
+                this._synthesizer.DispatchEvent(i, this._synthData[this._eventIndex]);
+                this._eventIndex++;
+            }
+        }
+    },
+    TickPositionToTimePosition: function (tickPosition) {
+        return this.TickPositionToTimePositionWithSpeed(tickPosition, this.PlaybackSpeed);
+    },
+    TimePositionToTickPosition: function (timePosition) {
+        return this.TimePositionToTickPositionWithSpeed(timePosition, this.PlaybackSpeed);
+    },
+    TickPositionToTimePositionWithSpeed: function (tickPosition, playbackSpeed) {
+        var timePosition = 0;
+        var bpm = 120;
+        var lastChange = 0;
+        // find start and bpm of last tempo change before time
+        for (var i = 0; i < this._tempoChanges.length; i++) {
+            var c = this._tempoChanges[i];
+            if (tickPosition < c.Ticks) {
+                break;
+            }
+            timePosition = c.Time;
+            bpm = c.Bpm;
+            lastChange = c.Ticks;
+        }
+        // add the missing millis
+        tickPosition -= lastChange;
+        timePosition += (tickPosition * (60000 / (bpm * this._division)));
+        return timePosition / playbackSpeed;
+    },
+    TimePositionToTickPositionWithSpeed: function (timePosition, playbackSpeed) {
+        timePosition *= playbackSpeed;
+        var ticks = 0;
+        var bpm = 120;
+        var lastChange = 0;
+        // find start and bpm of last tempo change before time
+        for (var i = 0; i < this._tempoChanges.length; i++) {
+            var c = this._tempoChanges[i];
+            if (timePosition < c.Time) {
+                break;
+            }
+            ticks = c.Ticks;
+            bpm = c.Bpm;
+            lastChange = c.Time;
+        }
+        // add the missing ticks
+        timePosition -= lastChange;
+        ticks += ((timePosition / (60000 / (bpm * this._division)))) | 0;
+        // we add 1 for possible rounding errors.(floating point issuses)
+        return ticks + 1;
+    },
+    add_Finished: function (value) {
+        this.Finished = $CombineDelegates(this.Finished, value);
+    },
+    remove_Finished: function (value) {
+        this.Finished = $RemoveDelegate(this.Finished, value);
+    },
+    OnFinished: function () {
+        var finished = this.Finished;
+        if (finished != null) {
+            finished();
+        }
+    },
+    CheckForStop: function () {
+        if (this.get_PlaybackRange() == null && (this._currentTime) >= this._endTime) {
+            (this._currentTime) = 0;
+            this._eventIndex = 0;
+            this._synthesizer.NoteOffAll(true);
+            this._synthesizer.ResetPrograms();
+            this._synthesizer.ResetSynthControls();
+            this.OnFinished();
+        }
+        else if (this.get_PlaybackRange() != null && (this._currentTime) >= this._playbackRangeEndTime) {
+            (this._currentTime) = this.get_PlaybackRange().StartTick;
+            this._eventIndex = 0;
+            this._synthesizer.NoteOffAll(true);
+            this._synthesizer.ResetPrograms();
+            this._synthesizer.ResetSynthControls();
+            this.OnFinished();
+        }
+    },
+    SetChannelProgram: function (channel, program) {
+        if (this._firstProgramEventPerChannel.hasOwnProperty(channel)) {
+            this._firstProgramEventPerChannel[channel].Event.set_Data1(program);
+        }
+    }
+};
+AlphaSynth.MidiFileSequencerTempoChange = function (bpm, ticks, time) {
+    this.Bpm = 0;
+    this.Ticks = 0;
+    this.Time = 0;
+    this.Bpm = bpm;
+    this.Ticks = ticks;
+    this.Time = time;
+};
 AlphaSynth.Midi = AlphaSynth.Midi || {};
 AlphaSynth.Midi.Event = AlphaSynth.Midi.Event || {};
 AlphaSynth.Midi.Event.MidiEvent = function (delta, status, data1, data2) {
@@ -3395,8 +3756,16 @@ AlphaSynth.Midi.Event.MidiEvent.prototype = {
     get_Data1: function () {
         return (this.Message & 65280) >> 8;
     },
+    set_Data1: function (value) {
+        this.Message &= -65281;
+        this.Message |= value << 8;
+    },
     get_Data2: function () {
         return (this.Message & 16711680) >> 16;
+    },
+    set_Data2: function (value) {
+        this.Message &= -16711681;
+        this.Message |= value << 16;
     }
 };
 AlphaSynth.Midi.Event.SystemCommonEvent = function (delta, status, data1, data2) {
@@ -3738,9 +4107,9 @@ AlphaSynth.Midi.MidiFile.prototype = {
                 input.ReadByte();
             }
         }
-        var endPosition = AlphaSynth.Util.IOHelper.ReadInt32BE(input) + input.get_Position();
+        var endPosition = AlphaSynth.Util.IOHelper.ReadInt32BE(input) + input.Position;
         var prevStatus = 0;
-        while (input.get_Position() < endPosition) {
+        while (input.Position < endPosition) {
             var delta = AlphaSynth.Midi.MidiFile.ReadVariableLength(input);
             totalTime += delta;
             var status = input.ReadByte();
@@ -3788,7 +4157,7 @@ AlphaSynth.Midi.MidiFile.prototype = {
                 }
             }
         }
-        if (input.get_Position() != endPosition)
+        if (input.Position != endPosition)
             throw $CreateException(new System.Exception.ctor$$String("The track length was invalid for the current MTrk chunk."), new Error());
         if (Array.prototype.indexOf.call(channelList, 9) != -1) {
             if (Array.prototype.indexOf.call(drumList, 0) == -1)
@@ -3989,585 +4358,9 @@ AlphaSynth.Midi.MidiTimeFormat = {
     TicksPerBeat: 0,
     FramesPerSecond: 1
 };
-AlphaSynth.Player.SynthPlayerState = {
-    Stopped: 0,
-    Playing: 1,
-    Paused: 2
-};
-AlphaSynth.Player.SynthPlayer = function () {
-    this._tickPosition = 0;
-    this._timePosition = 0;
-    this._playbackSpeed = 0;
-    this.PositionChanged = null;
-    this.PlayerStateChanged = null;
-    this.Finished = null;
-    this.SoundFontLoad = null;
-    this.SoundFontLoaded = null;
-    this.SoundFontLoadFailed = null;
-    this.MidiLoad = null;
-    this.MidiLoaded = null;
-    this.MidiLoadFailed = null;
-    this.ReadyForPlay = null;
-    this.Output = null;
-    this.Synth = null;
-    this.Sequencer = null;
-    this.State = AlphaSynth.Player.SynthPlayerState.Stopped;
-    this.IsSoundFontLoaded = false;
-    this.IsMidiLoaded = false;
-    AlphaSynth.Util.Logger.Debug("Initializing player");
-    this.State = AlphaSynth.Player.SynthPlayerState.Stopped;
-    this.OnPlayerStateChanged(new AlphaSynth.Player.PlayerStateChangedEventArgs(this.State));
-    AlphaSynth.Util.Logger.Debug("Opening output");
-    this.Output = AlphaSynth.Platform.Platform.CreateOutput();
-    AlphaSynth.Util.Logger.Debug("Creating synthesizer");
-    this.Synth = new AlphaSynth.Synthesis.Synthesizer(this.Output.get_SampleRate(), 2, 441, 3, 100);
-    this.Sequencer = new AlphaSynth.Sequencer.MidiFileSequencer(this.Synth);
-    this.Sequencer.AddFinishedListener($CreateDelegate(this.Output, this.Output.SequencerFinished));
-    this.Output.add_Finished($CreateAnonymousDelegate(this, function () {
-        // stop everything
-        this.Stop();
-        AlphaSynth.Util.Logger.Debug("Finished playback");
-        this.OnFinished();
-    }));
-    this.Output.add_SampleRequest($CreateAnonymousDelegate(this, function () {
-        // synthesize buffer
-        this.Sequencer.FillMidiEventQueue();
-        this.Synth.Synthesize();
-        // send it to output
-        this.Output.AddSamples(this.Synth.SampleBuffer);
-    }));
-    this.Output.add_PositionChanged($CreateAnonymousDelegate(this, function (pos) {
-        // log position
-        this.FirePositionChanged(pos);
-    }));
-    this.Output.Open();
-};
-AlphaSynth.Player.SynthPlayer.prototype = {
-    get_TickPosition: function () {
-        return this._tickPosition;
-    },
-    set_TickPosition: function (value) {
-        this.set_TimePosition(((this.Sequencer.TicksToMillis(value) / this.Sequencer.PlaybackSpeed)) | 0);
-    },
-    get_MasterVolume: function () {
-        return this.Synth.get_MasterVolume();
-    },
-    set_MasterVolume: function (value) {
-        this.Synth.set_MasterVolume(value);
-    },
-    get_TimePosition: function () {
-        return this._timePosition;
-    },
-    set_TimePosition: function (value) {
-        AlphaSynth.Util.Logger.Debug("Seeking to position " + value + "ms");
-        if (this.State == AlphaSynth.Player.SynthPlayerState.Playing) {
-            this.Sequencer.Pause();
-            this.Output.Pause();
-        }
-        this.Sequencer.Seek(value);
-        this.Output.Seek(value);
-        if (this.State == AlphaSynth.Player.SynthPlayerState.Playing) {
-            this.Sequencer.Play();
-            this.Output.Play();
-        }
-    },
-    get_PlaybackSpeed: function () {
-        return this._playbackSpeed;
-    },
-    set_PlaybackSpeed: function (value) {
-        this._playbackSpeed = AlphaSynth.Synthesis.SynthHelper.ClampF(value, 0.125, 8);
-        this.Sequencer.PlaybackSpeed = this._playbackSpeed;
-        this.Output.SetPlaybackSpeed(this._playbackSpeed);
-    },
-    get_IsReady: function () {
-        return this.IsSoundFontLoaded && this.IsMidiLoaded;
-    },
-    Play: function () {
-        if (this.State == AlphaSynth.Player.SynthPlayerState.Playing || !this.get_IsReady())
-            return;
-        AlphaSynth.Util.Logger.Debug("Starting playback");
-        this.Sequencer.Play();
-        this.Output.Play();
-        this.State = AlphaSynth.Player.SynthPlayerState.Playing;
-        this.OnPlayerStateChanged(new AlphaSynth.Player.PlayerStateChangedEventArgs(this.State));
-    },
-    Pause: function () {
-        if (this.State != AlphaSynth.Player.SynthPlayerState.Playing || !this.get_IsReady())
-            return;
-        AlphaSynth.Util.Logger.Debug("Pausing playback");
-        this.Sequencer.Pause();
-        this.Output.Pause();
-        this.State = AlphaSynth.Player.SynthPlayerState.Paused;
-        this.OnPlayerStateChanged(new AlphaSynth.Player.PlayerStateChangedEventArgs(this.State));
-    },
-    PlayPause: function () {
-        if (this.State == AlphaSynth.Player.SynthPlayerState.Playing || !this.get_IsReady())
-            this.Pause();
-        else
-            this.Play();
-    },
-    Stop: function () {
-        if (this.State == AlphaSynth.Player.SynthPlayerState.Stopped || !this.get_IsReady())
-            return;
-        AlphaSynth.Util.Logger.Debug("Stopping playback");
-        this.Sequencer.Stop();
-        this.Synth.Stop();
-        this.Output.Stop();
-        this.State = AlphaSynth.Player.SynthPlayerState.Stopped;
-        this.OnPlayerStateChanged(new AlphaSynth.Player.PlayerStateChangedEventArgs(this.State));
-        this.FirePositionChanged(0);
-    },
-    LoadSoundFontUrl: function (url) {
-        if (this.State != AlphaSynth.Player.SynthPlayerState.Stopped)
-            return;
-        AlphaSynth.Util.Logger.Info("Start loading soundfont from url " + url);
-        var loader = new AlphaSynth.Util.UrlLoader();
-        loader.Url = url;
-        loader.Method = "GET";
-        loader.Complete = $CreateDelegate(this, this.LoadSoundFontBytes);
-        loader.Progress = $CreateDelegate(this, this.OnLoaderSoundFontLoad);
-        try {
-            loader.Load();
-        }
-        catch (e) {
-            AlphaSynth.Util.Logger.Error("Could not load soundfont from url: " + e);
-        }
-    },
-    LoadSoundFontBytes: function (data) {
-        if (this.State != AlphaSynth.Player.SynthPlayerState.Stopped)
-            return;
-        var input = AlphaSynth.IO.ByteBuffer.FromBuffer(data);
-        try {
-            AlphaSynth.Util.Logger.Info("Loading soundfont from bytes");
-            var bank = new AlphaSynth.Bank.PatchBank();
-            bank.LoadSf2(input);
-            this.Synth.LoadBank(bank);
-            this.IsSoundFontLoaded = true;
-            this.OnSoundFontLoaded();
-            AlphaSynth.Util.Logger.Info("soundFont successfully loaded");
-            if (this.get_IsReady())
-                this.OnReadyForPlay();
-        }
-        catch (e) {
-            AlphaSynth.Util.Logger.Error("Could not load soundfont from bytes " + e);
-            this.IsSoundFontLoaded = false;
-            this.Synth.UnloadBank();
-            this.OnSoundFontLoadFailed();
-        }
-    },
-    LoadMidiUrl: function (url) {
-        if (this.State != AlphaSynth.Player.SynthPlayerState.Stopped)
-            return;
-        AlphaSynth.Util.Logger.Info("Start loading midi from url " + url);
-        var loader = new AlphaSynth.Util.UrlLoader();
-        loader.Url = url;
-        loader.Method = "GET";
-        loader.Complete = $CreateDelegate(this, this.LoadMidiBytes);
-        loader.Progress = $CreateDelegate(this, this.OnLoaderMidiLoad);
-        try {
-            loader.Load();
-        }
-        catch (e) {
-            AlphaSynth.Util.Logger.Error("Could not load midi from url: " + e);
-        }
-    },
-    LoadMidiBytes: function (data) {
-        if (this.State != AlphaSynth.Player.SynthPlayerState.Stopped)
-            return;
-        var input = AlphaSynth.IO.ByteBuffer.FromBuffer(data);
-        try {
-            AlphaSynth.Util.Logger.Info("Loading midi from bytes");
-            var midi = new AlphaSynth.Midi.MidiFile();
-            midi.Load(input);
-            this.Sequencer.LoadMidi(midi);
-            this.IsMidiLoaded = true;
-            this.OnMidiLoaded();
-            AlphaSynth.Util.Logger.Info("Midi successfully loaded");
-            if (this.get_IsReady())
-                this.OnReadyForPlay();
-            this.FirePositionChanged(0);
-        }
-        catch (e) {
-            AlphaSynth.Util.Logger.Error("Could not load midi from bytes " + e);
-            this.IsMidiLoaded = false;
-            this.Sequencer.UnloadMidi();
-            this.OnMidiLoadFailed();
-        }
-    },
-    OnLoaderSoundFontLoad: function (loaded, total) {
-        AlphaSynth.Util.Logger.Debug("Soundfont downloading: " + loaded + "/" + total + " bytes");
-        this.OnSoundFontLoad(new AlphaSynth.Player.ProgressEventArgs(loaded, total));
-    },
-    OnLoaderMidiLoad: function (loaded, total) {
-        AlphaSynth.Util.Logger.Debug("Midi downloading: " + loaded + "/" + total + " bytes");
-        this.OnMidiLoad(new AlphaSynth.Player.ProgressEventArgs(loaded, total));
-    },
-    FirePositionChanged: function (pos) {
-        var endTime = ((this.Sequencer.EndTime / this.Synth.SampleRate) | 0) * 1000;
-        var currentTime = pos;
-        var endTick = this.Sequencer.MillisToTicks(endTime);
-        var currentTick = this.Sequencer.MillisToTicks(currentTime);
-        this._tickPosition = currentTick;
-        this._timePosition = currentTime;
-        AlphaSynth.Util.Logger.Debug("Position changed: (time: " + currentTime + "/" + endTime + ", tick: " + currentTick + "/" + endTime + ")");
-        this.OnPositionChanged(new AlphaSynth.Player.PositionChangedEventArgs(currentTime, endTime, currentTick, endTick));
-    },
-    add_PositionChanged: function (value) {
-        this.PositionChanged = $CombineDelegates(this.PositionChanged, value);
-    },
-    remove_PositionChanged: function (value) {
-        this.PositionChanged = $RemoveDelegate(this.PositionChanged, value);
-    },
-    OnPositionChanged: function (e) {
-        var handler = this.PositionChanged;
-        if (handler != null)
-            handler(this, e);
-    },
-    add_PlayerStateChanged: function (value) {
-        this.PlayerStateChanged = $CombineDelegates(this.PlayerStateChanged, value);
-    },
-    remove_PlayerStateChanged: function (value) {
-        this.PlayerStateChanged = $RemoveDelegate(this.PlayerStateChanged, value);
-    },
-    OnPlayerStateChanged: function (e) {
-        var handler = this.PlayerStateChanged;
-        if (handler != null)
-            handler(this, e);
-    },
-    add_Finished: function (value) {
-        this.Finished = $CombineDelegates(this.Finished, value);
-    },
-    remove_Finished: function (value) {
-        this.Finished = $RemoveDelegate(this.Finished, value);
-    },
-    OnFinished: function () {
-        var handler = this.Finished;
-        if (handler != null)
-            handler(this, AlphaSynth.Player.EmptyEventArgs.Instance);
-    },
-    add_SoundFontLoad: function (value) {
-        this.SoundFontLoad = $CombineDelegates(this.SoundFontLoad, value);
-    },
-    remove_SoundFontLoad: function (value) {
-        this.SoundFontLoad = $RemoveDelegate(this.SoundFontLoad, value);
-    },
-    OnSoundFontLoad: function (e) {
-        var handler = this.SoundFontLoad;
-        if (handler != null)
-            handler(this, e);
-    },
-    add_SoundFontLoaded: function (value) {
-        this.SoundFontLoaded = $CombineDelegates(this.SoundFontLoaded, value);
-    },
-    remove_SoundFontLoaded: function (value) {
-        this.SoundFontLoaded = $RemoveDelegate(this.SoundFontLoaded, value);
-    },
-    OnSoundFontLoaded: function () {
-        var handler = this.SoundFontLoaded;
-        if (handler != null)
-            handler(this, AlphaSynth.Player.EmptyEventArgs.Instance);
-    },
-    add_SoundFontLoadFailed: function (value) {
-        this.SoundFontLoadFailed = $CombineDelegates(this.SoundFontLoadFailed, value);
-    },
-    remove_SoundFontLoadFailed: function (value) {
-        this.SoundFontLoadFailed = $RemoveDelegate(this.SoundFontLoadFailed, value);
-    },
-    OnSoundFontLoadFailed: function () {
-        var handler = this.SoundFontLoadFailed;
-        if (handler != null)
-            handler(this, AlphaSynth.Player.EmptyEventArgs.Instance);
-    },
-    add_MidiLoad: function (value) {
-        this.MidiLoad = $CombineDelegates(this.MidiLoad, value);
-    },
-    remove_MidiLoad: function (value) {
-        this.MidiLoad = $RemoveDelegate(this.MidiLoad, value);
-    },
-    OnMidiLoad: function (e) {
-        var handler = this.MidiLoad;
-        if (handler != null)
-            handler(this, e);
-    },
-    add_MidiLoaded: function (value) {
-        this.MidiLoaded = $CombineDelegates(this.MidiLoaded, value);
-    },
-    remove_MidiLoaded: function (value) {
-        this.MidiLoaded = $RemoveDelegate(this.MidiLoaded, value);
-    },
-    OnMidiLoaded: function () {
-        var handler = this.MidiLoaded;
-        if (handler != null)
-            handler(this, AlphaSynth.Player.EmptyEventArgs.Instance);
-    },
-    add_MidiLoadFailed: function (value) {
-        this.MidiLoadFailed = $CombineDelegates(this.MidiLoadFailed, value);
-    },
-    remove_MidiLoadFailed: function (value) {
-        this.MidiLoadFailed = $RemoveDelegate(this.MidiLoadFailed, value);
-    },
-    OnMidiLoadFailed: function () {
-        var handler = this.MidiLoadFailed;
-        if (handler != null)
-            handler(this, AlphaSynth.Player.EmptyEventArgs.Instance);
-    },
-    add_ReadyForPlay: function (value) {
-        this.ReadyForPlay = $CombineDelegates(this.ReadyForPlay, value);
-    },
-    remove_ReadyForPlay: function (value) {
-        this.ReadyForPlay = $RemoveDelegate(this.ReadyForPlay, value);
-    },
-    OnReadyForPlay: function () {
-        var handler = this.ReadyForPlay;
-        if (handler != null)
-            handler(this, AlphaSynth.Player.EmptyEventArgs.Instance);
-    }
-};
-AlphaSynth.Player.EmptyEventArgs = function () {
-};
-$StaticConstructor(function () {
-    AlphaSynth.Player.EmptyEventArgs.Instance = new AlphaSynth.Player.EmptyEventArgs();
-});
-AlphaSynth.Player.ProgressEventArgs = function (loaded, total) {
-    this.Loaded = 0;
-    this.Total = 0;
-    this.Loaded = loaded;
-    this.Total = total;
-};
-AlphaSynth.Player.PlayerStateChangedEventArgs = function (state) {
-    this.State = AlphaSynth.Player.SynthPlayerState.Stopped;
-    this.State = state;
-};
-AlphaSynth.Player.PositionChangedEventArgs = function (currentTime, endTime, currentTick, endTick) {
-    this.CurrentTime = 0;
-    this.EndTime = 0;
-    this.CurrentTick = 0;
-    this.EndTick = 0;
-    this.CurrentTime = currentTime;
-    this.EndTime = endTime;
-    this.CurrentTick = currentTick;
-    this.EndTick = endTick;
-};
-AlphaSynth.Sequencer = AlphaSynth.Sequencer || {};
-AlphaSynth.Sequencer.MidiFileSequencer = function (synth) {
-    this._synthData = null;
-    this._tempoChanges = null;
-    this._finished = null;
-    this._blockList = null;
-    this._eventIndex = 0;
-    this._division = 0;
-    this.Synth = null;
-    this.IsPlaying = false;
-    this.CurrentTempo = 0;
-    this.CurrentTime = 0;
-    this.EndTime = 0;
-    this.PlaybackSpeed = 0;
-    this.Synth = synth;
-    this._eventIndex = 0;
-    this._division = 0;
-    this.PlaybackSpeed = 1;
-    this.IsPlaying = false;
-    this._blockList = new Array(16);
-    this._finished = [];
-    synth.AddMidiMessageProcessed($CreateDelegate(this, this.MidiEventProcessed));
-};
-AlphaSynth.Sequencer.MidiFileSequencer.prototype = {
-    get_IsMidiLoaded: function () {
-        return this._synthData != null;
-    },
-    AddFinishedListener: function (listener) {
-        this._finished.push(listener);
-    },
-    FireFinished: function () {
-        for (var i = 0; i < this._finished.length; i++) {
-            var l = this._finished[i];
-            if (l != null)
-                l();
-        }
-    },
-    LoadMidi: function (midiFile) {
-        if (this.IsPlaying)
-            return false;
-        this.LoadMidiFile(midiFile);
-        return true;
-    },
-    UnloadMidi: function () {
-        if (this.IsPlaying)
-            return false;
-        this._synthData = null;
-        return true;
-    },
-    Play: function () {
-        if (this.IsPlaying || this._synthData == null)
-            return;
-        this.IsPlaying = true;
-    },
-    Pause: function () {
-        this.IsPlaying = false;
-    },
-    Stop: function () {
-        this.IsPlaying = false;
-        this.CurrentTime = 0;
-        this._eventIndex = 0;
-    },
-    IsChannelMuted: function (channel) {
-        return this._blockList[channel];
-    },
-    MuteAllChannels: function () {
-        for (var x = 0; x < this._blockList.length; x++) {
-            this._blockList[x] = true;
-        }
-    },
-    UnMuteAllChannels: function () {
-        for (var x = 0; x < this._blockList.length; x++) {
-            this._blockList[x] = false;
-        }
-    },
-    SetMute: function (channel, muteValue) {
-        this._blockList[channel] = muteValue;
-    },
-    Seek: function (milliseconds) {
-        var targetSampleTime = ((this.Synth.SampleRate * (milliseconds / 1000))) | 0;
-        if (targetSampleTime > this.CurrentTime) {
-            //process forward
-            this.SilentProcess(targetSampleTime - this.CurrentTime);
-        }
-        else if (targetSampleTime < this.CurrentTime) {
-            //we have to restart the midi to make sure we get the right state: instruments, volume, pan, etc
-            this.CurrentTime = 0;
-            this._eventIndex = 0;
-            this.Synth.NoteOffAll(true);
-            this.Synth.ResetPrograms();
-            this.Synth.ResetSynthControls();
-            this.SilentProcess(targetSampleTime);
-        }
-    },
-    FillMidiEventQueue: function () {
-        if (!this.IsPlaying || this.Synth.MidiEventQueue.Length != 0)
-            return;
-        if (this.CurrentTime >= this.EndTime) {
-            this.CurrentTime = 0;
-            this._eventIndex = 0;
-            this.IsPlaying = false;
-            this.Synth.NoteOffAll(true);
-            this.Synth.ResetPrograms();
-            this.Synth.ResetSynthControls();
-            this.FireFinished();
-            return;
-        }
-        var newMSize = ((this.Synth.MicroBufferSize * this.PlaybackSpeed)) | 0;
-        var endSample = this.CurrentTime + (newMSize * this.Synth.MicroBufferCount);
-        for (var x = 0; x < this.Synth.MicroBufferCount; x++) {
-            this.CurrentTime += newMSize;
-            while (this._eventIndex < this._synthData.length && this._synthData[this._eventIndex].Delta < this.CurrentTime) {
-                if (this._synthData[this._eventIndex].Event.get_Command() != AlphaSynth.Midi.Event.MidiEventTypeEnum.NoteOn || !this._blockList[this._synthData[this._eventIndex].Event.get_Channel()]) {
-                    this.Synth.MidiEventQueue.AddFirst(this._synthData[this._eventIndex]);
-                    this.Synth.MidiEventCounts[x]++;
-                }
-                this._eventIndex++;
-            }
-        }
-    },
-    LoadMidiFile: function (midiFile) {
-        this._tempoChanges = [];
-        //Converts midi to sample based format for easy sequencing
-        var bpm = 120;
-        //Combine all tracks into 1 track that is organized from lowest to highest absolute time
-        if (midiFile.Tracks.length > 1 || midiFile.Tracks[0].EndTime == 0)
-            midiFile.CombineTracks();
-        //Convert delta time to sample time
-        this._synthData = new Array(midiFile.Tracks[0].MidiEvents.length);
-        this._division = midiFile.Division;
-        this._eventIndex = 0;
-        this.CurrentTime = 0;
-        this.CurrentTempo = bpm | 0;
-        //Calculate sample based time using double counter and round down to nearest integer sample.
-        var absDelta = 0;
-        var absTick = 0;
-        var absTime = 0;
-        for (var x = 0; x < midiFile.Tracks[0].MidiEvents.length; x++) {
-            var mEvent = midiFile.Tracks[0].MidiEvents[x];
-            this._synthData[x] = new AlphaSynth.Synthesis.SynthEvent(mEvent);
-            absTick += mEvent.DeltaTime;
-            absTime += mEvent.DeltaTime * (60000 / (bpm * midiFile.Division));
-            absDelta += this.Synth.SampleRate * mEvent.DeltaTime * (60 / (bpm * midiFile.Division));
-            this._synthData[x].Delta = ((absDelta)) | 0;
-            //Update tempo
-            if (this.IsTempoMessage(mEvent.get_Command(), mEvent.get_Data1())) {
-                var meta = mEvent;
-                bpm = (60000000 / meta.Value) | 0;
-                this._tempoChanges.push(new AlphaSynth.Sequencer.MidiFileSequencerTempoChange(bpm, absTick, ((absTime)) | 0));
-            }
-        }
-        this.EndTime = this._synthData[this._synthData.length - 1].Delta;
-    },
-    MidiEventProcessed: function (midiEvent) {
-        if (this.IsTempoMessage(midiEvent.get_Command(), midiEvent.get_Data1())) {
-            var meta = midiEvent;
-            this.CurrentTempo = ((60000000 / meta.Value) | 0);
-        }
-    },
-    IsTempoMessage: function (command, data1) {
-        return command == AlphaSynth.Midi.Event.MidiEventTypeEnum.Meta && data1 == 81;
-    },
-    MillisToTicks: function (time) {
-        var ticks = 0;
-        var bpm = 120;
-        var lastChange = 0;
-        // find start and bpm of last tempo change before time
-        for (var i = 0; i < this._tempoChanges.length; i++) {
-            var c = this._tempoChanges[i];
-            if (time < c.Time) {
-                break;
-            }
-            ticks = c.Ticks;
-            bpm = c.Bpm;
-            lastChange = c.Time;
-        }
-        // add the missing ticks
-        time -= lastChange;
-        ticks += ((time / (60000 / (bpm * this._division)))) | 0;
-        return ticks;
-    },
-    TicksToMillis: function (ticks) {
-        var time = 0;
-        var bpm = 120;
-        var lastChange = 0;
-        // find start and bpm of last tempo change before time
-        for (var i = 0; i < this._tempoChanges.length; i++) {
-            var c = this._tempoChanges[i];
-            if (ticks < c.Ticks) {
-                break;
-            }
-            time = c.Time;
-            bpm = c.Bpm;
-            lastChange = c.Ticks;
-        }
-        // add the missing millis
-        ticks -= lastChange;
-        time += ((ticks * (60000 / (bpm * this._division)))) | 0;
-        return time;
-    },
-    SilentProcess: function (amount) {
-        if (amount <= 0)
-            return;
-        while (this._eventIndex < this._synthData.length && this._synthData[this._eventIndex].Delta < (this.CurrentTime + amount)) {
-            if (this._synthData[this._eventIndex].Event.get_Command() != AlphaSynth.Midi.Event.MidiEventTypeEnum.NoteOn) {
-                var m = this._synthData[this._eventIndex];
-                this.Synth.ProcessMidiMessage(m.Event);
-            }
-            this._eventIndex++;
-        }
-        this.CurrentTime += amount;
-    }
-};
-AlphaSynth.Sequencer.MidiFileSequencerTempoChange = function (bpm, ticks, time) {
-    this.Bpm = 0;
-    this.Ticks = 0;
-    this.Time = 0;
-    this.Bpm = bpm;
-    this.Ticks = ticks;
-    this.Time = time;
+AlphaSynth.PlayerState = {
+    Paused: 0,
+    Playing: 1
 };
 AlphaSynth.Sf2 = AlphaSynth.Sf2 || {};
 AlphaSynth.Sf2.Chunks = AlphaSynth.Sf2.Chunks || {};
@@ -4768,13 +4561,13 @@ AlphaSynth.Sf2.SoundFontSampleData = function (input) {
     var size = AlphaSynth.Util.IOHelper.ReadInt32LE(input);
     if (id.toLowerCase() != "list")
         throw $CreateException(new System.Exception.ctor$$String("Invalid soundfont. Could not find sdta LIST chunk."), new Error());
-    var readTo = input.get_Position() + size;
+    var readTo = input.Position + size;
     id = AlphaSynth.Util.IOHelper.Read8BitChars(input, 4);
     if (id.toLowerCase() != "sdta")
         throw $CreateException(new System.Exception.ctor$$String("Invalid soundfont. The LIST chunk is not of type sdta."), new Error());
     this.BitsPerSample = 0;
     var rawSampleData = null;
-    while (input.get_Position() < readTo) {
+    while (input.Position < readTo) {
         var subID = AlphaSynth.Util.IOHelper.Read8BitChars(input, 4);
         size = AlphaSynth.Util.IOHelper.ReadInt32LE(input);
         switch (subID.toLowerCase()) {
@@ -4798,7 +4591,7 @@ AlphaSynth.Sf2.SoundFontSampleData = function (input) {
                 }
                 if (size % 2 == 1) {
                     if (input.ReadByte() != 0) {
-                        input.set_Position(input.get_Position() - 1);
+                        input.Position--;
                     }
                 }
                 break;
@@ -4820,7 +4613,7 @@ AlphaSynth.Sf2.SoundFontPresets = function (input) {
     var size = AlphaSynth.Util.IOHelper.ReadInt32LE(input);
     if (id.toLowerCase() != "list")
         throw $CreateException(new System.Exception.ctor$$String("Invalid soundfont. Could not find pdta LIST chunk."), new Error());
-    var readTo = input.get_Position() + size;
+    var readTo = input.Position + size;
     id = AlphaSynth.Util.IOHelper.Read8BitChars(input, 4);
     if (id.toLowerCase() != "pdta")
         throw $CreateException(new System.Exception.ctor$$String("Invalid soundfont. The LIST chunk is not of type pdta."), new Error());
@@ -4832,7 +4625,7 @@ AlphaSynth.Sf2.SoundFontPresets = function (input) {
     var ibag = null;
     var phdr = null;
     var inst = null;
-    while (input.get_Position() < readTo) {
+    while (input.Position < readTo) {
         id = AlphaSynth.Util.IOHelper.Read8BitChars(input, 4);
         size = AlphaSynth.Util.IOHelper.ReadInt32LE(input);
         switch (id.toLowerCase()) {
@@ -4899,11 +4692,11 @@ AlphaSynth.Sf2.SoundFontInfo = function (input) {
     var size = AlphaSynth.Util.IOHelper.ReadInt32LE(input);
     if (id.toLowerCase() != "list")
         throw $CreateException(new System.Exception.ctor$$String("Invalid soundfont. Could not find INFO LIST chunk."), new Error());
-    var readTo = input.get_Position() + size;
+    var readTo = input.Position + size;
     id = AlphaSynth.Util.IOHelper.Read8BitChars(input, 4);
     if (id.toLowerCase() != "info")
         throw $CreateException(new System.Exception.ctor$$String("Invalid soundfont. The LIST chunk is not of type INFO."), new Error());
-    while (input.get_Position() < readTo) {
+    while (input.Position < readTo) {
         id = AlphaSynth.Util.IOHelper.Read8BitChars(input, 4);
         size = AlphaSynth.Util.IOHelper.ReadInt32LE(input);
         switch (id.toLowerCase()) {
@@ -5106,6 +4899,7 @@ AlphaSynth.Sf2.SFSampleLink = {
     RightSample: 2,
     LeftSample: 4,
     LinkedSample: 8,
+    OggVobis: 16,
     RomMonoSample: 32769,
     RomRightSample: 32770,
     RomLeftSample: 32772,
@@ -5260,6 +5054,10 @@ AlphaSynth.Synthesis.CCValue.prototype = {
         }
     }
 };
+AlphaSynth.Synthesis.PlaybackRange = function () {
+    this.StartTick = 0;
+    this.EndTick = 0;
+};
 AlphaSynth.Synthesis.SynthParameters = function (synth) {
     this.Program = 0;
     this.BankSelect = 0;
@@ -5281,6 +5079,7 @@ AlphaSynth.Synthesis.SynthParameters = function (synth) {
     this.CurrentPitch = 0;
     this.CurrentMod = 0;
     this.CurrentPan = null;
+    this.MixVolume = 0;
     this.Synth = synth;
     this.Pan = new AlphaSynth.Synthesis.CCValue(0);
     this.Volume = new AlphaSynth.Synthesis.CCValue(0);
@@ -5289,6 +5088,7 @@ AlphaSynth.Synthesis.SynthParameters = function (synth) {
     this.PitchBend = new AlphaSynth.Synthesis.CCValue(0);
     this.MasterFineTune = new AlphaSynth.Synthesis.CCValue(0);
     this.Rpn = new AlphaSynth.Synthesis.CCValue(0);
+    this.MixVolume = 1;
     this.CurrentPan = new AlphaSynth.Bank.Components.PanComponent();
     this.ResetControllers();
 };
@@ -5334,7 +5134,6 @@ AlphaSynth.Synthesis.SynthParameters.prototype = {
     UpdateCurrentVolumeFromVolume: function () {
         this.CurrentVolume = this.Volume.get_Combined() / 16383;
         this.CurrentVolume *= this.CurrentVolume;
-        this.CurrentVolume = 1;
     },
     UpdateCurrentVolumeFromExpression: function () {
         this.CurrentVolume = this.Expression.get_Combined() / 16383;
@@ -5422,10 +5221,6 @@ AlphaSynth.Synthesis.VoiceParameters.prototype = {
         this.mix2 = rightVol;
     }
 };
-AlphaSynth.Synthesis.VoiceStealingMethod = {
-    Oldest: 0,
-    Quietest: 1
-};
 AlphaSynth.Synthesis.VoiceNode = function () {
     this.Value = null;
     this.Next = null;
@@ -5433,12 +5228,10 @@ AlphaSynth.Synthesis.VoiceNode = function () {
 AlphaSynth.Synthesis.VoiceManager = function (voiceCount) {
     this._voicePool = null;
     this._vNodes = null;
-    this.StealingMethod = AlphaSynth.Synthesis.VoiceStealingMethod.Oldest;
     this.Polyphony = 0;
     this.FreeVoices = null;
     this.ActiveVoices = null;
     this.Registry = null;
-    this.StealingMethod = AlphaSynth.Synthesis.VoiceStealingMethod.Quietest;
     this.Polyphony = voiceCount;
     this._voicePool = new Array(voiceCount);
     this._vNodes = new AlphaSynth.Ds.LinkedList();
@@ -5462,14 +5255,7 @@ AlphaSynth.Synthesis.VoiceManager.prototype = {
             this.FreeVoices.RemoveFirst();
             return voice;
         }
-        switch (this.StealingMethod) {
-            case AlphaSynth.Synthesis.VoiceStealingMethod.Oldest:
-                return this.StealOldest();
-            case AlphaSynth.Synthesis.VoiceStealingMethod.Quietest:
-                return this.StealQuietestVoice();
-            default:
-                return null;
-        }
+        return this.StealQuietestVoice();
     },
     AddToRegistry: function (voice) {
         var node = this._vNodes.RemoveLast();
@@ -5520,7 +5306,7 @@ AlphaSynth.Synthesis.VoiceManager.prototype = {
         }
     },
     UnloadPatches: function () {
-        for (var $i8 = 0, $t8 = this._voicePool, $l8 = $t8.length, v = $t8[$i8]; $i8 < $l8; $i8++, v = $t8[$i8]) {
+        for (var $i8 = 0, $t8 = this._voicePool, $l8 = $t8.length, v = $t8[$i8]; $i8 < $l8; $i8++ , v = $t8[$i8]) {
             v.Configure(0, 0, 0, null, null);
             var current = this._vNodes.First;
             while (current != null) {
@@ -5528,21 +5314,6 @@ AlphaSynth.Synthesis.VoiceManager.prototype = {
                 current = current.get_Next();
             }
         }
-    },
-    StealOldest: function () {
-        var node = this.ActiveVoices.First;
-        //first look for a voice that is not playing
-        while (node != null && node.Value.VoiceParams.State == AlphaSynth.Synthesis.VoiceStateEnum.Playing)
-            node = node.get_Next();
-        //if no stopping voice is found use the oldest
-        if (node == null)
-            node = this.ActiveVoices.First;
-        //check and remove from registry
-        this.RemoveVoiceFromRegistry(node.Value);
-        this.ActiveVoices.Remove(node);
-        //stop voice if it is not already
-        node.Value.VoiceParams.State = AlphaSynth.Synthesis.VoiceStateEnum.Stopped;
-        return node.Value;
     },
     StealQuietestVoice: function () {
         var voiceVolume = 1000;
@@ -5594,12 +5365,12 @@ AlphaSynth.Synthesis.Voice.prototype = {
     StopImmediately: function () {
         this.VoiceParams.State = AlphaSynth.Synthesis.VoiceStateEnum.Stopped;
     },
-    Process: function (startIndex, endIndex) {
+    Process: function (startIndex, endIndex, isMuted) {
         //do not process if the voice is stopped
         if (this.VoiceParams.State == AlphaSynth.Synthesis.VoiceStateEnum.Stopped)
             return;
         //process using the patch's algorithm
-        this.Patch.Process(this.VoiceParams, startIndex, endIndex);
+        this.Patch.Process(this.VoiceParams, startIndex, endIndex, isMuted);
     },
     Configure: function (channel, note, velocity, patch, synthParams) {
         this.VoiceParams.Reset();
@@ -5611,6 +5382,14 @@ AlphaSynth.Synthesis.Voice.prototype = {
     }
 };
 AlphaSynth.Synthesis.SynthHelper = function () {
+};
+AlphaSynth.Synthesis.SynthHelper.ClampB = function (value, min, max) {
+    if (value <= min)
+        return min;
+    else if (value >= max)
+        return max;
+    else
+        return value;
 };
 AlphaSynth.Synthesis.SynthHelper.ClampD = function (value, min, max) {
     if (value <= min)
@@ -5692,48 +5471,42 @@ AlphaSynth.Synthesis.Synthesizer = function (sampleRate, audioChannels, bufferSi
     this._voiceManager = null;
     this._synthChannels = null;
     this._masterVolume = 0;
-    this._synthGain = 0;
-    this._midiMessageProcessed = null;
     this._layerList = null;
-    this.MidiEventQueue = null;
-    this.MidiEventCounts = null;
-    this.SampleBuffer = null;
-    this.AudioChannels = 0;
-    this.LittleEndian = false;
-    this.SoundBank = null;
-    this.SampleRate = 0;
+    this._midiEventQueue = null;
+    this._midiEventCounts = null;
+    this._mutedChannels = null;
+    this._soloChannels = null;
+    this._isAnySolo = false;
+    this.MidiEventProcessed = null;
     this.MicroBufferSize = 0;
     this.MicroBufferCount = 0;
+    this.SampleBuffer = null;
+    this.SoundBank = null;
+    this.SampleRate = 0;
     var MinSampleRate = 8000;
     var MaxSampleRate = 96000;
-    if (sampleRate < MinSampleRate || sampleRate > MaxSampleRate)
-        throw $CreateException(new System.Exception.ctor$$String("Invalid paramater: (sampleRate) Valid ranges are " + MinSampleRate + " to " + MaxSampleRate), new Error());
-    if (audioChannels < 1 || audioChannels > 2)
-        throw $CreateException(new System.Exception.ctor$$String("Invalid paramater: (audioChannels) Valid ranges are " + 1 + " to " + 2), new Error());
-    this._midiMessageProcessed = [];
     //
     // Setup synth parameters
-    this._synthGain = 0.35;
     this._masterVolume = 1;
-    this.SampleRate = sampleRate;
-    this.AudioChannels = audioChannels;
+    this.SampleRate = AlphaSynth.Synthesis.SynthHelper.ClampI(sampleRate, MinSampleRate, MaxSampleRate);
     this.MicroBufferSize = AlphaSynth.Synthesis.SynthHelper.ClampI(bufferSize, ((0.001 * sampleRate)) | 0, ((0.05 * sampleRate)) | 0);
     this.MicroBufferSize = ((Math.ceil(this.MicroBufferSize / 64) * 64)) | 0;
     //ensure multiple of block size
     this.MicroBufferCount = (Math.max(1, bufferCount));
     this.SampleBuffer = new Float32Array((this.MicroBufferSize * this.MicroBufferCount * audioChannels));
-    this.LittleEndian = true;
-    //Setup Controllers
+    // Setup Controllers
     this._synthChannels = new Array(16);
-    for (var x = 0; x < this._synthChannels.length; x++)
+    for (var x = 0; x < this._synthChannels.length; x++) {
         this._synthChannels[x] = new AlphaSynth.Synthesis.SynthParameters(this);
-    //Create synth voices
+    }
+    // Create synth voices
     this._voiceManager = new AlphaSynth.Synthesis.VoiceManager(AlphaSynth.Synthesis.SynthHelper.ClampI(polyphony, 5, 250));
-    //Create midi containers
-    this.MidiEventQueue = new AlphaSynth.Ds.LinkedList();
-    this.MidiEventCounts = new Int32Array(this.MicroBufferCount);
+    // Create midi containers
+    this._midiEventQueue = new AlphaSynth.Ds.LinkedList();
+    this._midiEventCounts = new Int32Array(this.MicroBufferCount);
     this._layerList = new Array(15);
-    this._midiMessageProcessed = [];
+    this._mutedChannels = {};
+    this._soloChannels = {};
     this.ResetSynthControls();
 };
 AlphaSynth.Synthesis.Synthesizer.prototype = {
@@ -5742,33 +5515,6 @@ AlphaSynth.Synthesis.Synthesizer.prototype = {
     },
     set_MasterVolume: function (value) {
         this._masterVolume = AlphaSynth.Synthesis.SynthHelper.ClampF(value, 0, 10);
-    },
-    get_MixGain: function () {
-        return this._synthGain;
-    },
-    set_MixGain: function (value) {
-        this._synthGain = AlphaSynth.Synthesis.SynthHelper.ClampF(value, 0.5, 1);
-    },
-    get_VoiceStealMethod: function () {
-        return this._voiceManager.StealingMethod;
-    },
-    set_VoiceStealMethod: function (value) {
-        this._voiceManager.StealingMethod = value;
-    },
-    get_ActiveVoices: function () {
-        return this._voiceManager.ActiveVoices.Length;
-    },
-    get_FreeVoices: function () {
-        return this._voiceManager.FreeVoices.Length;
-    },
-    get_RawBufferSize: function () {
-        return this.SampleBuffer.length * 2;
-    },
-    get_WorkingBufferSize: function () {
-        return this.SampleBuffer.length;
-    },
-    get_Polyphony: function () {
-        return this._voiceManager.Polyphony;
     },
     LoadBank: function (bank) {
         this.UnloadBank();
@@ -5781,72 +5527,31 @@ AlphaSynth.Synthesis.Synthesizer.prototype = {
             this.SoundBank = null;
         }
     },
-    Stop: function () {
-        this.ResetSynthControls();
-        this.ResetPrograms();
-        this.NoteOffAll(true);
-    },
     ResetSynthControls: function () {
-        for (var x = 0; x < this._synthChannels.length; x++) {
-            this._synthChannels[x].ResetControllers();
+        for (var $i9 = 0, $t9 = this._synthChannels, $l9 = $t9.length, parameters = $t9[$i9]; $i9 < $l9; $i9++ , parameters = $t9[$i9]) {
+            parameters.ResetControllers();
         }
         this._synthChannels[9].BankSelect = 128;
         this.ReleaseAllHoldPedals();
     },
     ResetPrograms: function () {
-        for (var x = 0; x < this._synthChannels.length; x++) {
-            this._synthChannels[x].Program = 0;
-        }
-    },
-    GetProgramName: function (channel) {
-        var p = this.GetProgram(channel);
-        if (p == null)
-            return "null";
-        return p.Name;
-    },
-    GetProgram: function (channel) {
-        if (this.SoundBank != null) {
-            var sChannel = this._synthChannels[channel];
-            var inst = this.SoundBank.GetPatchByNumber(sChannel.BankSelect, sChannel.Program);
-            if (inst != null)
-                return inst;
-        }
-        return null;
-    },
-    SetAudioChannelCount: function (channels) {
-        channels = AlphaSynth.Synthesis.SynthHelper.ClampI(channels, 1, 2);
-        if (this.AudioChannels != channels) {
-            this.AudioChannels = channels;
-            this.SampleBuffer = new Float32Array((this.MicroBufferSize * this.MicroBufferCount * this.AudioChannels));
+        for (var $i10 = 0, $t10 = this._synthChannels, $l10 = $t10.length, parameters = $t10[$i10]; $i10 < $l10; $i10++ , parameters = $t10[$i10]) {
+            parameters.Program = 0;
         }
     },
     Synthesize: function () {
         this.SampleBuffer = new Float32Array(this.SampleBuffer.length);
         this.FillWorkingBuffer();
     },
-    GetChannelVolume: function (channel) {
-        return this._synthChannels[channel].Volume.get_Combined() / 16383;
-    },
-    GetChannelExpression: function (channel) {
-        return this._synthChannels[channel].Expression.get_Combined() / 16383;
-    },
-    GetChannelPan: function (channel) {
-        return (this._synthChannels[channel].Pan.get_Combined() - 8192) / 8192;
-    },
-    GetChannelPitchBend: function (channel) {
-        return (this._synthChannels[channel].PitchBend.get_Combined() - 8192) / 8192;
-    },
-    GetChannelHoldPedalStatus: function (channel) {
-        return this._synthChannels[channel].HoldPedal;
-    },
     FillWorkingBuffer: function () {
         /*Break the process loop into sections representing the smallest timeframe before the midi controls need to be updated
         the bigger the timeframe the more efficent the process is, but playback quality will be reduced.*/
         var sampleIndex = 0;
+        var anySolo = this._isAnySolo;
         for (var x = 0; x < this.MicroBufferCount; x++) {
-            if (this.MidiEventQueue.Length > 0) {
-                for (var i = 0; i < this.MidiEventCounts[x]; i++) {
-                    var m = this.MidiEventQueue.RemoveLast();
+            if (this._midiEventQueue.Length > 0) {
+                for (var i = 0; i < this._midiEventCounts[x]; i++) {
+                    var m = this._midiEventQueue.RemoveLast();
                     this.ProcessMidiMessage(m.Event);
                 }
             }
@@ -5854,7 +5559,10 @@ AlphaSynth.Synthesis.Synthesizer.prototype = {
             var node = this._voiceManager.ActiveVoices.First;
             //node used to traverse the active voices
             while (node != null) {
-                node.Value.Process(sampleIndex, sampleIndex + this.MicroBufferSize * this.AudioChannels);
+                var channel = node.Value.VoiceParams.Channel;
+                // channel is muted if it is either explicitley muted, or another channel is set to solo but not this one. 
+                var isChannelMuted = this._mutedChannels.hasOwnProperty(channel) || (anySolo && !this._soloChannels.hasOwnProperty(channel));
+                node.Value.Process(sampleIndex, sampleIndex + this.MicroBufferSize * 2, isChannelMuted);
                 //if an active voice has stopped remove it from the list
                 if (node.Value.VoiceParams.State == AlphaSynth.Synthesis.VoiceStateEnum.Stopped) {
                     var delnode = node;
@@ -5868,9 +5576,9 @@ AlphaSynth.Synthesis.Synthesizer.prototype = {
                     node = node.get_Next();
                 }
             }
-            sampleIndex += this.MicroBufferSize * this.AudioChannels;
+            sampleIndex += this.MicroBufferSize * 2;
         }
-        AlphaSynth.Platform.TypeUtils.ClearIntArray(this.MidiEventCounts);
+        AlphaSynth.Platform.TypeUtils.ClearIntArray(this._midiEventCounts);
     },
     NoteOn: function (channel, note, velocity) {
         // Get the correct instrument depending if it is a drum or not
@@ -6136,17 +5844,18 @@ AlphaSynth.Synthesis.Synthesizer.prototype = {
                 this._synthChannels[channel].UpdateCurrentPitch();
                 break;
         }
-        this.FireMidiMessageProcessed(e);
+        this.OnMidiEventProcessed(e);
     },
-    AddMidiMessageProcessed: function (listener) {
-        this._midiMessageProcessed.push(listener);
+    add_MidiEventProcessed: function (value) {
+        this.MidiEventProcessed = $CombineDelegates(this.MidiEventProcessed, value);
     },
-    FireMidiMessageProcessed: function (e) {
-        for (var i = 0; i < this._midiMessageProcessed.length; i++) {
-            var l = this._midiMessageProcessed[i];
-            if (l != null) {
-                l(e);
-            }
+    remove_MidiEventProcessed: function (value) {
+        this.MidiEventProcessed = $RemoveDelegate(this.MidiEventProcessed, value);
+    },
+    OnMidiEventProcessed: function (e) {
+        var handler = this.MidiEventProcessed;
+        if (handler != null) {
+            handler(e);
         }
     },
     ReleaseAllHoldPedals: function () {
@@ -6168,6 +5877,42 @@ AlphaSynth.Synthesis.Synthesizer.prototype = {
             }
             node = node.get_Next();
         }
+    },
+    DispatchEvent: function (i, synthEvent) {
+        this._midiEventQueue.AddFirst(synthEvent);
+        this._midiEventCounts[i]++;
+    },
+    SetChannelMute: function (channel, mute) {
+        if (mute) {
+            this._mutedChannels[channel] = true;
+        }
+        else {
+            delete this._mutedChannels[channel];
+        }
+    },
+    ResetChannelStates: function () {
+        this._mutedChannels = {};
+        this._soloChannels = {};
+        this._isAnySolo = false;
+    },
+    SetChannelSolo: function (channel, solo) {
+        if (solo) {
+            this._soloChannels[channel] = true;
+        }
+        else {
+            delete this._soloChannels[channel];
+        }
+        this._isAnySolo = Object.keys(this._soloChannels).length > 0;
+    },
+    SetChannelProgram: function (channel, program) {
+        if (channel < 0 || channel >= this._synthChannels.length)
+            return;
+        this._synthChannels[channel].Program = program;
+    },
+    SetChannelVolume: function (channel, volume) {
+        if (channel < 0 || channel >= this._synthChannels.length)
+            return;
+        this._synthChannels[channel].MixVolume = volume;
     }
 };
 AlphaSynth.Util.PcmData = function (bits, pcmData, isDataInLittleEndianFormat) {
@@ -6175,8 +5920,8 @@ AlphaSynth.Util.PcmData = function (bits, pcmData, isDataInLittleEndianFormat) {
     this.Length = 0;
     this.BytesPerSample = 0;
     this.BytesPerSample = ((bits / 8) | 0);
-    if (pcmData.length % this.BytesPerSample != 0)
-        throw $CreateException(new System.Exception.ctor$$String("Invalid PCM format. The PCM data was an invalid size."), new Error());
+    //if (pcmData.Length % BytesPerSample != 0)
+    //    throw new Exception("Invalid PCM format. The PCM data was an invalid size.");
     this.Data = pcmData;
     this.Length = (this.Data.length / this.BytesPerSample) | 0;
     if (AlphaSynth.Platform.TypeUtils.IsLittleEndian != isDataInLittleEndianFormat) {
@@ -6410,6 +6155,13 @@ $StaticConstructor(function () {
     AlphaSynth.Util.SynthConstants.MaxVoiceComponents = 4;
     AlphaSynth.Util.SynthConstants.DefaultChannelCount = 16;
     AlphaSynth.Util.SynthConstants.DefaultKeyCount = 128;
+    AlphaSynth.Util.SynthConstants.DefaultMixGain = 0.35;
+    AlphaSynth.Util.SynthConstants.MinVolume = 0;
+    AlphaSynth.Util.SynthConstants.MaxVolume = 10;
+    AlphaSynth.Util.SynthConstants.MinProgram = 0;
+    AlphaSynth.Util.SynthConstants.MaxProgram = 127;
+    AlphaSynth.Util.SynthConstants.MinPlaybackSpeed = 0.125;
+    AlphaSynth.Util.SynthConstants.MaxPlaybackSpeed = 8;
 });
 AlphaSynth.Util.IOHelper = function () {
 };

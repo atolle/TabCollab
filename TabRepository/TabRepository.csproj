@@ -18,6 +18,15 @@
     <Content Include="wwwroot\css\jstreestyle.css" />
     <Content Include="wwwroot\css\player.css" />
     <Content Include="wwwroot\css\throbber.gif" />
+    <Content Include="wwwroot\Font\Bravura.eot" />
+    <Content Include="wwwroot\Font\Bravura.otf" />
+    <Content Include="wwwroot\Font\Bravura.svg" />
+    <Content Include="wwwroot\Font\Bravura.woff" />
+    <Content Include="wwwroot\js\bootstrap-slider.min.js" />
+    <Content Include="wwwroot\js\Font\Bravura.otf" />
+    <Content Include="wwwroot\js\Font\Bravura.woff" />
+    <Content Include="wwwroot\js\jquery.alphaTab.alphaSynth.js" />
+    <Content Include="wwwroot\js\jquery.alphaTab.js" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.0.0" />

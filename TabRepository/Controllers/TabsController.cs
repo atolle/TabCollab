@@ -185,7 +185,7 @@ namespace TabRespository.Controllers
                     return RedirectToAction("GetEmptyTabVersionsTable", "TabVersions", null);
                 }
             }
-            catch (Exception e)
+            catch
             {
                 // Need to return JSON failure to form
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);

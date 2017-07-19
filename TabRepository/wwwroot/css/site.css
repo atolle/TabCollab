@@ -53,3 +53,7 @@ jstree-border {
     border-style: solid;
     border-color: black;
 }
+
+.search-btn {
+    margin-left: -4px;
+}

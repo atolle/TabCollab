@@ -12,7 +12,7 @@ namespace TabRespository.Models
         [Key, ForeignKey("User2")]
         public string User2Id { get; set; }
 
-        public int Status { get; set; }
+        public FriendStatus Status { get; set; }
 
         public string ActingUserId { get; set; }
 
@@ -21,5 +21,12 @@ namespace TabRespository.Models
         public virtual ApplicationUser User2 { get; set; }
 
         public virtual ApplicationUser ActingUser { get; set; }
+    }
+
+    public enum FriendStatus
+    {
+        None = 0,
+        Friends = 1,
+        Blocked = 2
     }
 }

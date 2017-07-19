@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace TabRespository.Controllers
 {
-    public class FriendshipsController : Controller
+    public class FriendsController : Controller
     {
-        // GET: Friendships
+        // GET: Friends
         public ActionResult Index()
         {
             return View();

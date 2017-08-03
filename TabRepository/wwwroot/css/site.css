@@ -57,3 +57,17 @@ jstree-border {
 .search-btn {
     margin-left: -4px;
 }
+
+.navbar-form {
+    overflow: auto;
+}
+
+.navbar-form .input-group .form-control {
+    display: inline-block;
+    width: 100%;
+    vertical-align: middle;
+}
+
+.navbar-form .input-group {
+    display: inline;
+}

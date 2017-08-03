@@ -22,7 +22,6 @@
     <Content Include="wwwroot\Font\Bravura.otf" />
     <Content Include="wwwroot\Font\Bravura.svg" />
     <Content Include="wwwroot\Font\Bravura.woff" />
-    <Content Include="wwwroot\js\bootstrap-slider.min.js" />
     <Content Include="wwwroot\js\Font\Bravura.otf" />
     <Content Include="wwwroot\js\Font\Bravura.woff" />
     <Content Include="wwwroot\js\jquery.alphaTab.alphaSynth.js" />

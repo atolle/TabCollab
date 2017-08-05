@@ -21,13 +21,24 @@ $(document).on('keyup', '.search-form input', function (e) {
     }, 500);
 });
 
-function addSearchSuggestions(suggestions) {
+$(document).on('blur', '.search-form input', function (e) {
+    clearSearchSuggestions();
+});
+
+function clearSearchSuggestions() {
     var container = document.getElementsByClassName("search-results");
     container = container[0];
 
     while (container.hasChildNodes()) {
         container.removeChild(container.lastChild);
     }
+}
+
+function addSearchSuggestions(suggestions) {
+    var container = document.getElementsByClassName("search-results");
+    container = container[0];
+
+    clearSearchSuggestions();
 
     for (var i = 0; i < suggestions.length; i++) {
         var input = document.createElement("li");

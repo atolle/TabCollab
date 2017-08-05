@@ -58,16 +58,20 @@ jstree-border {
     margin-left: -4px;
 }
 
-.navbar-form {
-    overflow: auto;
-}
-
-.navbar-form .input-group .form-control {
-    display: inline-block;
-    width: 100%;
-    vertical-align: middle;
-}
-
 .navbar-form .input-group {
-    display: inline;
+    position: relative;
+    display: flex;
+}
+
+.search-results {
+    position: absolute;
+    /*This is relative to the search-form in the navbar*/
+    left: 0;
+    right: 0;
+    top: 100%;
+}
+
+.search-results li {
+    height: 40px;
+    padding: 10px 15px;
 }

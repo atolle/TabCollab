@@ -16,7 +16,7 @@
             </li>
         </ul>
     </form>
-    <form asp-area="" class="navbar-form">
+    <form id="search-form" class="navbar-left navbar-form search-form" asp-controller="Friends" asp-action="Search" data-ajax="true" data-ajax-method="POST">
         <div class="input-group">
             <input type="text" class="form-control" placeholder="Search">
             <div class="input-group-btn">
@@ -24,6 +24,7 @@
                     <span class="glyphicon glyphicon-search"></span>
                 </button>
             </div>
+            <ul class="list-group search-results"></ul>
         </div>
     </form>
 }

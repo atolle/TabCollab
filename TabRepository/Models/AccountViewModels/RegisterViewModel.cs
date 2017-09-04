@@ -17,6 +17,15 @@ namespace TabRepository.Models.AccountViewModels
         [Display(Name = "Email")]
         public string Email { get; set; }
 
+        [Display(Name = "Firstname")]
+        public string FirstName { get; set; }
+
+        [Display(Name = "Lastname")]
+        public string LastName { get; set; }
+
+        [Display(Name = "Bio")]
+        public string Bio { get; set; }
+
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]

@@ -2,7 +2,7 @@
 using System.Linq;
 using TabRepository.Data;
 
-namespace TabRespository.Controllers
+namespace TabRepository.Controllers
 {
     public class FriendsController : Controller
     {

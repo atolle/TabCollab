@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using TabRepository.Models;
 
-namespace TabRespository.Models
+namespace TabRepository.Models
 {
     public class Project
     {
@@ -17,6 +17,8 @@ namespace TabRespository.Models
         public string Name { get; set; }
 
         public string Description { get; set; }
+
+        public string ImageFileName { get; set; }
 
         public DateTime DateCreated { get; set; }
 

@@ -9,8 +9,8 @@ using TabRepository.Models;
 namespace TabRepository.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20170903213411_AddUserPropsToApplicationUser")]
-    partial class AddUserPropsToApplicationUser
+    [Migration("20170904011828_AddImageToProjects")]
+    partial class AddImageToProjects
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -210,6 +210,8 @@ namespace TabRepository.Data.Migrations
                     b.Property<DateTime>("DateModified");
 
                     b.Property<string>("Description");
+
+                    b.Property<string>("ImageFileName");
 
                     b.Property<string>("Name")
                         .IsRequired()

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TabRespository.Models
+namespace TabRepository.Models
 {
     public class TabFile
     {

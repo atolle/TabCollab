@@ -1,25 +1,31 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using TabRepository;
+using System.Threading.Tasks;
 using TabRepository.Data;
+using TabRepository.Helpers;
 using TabRepository.Models;
-using TabRespository.Models;
-using TabRespository.ViewModels;
+using TabRepository.ViewModels;
 
-namespace TabRespository.Controllers
+namespace TabRepository.Controllers
 {
     [Authorize]
     public class ProjectsController : Controller
     {
         private ApplicationDbContext _context;
+        private FileUploader _fileUploader;
+        private readonly IHostingEnvironment _appEnvironment;
 
-        public ProjectsController(ApplicationDbContext context)
+        public ProjectsController(ApplicationDbContext context, IHostingEnvironment appEnvironment)
         {
-            _context = context;      
+            _context = context;
+            _appEnvironment = appEnvironment;
+            _fileUploader = new FileUploader(context, appEnvironment);  
         }
 
         protected override void Dispose(bool disposing)
@@ -67,7 +73,7 @@ namespace TabRespository.Controllers
         // POST: Projects
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult AjaxSave(ProjectFormViewModel viewModel)
+        public async Task<IActionResult> AjaxSave(ProjectFormViewModel viewModel)
         {
             if (!ModelState.IsValid)    // If not valid, set the view model to current customer
             {                           // initialize membershiptypes and pass it back to same view
@@ -87,11 +93,13 @@ namespace TabRespository.Controllers
                         Description = viewModel.Description,
                         DateCreated = DateTime.Now,
                         DateModified = DateTime.Now,
+                        ImageFileName = viewModel.Image.FileName
                     };
 
                     _context.Projects.Add(project);
-
                     _context.SaveChanges();
+
+                    await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + project.Id.ToString());
 
                     return RedirectToAction("GetEmptyTabVersionsTable", "TabVersions", new { id = project.Id });
                     //return RedirectToAction("GetEmptyTabVersionsTable", "TabVersions");//, project);
@@ -132,11 +140,32 @@ namespace TabRespository.Controllers
         public ViewResult Index()
         {
             string currentUserId = User.GetUserId();
+            List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
 
             // Return a list of all Projects belonging to the current user
             var projects = _context.Projects.Where(p => p.UserId == currentUserId).ToList();
 
-            return View(projects);
+            foreach (var proj in projects)
+            {
+                var elem = new ProjectIndexViewModel()
+                {
+                    Id = proj.Id,
+                    UserId = proj.UserId,
+                    Name = proj.Name,
+                    Description = proj.Description,
+                    ImageFileName = proj.ImageFileName,
+                    ImageFilePath = "/images/" + proj.UserId + "/Project" + proj.Id + "/" + proj.ImageFileName,
+                    DateCreated = proj.DateCreated,
+                    DateModified = proj.DateModified,
+                    User = proj.User,
+                    Tabs = proj.Tabs
+                };
+
+                // Add projects to project view model
+                viewModel.Add(elem);
+            }
+
+            return View(viewModel);
         }
 
         public ApplicationUser GetCurrentUser()
@@ -183,6 +212,5 @@ namespace TabRespository.Controllers
 
             return PartialView("_ProjectForm", viewModel);
         }
-
     }
 }

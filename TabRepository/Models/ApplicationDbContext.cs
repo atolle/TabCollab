@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TabRepository.Models;
-using TabRespository.Models;
+using TabRepository.Models;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace TabRepository.Data

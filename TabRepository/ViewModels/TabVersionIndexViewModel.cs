@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using TabRespository.Models;
+using TabRepository.Models;
 
-namespace TabRespository.ViewModels
+namespace TabRepository.ViewModels
 {
     public class TabVersionIndexViewModel
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
-namespace TabRespository.ViewModels
+namespace TabRepository.ViewModels
 {
     public class TabVersionFormViewModel
     {

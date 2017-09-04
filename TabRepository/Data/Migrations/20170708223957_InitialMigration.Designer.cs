@@ -174,7 +174,7 @@ namespace TabRepository.Data.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("TabRespository.Models.Friend", b =>
+            modelBuilder.Entity("TabRepository.Models.Friend", b =>
                 {
                     b.Property<string>("User1Id");
 
@@ -193,7 +193,7 @@ namespace TabRepository.Data.Migrations
                     b.ToTable("Friends");
                 });
 
-            modelBuilder.Entity("TabRespository.Models.Project", b =>
+            modelBuilder.Entity("TabRepository.Models.Project", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -217,7 +217,7 @@ namespace TabRepository.Data.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("TabRespository.Models.Tab", b =>
+            modelBuilder.Entity("TabRepository.Models.Tab", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -247,7 +247,7 @@ namespace TabRepository.Data.Migrations
                     b.ToTable("Tabs");
                 });
 
-            modelBuilder.Entity("TabRespository.Models.TabFile", b =>
+            modelBuilder.Entity("TabRepository.Models.TabFile", b =>
                 {
                     b.Property<int>("Id");
 
@@ -262,7 +262,7 @@ namespace TabRepository.Data.Migrations
                     b.ToTable("TabFiles");
                 });
 
-            modelBuilder.Entity("TabRespository.Models.TabVersion", b =>
+            modelBuilder.Entity("TabRepository.Models.TabVersion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -323,7 +323,7 @@ namespace TabRepository.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("TabRespository.Models.Friend", b =>
+            modelBuilder.Entity("TabRepository.Models.Friend", b =>
                 {
                     b.HasOne("TabRepository.Models.ApplicationUser", "ActingUser")
                         .WithMany()
@@ -338,16 +338,16 @@ namespace TabRepository.Data.Migrations
                         .HasForeignKey("User2Id");
                 });
 
-            modelBuilder.Entity("TabRespository.Models.Project", b =>
+            modelBuilder.Entity("TabRepository.Models.Project", b =>
                 {
                     b.HasOne("TabRepository.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("TabRespository.Models.Tab", b =>
+            modelBuilder.Entity("TabRepository.Models.Tab", b =>
                 {
-                    b.HasOne("TabRespository.Models.Project", "Project")
+                    b.HasOne("TabRepository.Models.Project", "Project")
                         .WithMany("Tabs")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -357,17 +357,17 @@ namespace TabRepository.Data.Migrations
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("TabRespository.Models.TabFile", b =>
+            modelBuilder.Entity("TabRepository.Models.TabFile", b =>
                 {
-                    b.HasOne("TabRespository.Models.TabVersion", "TabVersion")
+                    b.HasOne("TabRepository.Models.TabVersion", "TabVersion")
                         .WithOne("TabFile")
-                        .HasForeignKey("TabRespository.Models.TabFile", "Id")
+                        .HasForeignKey("TabRepository.Models.TabFile", "Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("TabRespository.Models.TabVersion", b =>
+            modelBuilder.Entity("TabRepository.Models.TabVersion", b =>
                 {
-                    b.HasOne("TabRespository.Models.Tab", "Tab")
+                    b.HasOne("TabRepository.Models.Tab", "Tab")
                         .WithMany("TabVersions")
                         .HasForeignKey("TabId")
                         .OnDelete(DeleteBehavior.Cascade);

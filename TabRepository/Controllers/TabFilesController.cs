@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using TabRepository.Data;
 
-namespace TabRespository.Controllers
+namespace TabRepository.Controllers
 {
     [Authorize]
     public class TabFilesController : Controller

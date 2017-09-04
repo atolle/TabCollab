@@ -1,7 +1,8 @@
-﻿using TabRespository.Models;
+﻿using TabRepository.Models;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
-namespace TabRespository.ViewModels
+namespace TabRepository.ViewModels
 {
     public class ProjectFormViewModel
     {
@@ -12,7 +13,9 @@ namespace TabRespository.ViewModels
         [StringLength(255)]
         public string Name { get; set; }
 
-        public string Description { get; set; }     
+        public string Description { get; set; }
+
+        public IFormFile Image { get; set; }
 
         public ProjectFormViewModel()
         {

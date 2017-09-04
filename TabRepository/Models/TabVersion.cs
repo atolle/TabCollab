@@ -1,7 +1,7 @@
 ﻿using System;
 using TabRepository.Models;
 
-namespace TabRespository.Models
+namespace TabRepository.Models
 {
     public class TabVersion
     {

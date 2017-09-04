@@ -1,4 +1,4 @@
-﻿@model IEnumerable<TabRespository.Models.Project>
+﻿@model IEnumerable<TabRepository.ViewModels.ProjectIndexViewModel>
 @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -13,6 +13,7 @@
 <table class="table table-bordered table-hover">
     <thead>
         <tr>
+            <th>Image</th>
             <th>Project</th>
             <th>Description</th>
             <th></th>
@@ -23,6 +24,7 @@
         @foreach (var project in Model)
         {
             <tr>
+                <td><img src="@project.ImageFilePath" alt="ASP.NET" class="img-responsive" /></td>               
                 <td>@Html.ActionLink(@project.Name, "Index", "Tabs", new { id = project.Id }, null)</td>
                 <td>@project.Description</td>
                 <td>@Html.ActionLink("New Tab", "New", "Tabs", new { id = project.Id }, new { @class = "btn btn-primary" })</td>

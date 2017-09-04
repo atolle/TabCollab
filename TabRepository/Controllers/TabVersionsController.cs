@@ -5,13 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;
 using System.Linq;
-using TabRepository;
 using TabRepository.Data;
 using TabRepository.Models;
-using TabRespository.Models;
-using TabRespository.ViewModels;
+using TabRepository.ViewModels;
 
-namespace TabRespository.Controllers
+namespace TabRepository.Controllers
 {
     [Authorize]
     public class TabVersionsController : Controller

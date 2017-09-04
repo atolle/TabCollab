@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using TabRepository.Models;
 
-namespace TabRespository.Models
+namespace TabRepository.Models
 {
     public class Friend
     {

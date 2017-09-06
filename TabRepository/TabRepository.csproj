@@ -13,6 +13,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\lib\respond\**" />
+    <Content Remove="wwwroot\lib\respond\**" />
+    <EmbeddedResource Remove="wwwroot\lib\respond\**" />
+    <None Remove="wwwroot\lib\respond\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="wwwroot\css\32px.png" />
     <Content Include="wwwroot\css\40px.png" />
     <Content Include="wwwroot\css\jstreestyle.css" />
@@ -24,8 +31,6 @@
     <Content Include="wwwroot\Font\Bravura.woff" />
     <Content Include="wwwroot\js\Font\Bravura.otf" />
     <Content Include="wwwroot\js\Font\Bravura.woff" />
-    <Content Include="wwwroot\js\jquery.alphaTab.alphaSynth.js" />
-    <Content Include="wwwroot\js\jquery.alphaTab.js" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.0.0" />

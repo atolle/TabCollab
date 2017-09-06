@@ -6,6 +6,8 @@
     "jquery": "2.2.0",
     "jquery-validation": "1.14.0",
     "jquery-validation-unobtrusive": "3.2.6",
-    "seiyria-bootstrap-slider": "^9.8.1"
+    "seiyria-bootstrap-slider": "^9.8.1",
+    "bootbox.js": "bootbox#v4.4.0",
+    "modernizr": "v3.5.0"
   }
 }

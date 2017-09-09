@@ -10,27 +10,22 @@
     @Html.ActionLink("New Project", "New", "Projects", null, new { @class = "btn btn-primary" })
 </p>
 
-<table class="table table-bordered table-hover">
-    <thead>
-        <tr>
-            <th>Image</th>
-            <th>Project</th>
-            <th>Description</th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var project in Model)
-        {
-            <tr>
-                <td><img src="@project.ImageFilePath" alt="ASP.NET" class="img-responsive" /></td>               
-                <td>@Html.ActionLink(@project.Name, "Index", "Tabs", new { id = project.Id }, null)</td>
-                <td>@project.Description</td>
-                <td>@Html.ActionLink("New Tab", "New", "Tabs", new { id = project.Id }, new { @class = "btn btn-primary" })</td>
-                <td>@Html.ActionLink("Delete", "Delete", "Projects", new { id = project.Id }, new { @class = "btn btn-danger" })</td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="row">
+    @foreach (var project in Model)
+    {
+        <div class="col-md-4 m-b-lg">
+            <div class="panel panel-default panel-profile">
+                <div class="panel-heading" style="background-image: url('@project.ImageFilePath');"></div>
+                <div class="panel-body text-center">
+                    <h3>@project.Name</h3>
+                    <p class="m-b">Owner: @project.Owner</p>
+                    <div>
+                        @Html.ActionLink("New Tab", "New", "Tabs", new { id = project.Id }, new { @class = "btn btn-primary pull-left" })
+                        @Html.ActionLink("Delete", "Delete", "Projects", new { id = project.Id }, new { @class = "btn btn-danger pull-right" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
 

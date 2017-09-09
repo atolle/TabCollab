@@ -16,7 +16,7 @@ namespace TabRepository.ViewModels
         [StringLength(255)]
         public string Name { get; set; }
 
-        public string Description { get; set; }
+        public string Owner { get; set; }
 
         public string ImageFileName { get; set; }
 

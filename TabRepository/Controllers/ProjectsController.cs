@@ -143,7 +143,7 @@ namespace TabRepository.Controllers
             List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
 
             // Return a list of all Projects belonging to the current user
-            var projects = _context.Projects.Where(p => p.UserId == currentUserId).ToList();
+            var projects = _context.Projects.Include(u => u.User).Where(p => p.UserId == currentUserId).ToList();
 
             foreach (var proj in projects)
             {
@@ -152,7 +152,7 @@ namespace TabRepository.Controllers
                     Id = proj.Id,
                     UserId = proj.UserId,
                     Name = proj.Name,
-                    Description = proj.Description,
+                    Owner = proj.User.UserName,
                     ImageFileName = proj.ImageFileName,
                     ImageFilePath = "/images/" + proj.UserId + "/Project" + proj.Id + "/" + proj.ImageFileName,
                     DateCreated = proj.DateCreated,

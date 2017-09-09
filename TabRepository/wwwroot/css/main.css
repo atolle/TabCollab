@@ -1,11 +1,15 @@
-﻿#treeTableContainer {
+﻿html, body, .container {
+    height: 100%;
+}
+
+#treeTableContainer {
+    height: 85%;
     display: flex;
     margin: auto;
 }
 
 #treeWrapper {
     width: 250px;
-    height: 400px;
     overflow: auto;
     border: 2px solid gray; 
 }
@@ -21,10 +25,6 @@
 
 #tabVersionsTableWrapper {
     width:80%;
-}
-
-#buttonsWrapper {
-    display: flex;
 }
 
 #newTabButtonWrapper {

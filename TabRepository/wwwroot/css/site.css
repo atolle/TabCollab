@@ -49,11 +49,6 @@ textarea {
     }
 }
 
-jstree-border {
-    border-style: solid;
-    border-color: black;
-}
-
 .search-btn {
     margin-left: -4px;
 }
@@ -118,4 +113,9 @@ jstree-border {
     margin-bottom: 0 !important;
 }
 
-
+.buttons-container {
+    display: flex;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    width: 100%;
+}

@@ -114,66 +114,70 @@ namespace TabRepository.Controllers
                 // Need to return JSON failure to form
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
-            try
+            else
             {
-                if (viewModel.Id == 0)  // We are creating a new Tab
+                try
                 {
-                    string currentUserId = User.GetUserId();
-
-                    int currentVersion = _context.Tabs.Single(t => t.Id == viewModel.TabId && t.UserId == currentUserId).CurrentVersion;
-
-                    var tab = _context.Tabs.Where(t => t.Id == viewModel.TabId && t.UserId == currentUserId).Single();
-
-                    //byte[] tabData = new byte[viewModel.FileData.Length];
-                    //viewModel.FileData.InputStream.Read(tabData, 0, tabData.Length);
-
-                    TabFile tabFile = new TabFile();
-
-                    if (viewModel.FileData.Length > 0)
+                    if (viewModel.Id == 0)  // We are creating a new Tab
                     {
-                        using (var fileStream = viewModel.FileData.OpenReadStream())
-                        using (var ms = new MemoryStream())
+                        string currentUserId = User.GetUserId();
+
+                        int currentVersion = _context.Tabs.Single(t => t.Id == viewModel.TabId && t.UserId == currentUserId).CurrentVersion;
+
+                        var tab = _context.Tabs.Where(t => t.Id == viewModel.TabId && t.UserId == currentUserId).Single();
+
+                        //byte[] tabData = new byte[viewModel.FileData.Length];
+                        //viewModel.FileData.InputStream.Read(tabData, 0, tabData.Length);
+
+                        TabFile tabFile = new TabFile();
+
+                        if (viewModel.FileData.Length > 0)
                         {
-                            fileStream.CopyTo(ms);
-                            var fileBytes = ms.ToArray();
-                            tabFile.TabData = fileBytes;
+                            using (var fileStream = viewModel.FileData.OpenReadStream())
+                            using (var ms = new MemoryStream())
+                            {
+                                fileStream.CopyTo(ms);
+                                var fileBytes = ms.ToArray();
+                                tabFile.TabData = fileBytes;
+                            }
+
+                            tabFile.Name = viewModel.FileData.FileName;
+                            tabFile.DateCreated = DateTime.Now;
                         }
 
-                        tabFile.Name = viewModel.FileData.FileName;
-                        tabFile.DateCreated = DateTime.Now;
+                        TabVersion tabVersion = new TabVersion()
+                        {
+                            // Create new TabVersion
+                            UserId = User.GetUserId(),
+                            Version = currentVersion + 1,        // Maybe do MAX(Version) + 1
+                            Description = viewModel.Description,
+                            DateCreated = DateTime.Now,
+                            Tab = tab,
+                            TabFile = tabFile
+                        };
+
+                        _context.TabFiles.Add(tabFile);
+                        _context.TabVersions.Add(tabVersion);
+
+                        // Update Tab's current version to most recent TabVersion
+                        tab.CurrentVersion = tabVersion.Version;
+
+                        _context.SaveChanges();
+
+                        // Return tab name and id
+                        return Json(new { name = tab.Name, id = tab.Id });
                     }
-                  
-                    TabVersion tabVersion = new TabVersion()
+                    else
                     {
-                        // Create new TabVersion
-                        UserId = User.GetUserId(),
-                        Version = currentVersion + 1,        // Maybe do MAX(Version) + 1
-                        Description = viewModel.Description,
-                        DateCreated = DateTime.Now,
-                        Tab = tab,
-                        TabFile = tabFile 
-                    };
-
-                    _context.TabFiles.Add(tabFile);
-                    _context.TabVersions.Add(tabVersion);
-
-                    // Update Tab's current version to most recent TabVersion
-                    tab.CurrentVersion = tabVersion.Version;
-
-                    _context.SaveChanges();
-
-                    return RedirectToAction("UpdateTabVersionsTable", "TabVersions", new { id = tab.Id });
+                        // TO DO: Return correct table when editing a tab version
+                        return Json(new { });
+                    }
                 }
-                else
+                catch
                 {
-                    // TO DO: Return correct table when editing a tab version
-                    return RedirectToAction("GetEmptyTabVersionsTable", "TabVersions", null);
+                    // Need to return JSON failure to form
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
-            }
-            catch
-            {
-                // Need to return JSON failure to form
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
 

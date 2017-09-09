@@ -4,9 +4,8 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<p></p>
-<div id="buttonsWrapper" style="width: 100%">
-    <div id="newProjectButton">
+<div class="buttons-container">
+    <div id="new-project-button">
         @Html.ActionLink("New Project", "New", "Projects", null, new { @class = "btn btn-primary" })
     </div>
     <div id="newTabButtonWrapper">
@@ -16,7 +15,7 @@
         <button class="btn btn-primary" disabled>New Tab Version</button>
     </div>
 </div>
-<p></p>
+
 <link href="~/css/jstreestyle.css" rel="stylesheet" />
 <link href="~/css/main.css" rel="stylesheet" />
 
@@ -83,18 +82,14 @@
 </div>
 
 @section scripts
-{
-    @*<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>*@
+{    
     <script src="~/js/jstree.min.js"></script>
-    <script src="~/js/jqueryval.js"></script>
-    <script src="~/js/bootstrap.js"></script>
-    <script src="~/js/jquery.unobtrusive-ajax.min.js"></script>
-    @*@Scripts.Render("~/Scripts/datatables/jquery.datatables.js")
-    @Scripts.Render("~/Scripts/datatables/datatables.bootstrap.js")*@
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
 
     <script>
     $(document).ready(function () {
-        
+
 
         $(function () {
             $("#jstree").jstree({
@@ -149,32 +144,37 @@
         $(document).on("click", "#delete", function (e, data) {
             e.preventDefault();
             var href = this.href;
-            
+
             bootbox.confirm("Are you sure you wish to delete this tab version? This cannot be undone.", function (result) {
                 if (result) {
-                    $.post(href, function (data) {
-                        var nodeId = $("#jstree").jstree().get_selected(true)[0].id;
-                        // Update tab versions table 
-                        if (nodeId.substring(0, 3) == 'tab') {
-                            nodeId = nodeId.substring(4);
-
-                            var $tabVersionsTableWrapper = $('#tabVersionsTableWrapper'),
-                            url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
-                            $.get(url, function (data) {
-                                $('#tabVersionsTableWrapper').empty().append(data);
-                            });
+                    $.post(href, function (response) {
+                        if (!response.success) {
+                            bootbox.alert("Unable to delete.");
                         }
-                        else if (nodeId.substring(0, 7) == 'project') {
-                            nodeId = nodeId.substring(8);
-                            url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
-                            $.get(url, function (data) {
-                                $('#tabVersionsTableWrapper').empty().append(data);
-                            })
+                        else {
+                            var nodeId = $("#jstree").jstree().get_selected(true)[0].id;
+                            // Update tab versions table
+                            if (nodeId.substring(0, 3) == 'tab') {
+                                nodeId = nodeId.substring(4);
+
+                                var $tabVersionsTableWrapper = $('#tabVersionsTableWrapper'),
+                                url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
+                                $.get(url, function (data) {
+                                    $('#tabVersionsTableWrapper').empty().append(data);
+                                });
+                            }
+                            else if (nodeId.substring(0, 7) == 'project') {
+                                nodeId = nodeId.substring(8);
+                                url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
+                                $.get(url, function (data) {
+                                    $('#tabVersionsTableWrapper').empty().append(data);
+                                })
+                            }
                         }
                     });
                 }
-            }) 
-            
+            })
+
 
         });
 
@@ -203,7 +203,7 @@
         });
 
         // Show modal for new project
-        $(document).on("click", "#newProjectButton", function (e, data) {
+        $(document).on("click", "#new-project-button", function (e, data) {
             e.preventDefault();
 
             var url = $('#projectFormModal').data('url');
@@ -274,33 +274,51 @@
                         if (xhr.readyState === 4) {
                             if (xhr.status === 200) {
                                 // Replace tab version table with returned html (either new table or empty table)
-                                $('#tabVersionsTableWrapper').empty().append(xhr.responseText);
+                                var response = JSON.parse(xhr.responseText);
 
-                                // Here I'm replacing the tabversion table, which include tab id
-                                // Then I'm using that tab id to identify the jstree node
+                                // Here we're replacing the tabversion table, which include tab id
+                                // Then we're using that tab id to identify the jstree node
                                 if (formHtml.id === "tab-form") {
+                                    var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
+
+                                    $.get(url, function (data) {
+                                        $('#tabVersionsTableWrapper').empty().append(data);
+                                    });
+
                                     // Create new tab node and select it - expand and deselect project node
                                     var currentNode = $("#jstree").jstree().get_selected(true)[0];
                                     $("#jstree").jstree().open_node(currentNode.id, false, false);
-                                    $("#jstree").jstree().create_node(currentNode.id, { id: "tab " + $("#tabId").text(), text: $("#tabName").text() }, "last", false, false);
+                                    $("#jstree").jstree().create_node(currentNode.id, { id: "tab " + response.id, text: response.name }, "last", false, false);
                                     $("#jstree").jstree().deselect_node(currentNode.id, false, false);
-                                    $("#jstree").jstree().select_node("tab " + $("#tabId").text(), false, false);
+                                    $("#jstree").jstree().select_node("tab " + response.id, false, false);
+                                }
+                                else if (formHtml.id === "tabversion-form") {
+                                    var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
+
+                                    $.get(url, function (data) {
+                                        $('#tabVersionsTableWrapper').empty().append(data);
+                                    });
                                 }
                                 // This will handle new project
                                 else if (formHtml.id === "project-form") {
+                                    var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
+
+                                    $.get(url, function (data) {
+                                        $('#tabVersionsTableWrapper').empty().append(data);
+                                    });
                                     var currentNode = $("#jstree").jstree().get_selected(true)[0];
                                     if (currentNode != null) {
                                         $("#jstree").jstree().deselect_node(currentNode.id, false, false);
                                     }
-                                    $("#jstree").jstree().create_node("#", { id: "project " + $("#projectId").text(), text: $("#projectName").text() }, "last", false, false);
-                                    $("#jstree").jstree().select_node("project " + $("#projectId").text(), false, false);
+                                    $("#jstree").jstree().create_node("#", { id: "project " + response.id, text: response.name }, "last", false, false);
+                                    $("#jstree").jstree().select_node("project " + response.id, false, false);
                                 }
                             } else {
                                 handleSaveError(xhr.status);
                             }
                         }
                     };
-                }                
+                }
             }
         }, true);
 

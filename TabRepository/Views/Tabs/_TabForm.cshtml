@@ -27,11 +27,11 @@
                     @Html.ValidationMessageFor(t => t.FileData)
                 </div>
                 @Html.HiddenFor(t => t.ProjectId)
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-primary" id="tabSave" @*data-dismiss="modal" *@> Save</button>
+                @Html.AntiForgeryToken()                
             </form>
         </div>
         <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" form="tab-form"> Save</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
     </div>

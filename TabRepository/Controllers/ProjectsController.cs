@@ -78,46 +78,44 @@ namespace TabRepository.Controllers
             if (!ModelState.IsValid)    // If not valid, set the view model to current customer
             {                           // initialize membershiptypes and pass it back to same view
                 // Need to return JSON failure to form
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError); 
-            }
-
-            try
-            {
-                if (viewModel.Id == 0)  // We are creating a new project
-                {
-                    // Saving properties for new Project
-                    Project project = new Project()
-                    {
-                        UserId = User.GetUserId(),
-                        Name = viewModel.Name,
-                        Description = viewModel.Description,
-                        DateCreated = DateTime.Now,
-                        DateModified = DateTime.Now,
-                        ImageFileName = viewModel.Image.FileName
-                    };
-
-                    _context.Projects.Add(project);
-                    _context.SaveChanges();
-
-                    await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + project.Id.ToString());
-
-                    return RedirectToAction("GetEmptyTabVersionsTable", "TabVersions", new { id = project.Id });
-                    //return RedirectToAction("GetEmptyTabVersionsTable", "TabVersions");//, project);
-                    //return GetEmptyTabVersionsTable(project);
-                    //return PartialView("_EmptyTabVersionsTable");
-                }
-                else
-                {
-                    // Handle edit of project
-                }
-
-                return RedirectToAction("GetEmptyTabVersionsTable", "TabVersions");
-            }
-            catch
-            {
-                // Need to return JSON failure to form
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }    
+            }
+            else
+            {
+                try
+                {
+                    if (viewModel.Id == 0)  // We are creating a new project
+                    {
+                        // Saving properties for new Project
+                        Project project = new Project()
+                        {
+                            UserId = User.GetUserId(),
+                            Name = viewModel.Name,
+                            Description = viewModel.Description,
+                            DateCreated = DateTime.Now,
+                            DateModified = DateTime.Now,
+                            ImageFileName = viewModel.Image.FileName
+                        };
+
+                        _context.Projects.Add(project);
+                        _context.SaveChanges();
+
+                        await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + project.Id.ToString());
+
+                        return Json(new { name = project.Name, id = project.Id });
+                    }
+                    else
+                    {
+                        // Handle edit of project
+                        return Json(new { });
+                    }
+                }
+                catch
+                {
+                    // Need to return failure to form
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+            } 
         }
 
         public ActionResult Delete(int id)
@@ -136,6 +134,29 @@ namespace TabRepository.Controllers
             return RedirectToAction("Main", "Projects");
         }
 
+        public ActionResult AjaxDelete(int id)
+        {
+            try
+            {
+                string currentUserId = User.GetUserId();
+
+                var projectInDb = _context.Projects.SingleOrDefault(p => p.Id == id && p.UserId == currentUserId);
+
+                // If current user does not have access to project or project does not exist
+                if (projectInDb == null)
+                    return NotFound();
+
+                _context.Projects.Remove(projectInDb);
+                _context.SaveChanges();
+
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return Json(new { success = false });
+            }
+        }
+
         // GET: Projects
         public ViewResult Index()
         {
@@ -143,7 +164,10 @@ namespace TabRepository.Controllers
             List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
 
             // Return a list of all Projects belonging to the current user
-            var projects = _context.Projects.Include(u => u.User).Where(p => p.UserId == currentUserId).ToList();
+            var projects = _context.Projects.Include(u => u.User)
+                .Where(p => p.UserId == currentUserId)
+                .OrderBy(p => p.Name)
+                .ToList();
 
             foreach (var proj in projects)
             {
@@ -211,6 +235,41 @@ namespace TabRepository.Controllers
             var viewModel = new ProjectFormViewModel();
 
             return PartialView("_ProjectForm", viewModel);
+        }
+
+        [HttpGet]
+        public ActionResult GetProjectListPartialView()
+        {
+            string currentUserId = User.GetUserId();
+            List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
+
+            // Return a list of all Projects belonging to the current user
+            var projects = _context.Projects.Include(u => u.User)
+                .Where(p => p.UserId == currentUserId)
+                .OrderBy(p => p.Name)
+                .ToList();
+
+            foreach (var proj in projects)
+            {
+                var elem = new ProjectIndexViewModel()
+                {
+                    Id = proj.Id,
+                    UserId = proj.UserId,
+                    Name = proj.Name,
+                    Owner = proj.User.UserName,
+                    ImageFileName = proj.ImageFileName,
+                    ImageFilePath = "/images/" + proj.UserId + "/Project" + proj.Id + "/" + proj.ImageFileName,
+                    DateCreated = proj.DateCreated,
+                    DateModified = proj.DateModified,
+                    User = proj.User,
+                    Tabs = proj.Tabs
+                };
+
+                // Add projects to project view model
+                viewModel.Add(elem);
+            }
+
+            return PartialView("_ProjectList", viewModel);
         }
     }
 }

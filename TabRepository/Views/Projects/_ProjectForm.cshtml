@@ -27,10 +27,10 @@
                 </div>
                 @Html.HiddenFor(m => m.Id)
                 @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-primary"> Save</button>
             </form>
         </div>
         <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" form="project-form"> Save</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
     </div>

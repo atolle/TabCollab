@@ -120,74 +120,75 @@ namespace TabRepository.Controllers
                 // Need to return JSON failure to form
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
-            try
+            else
             {
-                if (viewModel.Id == 0)  // We are creating a new Tab
+                try
                 {
-                    string currentUserId = User.GetUserId();
-
-                    TabFile tabFile = new TabFile();
-
-                    if (viewModel.FileData.Length > 0)
+                    if (viewModel.Id == 0)  // We are creating a new Tab
                     {
-                        using (var fileStream = viewModel.FileData.OpenReadStream())
-                        using (var ms = new MemoryStream())
+                        string currentUserId = User.GetUserId();
+
+                        TabFile tabFile = new TabFile();
+
+                        if (viewModel.FileData.Length > 0)
                         {
-                            fileStream.CopyTo(ms);
-                            var fileBytes = ms.ToArray();
-                            tabFile.TabData = fileBytes;
+                            using (var fileStream = viewModel.FileData.OpenReadStream())
+                            using (var ms = new MemoryStream())
+                            {
+                                fileStream.CopyTo(ms);
+                                var fileBytes = ms.ToArray();
+                                tabFile.TabData = fileBytes;
+                            }
+
+                            tabFile.Name = viewModel.FileData.FileName;
+                            tabFile.DateCreated = DateTime.Now;
                         }
 
-                        tabFile.Name = viewModel.FileData.FileName;
-                        tabFile.DateCreated = DateTime.Now;
+                        // Create new Tab
+                        Tab tab = new Tab()
+                        {
+                            UserId = User.GetUserId(),
+                            Project = _context.Projects.Single(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId),
+                            Name = viewModel.Name,
+                            Description = viewModel.Description,
+                            DateCreated = DateTime.Now,
+                            DateModified = DateTime.Now,
+                            CurrentVersion = 1
+                        };
+
+                        // Create first Tab Version
+                        TabVersion tabVersion = new TabVersion()
+                        {
+                            Version = 1,                    // NEED TO DETERMINE HOW TO REFERENCE TABVERSION
+                            Description = viewModel.Description,    // TO TABFILE AND VICE VERSA
+                            UserId = tab.UserId,                    // CHICKEN AND THE EGG PROBLEM
+                            DateCreated = tab.DateCreated,
+                            Tab = tab,
+                            TabFile = tabFile
+                        };
+
+                        tabVersion.TabFile = tabFile;
+
+                        _context.Tabs.Add(tab);
+                        _context.TabVersions.Add(tabVersion);
+                        _context.TabFiles.Add(tabFile);
+                        _context.SaveChanges();
+
+                        // Return tab name and id
+                        return Json(new { name = tab.Name, id = tab.Id });
                     }
-
-                    // Create new Tab
-                    Tab tab = new Tab()
+                    else
                     {
-                        UserId = User.GetUserId(),
-                        Project = _context.Projects.Single(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId),
-                        Name = viewModel.Name,
-                        Description = viewModel.Description,
-                        DateCreated = DateTime.Now,
-                        DateModified = DateTime.Now,
-                        CurrentVersion = 1
-                    };
-
-                    // Create first Tab Version
-                    TabVersion tabVersion = new TabVersion()
-                    {
-                        Version = 1,                    // NEED TO DETERMINE HOW TO REFERENCE TABVERSION
-                        Description = viewModel.Description,    // TO TABFILE AND VICE VERSA
-                        UserId = tab.UserId,                    // CHICKEN AND THE EGG PROBLEM
-                        DateCreated = tab.DateCreated,
-                        Tab = tab,
-                        TabFile = tabFile
-                    };
-
-                    tabVersion.TabFile = tabFile;
-
-                    _context.Tabs.Add(tab);
-                    _context.TabVersions.Add(tabVersion);
-                    _context.TabFiles.Add(tabFile);
-                    _context.SaveChanges();
-
-                    // Redirect to list of tabs for current Project
-                    //return RedirectToAction("Index", "Tabs", new { id = viewModel.ProjectId });
-                    return RedirectToAction("UpdateTabVersionsTable", "TabVersions", new { id = tab.Id });
+                        // TO DO: Return correct table when editing a tab                        
+                        return Json(new { });
+                    }
                 }
-                else
+                catch
                 {
-                    // TO DO: Return correct table when editing a tab
-                    return RedirectToAction("GetEmptyTabVersionsTable", "TabVersions", null);
+                    // Need to return failure to form
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
-            }
-            catch
-            {
-                // Need to return JSON failure to form
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
-            
+            }            
         }
 
         // GET: Tabs

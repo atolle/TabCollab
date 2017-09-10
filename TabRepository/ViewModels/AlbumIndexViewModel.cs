@@ -5,14 +5,14 @@ using TabRepository.Models;
 
 namespace TabRepository.ViewModels
 {
-    public class ProjectIndexViewModel 
+    public class AlbumIndexViewModel
     {
         public int Id { get; set; }
 
         public string UserId { get; set; }
 
         [Required]
-        [Display(Name = "Project Name")]
+        [Display(Name = "Album Name")]
         [StringLength(255)]
         public string Name { get; set; }
 
@@ -28,6 +28,6 @@ namespace TabRepository.ViewModels
 
         public virtual ApplicationUser User { get; set; }
 
-        public virtual ICollection<Album> Albums { get; set; }
+        public virtual ICollection<Tab> Tabs { get; set; }
     }
 }

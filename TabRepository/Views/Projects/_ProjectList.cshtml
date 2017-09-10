@@ -10,7 +10,7 @@
                     <h3>@project.Name</h3>
                     <p class="m-b">Owner: @project.Owner</p>
                     <div>
-                        @Html.ActionLink("New Tab", "New", "Tabs", new { id = project.Id }, new { @class = "btn btn-primary pull-left" })
+                        @Html.ActionLink("New Album", "New", "Albums", new { id = project.Id }, new { @class = "btn btn-primary pull-left" })
                         @Html.ActionLink("Delete", "AjaxDelete", "Projects", new { id = project.Id }, new { @class = "btn btn-danger pull-right", id = "delete" })
                     </div>
                 </div>

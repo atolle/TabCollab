@@ -17,9 +17,9 @@ namespace TabRepository.ViewModels
 
         public string Description { get; set; }
 
-        public int ProjectId { get; set; }
+        public int AlbumId { get; set; }
 
-        public string ProjectName { get; set; }
+        public string AlbumName { get; set; }
 
         public TabFormViewModel()
         {

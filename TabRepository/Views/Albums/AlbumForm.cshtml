@@ -1,0 +1,31 @@
+@model TabRepository.ViewModels.AlbumFormViewModel
+@{
+    ViewBag.Title = "AlbumForm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>New Album</h2>
+
+<p>PROJECT NAME: @Model.ProjectName</p>
+
+<form id="project-form" asp-controller="Albums" asp-action="Save" data-ajax="true" data-ajax-method="POST">
+    @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
+    <div class="form-group">
+        @Html.LabelFor(m => m.Name)
+        @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Name)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Description)
+        @Html.TextBoxFor(m => m.Description, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Description)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Image)
+        @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default" })
+        @Html.ValidationMessageFor(m => m.Image)
+    </div>
+    @Html.HiddenFor(m => m.ProjectId)
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-primary"> Save</button>
+</form>

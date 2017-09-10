@@ -193,7 +193,7 @@ namespace TabRepository.Controllers
                 TabVersions = _context.TabVersions.Where(v => v.UserId == currentUserId && v.TabId == id).ToList(),
                 TabName = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId).Name,
                 TabId = id,
-                ProjectId = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId).ProjectId
+                ProjectId = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId).AlbumId
             };
 
             return View(viewModel);
@@ -214,7 +214,7 @@ namespace TabRepository.Controllers
                     .Where(v => v.UserId == currentUserId && v.TabId == id).ToList(),
                 TabName = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId).Name,
                 TabId = id,
-                ProjectId = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId).ProjectId
+                ProjectId = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId).AlbumId
             };
 
             return PartialView("_TabVersionsTable", viewModel);
@@ -301,20 +301,20 @@ namespace TabRepository.Controllers
 
         // GET: Tab version form
         [HttpGet]
-        public ActionResult GetTabVersionFormPartialView(int id)
+        public ActionResult GetTabVersionFormPartialView(int tabId)
         {
             string currentUserId = User.GetUserId();
 
             // Verify current user has access to this Tab
-            var tabInDb = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId);
+            var tabInDb = _context.Tabs.Single(t => t.Id == tabId && t.UserId == currentUserId);
 
             if (tabInDb == null)
                 return NotFound();
 
             var viewModel = new TabVersionFormViewModel()
             {
-                TabId = id,
-                TabName = _context.Tabs.Single(t => t.Id == id).Name
+                TabId = tabId,
+                TabName = _context.Tabs.Single(t => t.Id == tabId).Name
             };
 
             return PartialView("_TabVersionForm", viewModel);

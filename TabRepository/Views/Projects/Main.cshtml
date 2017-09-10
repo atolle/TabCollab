@@ -8,10 +8,13 @@
     <div id="new-project-button">
         @Html.ActionLink("New Project", "New", "Projects", null, new { @class = "btn btn-primary" })
     </div>
-    <div id="newTabButtonWrapper">
-        <button class="btn btn-primary" disabled>New Tab</button>
+    <div id="new-album-button-container">
+        <button class="btn btn-primary" disabled>New Album</button>
     </div>
-    <div id="newTabVersionButtonWrapper">
+    <div id="new-tab-button-container">
+        <button class="btn btn-primary pull-right" disabled>New Tab</button>
+    </div>
+    <div id="new-tab-version-button-container">
         <button class="btn btn-primary" disabled>New Tab Version</button>
     </div>
 </div>
@@ -27,10 +30,18 @@
                 {
                     <li id="project @project.Id">
                         @project.Name
-                        @foreach (var tab in project.Tabs)
+                        @foreach (var album in project.Albums)
                         {
                             <ul>
-                                <li id="tab @tab.Id">@tab.Name</li>
+                                <li id="album @album.Id" data-jstree='{"icon":"/images/cd(16x12).png"}'>
+                                    @album.Name
+                                    @foreach (var tab in album.Tabs)
+                                    {
+                                        <ul>
+                                            <li id="tab @tab.Id" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>@tab.Name</li>
+                                        </ul>
+                                    }
+                                </li>
                             </ul>
                         }
                     </li>
@@ -39,7 +50,7 @@
         </div>
     </div>
     <div id="splitter"></div>
-    <div id="tabVersionsTableWrapper">
+    <div id="tab-versions-table-container">
         <table class="table table-bordered table-hover">
             <thead>
                 <tr>
@@ -53,12 +64,6 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>Select a tab</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
                 </tr>
             </tbody>
         </table>
@@ -66,18 +71,23 @@
 </div>
 <p></p>
 
-<div id='tabFormModal' class='modal fade' data-url='@Url.Action("GetTabFormPartialView", "Tabs")'>
-    <div id='tabFormContainer'>
+<div id='tab-form-modal' class='modal fade' data-url='@Url.Action("GetTabFormPartialView", "Tabs")'>
+    <div id='tab-form-container'>
     </div>
 </div>
 
-<div id='projectFormModal' class='modal fade' data-url='@Url.Action("GetProjectFormPartialView", "Projects")'>
-    <div id='projectFormContainer'>
+<div id='project-form-modal' class='modal fade' data-url='@Url.Action("GetProjectFormPartialView", "Projects")'>
+    <div id='project-form-container'>
     </div>
 </div>
 
-<div id='tabVersionFormModal' class='modal fade' data-url='@Url.Action("GetTabVersionFormPartialView", "TabVersions")'>
-    <div id='tabVersionFormContainer'>
+<div id='album-form-modal' class='modal fade' data-url='@Url.Action("GetAlbumFormPartialView", "Albums")'>
+    <div id='album-form-container'>
+    </div>
+</div>
+
+<div id='tab-version-form-modal' class='modal fade' data-url='@Url.Action("GetTabVersionFormPartialView", "TabVersions")'>
+    <div id='tab-version-form-container'>
     </div>
 </div>
 
@@ -112,30 +122,45 @@
             if (nodeId.substring(0, 3) == 'tab') {
                 nodeId = nodeId.substring(4);
 
-                var $tabVersionsTableWrapper = $('#tabVersionsTableWrapper'),
-                url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
+                //var $tab-versions-table-container = $('#tab-versions-table-container'),
+                var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
 
                 $.get(url, function (data) {
-                    $('#tabVersionsTableWrapper').empty().append(data);
+                    $('#tab-versions-table-container').empty().append(data);
 
                 });
-                $('#newTabButtonWrapper').empty().append('<button class="btn btn-primary" disabled>New Tab</button>');
+                $('#new-tab-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab</button>');
 
-                var actionLink = '@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = -1 }, new { @class = "btn btn-primary", id = "newTabVersionButton" })'
+                var actionLink = '@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = -1 }, new { @class = "btn btn-primary", id = "new-tab-version-button" })'
                 actionLink = actionLink.replace('-1', nodeId);
-                $('#newTabVersionButtonWrapper').empty().append(actionLink);
+                $('#new-tab-version-button-container').empty().append(actionLink);
+            }
+            else if (nodeId.substring(0, 5) == 'album') {
+                nodeId = nodeId.substring(6);
+                var actionLink = '@Html.ActionLink("New Tab", "New", "Tabs", new { id = -1 }, new { @class = "btn btn-primary", id = "new-tab-button" })'
+                actionLink = actionLink.replace('-1', nodeId);
+                $('#new-tab-button-container').empty().append(actionLink);
+                $('#new-album-button-container').empty().append('<button class="btn btn-primary" disabled>New Album</button>');
+                $('#new-tab-version-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab Version</button>');
+
+                var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
+
+                $.get(url, function (data) {
+                    $('#tab-versions-table-container').empty().append(data);
+                })
             }
             else if (nodeId.substring(0, 7) == 'project') {
                 nodeId = nodeId.substring(8);
-                var actionLink = '@Html.ActionLink("New Tab", "New", "Tabs", new { id = -1 }, new { @class = "btn btn-primary", id = "newTabButton" })'
+                var actionLink = '@Html.ActionLink("New Album", "New", "Albums", new { id = -1 }, new { @class = "btn btn-primary", id = "new-album-button" })'
                 actionLink = actionLink.replace('-1', nodeId);
-                $('#newTabButtonWrapper').empty().append(actionLink);
-                $('#newTabVersionButtonWrapper').empty().append('<button class="btn btn-primary" disabled>New Tab Version</button>');
+                $('#new-album-button-container').empty().append(actionLink);
+                $('#new-tab-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab</button>');
+                $('#new-tab-version-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab Version</button>');
 
-                url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
+                var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
                 $.get(url, function (data) {
-                    $('#tabVersionsTableWrapper').empty().append(data);
+                    $('#tab-versions-table-container').empty().append(data);
                 })
             }
         });
@@ -157,46 +182,44 @@
                             if (nodeId.substring(0, 3) == 'tab') {
                                 nodeId = nodeId.substring(4);
 
-                                var $tabVersionsTableWrapper = $('#tabVersionsTableWrapper'),
-                                url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
+                                //var $tab-versions-table-container = $('#tab-versions-table-container'),
+                                var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
                                 $.get(url, function (data) {
-                                    $('#tabVersionsTableWrapper').empty().append(data);
+                                    $('#tab-versions-table-container').empty().append(data);
                                 });
                             }
                             else if (nodeId.substring(0, 7) == 'project') {
                                 nodeId = nodeId.substring(8);
-                                url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
+                                var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
                                 $.get(url, function (data) {
-                                    $('#tabVersionsTableWrapper').empty().append(data);
+                                    $('#tab-versions-table-container').empty().append(data);
                                 })
                             }
                         }
                     });
                 }
             })
-
-
         });
 
         // Show modal for new tab
-        $(document).on("click", "#newTabButton", function (e, data) {
+        $(document).on("click", "#new-tab-button", function (e, data) {
             e.preventDefault();
 
-            var url = $('#tabFormModal').data('url');
+            var url = $('#tab-form-modal').data('url');
 
             var nodeId = $("#jstree").jstree().get_selected(true)[0].id;
-            if (nodeId.substring(0, 7) == 'project') {
-                nodeId = nodeId.substring(8);
+            if (nodeId.substring(0, 5) == 'album') {
+                nodeId = nodeId.substring(6);
 
-                url = url + "?id=" + nodeId;
+                url = url + "?albumId=" + nodeId;
 
                 $.get(url, function (data) {
-                    $('#tabFormContainer').html(data);
+                    $('#tab-form-container').html(data);
 
                     // Client side validation for dynamic modal injection
                     $.validator.unobtrusive.parse($("#tab-form"));
 
-                    currentModal = $('#tabFormModal');
+                    currentModal = $('#tab-form-modal');
                     currentModal.modal('show');
                 });
             }
@@ -206,38 +229,62 @@
         $(document).on("click", "#new-project-button", function (e, data) {
             e.preventDefault();
 
-            var url = $('#projectFormModal').data('url');
+            var url = $('#project-form-modal').data('url');
 
             $.get(url, function (data) {
-                $('#projectFormContainer').html(data);
+                $('#project-form-container').html(data);
 
                 // Client side validation for dynamic modal injection
                 $.validator.unobtrusive.parse($("#project-form"));
 
-                currentModal = $('#projectFormModal');
+                currentModal = $('#project-form-modal');
                 currentModal.modal('show');
             });
         });
 
-        // Show modal for new tab version
-        $(document).on("click", "#newTabVersionButton", function (e, data) {
+        // Show modal for new album
+        $(document).on("click", "#new-album-button", function (e, data) {
             e.preventDefault();
 
-            var url = $('#tabVersionFormModal').data('url');
+            var url = $('#album-form-modal').data('url');
+
+            var nodeId = $("#jstree").jstree().get_selected(true)[0].id;
+            if (nodeId.substring(0, 7) == 'project') {
+                nodeId = nodeId.substring(8);
+
+                url = url + "?projectId=" + nodeId;
+
+                $.get(url, function (data) {
+                    $('#album-form-container').html(data);
+
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($("#album-form"));
+
+                    currentModal = $('#album-form-modal');
+                    currentModal.modal('show');
+                });
+            }
+        });
+
+        // Show modal for new tab version
+        $(document).on("click", "#new-tab-version-button", function (e, data) {
+            e.preventDefault();
+
+            var url = $('#tab-version-form-modal').data('url');
 
             var nodeId = $("#jstree").jstree().get_selected(true)[0].id;
             if (nodeId.substring(0, 3) == 'tab') {
                 nodeId = nodeId.substring(4);
 
-                url = url + "?id=" + nodeId;
+                url = url + "?tabId=" + nodeId;
 
                 $.get(url, function (data) {
-                    $('#tabVersionFormContainer').html(data);
+                    $('#tab-version-form-container').html(data);
 
                     // Client side validation for dynamic modal injection
                     $.validator.unobtrusive.parse($("#tabversion-form"));
 
-                    currentModal = $('#tabVersionFormModal');
+                    currentModal = $('#tab-version-form-modal');
                     currentModal.modal('show');
                 });
             }
@@ -273,7 +320,6 @@
                     xhr.onreadystatechange = function () {
                         if (xhr.readyState === 4) {
                             if (xhr.status === 200) {
-                                // Replace tab version table with returned html (either new table or empty table)
                                 var response = JSON.parse(xhr.responseText);
 
                                 // Here we're replacing the tabversion table, which include tab id
@@ -282,7 +328,7 @@
                                     var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
 
                                     $.get(url, function (data) {
-                                        $('#tabVersionsTableWrapper').empty().append(data);
+                                        $('#tab-versions-table-container').empty().append(data);
                                     });
 
                                     // Create new tab node and select it - expand and deselect project node
@@ -296,15 +342,28 @@
                                     var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
 
                                     $.get(url, function (data) {
-                                        $('#tabVersionsTableWrapper').empty().append(data);
+                                        $('#tab-versions-table-container').empty().append(data);
                                     });
+                                }
+                                else if (formHtml.id === "album-form") {
+                                    var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)?id=' + response.id;
+
+                                    $.get(url, function (data) {
+                                        $('#tab-versions-table-container').empty().append(data);
+                                    });
+
+                                    var currentNode = $("#jstree").jstree().get_selected(true)[0];
+                                    $("#jstree").jstree().open_node(currentNode.id, false, false);
+                                    $("#jstree").jstree().create_node(currentNode.id, { id: "album " + response.id, text: response.name }, "last", false, false);
+                                    $("#jstree").jstree().deselect_node(currentNode.id, false, false);
+                                    $("#jstree").jstree().select_node("album " + response.id, false, false);
                                 }
                                 // This will handle new project
                                 else if (formHtml.id === "project-form") {
                                     var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
                                     $.get(url, function (data) {
-                                        $('#tabVersionsTableWrapper').empty().append(data);
+                                        $('#tab-versions-table-container').empty().append(data);
                                     });
                                     var currentNode = $("#jstree").jstree().get_selected(true)[0];
                                     if (currentNode != null) {

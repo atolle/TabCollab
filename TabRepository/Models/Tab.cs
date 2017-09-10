@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using TabRepository.Models;
 
 namespace TabRepository.Models
 {
@@ -11,7 +10,7 @@ namespace TabRepository.Models
 
         public string UserId { get; set; }
 
-        public int ProjectId { get; set; }
+        public int AlbumId { get; set; }
 
         public string Description { get; set; }
 
@@ -26,7 +25,7 @@ namespace TabRepository.Models
 
         public DateTime DateModified { get; set; }
 
-        public virtual Project Project { get; set; }
+        public virtual Album Album { get; set; }
 
         public virtual ApplicationUser User { get; set; }
 

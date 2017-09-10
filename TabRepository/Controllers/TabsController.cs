@@ -30,14 +30,14 @@ namespace TabRepository.Controllers
             string currentUserId = User.GetUserId();
 
             // Verify current user has access to this project
-            var projectInDb = _context.Projects.Single(p => p.Id == id && p.UserId == currentUserId);
-            if (projectInDb == null)
+            var albumInDb = _context.Albums.Single(a => a.Id == id && a.UserId == currentUserId);
+            if (albumInDb == null)
                 return NotFound();
 
             var viewModel = new TabFormViewModel()
             {
-                ProjectId = projectInDb.Id,
-                ProjectName = projectInDb.Name
+                AlbumId = albumInDb.Id,
+                AlbumName = albumInDb.Name
             };
 
             return View("TabForm", viewModel);
@@ -77,7 +77,7 @@ namespace TabRepository.Controllers
                 Tab tab = new Tab()
                 {
                     UserId = User.GetUserId(),
-                    Project = _context.Projects.Single(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId),
+                    Album = _context.Albums.Single(p => p.Id == viewModel.AlbumId && p.UserId == currentUserId),
                     Name = viewModel.Name,
                     Description = viewModel.Description,
                     DateCreated = DateTime.Now,
@@ -148,7 +148,7 @@ namespace TabRepository.Controllers
                         Tab tab = new Tab()
                         {
                             UserId = User.GetUserId(),
-                            Project = _context.Projects.Single(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId),
+                            Album = _context.Albums.Single(p => p.Id == viewModel.AlbumId && p.UserId == currentUserId),
                             Name = viewModel.Name,
                             Description = viewModel.Description,
                             DateCreated = DateTime.Now,
@@ -199,7 +199,7 @@ namespace TabRepository.Controllers
 
             var viewModel = new TabIndexViewModel()
             {
-                Tabs = _context.Tabs.Where(t => t.UserId == currentUserId && t.ProjectId == id).ToList(),
+                Tabs = _context.Tabs.Where(t => t.UserId == currentUserId && t.AlbumId == id).ToList(),
                 ProjectName = _context.Projects.Single(p => p.Id == id).Name,
                 ProjectId = id
             };
@@ -217,7 +217,7 @@ namespace TabRepository.Controllers
                 return NotFound();
 
             // Get Project Id to return to view
-            int projectId = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId).ProjectId;
+            int projectId = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId).AlbumId;
 
             _context.Tabs.Remove(tabInDb);
             _context.SaveChanges();
@@ -235,19 +235,19 @@ namespace TabRepository.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetTabFormPartialView(int id)
+        public ActionResult GetTabFormPartialView(int albumId)
         {
             string currentUserId = User.GetUserId();
 
             // Verify current user has access to this project
-            var projectInDb = _context.Projects.Single(p => p.Id == id && p.UserId == currentUserId);
-            if (projectInDb == null)
+            var albumInDb = _context.Albums.Single(a => a.Id == albumId && a.UserId == currentUserId);
+            if (albumInDb == null)
                 return NotFound();
 
             var viewModel = new TabFormViewModel()
             {
-                ProjectId = projectInDb.Id,
-                ProjectName = projectInDb.Name
+                AlbumId = albumInDb.Id,
+                AlbumName = albumInDb.Name
             };
 
             return PartialView("_TabForm", viewModel);

@@ -13,10 +13,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Views\Album\**" />
     <Compile Remove="wwwroot\lib\respond\**" />
+    <Content Remove="Views\Album\**" />
     <Content Remove="wwwroot\lib\respond\**" />
+    <EmbeddedResource Remove="Views\Album\**" />
     <EmbeddedResource Remove="wwwroot\lib\respond\**" />
+    <None Remove="Views\Album\**" />
     <None Remove="wwwroot\lib\respond\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot/images\eighthnote %2811x16%29.jpg" />
   </ItemGroup>
 
   <ItemGroup>

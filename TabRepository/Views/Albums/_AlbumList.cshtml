@@ -1,0 +1,20 @@
+@model IEnumerable<TabRepository.ViewModels.AlbumIndexViewModel>
+
+    <div class="row">
+        @foreach (var album in Model)
+        {
+            <div class="col-md-4 m-b-lg">
+                <div class="panel panel-default panel-profile">
+                    <div class="panel-heading" style="background-image: url('@album.ImageFilePath');"></div>
+                    <div class="panel-body text-center">
+                        <h3>@album.Name</h3>
+                        <p class="m-b">Owner: @album.Owner</p>
+                        <div>
+                            @Html.ActionLink("New Tab", "New", "Tabs", new { id = album.Id }, new { @class = "btn btn-primary pull-left" })
+                            @Html.ActionLink("Delete", "AjaxDelete", "Projects", new { id = album.Id }, new { @class = "btn btn-danger pull-right", id = "delete" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>

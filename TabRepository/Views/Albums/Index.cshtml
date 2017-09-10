@@ -1,49 +1,49 @@
-﻿@model IEnumerable<TabRepository.ViewModels.ProjectIndexViewModel>
-@{
+@model IEnumerable<TabRepository.ViewModels.AlbumIndexViewModel>
+    @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
-}
+    }
 
-<div class="buttons-container">
-    <div id="new-project-button">
-        @Html.ActionLink("New Project", "New", "Projects", null, new { @class = "btn btn-primary" })
+    <div class="buttons-container">
+        <div id="new-album-button">
+            @Html.ActionLink("New Album", "New", "Albums", null, new { @class = "btn btn-primary" })
+        </div>
     </div>
-</div>
 
 
-<div id="project-list-wrapper">
-    <div class="row">
-        @foreach (var project in Model)
+    <div id="album-list-wrapper">
+        <div class="row">
+            @foreach (var album in Model)
         {
-            <div class="col-md-4 m-b-lg">
-                <div class="panel panel-default panel-profile">
-                    <div class="panel-heading" style="background-image: url('@project.ImageFilePath');"></div>
-                    <div class="panel-body text-center">
-                        <h3>@project.Name</h3>
-                        <p class="m-b">Owner: @project.Owner</p>
-                        <div>
-                            @Html.ActionLink("New Album", "New", "Albums", new { projectId = project.Id }, new { @class = "btn btn-primary pull-left" })                            
-                            @Html.ActionLink("Delete", "AjaxDelete", "Projects", new { projectId = project.Id }, new { @class = "btn btn-danger pull-right", id = "delete" })
+                <div class="col-md-4 m-b-lg">
+                    <div class="panel panel-default panel-profile">
+                        <div class="panel-heading" style="background-image: url('@album.ImageFilePath');"></div>
+                        <div class="panel-body text-center">
+                            <h3>@album.Name</h3>
+                            <p class="m-b">Owner: @album.Owner</p>
+                            <div>
+                                @Html.ActionLink("New Tab", "New", "Tabs", new { id = album.Id }, new { @class = "btn btn-primary pull-left" })
+                                @Html.ActionLink("Delete", "AjaxDelete", "Albums", new { id = album.Id }, new { @class = "btn btn-danger pull-right", id = "delete" })
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
         }
+        </div>
     </div>
-</div>
 
-<div id='project-form-modal' class='modal fade' data-url='@Url.Action("GetProjectFormPartialView", "Projects")'>
-    <div id='project-form-container'>
+    <div id='album-form-modal' class='modal fade' data-url='@Url.Action("GetAlbumFormViewModel", "Albums")'>
+        <div id='album-form-container'>
+        </div>
     </div>
-</div>
 
-@section scripts
+    @section scripts
 {
-    <script src="~/js/jstree.min.js"></script>
-    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+        <script src="~/js/jstree.min.js"></script>
+        <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+        <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
 
-    <script>
+        <script>
     $(document).ready(function () {
 
         // Deleting a project
@@ -51,7 +51,7 @@
             e.preventDefault();
             var href = this.href;
 
-            bootbox.confirm("Are you sure you wish to delete this project? This cannot be undone.", function (result) {
+            bootbox.confirm("Are you sure you wish to delete this album? This cannot be undone.", function (result) {
                 if (result) {
                     $.post(href, function (response) {
                         if (!response.success) {
@@ -66,18 +66,18 @@
         });
 
         // Show modal for new project
-        $(document).on("click", "#new-project-button", function (e, data) {
+        $(document).on("click", "#new-album-button", function (e, data) {
             e.preventDefault();
 
-            var url = $('#project-form-modal').data('url');
+            var url = $('#album-form-modal').data('url');
 
             $.get(url, function (data) {
-                $('#project-form-container').html(data);
+                $('#album-form-container').html(data);
 
                 // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#project-form"));
+                $.validator.unobtrusive.parse($("#album-form"));
 
-                currentModal = $('#project-form-modal');
+                currentModal = $('#album-form-modal');
                 currentModal.modal('show');
             });
         });
@@ -86,7 +86,7 @@
         window.addEventListener("submit", function (e) {
             var formHtml = e.target;
             var form = $("#" + formHtml.id);
-            var formAgain = document.forms["project-form"];
+            var formAgain = document.forms["album-form"];
 
             // We're either adding/updating a tab, project, or tab version
             if (form.valid()) {
@@ -112,8 +112,8 @@
                     xhr.onreadystatechange = function () {
                         if (xhr.readyState === 4) {
                             if (xhr.status === 200) {
-                                // Call GetProjectListPartialView to repopulate the project list
-                                repopulateProjectList();
+                                // Call GetAlbumListPartialView to repopulate the project list
+                                repopulateAlbumList();
                             } else {
                                 handleSaveError(xhr.status);
                             }
@@ -127,16 +127,16 @@
             bootbox.alert("Unable to save. Error code: " + statusCode);
         }
 
-        function repopulateProjectList() {
-            var url = '@Url.Action("GetProjectListPartialView", "Projects", null)';
+            function repopulateAlbumList() {
+            var url = '@Url.Action("GetAlbumListPartialView", "Albums", null)';
 
             $.get(url, function (data) {
-                $('#project-list-wrapper').empty().append(data);
+                $('#album-list-wrapper').empty().append(data);
             });
         }
     });
-    </script>
-}
+        </script>
+    }
 
 
 

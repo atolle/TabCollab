@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,17 +15,17 @@ using TabRepository.ViewModels;
 namespace TabRepository.Controllers
 {
     [Authorize]
-    public class ProjectsController : Controller
+    public class AlbumsController : Controller
     {
         private ApplicationDbContext _context;
         private FileUploader _fileUploader;
         private readonly IHostingEnvironment _appEnvironment;
 
-        public ProjectsController(ApplicationDbContext context, IHostingEnvironment appEnvironment)
+        public AlbumsController(ApplicationDbContext context, IHostingEnvironment appEnvironment)
         {
             _context = context;
             _appEnvironment = appEnvironment;
-            _fileUploader = new FileUploader(context, appEnvironment);  
+            _fileUploader = new FileUploader(context, appEnvironment);
         }
 
         protected override void Dispose(bool disposing)
@@ -33,36 +33,50 @@ namespace TabRepository.Controllers
             _context.Dispose();
         }
 
-        public ActionResult New()
+        public ActionResult New(int projectId)
         {
-            var viewModel = new ProjectFormViewModel();
+            string currentUserId = User.GetUserId();
 
-            return View("ProjectForm", viewModel);
+            // Verify current user has access to this project
+            var projectInDb = _context.Projects.Single(p => p.Id == projectId && p.UserId == currentUserId);
+            if (projectInDb == null)
+                return NotFound();
+
+            var viewModel = new AlbumFormViewModel()
+            {
+                ProjectId = projectInDb.Id,
+                ProjectName = projectInDb.Name
+            };
+
+            return View("AlbumForm", viewModel);
         }
 
         // POST: Projects
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Save(ProjectFormViewModel viewModel)
+        public ActionResult Save(AlbumFormViewModel viewModel)
         {
             if (!ModelState.IsValid)    // If not valid, set the view model to current customer
             {                           // initialize membershiptypes and pass it back to same view
-                return View("ProjectForm", viewModel);
+                return View("AlbumForm", viewModel);
             }
 
             if (viewModel.Id == 0)  // We are creating a new project
             {
+                string currentUserId = User.GetUserId();
+
                 // Saving properties for new Project
-                Project project = new Project()
+                Album album = new Album()
                 {
                     UserId = User.GetUserId(),
+                    Project = _context.Projects.Single(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId),
                     Name = viewModel.Name,
                     Description = viewModel.Description,
                     DateCreated = DateTime.Now,
                     DateModified = DateTime.Now,
                 };
 
-                _context.Projects.Add(project);
+                _context.Albums.Add(album);
             }
 
             _context.SaveChanges();
@@ -73,7 +87,7 @@ namespace TabRepository.Controllers
         // POST: Projects
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AjaxSave(ProjectFormViewModel viewModel)
+        public async Task<IActionResult> AjaxSave(AlbumFormViewModel viewModel)
         {
             if (!ModelState.IsValid)    // If not valid, set the view model to current customer
             {                           // initialize membershiptypes and pass it back to same view
@@ -86,10 +100,13 @@ namespace TabRepository.Controllers
                 {
                     if (viewModel.Id == 0)  // We are creating a new project
                     {
+                        string currentUserId = User.GetUserId();
+
                         // Saving properties for new Project
-                        Project project = new Project()
+                        Album album = new Album()
                         {
                             UserId = User.GetUserId(),
+                            Project = _context.Projects.Single(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId),
                             Name = viewModel.Name,
                             Description = viewModel.Description,
                             DateCreated = DateTime.Now,
@@ -97,12 +114,12 @@ namespace TabRepository.Controllers
                             ImageFileName = viewModel.Image.FileName
                         };
 
-                        _context.Projects.Add(project);
+                        _context.Albums.Add(album);
                         _context.SaveChanges();
 
-                        await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + project.Id.ToString());
+                        await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Album" + album.Id.ToString());
 
-                        return Json(new { name = project.Name, id = project.Id });
+                        return Json(new { name = album.Name, id = album.Id });
                     }
                     else
                     {
@@ -115,20 +132,20 @@ namespace TabRepository.Controllers
                     // Need to return failure to form
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
-            } 
+            }
         }
 
         public ActionResult Delete(int id)
         {
             string currentUserId = User.GetUserId();
 
-            var projectInDb = _context.Projects.SingleOrDefault(p => p.Id == id && p.UserId == currentUserId);
+            var albumInDb = _context.Albums.SingleOrDefault(a => a.Id == id && a.UserId == currentUserId);
 
             // If current user does not have access to project or project does not exist
-            if (projectInDb == null)
+            if (albumInDb == null)
                 return NotFound();
 
-            _context.Projects.Remove(projectInDb);
+            _context.Albums.Remove(albumInDb);
             _context.SaveChanges();
 
             return RedirectToAction("Main", "Projects");
@@ -140,13 +157,13 @@ namespace TabRepository.Controllers
             {
                 string currentUserId = User.GetUserId();
 
-                var projectInDb = _context.Projects.SingleOrDefault(p => p.Id == id && p.UserId == currentUserId);
+                var albumInDb = _context.Albums.SingleOrDefault(a => a.Id == id && a.UserId == currentUserId);
 
                 // If current user does not have access to project or project does not exist
-                if (projectInDb == null)
+                if (albumInDb == null)
                     return NotFound();
 
-                _context.Projects.Remove(projectInDb);
+                _context.Albums.Remove(albumInDb);
                 _context.SaveChanges();
 
                 return Json(new { success = true });
@@ -161,28 +178,28 @@ namespace TabRepository.Controllers
         public ViewResult Index()
         {
             string currentUserId = User.GetUserId();
-            List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
+            List<AlbumIndexViewModel> viewModel = new List<AlbumIndexViewModel>();
 
             // Return a list of all Projects belonging to the current user
-            var projects = _context.Projects.Include(u => u.User)
-                .Where(p => p.UserId == currentUserId)
-                .OrderBy(p => p.Name)
+            var albums = _context.Albums.Include(u => u.User)
+                .Where(a => a.UserId == currentUserId)
+                .OrderBy(a => a.Name)
                 .ToList();
 
-            foreach (var proj in projects)
+            foreach (var album in albums)
             {
-                var elem = new ProjectIndexViewModel()
+                var elem = new AlbumIndexViewModel()
                 {
-                    Id = proj.Id,
-                    UserId = proj.UserId,
-                    Name = proj.Name,
-                    Owner = proj.User.UserName,
-                    ImageFileName = proj.ImageFileName,
-                    ImageFilePath = "/images/" + proj.UserId + "/Project" + proj.Id + "/" + proj.ImageFileName,
-                    DateCreated = proj.DateCreated,
-                    DateModified = proj.DateModified,
-                    User = proj.User,
-                    Albums = proj.Albums
+                    Id = album.Id,
+                    UserId = album.UserId,
+                    Name = album.Name,
+                    Owner = album.User.UserName,
+                    ImageFileName = album.ImageFileName,
+                    ImageFilePath = "/images/" + album.UserId + "/Album" + album.Id + "/" + album.ImageFileName,
+                    DateCreated = album.DateCreated,
+                    DateModified = album.DateModified,
+                    User = album.User,
+                    Tabs = album.Tabs
                 };
 
                 // Add projects to project view model
@@ -199,78 +216,59 @@ namespace TabRepository.Controllers
             return _context.Users.FirstOrDefault(u => u.Id == currentUserId);
         }
 
-        public ViewResult Main()
+        // GET: Album form
+        [HttpGet]
+        public ActionResult GetAlbumFormPartialView(int projectId)
         {
             string currentUserId = User.GetUserId();
 
-            // Return a list of all Projects belonging to the current user
-            var projects = _context.Projects
-                .Include(p => p.Albums)    
-                .ThenInclude(a => a.Tabs)
-                .Where(p => p.UserId == currentUserId).ToList();
+            // Verify current user has access to this project
+            var projectInDb = _context.Projects.Single(p => p.Id == projectId && p.UserId == currentUserId);
+            if (projectInDb == null)
+                return NotFound();
 
-            return View(projects);
-        }
+            var viewModel = new AlbumFormViewModel()
+            {
+                ProjectId = projectInDb.Id,
+                ProjectName = projectInDb.Name
+            };
 
-        //// Needed for tab playback - should probably move to a different controller
-        //public ActionResult DefaultSoundFont()
-        //{
-        //    string filename = "default.sf2";
-        //    string filepath = AppDomain.CurrentDomain.BaseDirectory + "/Content/" + filename;
-        //    byte[] filedata = System.IO.File.ReadAllBytes(filepath);
-        //    string contentType = MimeMapping.GetMimeMapping(filepath);
-
-        //    var cd = new System.Net.Mime.ContentDisposition
-        //    {
-        //        FileName = filename,
-        //        Inline = true,
-        //    };
-
-        //    return File(filedata, contentType);
-        //}
-
-        // GET: Project form
-        [HttpGet]
-        public ActionResult GetProjectFormPartialView()
-        {
-            var viewModel = new ProjectFormViewModel();
-
-            return PartialView("_ProjectForm", viewModel);
+            return PartialView("_AlbumForm", viewModel);
         }
 
         [HttpGet]
-        public ActionResult GetProjectListPartialView()
+        public ActionResult GetAlbumListPartialView()
         {
             string currentUserId = User.GetUserId();
-            List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
+            List<AlbumIndexViewModel> viewModel = new List<AlbumIndexViewModel>();
 
             // Return a list of all Projects belonging to the current user
-            var projects = _context.Projects.Include(u => u.User)
-                .Where(p => p.UserId == currentUserId)
-                .OrderBy(p => p.Name)
+            var albums = _context.Albums.Include(u => u.User)
+                .Where(a => a.UserId == currentUserId)
+                .OrderBy(a => a.Name)
                 .ToList();
 
-            foreach (var proj in projects)
+            foreach (var album in albums)
             {
-                var elem = new ProjectIndexViewModel()
+                var elem = new AlbumIndexViewModel()
                 {
-                    Id = proj.Id,
-                    UserId = proj.UserId,
-                    Name = proj.Name,
-                    Owner = proj.User.UserName,
-                    ImageFileName = proj.ImageFileName,
-                    ImageFilePath = "/images/" + proj.UserId + "/Project" + proj.Id + "/" + proj.ImageFileName,
-                    DateCreated = proj.DateCreated,
-                    DateModified = proj.DateModified,
-                    User = proj.User,
-                    Albums = proj.Albums
+                    Id = album.Id,
+                    UserId = album.UserId,
+                    Name = album.Name,
+                    Owner = album.User.UserName,
+                    ImageFileName = album.ImageFileName,
+                    ImageFilePath = "/images/" + album.UserId + "/Album" + album.Id + "/" + album.ImageFileName,
+                    DateCreated = album.DateCreated,
+                    DateModified = album.DateModified,
+                    User = album.User,
+                    Tabs = album.Tabs
                 };
 
                 // Add projects to project view model
                 viewModel.Add(elem);
             }
 
-            return PartialView("_ProjectList", viewModel);
+            return PartialView("_AlbumList", viewModel);
         }
     }
 }

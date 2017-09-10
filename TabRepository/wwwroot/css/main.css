@@ -23,11 +23,15 @@
     width: 10px;
 }
 
-#tabVersionsTableWrapper {
+#tab-versions-table-container {
     width:80%;
 }
 
-#newTabButtonWrapper {
+#new-tab-button-container {
     margin-left: auto;
     margin-right: 10px;
+}
+
+#new-album-button-container {
+    margin-left: 10px;
 }

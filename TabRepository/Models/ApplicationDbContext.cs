@@ -21,8 +21,14 @@ namespace TabRepository.Data
 
             // Projects Table
             builder.Entity<Project>()
-                .HasMany(p => p.Tabs)
+                .HasMany(p => p.Albums)
                 .WithOne(t => t.Project)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Albums Table
+            builder.Entity<Album>()
+                .HasMany(p => p.Tabs)
+                .WithOne(t => t.Album)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Tabs Table
@@ -60,6 +66,7 @@ namespace TabRepository.Data
         public DbSet<Project> Projects { get; set; }
         public DbSet<TabFile> TabFiles { get; set; }
         public DbSet<Friend> Friends { get; set; }
+        public DbSet<Album> Albums { get; set; }
 
         public ApplicationDbContext()
             : base()

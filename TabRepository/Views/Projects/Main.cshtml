@@ -334,7 +334,7 @@
                                     // Create new tab node and select it - expand and deselect project node
                                     var currentNode = $("#jstree").jstree().get_selected(true)[0];
                                     $("#jstree").jstree().open_node(currentNode.id, false, false);
-                                    $("#jstree").jstree().create_node(currentNode.id, { id: "tab " + response.id, text: response.name }, "last", false, false);
+                                    $("#jstree").jstree().create_node(currentNode.id, { id: "tab " + response.id, text: response.name, icon: "/images/eighthnote(16x23).png"  }, "last", false, false);
                                     $("#jstree").jstree().deselect_node(currentNode.id, false, false);
                                     $("#jstree").jstree().select_node("tab " + response.id, false, false);
                                 }
@@ -354,7 +354,7 @@
 
                                     var currentNode = $("#jstree").jstree().get_selected(true)[0];
                                     $("#jstree").jstree().open_node(currentNode.id, false, false);
-                                    $("#jstree").jstree().create_node(currentNode.id, { id: "album " + response.id, text: response.name }, "last", false, false);
+                                    $("#jstree").jstree().create_node(currentNode.id, { id: "album " + response.id, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);
                                     $("#jstree").jstree().deselect_node(currentNode.id, false, false);
                                     $("#jstree").jstree().select_node("album " + response.id, false, false);
                                 }

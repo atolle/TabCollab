@@ -182,6 +182,7 @@ namespace TabRepository.Controllers
 
             // Return a list of all Projects belonging to the current user
             var albums = _context.Albums.Include(u => u.User)
+                .Include(a => a.Project)
                 .Where(a => a.UserId == currentUserId)
                 .OrderBy(a => a.Name)
                 .ToList();
@@ -194,6 +195,7 @@ namespace TabRepository.Controllers
                     UserId = album.UserId,
                     Name = album.Name,
                     Owner = album.User.UserName,
+                    ProjectName = album.Project.Name,
                     ImageFileName = album.ImageFileName,
                     ImageFilePath = "/images/" + album.UserId + "/Album" + album.Id + "/" + album.ImageFileName,
                     DateCreated = album.DateCreated,
@@ -244,6 +246,7 @@ namespace TabRepository.Controllers
 
             // Return a list of all Projects belonging to the current user
             var albums = _context.Albums.Include(u => u.User)
+                .Include(a => a.Project)
                 .Where(a => a.UserId == currentUserId)
                 .OrderBy(a => a.Name)
                 .ToList();
@@ -256,6 +259,7 @@ namespace TabRepository.Controllers
                     UserId = album.UserId,
                     Name = album.Name,
                     Owner = album.User.UserName,
+                    ProjectName = album.Project.Name,
                     ImageFileName = album.ImageFileName,
                     ImageFilePath = "/images/" + album.UserId + "/Album" + album.Id + "/" + album.ImageFileName,
                     DateCreated = album.DateCreated,

@@ -48,3 +48,9 @@ function addSearchSuggestions(suggestions) {
         container.appendChild(input);
     }
 }
+
+// Sets active class on navbar links based on selected page
+$(document).ready(function () {
+    $('li.active').removeClass('active');
+    $('a[href="' + location.pathname + '"]').closest('li').addClass('active');
+});

@@ -18,6 +18,8 @@ namespace TabRepository.ViewModels
 
         public string Owner { get; set; }
 
+        public string ProjectName { get; set; }
+
         public string ImageFileName { get; set; }
 
         public string ImageFilePath { get; set; }

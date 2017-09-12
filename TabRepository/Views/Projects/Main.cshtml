@@ -130,6 +130,7 @@
 
                 });
                 $('#new-tab-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab</button>');
+                $('#new-album-button-container').empty().append('<button class="btn btn-primary" disabled>New Album</button>');
 
                 var actionLink = '@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = -1 }, new { @class = "btn btn-primary", id = "new-tab-version-button" })'
                 actionLink = actionLink.replace('-1', nodeId);

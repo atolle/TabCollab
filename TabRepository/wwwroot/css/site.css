@@ -119,3 +119,7 @@ textarea {
     margin-top: 10px;
     width: 100%;
 }
+
+.edit-button-icon {
+    margin-left: 2px;
+}

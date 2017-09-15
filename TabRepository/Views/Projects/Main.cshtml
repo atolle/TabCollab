@@ -6,7 +6,7 @@
 
 <div class="buttons-container">
     <div id="new-project-button">
-        @Html.ActionLink("New Project", "New", "Projects", null, new { @class = "btn btn-primary" })
+        <button class="btn btn-primary">New Project</button>
     </div>
     <div id="new-album-button-container">
         <button class="btn btn-primary" disabled>New Album</button>
@@ -291,100 +291,79 @@
             }
         });
 
-        // Trick to get file data to come over via Ajax, though this does not replace the table in the partial view
-        window.addEventListener("submit", function (e) {
-            var formHtml = e.target;
-            var form = $("#" + formHtml.id);
-            var formAgain = document.forms["project-form"];
+        $(document).on("submit", function (e, data) {
+            e.preventDefault();
 
-            // We're either adding/updating a tab, project, or tab version
-            if (form.valid()) {
-                if (formHtml.dataset.ajax) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    var xhr = new XMLHttpRequest();
-                    xhr.open(formHtml.method, formHtml.action);
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState == 4 && xhr.status == 200) {
-                            if (formHtml.dataset.ajaxUpdate) {
-                                var updateTarget = document.querySelector(formHtml.dataset.ajaxUpdate);
-                                if (updateTarget) {
-                                    updateTarget.innerHTML = xhr.responseText;
-                                }
-                            }
-                        }
-                    };
-                    xhr.send(new FormData(formHtml));
+            var form = e.target;
+            var formData = new FormData(form);
 
-                    currentModal.modal('hide');
+            $.ajax({
+                url: form.action,
+                type: 'POST',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false
+            })
+            .then(function (response) {
+                currentModal.modal('hide');
+                // Here we're replacing the tabversion table, which include tab id
+                // Then we're using that tab id to identify the jstree node
+                if (form.id === "tab-form") {
+                    var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
 
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState === 4) {
-                            if (xhr.status === 200) {
-                                var response = JSON.parse(xhr.responseText);
+                    $.get(url, function (data) {
+                        $('#tab-versions-table-container').empty().append(data);
+                    });
 
-                                // Here we're replacing the tabversion table, which include tab id
-                                // Then we're using that tab id to identify the jstree node
-                                if (formHtml.id === "tab-form") {
-                                    var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
-
-                                    $.get(url, function (data) {
-                                        $('#tab-versions-table-container').empty().append(data);
-                                    });
-
-                                    // Create new tab node and select it - expand and deselect project node
-                                    var currentNode = $("#jstree").jstree().get_selected(true)[0];
-                                    $("#jstree").jstree().open_node(currentNode.id, false, false);
-                                    $("#jstree").jstree().create_node(currentNode.id, { id: "tab " + response.id, text: response.name, icon: "/images/eighthnote(16x23).png"  }, "last", false, false);
-                                    $("#jstree").jstree().deselect_node(currentNode.id, false, false);
-                                    $("#jstree").jstree().select_node("tab " + response.id, false, false);
-                                }
-                                else if (formHtml.id === "tabversion-form") {
-                                    var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
-
-                                    $.get(url, function (data) {
-                                        $('#tab-versions-table-container').empty().append(data);
-                                    });
-                                }
-                                else if (formHtml.id === "album-form") {
-                                    var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)?id=' + response.id;
-
-                                    $.get(url, function (data) {
-                                        $('#tab-versions-table-container').empty().append(data);
-                                    });
-
-                                    var currentNode = $("#jstree").jstree().get_selected(true)[0];
-                                    $("#jstree").jstree().open_node(currentNode.id, false, false);
-                                    $("#jstree").jstree().create_node(currentNode.id, { id: "album " + response.id, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);
-                                    $("#jstree").jstree().deselect_node(currentNode.id, false, false);
-                                    $("#jstree").jstree().select_node("album " + response.id, false, false);
-                                }
-                                // This will handle new project
-                                else if (formHtml.id === "project-form") {
-                                    var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
-
-                                    $.get(url, function (data) {
-                                        $('#tab-versions-table-container').empty().append(data);
-                                    });
-                                    var currentNode = $("#jstree").jstree().get_selected(true)[0];
-                                    if (currentNode != null) {
-                                        $("#jstree").jstree().deselect_node(currentNode.id, false, false);
-                                    }
-                                    $("#jstree").jstree().create_node("#", { id: "project " + response.id, text: response.name }, "last", false, false);
-                                    $("#jstree").jstree().select_node("project " + response.id, false, false);
-                                }
-                            } else {
-                                handleSaveError(xhr.status);
-                            }
-                        }
-                    };
+                    // Create new tab node and select it - expand and deselect project node
+                    var currentNode = $("#jstree").jstree().get_selected(true)[0];
+                    $("#jstree").jstree().open_node(currentNode.id, false, false);
+                    $("#jstree").jstree().create_node(currentNode.id, { id: "tab " + response.id, text: response.name, icon: "/images/eighthnote(16x23).png"  }, "last", false, false);
+                    $("#jstree").jstree().deselect_node(currentNode.id, false, false);
+                    $("#jstree").jstree().select_node("tab " + response.id, false, false);
                 }
-            }
-        }, true);
+                else if (form.id === "tabversion-form") {
+                    var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
 
-        function handleSaveError(statusCode) {
-            bootbox.alert("Unable to save. Error code: " + statusCode);
-        }
+                    $.get(url, function (data) {
+                        $('#tab-versions-table-container').empty().append(data);
+                    });
+                }
+                else if (form.id === "album-form") {
+                    var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)?id=' + response.id;
+
+                    $.get(url, function (data) {
+                        $('#tab-versions-table-container').empty().append(data);
+                    });
+
+                    var currentNode = $("#jstree").jstree().get_selected(true)[0];
+                    $("#jstree").jstree().open_node(currentNode.id, false, false);
+                    $("#jstree").jstree().create_node(currentNode.id, { id: "album " + response.id, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);
+                    $("#jstree").jstree().deselect_node(currentNode.id, false, false);
+                    $("#jstree").jstree().select_node("album " + response.id, false, false);
+                }
+                // This will handle new project
+                else if (form.id === "project-form") {
+                    var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
+
+                    $.get(url, function (data) {
+                        $('#tab-versions-table-container').empty().append(data);
+                    });
+                    var currentNode = $("#jstree").jstree().get_selected(true)[0];
+                    if (currentNode != null) {
+                        $("#jstree").jstree().deselect_node(currentNode.id, false, false);
+                    }
+                    $("#jstree").jstree().create_node("#", { id: "project " + response.id, text: response.name }, "last", false, false);
+                    $("#jstree").jstree().select_node("project " + response.id, false, false);
+                }
+            })
+            .fail(function (error) {
+                currentModal.modal('hide');
+                bootbox.alert("Unable to save. Error code: " + error);
+            });
+
+        });
     });
 </script>
 }

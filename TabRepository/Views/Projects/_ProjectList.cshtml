@@ -10,8 +10,9 @@
                     <h3>@project.Name</h3>
                     <p class="m-b">Owner: @project.Owner</p>
                     <div>
-                        @Html.ActionLink("New Album", "New", "Albums", new { id = project.Id }, new { @class = "btn btn-primary pull-left" })
-                        @Html.ActionLink("Delete", "AjaxDelete", "Projects", new { id = project.Id }, new { @class = "btn btn-danger pull-right", id = "delete" })
+                        <a id="new-album-button" class="btn btn-primary pull-left" data-project-id="@project.Id" href="@Url.Action("GetAlbumFormPartialView", "Albums")">New Album</a>                       
+                        <a id="edit-project-button" class="btn btn-default" href="@Url.Action("GetProjectFormPartialView", "Projects", new { id = project.Id })"><i class="fa fa-pencil edit-button-icon"></i></a>
+                        @Html.ActionLink("Delete", "Delete", "Projects", new { id = project.Id }, new { @class = "btn btn-danger pull-right", id = "delete-project-button" })
                     </div>
                 </div>
             </div>

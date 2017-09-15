@@ -8,7 +8,7 @@
             <h4 class="modal-title">New Album</h4>
         </div>
         <div class="modal-body">
-            <form id="album-form" asp-controller="Albums" asp-action="AjaxSave" data-ajax="true" data-ajax-method="POST">
+            <form id="album-form" asp-controller="Albums" asp-action="Save" data-ajax="true" data-ajax-method="POST">
                 @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
                 <div class="form-group">
                     @Html.LabelFor(m => m.Name)
@@ -26,6 +26,7 @@
                     @Html.ValidationMessageFor(m => m.Image)
                 </div>
                 @Html.HiddenFor(m => m.ProjectId)
+                @Html.HiddenFor(m => m.Id)
                 @Html.AntiForgeryToken()
             </form>
         </div>

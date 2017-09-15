@@ -8,10 +8,11 @@
                     <div class="panel-heading" style="background-image: url('@album.ImageFilePath');"></div>
                     <div class="panel-body text-center">
                         <h3>@album.Name</h3>
-                        <p class="m-b">Owner: @album.Owner</p>
+                        <p class="m-b">Project: @album.ProjectName<br />Owner: @album.Owner</p>
                         <div>
-                            @Html.ActionLink("New Tab", "New", "Tabs", new { id = album.Id }, new { @class = "btn btn-primary pull-left" })
-                            @Html.ActionLink("Delete", "AjaxDelete", "Projects", new { id = album.Id }, new { @class = "btn btn-danger pull-right", id = "delete" })
+                            <a id="new-tab-button" class="btn btn-primary pull-left" data-album-id="@album.Id" href="@Url.Action("GetTabFormPartialView", "Tabs")">New Tab</a>
+                            <a id="edit-album-button" class="btn btn-default" data-project-id="@album.ProjectId" data-album-id="@album.Id" href="@Url.Action("GetAlbumFormPartialView", "Albums")"><i class="fa fa-pencil edit-button-icon"></i></a>
+                            @Html.ActionLink("Delete", "Delete", "Albums", new { id = album.Id }, new { @class = "btn btn-danger pull-right", id = "delete" })
                         </div>
                     </div>
                 </div>

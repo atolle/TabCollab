@@ -5,35 +5,19 @@
 }
 
 <div class="buttons-container">
-    <div id="new-project-button">
-        @Html.ActionLink("New Project", "New", "Projects", null, new { @class = "btn btn-primary" })
-    </div>
+    @Html.ActionLink("New Project", "GetProjectFormPartialView", "Projects", null, new { @class = "btn btn-primary", id = "new-project-button" })
 </div>
 
 
-<div id="project-list-wrapper">
-    <div class="row">
-        @foreach (var project in Model)
-        {
-            <div class="col-md-4 m-b-lg">
-                <div class="panel panel-default panel-profile">
-                    <div class="panel-heading" style="background-image: url('@project.ImageFilePath');"></div>
-                    <div class="panel-body text-center">
-                        <h3>@project.Name</h3>
-                        <p class="m-b">Owner: @project.Owner</p>
-                        <div>
-                            @Html.ActionLink("New Album", "New", "Albums", new { projectId = project.Id }, new { @class = "btn btn-primary pull-left" })                            
-                            @Html.ActionLink("Delete", "AjaxDelete", "Projects", new { projectId = project.Id }, new { @class = "btn btn-danger pull-right", id = "delete" })
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
-</div>
+<div id="project-list-wrapper"></div>
 
-<div id='project-form-modal' class='modal fade' data-url='@Url.Action("GetProjectFormPartialView", "Projects")'>
+<div id='project-form-modal' class='modal fade'>
     <div id='project-form-container'>
+    </div>
+</div>
+
+<div id='album-form-modal' class='modal fade'>
+    <div id='album-form-container'>
     </div>
 </div>
 
@@ -45,22 +29,26 @@
 
     <script>
     $(document).ready(function () {
+        repopulateProjectList();
 
         // Deleting a project
-        $(document).on("click", "#delete", function (e, data) {
+        $(document).on("click", "#delete-project-button", function (e, data) {
             e.preventDefault();
+
             var href = this.href;
 
             bootbox.confirm("Are you sure you wish to delete this project? This cannot be undone.", function (result) {
                 if (result) {
-                    $.post(href, function (response) {
-                        if (!response.success) {
-                            bootbox.alert("Unable to delete.");
-                        }
-                        else {
-                            repopulateProjectList();
-                        }
-                    });
+                    $.ajax({
+                        url: href,
+                        type: 'DELETE',
+                    })
+                    .then(function (response) {
+                        repopulateProjectList();
+                    })
+                    .fail(function (error) {
+                        bootbox.alert("Unable to delete project. Error: " + error.statusText);
+                    })
                 }
             });
         });
@@ -69,63 +57,99 @@
         $(document).on("click", "#new-project-button", function (e, data) {
             e.preventDefault();
 
-            var url = $('#project-form-modal').data('url');
+            var href = this.href;
 
-            $.get(url, function (data) {
+            $.ajax({
+                url: href,
+                type: 'GET',
+            })
+            .then(function (data) {
                 $('#project-form-container').html(data);
-
                 // Client side validation for dynamic modal injection
                 $.validator.unobtrusive.parse($("#project-form"));
 
                 currentModal = $('#project-form-modal');
                 currentModal.modal('show');
-            });
+
+            })
+            .fail(function (error) {
+                bootbox.alert("Unable to show project form. Error: " + error.statusText);
+            })
         });
 
-        // Trick to get file data to come over via Ajax, though this does not replace the table in the partial view
-        window.addEventListener("submit", function (e) {
-            var formHtml = e.target;
-            var form = $("#" + formHtml.id);
-            var formAgain = document.forms["project-form"];
+        // Show modal for edit project
+        $(document).on("click", "#edit-project-button", function (e, data) {
+            e.preventDefault();
 
-            // We're either adding/updating a tab, project, or tab version
-            if (form.valid()) {
-                if (formHtml.dataset.ajax) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    var xhr = new XMLHttpRequest();
-                    xhr.open(formHtml.method, formHtml.action);
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState == 4 && xhr.status == 200) {
-                            if (formHtml.dataset.ajaxUpdate) {
-                                var updateTarget = document.querySelector(formHtml.dataset.ajaxUpdate);
-                                if (updateTarget) {
-                                    updateTarget.innerHTML = xhr.responseText;
-                                }
-                            }
-                        }
-                    };
-                    xhr.send(new FormData(formHtml));
+            var href = this.href;
 
-                    currentModal.modal('hide');
+            $.ajax({
+                url: href,
+                type: 'GET',
+            })
+            .then(function (data) {
+                $('#project-form-container').html(data);
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($("#project-form"));
 
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState === 4) {
-                            if (xhr.status === 200) {
-                                // Call GetProjectListPartialView to repopulate the project list
-                                repopulateProjectList();
-                            } else {
-                                handleSaveError(xhr.status);
-                            }
-                        }
-                    };
-                }
-            }
-        }, true);
+                currentModal = $('#project-form-modal');
+                currentModal.modal('show');
 
-        function handleSaveError(statusCode) {
-            bootbox.alert("Unable to save. Error code: " + statusCode);
-        }
+            })
+            .fail(function (error) {
+                bootbox.alert("Unable to show project form. Error: " + error.statusText);
+            })
+        });
+
+        // Show modal for new album
+        $(document).on("click", "#new-album-button", function (e, data) {
+            e.preventDefault();
+
+            var href = this.href + "/?projectId=" + $(this).attr("data-project-id");
+
+            $.ajax({
+                url: href,
+                type: 'GET',
+            })
+            .then(function (data) {
+                $('#album-form-container').html(data);
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($("#album-form"));
+
+                currentModal = $('#album-form-modal');
+                currentModal.modal('show');
+
+            })
+            .fail(function (error) {
+                bootbox.alert("Unable to show album form. Error: " + error.statusText);
+            })
+        });
+
+        $(document).on("submit", function (e, data) {
+            e.preventDefault();
+
+            var form = e.target;
+            var formData = new FormData(form);
+
+            $.ajax({
+                url: form.action,
+                type: 'POST',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false
+            })
+            .then(function (response) {
+                currentModal.modal('hide');
+                // Call GetProjectListPartialView to repopulate the project list
+                repopulateProjectList();
+            })
+            .fail(function (error) {
+                currentModal.modal('hide');
+                handleSaveError(xhr.status);
+            })
+        });
+
 
         function repopulateProjectList() {
             var url = '@Url.Action("GetProjectListPartialView", "Projects", null)';
@@ -134,7 +158,7 @@
                 $('#project-list-wrapper').empty().append(data);
             });
         }
-    });
+        });
     </script>
 }
 

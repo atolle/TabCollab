@@ -1,142 +1,139 @@
 @model IEnumerable<TabRepository.ViewModels.AlbumIndexViewModel>
-    @{
-    ViewBag.Title = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-    }
+@{
+ViewBag.Title = "Index";
+Layout = "~/Views/Shared/_Layout.cshtml";
+}
 
-    <div class="buttons-container">
-        <div id="new-album-button">
-            @Html.ActionLink("New Album", "New", "Albums", null, new { @class = "btn btn-primary" })
-        </div>
+<div class="buttons-container">
+    @Html.ActionLink("New Album", "GetAlbumFormPartialView", "Albums", null, new { @class = "btn btn-primary", id = "new-album-button" })
+</div>
+
+
+<div id="album-list-wrapper"></div>
+
+<div id='album-form-modal' class='modal fade' data-url='@Url.Action("GetAlbumFormPartialView", "Albums")'>
+    <div id='album-form-container'>
     </div>
+</div>
 
-
-    <div id="album-list-wrapper">
-        <div class="row">
-            @foreach (var album in Model)
-        {
-                <div class="col-md-4 m-b-lg">
-                    <div class="panel panel-default panel-profile">
-                        <div class="panel-heading" style="background-image: url('@album.ImageFilePath');"></div>
-                        <div class="panel-body text-center">
-                            <h3>@album.Name</h3>
-                            <p class="m-b">Project: @album.ProjectName<br />Owner: @album.Owner</p>
-                            <div>
-                                @Html.ActionLink("New Tab", "New", "Tabs", new { id = album.Id }, new { @class = "btn btn-primary pull-left" })
-                                @Html.ActionLink("Delete", "AjaxDelete", "Albums", new { id = album.Id }, new { @class = "btn btn-danger pull-right", id = "delete" })
-                            </div>
-                        </div>
-                    </div>
-                </div>
-        }
-        </div>
-    </div>
-
-    <div id='album-form-modal' class='modal fade' data-url='@Url.Action("GetAlbumFormViewModel", "Albums")'>
-        <div id='album-form-container'>
-        </div>
-    </div>
-
-    @section scripts
+@section scripts
 {
-        <script src="~/js/jstree.min.js"></script>
-        <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
-        <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+<script src="~/js/jstree.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
 
-        <script>
-    $(document).ready(function () {
+<script>
+$(document).ready(function () {
+    repopulateAlbumList();
 
-        // Deleting a project
-        $(document).on("click", "#delete", function (e, data) {
-            e.preventDefault();
-            var href = this.href;
+    // Deleting an album
+    $(document).on("click", "#delete", function (e, data) {
+        e.preventDefault();
+        var href = this.href;
 
-            bootbox.confirm("Are you sure you wish to delete this album? This cannot be undone.", function (result) {
-                if (result) {
-                    $.post(href, function (response) {
-                        if (!response.success) {
-                            bootbox.alert("Unable to delete.");
-                        }
-                        else {
-                            repopulateProjectList();
-                        }
-                    });
-                }
-            });
-        });
-
-        // Show modal for new project
-        $(document).on("click", "#new-album-button", function (e, data) {
-            e.preventDefault();
-
-            var url = $('#album-form-modal').data('url');
-
-            $.get(url, function (data) {
-                $('#album-form-container').html(data);
-
-                // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#album-form"));
-
-                currentModal = $('#album-form-modal');
-                currentModal.modal('show');
-            });
-        });
-
-        // Trick to get file data to come over via Ajax, though this does not replace the table in the partial view
-        window.addEventListener("submit", function (e) {
-            var formHtml = e.target;
-            var form = $("#" + formHtml.id);
-            var formAgain = document.forms["album-form"];
-
-            // We're either adding/updating a tab, project, or tab version
-            if (form.valid()) {
-                if (formHtml.dataset.ajax) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    var xhr = new XMLHttpRequest();
-                    xhr.open(formHtml.method, formHtml.action);
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState == 4 && xhr.status == 200) {
-                            if (formHtml.dataset.ajaxUpdate) {
-                                var updateTarget = document.querySelector(formHtml.dataset.ajaxUpdate);
-                                if (updateTarget) {
-                                    updateTarget.innerHTML = xhr.responseText;
-                                }
-                            }
-                        }
-                    };
-                    xhr.send(new FormData(formHtml));
-
-                    currentModal.modal('hide');
-
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState === 4) {
-                            if (xhr.status === 200) {
-                                // Call GetAlbumListPartialView to repopulate the project list
-                                repopulateAlbumList();
-                            } else {
-                                handleSaveError(xhr.status);
-                            }
-                        }
-                    };
-                }
+        bootbox.confirm("Are you sure you wish to delete this album? This cannot be undone.", function (result) {
+            if (result) {
+                $.ajax({
+                    url: href,
+                    type: 'DELETE',
+                })
+                .then(function (response) {
+                    repopulateAlbumList();
+                })
+                .fail(function (error) {
+                    bootbox.alert("Unable to delete album. Error: " + error.statusText);
+                })
             }
-        }, true);
-
-        function handleSaveError(statusCode) {
-            bootbox.alert("Unable to save. Error code: " + statusCode);
-        }
-
-            function repopulateAlbumList() {
-            var url = '@Url.Action("GetAlbumListPartialView", "Albums", null)';
-
-            $.get(url, function (data) {
-                $('#album-list-wrapper').empty().append(data);
-            });
-        }
+        });
     });
-        </script>
+
+    // Show modal for new project
+    $(document).on("click", "#new-album-button", function (e, data) {
+        e.preventDefault();
+
+        var href = this.href;
+
+        $.ajax({
+            url: href,
+            type: 'GET',
+        })
+        .then(function (data) {
+            $('#album-form-container').html(data);
+
+            // Client side validation for dynamic modal injection
+            $.validator.unobtrusive.parse($("#album-form"));
+
+            currentModal = $('#album-form-modal');
+            currentModal.modal('show');
+        })
+        .fail(function (error) {
+            bootbox.alert("Unable to show album form. Error: " + error.statusText);
+        })
+    });
+
+    // Show modal for edit album
+    $(document).on("click", "#edit-album-button", function (e, data) {
+        e.preventDefault();
+
+        var href = this.href + "/?projectId=" + $(this).attr("data-project-id") + "&albumId=" + $(this).attr("data-album-id");
+
+        $.ajax({
+            url: href,
+            type: 'GET',
+        })
+        .then(function (data) {
+            $('#album-form-container').html(data);
+            // Client side validation for dynamic modal injection
+            $.validator.unobtrusive.parse($("#album-form"));
+
+            currentModal = $('#album-form-modal');
+            currentModal.modal('show');
+
+        })
+        .fail(function (error) {
+            bootbox.alert("Unable to show album form. Error: " + error.statusText);
+        })
+    });
+
+    $(document).on("submit", function (e, data) {
+        e.preventDefault();
+
+        var form = e.target;
+        var formData = new FormData(form);
+
+        $.ajax({
+            url: form.action,
+            type: 'POST',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false
+        })
+        .then(function (response) {
+            currentModal.modal('hide');
+            // Call GetAlbumListPartialView to repopulate the project list
+            repopulateAlbumList();
+        })
+        .fail(function (error) {
+            bootbox.alert("Unable to show project form. Error: " + error.statusText);
+
+        })
+    });
+
+    function handleSaveError(statusCode) {
+        bootbox.alert("Unable to save. Error code: " + statusCode);
     }
+
+    function repopulateAlbumList() {
+        var url = '@Url.Action("GetAlbumListPartialView", "Albums", null)';
+
+        $.get(url, function (data) {
+            $('#album-list-wrapper').empty().append(data);
+        });
+    }
+});
+</script>
+}
 
 
 

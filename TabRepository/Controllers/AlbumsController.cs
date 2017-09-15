@@ -51,107 +51,77 @@ namespace TabRepository.Controllers
             return View("AlbumForm", viewModel);
         }
 
-        // POST: Projects
+
+        // POST: Albums
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Save(AlbumFormViewModel viewModel)
+        public async Task<IActionResult> Save(AlbumFormViewModel viewModel)
         {
-            if (!ModelState.IsValid)    // If not valid, set the view model to current customer
-            {                           // initialize membershiptypes and pass it back to same view
-                return View("AlbumForm", viewModel);
-            }
-
-            if (viewModel.Id == 0)  // We are creating a new project
-            {
-                string currentUserId = User.GetUserId();
-
-                // Saving properties for new Project
-                Album album = new Album()
-                {
-                    UserId = User.GetUserId(),
-                    Project = _context.Projects.Single(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId),
-                    Name = viewModel.Name,
-                    Description = viewModel.Description,
-                    DateCreated = DateTime.Now,
-                    DateModified = DateTime.Now,
-                };
-
-                _context.Albums.Add(album);
-            }
-
-            _context.SaveChanges();
-
-            return RedirectToAction("Main", "Projects");
-        }
-
-        // POST: Projects
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AjaxSave(AlbumFormViewModel viewModel)
-        {
-            if (!ModelState.IsValid)    // If not valid, set the view model to current customer
-            {                           // initialize membershiptypes and pass it back to same view
+            if (!ModelState.IsValid)    
+            {                           
                 // Need to return JSON failure to form
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
-            else
+
+            try
             {
-                try
-                {
-                    if (viewModel.Id == 0)  // We are creating a new project
+                string currentUserId = User.GetUserId();
+
+                if (viewModel.Id == 0)  // We are creating a new album
+                {                    
+                    Album album = new Album()
                     {
-                        string currentUserId = User.GetUserId();
+                        UserId = User.GetUserId(),
+                        Project = _context.Projects.Single(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId),
+                        Name = viewModel.Name,
+                        Description = viewModel.Description,
+                        DateCreated = DateTime.Now,
+                        DateModified = DateTime.Now,
+                        ImageFileName = viewModel.Image.FileName
+                    };
 
-                        // Saving properties for new Project
-                        Album album = new Album()
-                        {
-                            UserId = User.GetUserId(),
-                            Project = _context.Projects.Single(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId),
-                            Name = viewModel.Name,
-                            Description = viewModel.Description,
-                            DateCreated = DateTime.Now,
-                            DateModified = DateTime.Now,
-                            ImageFileName = viewModel.Image.FileName
-                        };
+                    _context.Albums.Add(album);
+                    _context.SaveChanges();
 
-                        _context.Albums.Add(album);
-                        _context.SaveChanges();
+                    await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Album" + album.Id.ToString());
 
-                        await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Album" + album.Id.ToString());
-
-                        return Json(new { name = album.Name, id = album.Id });
-                    }
-                    else
-                    {
-                        // Handle edit of project
-                        return Json(new { });
-                    }
+                    return Json(new { name = album.Name, id = album.Id });
                 }
-                catch
+                else // We're updating an album
                 {
-                    // Need to return failure to form
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                    var albumInDb = _context.Albums.SingleOrDefault(p => p.Id == viewModel.Id && p.UserId == currentUserId);
+
+                    // If current user does not have access to project or project does not exist
+                    if (albumInDb == null)
+                    {
+                        return NotFound();
+                    }
+
+                    albumInDb.Name = viewModel.Name;
+                    albumInDb.Description = viewModel.Description;
+                    albumInDb.DateModified = DateTime.Now;
+
+                    if (viewModel.Image != null)
+                    {
+                        albumInDb.ImageFileName = viewModel.Image.FileName;
+                        await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Album" + albumInDb.Id.ToString());
+                    }
+
+                    _context.Albums.Update(albumInDb);
+                    _context.SaveChanges();
+
+                    return Json(new { name = albumInDb.Name, id = albumInDb.Id });
                 }
             }
+            catch
+            {
+                // Need to return failure to form
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }        
         }
 
+        [HttpDelete]
         public ActionResult Delete(int id)
-        {
-            string currentUserId = User.GetUserId();
-
-            var albumInDb = _context.Albums.SingleOrDefault(a => a.Id == id && a.UserId == currentUserId);
-
-            // If current user does not have access to project or project does not exist
-            if (albumInDb == null)
-                return NotFound();
-
-            _context.Albums.Remove(albumInDb);
-            _context.SaveChanges();
-
-            return RedirectToAction("Main", "Projects");
-        }
-
-        public ActionResult AjaxDelete(int id)
         {
             try
             {
@@ -170,7 +140,7 @@ namespace TabRepository.Controllers
             }
             catch
             {
-                return Json(new { success = false });
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
 
@@ -195,6 +165,7 @@ namespace TabRepository.Controllers
                     UserId = album.UserId,
                     Name = album.Name,
                     Owner = album.User.UserName,
+                    ProjectId = album.Project.Id,
                     ProjectName = album.Project.Name,
                     ImageFileName = album.ImageFileName,
                     ImageFilePath = "/images/" + album.UserId + "/Album" + album.Id + "/" + album.ImageFileName,
@@ -220,22 +191,44 @@ namespace TabRepository.Controllers
 
         // GET: Album form
         [HttpGet]
-        public ActionResult GetAlbumFormPartialView(int projectId)
+        public ActionResult GetAlbumFormPartialView(int projectId, int albumId = 0)
         {
             string currentUserId = User.GetUserId();
 
-            // Verify current user has access to this project
-            var projectInDb = _context.Projects.Single(p => p.Id == projectId && p.UserId == currentUserId);
-            if (projectInDb == null)
-                return NotFound();
-
-            var viewModel = new AlbumFormViewModel()
+            try
             {
-                ProjectId = projectInDb.Id,
-                ProjectName = projectInDb.Name
-            };
+                // Verify current user has access to this project
+                var projectInDb = _context.Projects.Single(p => p.Id == projectId && p.UserId == currentUserId);
+                if (projectInDb == null)
+                {
+                    return NotFound();
+                }
 
-            return PartialView("_AlbumForm", viewModel);
+                var viewModel = new AlbumFormViewModel()
+                {
+                    ProjectId = projectInDb.Id,
+                    ProjectName = projectInDb.Name
+                };
+
+                if (albumId != 0)
+                {
+                    var albumInDb = _context.Albums.Single(p => p.Id == albumId && p.UserId == currentUserId);
+                    if (projectInDb == null)
+                    {
+                        return NotFound();
+                    }
+
+                    viewModel.Id = albumInDb.Id;
+                    viewModel.Name = albumInDb.Name;
+                    viewModel.Description = albumInDb.Description;
+                }
+
+                return PartialView("_AlbumForm", viewModel);
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            } 
         }
 
         [HttpGet]
@@ -259,6 +252,7 @@ namespace TabRepository.Controllers
                     UserId = album.UserId,
                     Name = album.Name,
                     Owner = album.User.UserName,
+                    ProjectId = album.Project.Id,
                     ProjectName = album.Project.Name,
                     ImageFileName = album.ImageFileName,
                     ImageFilePath = "/images/" + album.UserId + "/Album" + album.Id + "/" + album.ImageFileName,

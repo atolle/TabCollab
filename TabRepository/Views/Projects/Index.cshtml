@@ -1,23 +1,22 @@
-﻿@model IEnumerable<TabRepository.ViewModels.ProjectIndexViewModel>
-@{
+﻿@{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<div class="buttons-container">
-    @Html.ActionLink("New Project", "GetProjectFormPartialView", "Projects", null, new { @class = "btn btn-primary", id = "new-project-button" })
-</div>
-
-
-<div id="project-list-wrapper"></div>
-
-<div id='project-form-modal' class='modal fade'>
-    <div id='project-form-container'>
+<div id="projectsPage">
+    <div class="buttons-container">
+        @Html.ActionLink("New Project", "GetProjectFormPartialView", "Projects", null, new { @class = "btn btn-primary", id = "new-project-button" })
     </div>
-</div>
 
-<div id='album-form-modal' class='modal fade'>
-    <div id='album-form-container'>
+    <div id="project-list-wrapper"></div>
+
+    <div id='project-form-modal' class='modal fade'>
+        <div id='project-form-container'>
+        </div>
+    </div>
+
+    <div id='album-form-modal' class='modal fade'>
+        <div id='album-form-container'>
+        </div>
     </div>
 </div>
 
@@ -54,10 +53,12 @@
         });
 
         // Show modal for new project
-        $(document).on("click", "#new-project-button", function (e, data) {
+        $("#projectsPage").on("click", "#new-project-button", function (e, data) {
             e.preventDefault();
 
             var href = this.href;
+
+            
 
             $.ajax({
                 url: href,
@@ -78,7 +79,7 @@
         });
 
         // Show modal for edit project
-        $(document).on("click", "#edit-project-button", function (e, data) {
+        $("#projectsPage").on("click", "#edit-project-button", function (e, data) {
             e.preventDefault();
 
             var href = this.href;
@@ -102,7 +103,7 @@
         });
 
         // Show modal for new album
-        $(document).on("click", "#new-album-button", function (e, data) {
+        $("#projectsPage").on("click", "#new-album-button", function (e, data) {
             e.preventDefault();
 
             var href = this.href + "/?projectId=" + $(this).attr("data-project-id");
@@ -125,11 +126,14 @@
             })
         });
 
-        $(document).on("submit", function (e, data) {
+        $("#projectsPage").on("submit", function (e, data) {
             e.preventDefault();
 
             var form = e.target;
             var formData = new FormData(form);
+
+            // Show spinner on save button
+            $($(document.activeElement)[0]).html('<div class="loader"></div>');
 
             $.ajax({
                 url: form.action,
@@ -146,7 +150,7 @@
             })
             .fail(function (error) {
                 currentModal.modal('hide');
-                handleSaveError(xhr.status);
+                bootbox.alert("Unable to save album. Error: " + error.statusText);
             })
         });
 

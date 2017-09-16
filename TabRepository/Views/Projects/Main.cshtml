@@ -55,11 +55,12 @@
             <thead>
                 <tr>
                     <th width="25%">Description</th>
-                    <th width="25%">Tab Version</th>
+                    <th width="25%">Download</th>
                     <th width="15%">Contributor</th>
                     <th width="15%">Date Added</th>
-                    <th width="10%"></th>
-                    <th width="10%"></th>
+                    <th width="10%">Version</th>
+                    <th width="5%"></th>
+                    <th width="5%"></th>
                 </tr>
             </thead>
             <tbody>
@@ -296,6 +297,9 @@
 
             var form = e.target;
             var formData = new FormData(form);
+
+            // Show spinner on save button
+            $($(document.activeElement)[0]).html('<div class="loader"></div>');
 
             $.ajax({
                 url: form.action,

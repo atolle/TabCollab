@@ -135,36 +135,7 @@ namespace TabRepository.Controllers
         // GET: Projects
         public ViewResult Index()
         {
-            string currentUserId = User.GetUserId();
-            List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
-
-            // Return a list of all Projects belonging to the current user
-            var projects = _context.Projects.Include(u => u.User)
-                .Where(p => p.UserId == currentUserId)
-                .OrderBy(p => p.Name)
-                .ToList();
-
-            foreach (var proj in projects)
-            {
-                var elem = new ProjectIndexViewModel()
-                {
-                    Id = proj.Id,
-                    UserId = proj.UserId,
-                    Name = proj.Name,
-                    Owner = proj.User.UserName,
-                    ImageFileName = proj.ImageFileName,
-                    ImageFilePath = "/images/" + proj.UserId + "/Project" + proj.Id + "/" + proj.ImageFileName,
-                    DateCreated = proj.DateCreated,
-                    DateModified = proj.DateModified,
-                    User = proj.User,
-                    Albums = proj.Albums
-                };
-
-                // Add projects to project view model
-                viewModel.Add(elem);
-            }
-
-            return View(viewModel);
+            return View();
         }
 
         public ApplicationUser GetCurrentUser()

@@ -144,42 +144,10 @@ namespace TabRepository.Controllers
             }
         }
 
-        // GET: Projects
+        // GET: Albums
         public ViewResult Index()
         {
-            string currentUserId = User.GetUserId();
-            List<AlbumIndexViewModel> viewModel = new List<AlbumIndexViewModel>();
-
-            // Return a list of all Projects belonging to the current user
-            var albums = _context.Albums.Include(u => u.User)
-                .Include(a => a.Project)
-                .Where(a => a.UserId == currentUserId)
-                .OrderBy(a => a.Name)
-                .ToList();
-
-            foreach (var album in albums)
-            {
-                var elem = new AlbumIndexViewModel()
-                {
-                    Id = album.Id,
-                    UserId = album.UserId,
-                    Name = album.Name,
-                    Owner = album.User.UserName,
-                    ProjectId = album.Project.Id,
-                    ProjectName = album.Project.Name,
-                    ImageFileName = album.ImageFileName,
-                    ImageFilePath = "/images/" + album.UserId + "/Album" + album.Id + "/" + album.ImageFileName,
-                    DateCreated = album.DateCreated,
-                    DateModified = album.DateModified,
-                    User = album.User,
-                    Tabs = album.Tabs
-                };
-
-                // Add projects to project view model
-                viewModel.Add(elem);
-            }
-
-            return View(viewModel);
+            return View();
         }
 
         public ApplicationUser GetCurrentUser()
@@ -213,7 +181,7 @@ namespace TabRepository.Controllers
                 if (albumId != 0)
                 {
                     var albumInDb = _context.Albums.Single(p => p.Id == albumId && p.UserId == currentUserId);
-                    if (projectInDb == null)
+                    if (albumInDb == null)
                     {
                         return NotFound();
                     }
@@ -232,41 +200,93 @@ namespace TabRepository.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetAlbumListPartialView()
+        public ActionResult GetAlbumListPartialView(int projectId)
         {
             string currentUserId = User.GetUserId();
             List<AlbumIndexViewModel> viewModel = new List<AlbumIndexViewModel>();
 
-            // Return a list of all Projects belonging to the current user
-            var albums = _context.Albums.Include(u => u.User)
-                .Include(a => a.Project)
-                .Where(a => a.UserId == currentUserId)
-                .OrderBy(a => a.Name)
-                .ToList();
-
-            foreach (var album in albums)
+            if (projectId == 0)
             {
-                var elem = new AlbumIndexViewModel()
+                try
                 {
-                    Id = album.Id,
-                    UserId = album.UserId,
-                    Name = album.Name,
-                    Owner = album.User.UserName,
-                    ProjectId = album.Project.Id,
-                    ProjectName = album.Project.Name,
-                    ImageFileName = album.ImageFileName,
-                    ImageFilePath = "/images/" + album.UserId + "/Album" + album.Id + "/" + album.ImageFileName,
-                    DateCreated = album.DateCreated,
-                    DateModified = album.DateModified,
-                    User = album.User,
-                    Tabs = album.Tabs
-                };
+                    // Return a list of all Projects belonging to the current user
+                    var albums = _context.Albums.Include(u => u.User)
+                        .Include(a => a.Project)
+                        .Where(a => a.UserId == currentUserId)
+                        .OrderBy(a => a.Name)
+                        .ToList();
 
-                // Add projects to project view model
-                viewModel.Add(elem);
+                    foreach (var album in albums)
+                    {
+                        var elem = new AlbumIndexViewModel()
+                        {
+                            Id = album.Id,
+                            UserId = album.UserId,
+                            Name = album.Name,
+                            Owner = album.User.UserName,
+                            ProjectId = album.Project.Id,
+                            ProjectName = album.Project.Name,
+                            ImageFileName = album.ImageFileName,
+                            ImageFilePath = "/images/" + album.UserId + "/Album" + album.Id + "/" + album.ImageFileName,
+                            DateCreated = album.DateCreated,
+                            DateModified = album.DateModified,
+                            User = album.User,
+                            Tabs = album.Tabs
+                        };
+
+                        // Add projects to project view model
+                        viewModel.Add(elem);
+                    }
+
+                    return PartialView("_AlbumList", viewModel);
+                }
+                catch
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+
             }
+            else
+            {
+                try
+                {
+                    // Return a list of all Projects belonging to the current user
+                    var albums = _context.Albums.Include(u => u.User)
+                        .Include(a => a.Project)
+                        .Where(a => a.UserId == currentUserId && a.ProjectId == projectId)
+                        .OrderBy(a => a.Name)
+                        .ToList();
 
-            return PartialView("_AlbumList", viewModel);
+                    foreach (var album in albums)
+                    {
+                        var elem = new AlbumIndexViewModel()
+                        {
+                            Id = album.Id,
+                            UserId = album.UserId,
+                            Name = album.Name,
+                            Owner = album.User.UserName,
+                            ProjectId = album.Project.Id,
+                            ProjectName = album.Project.Name,
+                            ImageFileName = album.ImageFileName,
+                            ImageFilePath = "/images/" + album.UserId + "/Album" + album.Id + "/" + album.ImageFileName,
+                            DateCreated = album.DateCreated,
+                            DateModified = album.DateModified,
+                            User = album.User,
+                            Tabs = album.Tabs
+                        };
+
+                        // Add projects to project view model
+                        viewModel.Add(elem);
+                    }
+
+                    return PartialView("_AlbumList", viewModel);
+                }
+                catch
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+
+            }
         }
     }
 }

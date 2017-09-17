@@ -4,91 +4,91 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="buttons-container">
-    <div id="new-project-button">
-        <button class="btn btn-primary">New Project</button>
-    </div>
-    <div id="new-album-button-container">
-        <button class="btn btn-primary" disabled>New Album</button>
-    </div>
-    <div id="new-tab-button-container">
-        <button class="btn btn-primary pull-right" disabled>New Tab</button>
-    </div>
-    <div id="new-tab-version-button-container">
-        <button class="btn btn-primary" disabled>New Tab Version</button>
-    </div>
-</div>
-
 <link href="~/css/jstreestyle.css" rel="stylesheet" />
 <link href="~/css/main.css" rel="stylesheet" />
 
-<div id="treeTableContainer">
-    <div id="treeWrapper">
-        <div id="jstree">
-            <ul>
-                @foreach (var project in Model)
-                {
-                    <li id="project @project.Id">
-                        @project.Name
-                        @foreach (var album in project.Albums)
-                        {
-                            <ul>
-                                <li id="album @album.Id" data-jstree='{"icon":"/images/cd(16x12).png"}'>
-                                    @album.Name
-                                    @foreach (var tab in album.Tabs)
-                                    {
-                                        <ul>
-                                            <li id="tab @tab.Id" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>@tab.Name</li>
-                                        </ul>
-                                    }
-                                </li>
-                            </ul>
-                        }
-                    </li>
-                }
-            </ul>
+<div id="page">
+    <div class="buttons-container">
+        <div id="new-project-button">
+            <button class="btn btn-primary">New Project</button>
+        </div>
+        <div id="new-album-button-container">
+            <button class="btn btn-primary" disabled>New Album</button>
+        </div>
+        <div id="new-tab-button-container">
+            <button class="btn btn-primary pull-right" disabled>New Tab</button>
+        </div>
+        <div id="new-tab-version-button-container">
+            <button class="btn btn-primary" disabled>New Tab Version</button>
         </div>
     </div>
-    <div id="splitter"></div>
-    <div id="tab-versions-table-container">
-        <table class="table table-bordered table-hover">
-            <thead>
-                <tr>
-                    <th width="25%">Description</th>
-                    <th width="25%">Download</th>
-                    <th width="15%">Contributor</th>
-                    <th width="15%">Date Added</th>
-                    <th width="10%">Version</th>
-                    <th width="5%"></th>
-                    <th width="5%"></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                </tr>
-            </tbody>
-        </table>
+    <div id="treeTableContainer">
+        <div id="treeWrapper">
+            <div id="jstree">
+                <ul>
+                    @foreach (var project in Model)
+                    {
+                        <li id="project @project.Id">
+                            @project.Name
+                            @foreach (var album in project.Albums)
+                            {
+                                <ul>
+                                    <li id="album @album.Id" data-jstree='{"icon":"/images/cd(16x12).png"}'>
+                                        @album.Name
+                                        @foreach (var tab in album.Tabs)
+                                        {
+                                            <ul>
+                                                <li id="tab @tab.Id" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>@tab.Name</li>
+                                            </ul>
+                                        }
+                                    </li>
+                                </ul>
+                            }
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div id="splitter"></div>
+        <div id="tab-versions-table-container">
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th width="25%">Description</th>
+                        <th width="25%">Download</th>
+                        <th width="15%">Contributor</th>
+                        <th width="15%">Date Added</th>
+                        <th width="10%">Version</th>
+                        <th width="5%"></th>
+                        <th width="5%"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
-<p></p>
+    <p></p>
 
-<div id='tab-form-modal' class='modal fade' data-url='@Url.Action("GetTabFormPartialView", "Tabs")'>
-    <div id='tab-form-container'>
+    <div id='tab-form-modal' class='modal fade' data-url='@Url.Action("GetTabFormPartialView", "Tabs")'>
+        <div id='tab-form-container'>
+        </div>
     </div>
-</div>
 
-<div id='project-form-modal' class='modal fade' data-url='@Url.Action("GetProjectFormPartialView", "Projects")'>
-    <div id='project-form-container'>
+    <div id='project-form-modal' class='modal fade' data-url='@Url.Action("GetProjectFormPartialView", "Projects")'>
+        <div id='project-form-container'>
+        </div>
     </div>
-</div>
 
-<div id='album-form-modal' class='modal fade' data-url='@Url.Action("GetAlbumFormPartialView", "Albums")'>
-    <div id='album-form-container'>
+    <div id='album-form-modal' class='modal fade' data-url='@Url.Action("GetAlbumFormPartialView", "Albums")'>
+        <div id='album-form-container'>
+        </div>
     </div>
-</div>
 
-<div id='tab-version-form-modal' class='modal fade' data-url='@Url.Action("GetTabVersionFormPartialView", "TabVersions")'>
-    <div id='tab-version-form-container'>
+    <div id='tab-version-form-modal' class='modal fade' data-url='@Url.Action("GetTabVersionFormPartialView", "TabVersions")'>
+        <div id='tab-version-form-container'>
+        </div>
     </div>
 </div>
 
@@ -168,7 +168,7 @@
         });
 
         // Deleting a tab version
-        $(document).on("click", "#delete", function (e, data) {
+        $("#page").on("click", "#delete", function (e, data) {
             e.preventDefault();
             var href = this.href;
 
@@ -204,7 +204,7 @@
         });
 
         // Show modal for new tab
-        $(document).on("click", "#new-tab-button", function (e, data) {
+        $("#page").on("click", "#new-tab-button", function (e, data) {
             e.preventDefault();
 
             var url = $('#tab-form-modal').data('url');
@@ -228,7 +228,7 @@
         });
 
         // Show modal for new project
-        $(document).on("click", "#new-project-button", function (e, data) {
+        $("#page").on("click", "#new-project-button", function (e, data) {
             e.preventDefault();
 
             var url = $('#project-form-modal').data('url');
@@ -245,7 +245,7 @@
         });
 
         // Show modal for new album
-        $(document).on("click", "#new-album-button", function (e, data) {
+        $("#page").on("click", "#new-album-button", function (e, data) {
             e.preventDefault();
 
             var url = $('#album-form-modal').data('url');
@@ -269,7 +269,7 @@
         });
 
         // Show modal for new tab version
-        $(document).on("click", "#new-tab-version-button", function (e, data) {
+        $("#page").on("click", "#new-tab-version-button", function (e, data) {
             e.preventDefault();
 
             var url = $('#tab-version-form-modal').data('url');
@@ -292,7 +292,7 @@
             }
         });
 
-        $(document).on("submit", function (e, data) {
+        $("#page").on("submit", function (e, data) {
             e.preventDefault();
 
             var form = e.target;

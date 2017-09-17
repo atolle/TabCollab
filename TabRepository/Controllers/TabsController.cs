@@ -235,22 +235,44 @@ namespace TabRepository.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetTabFormPartialView(int albumId)
+        public ActionResult GetTabFormPartialView(int albumId, int tabId)
         {
             string currentUserId = User.GetUserId();
 
-            // Verify current user has access to this project
-            var albumInDb = _context.Albums.Single(a => a.Id == albumId && a.UserId == currentUserId);
-            if (albumInDb == null)
-                return NotFound();
-
-            var viewModel = new TabFormViewModel()
+            try
             {
-                AlbumId = albumInDb.Id,
-                AlbumName = albumInDb.Name
-            };
+                // Verify current user has access to this album
+                var albumInDb = _context.Albums.Single(a => a.Id == albumId && a.UserId == currentUserId);
+                if (albumInDb == null)
+                {
+                    return NotFound();
+                }
 
-            return PartialView("_TabForm", viewModel);
+                var viewModel = new TabFormViewModel()
+                {
+                    AlbumId = albumInDb.Id,
+                    AlbumName = albumInDb.Name
+                };
+
+                if (tabId != 0)
+                {
+                    var tabInDb = _context.Tabs.Single(p => p.Id == tabId && p.UserId == currentUserId);
+                    if (tabInDb == null)
+                    {
+                        return NotFound();
+                    }
+
+                    viewModel.Id = tabInDb.Id;
+                    viewModel.Name = tabInDb.Name;
+                    viewModel.Description = tabInDb.Description;
+                }
+
+                return PartialView("_TabForm", viewModel);
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
         }
     }
 }

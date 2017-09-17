@@ -5,7 +5,14 @@
     <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
+            @if (String.IsNullOrEmpty(Model.Name))
+            {
             <h4 class="modal-title">New Project</h4>
+            }
+            else  
+            {
+            <h4 class="modal-title">Edit @Model.Name</h4>
+            }
         </div>
         <div class="modal-body">
             <form id="project-form" asp-controller="Projects" asp-action="Save" data-ajax="true" data-ajax-method="POST">

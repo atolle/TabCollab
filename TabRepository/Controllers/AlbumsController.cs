@@ -159,7 +159,7 @@ namespace TabRepository.Controllers
 
         // GET: Album form
         [HttpGet]
-        public ActionResult GetAlbumFormPartialView(int projectId, int albumId = 0)
+        public ActionResult GetAlbumFormPartialView(int projectId, int albumId)
         {
             string currentUserId = User.GetUserId();
 

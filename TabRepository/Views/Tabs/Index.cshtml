@@ -6,29 +6,30 @@
 
 <h2>Tabs for @Model.ProjectName</h2>
 
-<p>
-    @Html.ActionLink("Back To Projects", "Index", "Projects", null, new { @class = "btn btn-primary" })
-    @Html.ActionLink("New Tab", "New", "Tabs", new {id = Model.ProjectId}, new { @class = "btn btn-primary" })
-</p>
+<div id="page">
+    <div class="buttons-container">
+        @Html.ActionLink("New Tab", "New", "Tabs", new { id = Model.ProjectId }, new { @class = "btn btn-primary" })
+    </div>
 
-<table class="table table-bordered table-hover">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var tab in Model.Tabs)
-        {
+    <table class="table table-bordered table-hover">
+        <thead>
             <tr>
-                <td>@Html.ActionLink(@tab.Name, "Index", "TabVersions", new { id = tab.Id }, null)</td>
-                <td>@tab.Description</td>
-                <td>@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = tab.Id }, new { @class = "btn btn-primary" })</td>
-                <td>@Html.ActionLink("Delete", "Delete", "Tabs", new { id = tab.Id }, new { @class = "btn btn-danger" })</td>
+                <th>Name</th>
+                <th>Description</th>
+                <th></th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var tab in Model.Tabs)
+            {
+                <tr>
+                    <td>@Html.ActionLink(@tab.Name, "Index", "TabVersions", new { id = tab.Id }, null)</td>
+                    <td>@tab.Description</td>
+                    <td>@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = tab.Id }, new { @class = "btn btn-primary" })</td>
+                    <td>@Html.ActionLink("Delete", "Delete", "Tabs", new { id = tab.Id }, new { @class = "btn btn-danger" })</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -3,15 +3,22 @@ ViewBag.Title = "Index";
 Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="buttons-container">
-    @Html.ActionLink("New Album", "GetAlbumFormPartialView", "Albums", null, new { @class = "btn btn-primary", id = "new-album-button" })
-</div>
+<div id="page">
+    <div class="buttons-container">
+        @Html.ActionLink("New Album", "GetAlbumFormPartialView", "Albums", null, new { @class = "btn btn-primary", id = "new-album-button" })
+    </div>
 
 
-<div id="album-list-wrapper"></div>
+    <div id="album-list-wrapper"></div>
 
-<div id='album-form-modal' class='modal fade' data-url='@Url.Action("GetAlbumFormPartialView", "Albums")'>
-    <div id='album-form-container'>
+    <div id='album-form-modal' class='modal fade'>
+        <div id='album-form-container'>
+        </div>
+    </div>
+
+    <div id='tab-form-modal' class='modal fade'>
+        <div id='tab-form-container'>
+        </div>
     </div>
 </div>
 
@@ -26,7 +33,7 @@ $(document).ready(function () {
     repopulateAlbumList();
 
     // Deleting an album
-    $(document).on("click", "#delete", function (e, data) {
+    $("#page").on("click", "#delete", function (e, data) {
         e.preventDefault();
         var href = this.href;
 
@@ -47,7 +54,7 @@ $(document).ready(function () {
     });
 
     // Show modal for new project
-    $(document).on("click", "#new-album-button", function (e, data) {
+    $("#page").on("click", "#new-album-button", function (e, data) {
         e.preventDefault();
 
         var href = this.href;
@@ -71,7 +78,7 @@ $(document).ready(function () {
     });
 
     // Show modal for edit album
-    $(document).on("click", "#edit-album-button", function (e, data) {
+    $("#page").on("click", "#edit-album-button", function (e, data) {
         e.preventDefault();
 
         var href = this.href + "/?projectId=" + $(this).attr("data-project-id") + "&albumId=" + $(this).attr("data-album-id");
@@ -94,7 +101,31 @@ $(document).ready(function () {
         })
     });
 
-    $(document).on("submit", function (e, data) {
+    // Show modal for new tab
+    $("#page").on("click", "#new-tab-button", function (e, data) {
+        e.preventDefault();
+
+        var href = this.href + "/?albumId=" + $(this).attr("data-album-id");
+
+        $.ajax({
+            url: href,
+            type: 'GET',
+        })
+            .then(function (data) {
+                $('#tab-form-container').html(data);
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($("#tab-form"));
+
+                currentModal = $('#tab-form-modal');
+                currentModal.modal('show');
+
+            })
+            .fail(function (error) {
+                bootbox.alert("Unable to show tab form. Error: " + error.statusText);
+            })
+    });
+
+    $("#page").on("submit", function (e, data) {
         e.preventDefault();
 
         var form = e.target;

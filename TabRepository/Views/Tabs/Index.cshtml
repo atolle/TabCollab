@@ -8,6 +8,8 @@
         @Html.ActionLink("New Tab", "GetTabFormPartialView", "Tabs", null, new { @class = "btn btn-primary", id = "new-tab-button" })
     </div>
 
+    <div class="list-loader"></div>
+
     <div id="tab-list-wrapper"></div>
 
     <div id='album-form-modal' class='modal fade'>
@@ -32,7 +34,15 @@
 <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
 <script>
 $(document).ready(function () {
-    repopulateTabList();
+    repopulateTabList()
+        .then(function (result) {
+            $('.list-loader').remove();
+            $('hr').show();
+            $('footer').show();
+        })
+        .catch(function (error) {
+            bootbox.alert("Unable to load tabs. Error: " + error.statusText);
+        });
 
     // Deleting an album
     $("#page").on("click", "#delete", function (e, data) {
@@ -157,11 +167,15 @@ $(document).ready(function () {
     });
 
     function repopulateTabList() {
-        var url = '@Url.Action("GetTabListPartialView", "Tabs", null)';
+        return new Promise((resolve, reject) => {
+            var url = '@Url.Action("GetTabListPartialView", "Tabs", null)';
 
-        $.get(url, function (data) {
-            $('#tab-list-wrapper').empty().append(data);
-        });
+            $.get(url, function (data) {
+                $('#tab-list-wrapper').empty().append(data);
+            })
+            .then(resolve)
+            .fail(reject)
+        })
     }
 });
 </script>

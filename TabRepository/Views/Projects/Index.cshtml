@@ -4,8 +4,10 @@
 }
 <div id="page">
     <div class="buttons-container">
-        @Html.ActionLink("New Project", "GetProjectFormPartialView", "Projects", null, new { @class = "btn btn-primary", id = "new-project-button" })
+        @Html.ActionLink("New Project", "GetProjectFormPartialView", "Projects", null, new { @class = "btn btn-primary", id = "new-project-button", @display = "none" })
     </div>
+
+    <div class="list-loader"></div>
 
     <div id="project-list-wrapper"></div>
 
@@ -22,46 +24,54 @@
 
 @section scripts
 {
-    <script src="~/js/jstree.min.js"></script>
-    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+<script src="~/js/jstree.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
 
-    <script>
-    $(document).ready(function () {
-        repopulateProjectList();
+<script>
+$(document).ready(function () {
+    repopulateProjectList()
+        .then(function (result) {
+            $('.list-loader').remove();
+            $('hr').show();
+            $('footer').show();
+        })
+        .catch(function (error) {
+            bootbox.alert("Unable to load projects. Error: " + error.statusText);
+        });
 
-        // Deleting a project
-        $("#page").on("click", "#delete-project-button", function (e, data) {
-            e.preventDefault();
+    // Deleting a project
+    $("#page").on("click", "#delete-project-button", function (e, data) {
+        e.preventDefault();
 
-            var href = this.href;
+        var href = this.href;
 
-            bootbox.confirm("Are you sure you wish to delete this project? This cannot be undone.", function (result) {
-                if (result) {
-                    $.ajax({
-                        url: href,
-                        type: 'DELETE',
-                    })
+        bootbox.confirm("Are you sure you wish to delete this project? This cannot be undone.", function (result) {
+            if (result) {
+                $.ajax({
+                    url: href,
+                    type: 'DELETE',
+                })
                     .then(function (response) {
                         repopulateProjectList();
                     })
                     .fail(function (error) {
                         bootbox.alert("Unable to delete project. Error: " + error.statusText);
                     })
-                }
-            });
+            }
         });
+    });
 
-        // Show modal for new project
-        $("#page").on("click", "#new-project-button", function (e, data) {
-            e.preventDefault();
+    // Show modal for new project
+    $("#page").on("click", "#new-project-button", function (e, data) {
+        e.preventDefault();
 
-            var href = this.href;
+        var href = this.href;
 
-            $.ajax({
-                url: href,
-                type: 'GET',
-            })
+        $.ajax({
+            url: href,
+            type: 'GET',
+        })
             .then(function (data) {
                 $('#project-form-container').html(data);
                 // Client side validation for dynamic modal injection
@@ -74,18 +84,18 @@
             .fail(function (error) {
                 bootbox.alert("Unable to show project form. Error: " + error.statusText);
             })
-        });
+    });
 
-        // Show modal for edit project
-        $("#page").on("click", "#edit-project-button", function (e, data) {
-            e.preventDefault();
+    // Show modal for edit project
+    $("#page").on("click", "#edit-project-button", function (e, data) {
+        e.preventDefault();
 
-            var href = this.href;
+        var href = this.href;
 
-            $.ajax({
-                url: href,
-                type: 'GET',
-            })
+        $.ajax({
+            url: href,
+            type: 'GET',
+        })
             .then(function (data) {
                 $('#project-form-container').html(data);
                 // Client side validation for dynamic modal injection
@@ -98,18 +108,18 @@
             .fail(function (error) {
                 bootbox.alert("Unable to show project form. Error: " + error.statusText);
             })
-        });
+    });
 
-        // Show modal for new album
-        $("#page").on("click", "#new-album-button", function (e, data) {
-            e.preventDefault();
+    // Show modal for new album
+    $("#page").on("click", "#new-album-button", function (e, data) {
+        e.preventDefault();
 
-            var href = this.href + "/?projectId=" + $(this).attr("data-project-id");
+        var href = this.href + "/?projectId=" + $(this).attr("data-project-id");
 
-            $.ajax({
-                url: href,
-                type: 'GET',
-            })
+        $.ajax({
+            url: href,
+            type: 'GET',
+        })
             .then(function (data) {
                 $('#album-form-container').html(data);
                 // Client side validation for dynamic modal injection
@@ -122,25 +132,25 @@
             .fail(function (error) {
                 bootbox.alert("Unable to show album form. Error: " + error.statusText);
             })
-        });
+    });
 
-        $("#page").on("submit", function (e, data) {
-            e.preventDefault();
+    $("#page").on("submit", function (e, data) {
+        e.preventDefault();
 
-            var form = e.target;
-            var formData = new FormData(form);
+        var form = e.target;
+        var formData = new FormData(form);
 
-            // Show spinner on save button
-            $($(document.activeElement)[0]).html('<div class="loader"></div>');
+        // Show spinner on save button
+        $($(document.activeElement)[0]).html('<div class="loader"></div>');
 
-            $.ajax({
-                url: form.action,
-                type: 'POST',
-                data: formData,
-                cache: false,
-                contentType: false,
-                processData: false
-            })
+        $.ajax({
+            url: form.action,
+            type: 'POST',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false
+        })
             .then(function (response) {
                 currentModal.modal('hide');
                 // Call GetProjectListPartialView to repopulate the project list
@@ -150,18 +160,21 @@
                 currentModal.modal('hide');
                 bootbox.alert("Unable to save album. Error: " + error.statusText);
             })
-        });
+    });
 
-
-        function repopulateProjectList() {
+    function repopulateProjectList() {
+        return new Promise((resolve, reject) => {
             var url = '@Url.Action("GetProjectListPartialView", "Projects", null)';
 
             $.get(url, function (data) {
                 $('#project-list-wrapper').empty().append(data);
-            });
-        }
-        });
-    </script>
+            })
+            .then(resolve)
+            .fail(reject)
+        })
+    }
+});
+</script>
 }
 
 

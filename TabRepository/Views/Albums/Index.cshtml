@@ -8,6 +8,7 @@ Layout = "~/Views/Shared/_Layout.cshtml";
         @Html.ActionLink("New Album", "GetAlbumFormPartialView", "Albums", null, new { @class = "btn btn-primary", id = "new-album-button" })
     </div>
 
+    <div class="list-loader"></div>
 
     <div id="album-list-wrapper"></div>
 
@@ -29,7 +30,15 @@ Layout = "~/Views/Shared/_Layout.cshtml";
 
 <script>
 $(document).ready(function () {
-    repopulateAlbumList();
+    repopulateAlbumList()
+        .then(function (result) {
+            $('.list-loader').remove();
+            $('hr').show();
+            $('footer').show();
+        })
+        .catch(function (error) {
+            bootbox.alert("Unable to load albums. Error: " + error.statusText);
+        });
 
     // Deleting an album
     $("#page").on("click", "#delete", function (e, data) {
@@ -158,11 +167,15 @@ $(document).ready(function () {
     }
 
     function repopulateAlbumList() {
-        var url = '@Url.Action("GetAlbumListPartialView", "Albums", null)';
+        return new Promise((resolve, reject) => {
+            var url = '@Url.Action("GetAlbumListPartialView", "Albums", null)';
 
-        $.get(url, function (data) {
-            $('#album-list-wrapper').empty().append(data);
-        });
+            $.get(url, function (data) {
+                $('#album-list-wrapper').empty().append(data);
+            })
+            .then(resolve)
+            .fail(reject)
+        })
     }
 });
 </script>

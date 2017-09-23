@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TabRepository.Data;
@@ -46,149 +48,92 @@ namespace TabRepository.Controllers
         // POST: Tabs
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Save(TabFormViewModel viewModel)      
-        {
-            if (!ModelState.IsValid)    
-            {
-                return View("TabForm", viewModel);
-            }
-
-            if (viewModel.Id == 0)  // We are creating a new Tab
-            {
-                string currentUserId = User.GetUserId();
-
-                TabFile tabFile = new TabFile();
-
-                if (viewModel.FileData.Length > 0)
-                {
-                    using (var fileStream = viewModel.FileData.OpenReadStream())
-                    using (var ms = new MemoryStream())
-                    {
-                        fileStream.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        tabFile.TabData = fileBytes;
-                    }
-
-                    tabFile.Name = viewModel.FileData.FileName;
-                    tabFile.DateCreated = DateTime.Now;
-                }
-
-                // Create new Tab
-                Tab tab = new Tab()
-                {
-                    UserId = User.GetUserId(),
-                    Album = _context.Albums.Single(p => p.Id == viewModel.AlbumId && p.UserId == currentUserId),
-                    Name = viewModel.Name,
-                    Description = viewModel.Description,
-                    DateCreated = DateTime.Now,
-                    DateModified = DateTime.Now,
-                    CurrentVersion = 1
-                };
-
-                // Create first Tab Version
-                TabVersion tabVersion = new TabVersion()
-                {
-                    Version = 1,                    // NEED TO DETERMINE HOW TO REFERENCE TABVERSION
-                    Description = viewModel.Description,    // TO TABFILE AND VICE VERSA
-                    UserId = tab.UserId,                    // CHICKEN AND THE EGG PROBLEM
-                    DateCreated = tab.DateCreated,
-                    Tab = tab,
-                    TabFile = tabFile
-                };
-
-                tabVersion.TabFile = tabFile;
-
-                _context.Tabs.Add(tab);
-                _context.TabVersions.Add(tabVersion);
-                _context.TabFiles.Add(tabFile);
-                _context.SaveChanges();
-            }
-
-            _context.SaveChanges();
-
-            // Redirect to list of tabs for current Project
-            //return RedirectToAction("Index", "Tabs", new { id = viewModel.ProjectId });
-            return RedirectToAction("Main", "Projects"); 
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult AjaxSave(TabFormViewModel viewModel)
+        public ActionResult Save(TabFormViewModel viewModel)
         {
             if (!ModelState.IsValid)
             {
-                // Need to return JSON failure to form
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
-            else
+            try
             {
-                try
+                string currentUserId = User.GetUserId();
+
+                if (viewModel.Id == 0)  // We are creating a new Tab
                 {
-                    if (viewModel.Id == 0)  // We are creating a new Tab
+                    TabFile tabFile = new TabFile();
+
+                    if (viewModel.FileData.Length > 0)
                     {
-                        string currentUserId = User.GetUserId();
-
-                        TabFile tabFile = new TabFile();
-
-                        if (viewModel.FileData.Length > 0)
+                        using (var fileStream = viewModel.FileData.OpenReadStream())
+                        using (var ms = new MemoryStream())
                         {
-                            using (var fileStream = viewModel.FileData.OpenReadStream())
-                            using (var ms = new MemoryStream())
-                            {
-                                fileStream.CopyTo(ms);
-                                var fileBytes = ms.ToArray();
-                                tabFile.TabData = fileBytes;
-                            }
-
-                            tabFile.Name = viewModel.FileData.FileName;
-                            tabFile.DateCreated = DateTime.Now;
+                            fileStream.CopyTo(ms);
+                            var fileBytes = ms.ToArray();
+                            tabFile.TabData = fileBytes;
                         }
 
-                        // Create new Tab
-                        Tab tab = new Tab()
-                        {
-                            UserId = User.GetUserId(),
-                            Album = _context.Albums.Single(p => p.Id == viewModel.AlbumId && p.UserId == currentUserId),
-                            Name = viewModel.Name,
-                            Description = viewModel.Description,
-                            DateCreated = DateTime.Now,
-                            DateModified = DateTime.Now,
-                            CurrentVersion = 1
-                        };
-
-                        // Create first Tab Version
-                        TabVersion tabVersion = new TabVersion()
-                        {
-                            Version = 1,                    // NEED TO DETERMINE HOW TO REFERENCE TABVERSION
-                            Description = viewModel.Description,    // TO TABFILE AND VICE VERSA
-                            UserId = tab.UserId,                    // CHICKEN AND THE EGG PROBLEM
-                            DateCreated = tab.DateCreated,
-                            Tab = tab,
-                            TabFile = tabFile
-                        };
-
-                        tabVersion.TabFile = tabFile;
-
-                        _context.Tabs.Add(tab);
-                        _context.TabVersions.Add(tabVersion);
-                        _context.TabFiles.Add(tabFile);
-                        _context.SaveChanges();
-
-                        // Return tab name and id
-                        return Json(new { name = tab.Name, id = tab.Id });
+                        tabFile.Name = viewModel.FileData.FileName;
+                        tabFile.DateCreated = DateTime.Now;
                     }
-                    else
+
+                    // Create new Tab
+                    Tab tab = new Tab()
                     {
-                        // TO DO: Return correct table when editing a tab                        
-                        return Json(new { });
-                    }
+                        UserId = User.GetUserId(),
+                        Album = _context.Albums.Single(p => p.Id == viewModel.AlbumId && p.UserId == currentUserId),
+                        Name = viewModel.Name,
+                        Description = viewModel.Description,
+                        DateCreated = DateTime.Now,
+                        DateModified = DateTime.Now,
+                        CurrentVersion = 1
+                    };
+
+                    // Create first Tab Version
+                    TabVersion tabVersion = new TabVersion()
+                    {
+                        Version = 1,                    // NEED TO DETERMINE HOW TO REFERENCE TABVERSION
+                        Description = viewModel.Description,    // TO TABFILE AND VICE VERSA
+                        UserId = tab.UserId,                    // CHICKEN AND THE EGG PROBLEM
+                        DateCreated = tab.DateCreated,
+                        Tab = tab,
+                        TabFile = tabFile
+                    };
+
+                    tabVersion.TabFile = tabFile;
+
+                    _context.Tabs.Add(tab);
+                    _context.TabVersions.Add(tabVersion);
+                    _context.TabFiles.Add(tabFile);
+                    _context.SaveChanges();
+
+                    // Return tab name and id
+                    return Json(new { name = tab.Name, id = tab.Id });
                 }
-                catch
+                else
                 {
-                    // Need to return failure to form
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                    var tabInDb = _context.Tabs.SingleOrDefault(p => p.Id == viewModel.Id && p.UserId == currentUserId);
+
+                    // If current user does not have access to project or project does not exist
+                    if (tabInDb == null)
+                    {
+                        return NotFound();
+                    }
+
+                    tabInDb.Name = viewModel.Name;
+                    tabInDb.Description = viewModel.Description;
+                    tabInDb.DateModified = DateTime.Now;
+
+                    _context.Tabs.Update(tabInDb);
+                    _context.SaveChanges();
+
+                    return Json(new { name = tabInDb.Name, id = tabInDb.Id });
                 }
-            }            
+            }
+            catch
+            {
+                // Need to return failure to form
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }                       
         }
 
         // GET: Tabs
@@ -197,12 +142,7 @@ namespace TabRepository.Controllers
             // Return a list of all Tabs belonging to the current user for current Project (id)
             string currentUserId = User.GetUserId();
 
-            var viewModel = new TabIndexViewModel()
-            {
-                Tabs = _context.Tabs.Where(t => t.UserId == currentUserId && t.AlbumId == id).ToList(),
-                ProjectName = _context.Projects.Single(p => p.Id == id).Name,
-                ProjectId = id
-            };
+            var viewModel = new TabIndexViewModel();
 
             return View(viewModel);
         }
@@ -234,27 +174,31 @@ namespace TabRepository.Controllers
             return _context.Users.FirstOrDefault(u => u.Id == currentUserId);
         }
 
+        // GET: Tab form
+        // Two scenarios for this method:
+        // albumId == 0 && tabId != 0 -> editing tab
+        // albumId != 0 && tabId == 0 -> creating new tab
         [HttpGet]
         public ActionResult GetTabFormPartialView(int albumId, int tabId)
         {
-            string currentUserId = User.GetUserId();
-
             try
             {
-                // Verify current user has access to this album
-                var albumInDb = _context.Albums.Single(a => a.Id == albumId && a.UserId == currentUserId);
-                if (albumInDb == null)
+                string currentUserId = User.GetUserId();
+                var viewModel = new TabFormViewModel();
+
+                if (tabId == 0)
                 {
-                    return NotFound();
+                    // Verify current user has access to this album
+                    var albumInDb = _context.Albums.Single(a => a.Id == albumId && a.UserId == currentUserId);
+                    if (albumInDb == null)
+                    {
+                        return NotFound();
+                    }
+
+                    viewModel.AlbumId = albumInDb.Id;
+                    viewModel.AlbumName = albumInDb.Name;
                 }
-
-                var viewModel = new TabFormViewModel()
-                {
-                    AlbumId = albumInDb.Id,
-                    AlbumName = albumInDb.Name
-                };
-
-                if (tabId != 0)
+                else
                 {
                     var tabInDb = _context.Tabs.Single(p => p.Id == tabId && p.UserId == currentUserId);
                     if (tabInDb == null)
@@ -272,6 +216,90 @@ namespace TabRepository.Controllers
             catch
             {
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult GetTabListPartialView(int albumId)
+        {
+            string currentUserId = User.GetUserId();
+            List<TabIndexViewModel> viewModel = new List<TabIndexViewModel>();
+
+            if (albumId == 0)
+            {
+                try
+                {
+                    // Return a list of all Projects belonging to the current user
+                    var tabs = _context.Tabs.Include(u => u.User)
+                        .Include(a => a.Album)
+                        .Where(a => a.UserId == currentUserId)
+                        .OrderBy(a => a.Name)
+                        .ToList();
+
+                    foreach (var tab in tabs)
+                    {
+                        var elem = new TabIndexViewModel()
+                        {
+                            Id = tab.Id,
+                            UserId = tab.UserId,
+                            Name = tab.Name,
+                            AlbumId = tab.Album.Id,
+                            AlbumName = tab.Album.Name,
+                            DateCreated = tab.DateCreated,
+                            DateModified = tab.DateModified,
+                            User = tab.User,
+                            TabVersions = tab.TabVersions
+                        };
+
+                        // Add projects to project view model
+                        viewModel.Add(elem);
+                    }
+
+                    return PartialView("_TabList", viewModel);
+                }
+                catch
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+
+            }
+            else
+            {
+                try
+                {
+                    // Return a list of all Projects belonging to the current user
+                    var tabs = _context.Tabs.Include(u => u.User)
+                        .Include(a => a.Album)
+                        .Where(a => a.UserId == currentUserId && a.AlbumId == albumId)
+                        .OrderBy(a => a.Name)
+                        .ToList();
+
+                    foreach (var tab in tabs)
+                    {
+                        var elem = new TabIndexViewModel()
+                        {
+                            Id = tab.Id,
+                            UserId = tab.UserId,
+                            Name = tab.Name,
+                            AlbumId = tab.Album.Id,
+                            AlbumName = tab.Album.Name,
+                            DateCreated = tab.DateCreated,
+                            DateModified = tab.DateModified,
+                            User = tab.User,
+                            TabVersions = tab.TabVersions
+                        };
+
+                        // Add projects to project view model
+                        viewModel.Add(elem);
+                    }
+
+                    return PartialView("_TabList", viewModel);
+                }
+                catch
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+
             }
         }
     }

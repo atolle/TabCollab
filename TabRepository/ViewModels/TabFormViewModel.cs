@@ -12,7 +12,6 @@ namespace TabRepository.ViewModels
         [StringLength(255)]
         public string Name { get; set; }
 
-        [Required]
         public IFormFile FileData { get; set; }
 
         public string Description { get; set; }

@@ -158,27 +158,30 @@ namespace TabRepository.Controllers
         }
 
         // GET: Album form
+        // Two scenarios for this method:
+        // projectId == 0 and albumId != 0 -> editing album
+        // projectId != 0 and albumId == 0 -> creating new album
         [HttpGet]
         public ActionResult GetAlbumFormPartialView(int projectId, int albumId)
         {
-            string currentUserId = User.GetUserId();
-
-            try
+           try
             {
-                // Verify current user has access to this project
-                var projectInDb = _context.Projects.Single(p => p.Id == projectId && p.UserId == currentUserId);
-                if (projectInDb == null)
+                string currentUserId = User.GetUserId();
+                var viewModel = new AlbumFormViewModel();
+
+                if (albumId == 0)
                 {
-                    return NotFound();
+                    // Verify current user has access to this project
+                    var projectInDb = _context.Projects.Single(p => p.Id == projectId && p.UserId == currentUserId);
+                    if (projectInDb == null)
+                    {
+                        return NotFound();
+                    }
+
+                    viewModel.ProjectId = projectInDb.Id;
+                    viewModel.ProjectName = projectInDb.Name;
                 }
-
-                var viewModel = new AlbumFormViewModel()
-                {
-                    ProjectId = projectInDb.Id,
-                    ProjectName = projectInDb.Name
-                };
-
-                if (albumId != 0)
+                else
                 {
                     var albumInDb = _context.Albums.Single(p => p.Id == albumId && p.UserId == currentUserId);
                     if (albumInDb == null)
@@ -209,7 +212,7 @@ namespace TabRepository.Controllers
             {
                 try
                 {
-                    // Return a list of all Projects belonging to the current user
+                    // Return a list of all Albums belonging to the current user
                     var albums = _context.Albums.Include(u => u.User)
                         .Include(a => a.Project)
                         .Where(a => a.UserId == currentUserId)

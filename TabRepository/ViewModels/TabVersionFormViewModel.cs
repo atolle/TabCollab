@@ -11,7 +11,7 @@ namespace TabRepository.ViewModels
 
         public string TabName { get; set; }
 
-        [Required]
+        [Display(Name = "File")]
         public IFormFile FileData { get; set; }
 
         public string Description { get; set; }
@@ -20,12 +20,5 @@ namespace TabRepository.ViewModels
         {
             Id = 0;
         }
-
-        //public TabVersionFormViewModel(TabVersion tabVersion)
-        //{
-        //    Id = tabVersion.Id;
-        //    Description = tabVersion.Description;
-        //    TabData = tabVersion.TabData;
-        //}
     }
 }

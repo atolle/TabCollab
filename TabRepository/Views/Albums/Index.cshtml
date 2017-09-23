@@ -24,7 +24,6 @@ Layout = "~/Views/Shared/_Layout.cshtml";
 
 @section scripts
 {
-<script src="~/js/jstree.min.js"></script>
 <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
 <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
 
@@ -81,7 +80,7 @@ $(document).ready(function () {
     $("#page").on("click", "#edit-album-button", function (e, data) {
         e.preventDefault();
 
-        var href = this.href + "/?projectId=" + $(this).attr("data-project-id") + "&albumId=" + $(this).attr("data-album-id");
+        var href = this.href + "?albumId=" + $(this).attr("data-album-id");
 
         $.ajax({
             url: href,
@@ -148,6 +147,7 @@ $(document).ready(function () {
             repopulateAlbumList();
         })
         .fail(function (error) {
+            currentModal.modal('hide');
             bootbox.alert("Unable to show project form. Error: " + error.statusText);
 
         })

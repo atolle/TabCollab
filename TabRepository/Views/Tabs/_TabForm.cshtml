@@ -16,7 +16,7 @@
             }
         </div>
         <div class="modal-body">
-            <form id="tab-form" asp-controller="Tabs" asp-action="AjaxSave" data-ajax="true" data-ajax-method="POST" enctype="multipart/form-data">
+            <form id="tab-form" asp-controller="Tabs" asp-action="Save" data-ajax="true" data-ajax-method="POST" enctype="multipart/form-data">
                 @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
                 <div class="form-group">
                     @Html.LabelFor(t => t.Name)
@@ -28,12 +28,16 @@
                     @Html.TextBoxFor(t => t.Description, new { @class = "form-control" })
                     @Html.ValidationMessageFor(t => t.Description)
                 </div>
+                @if (String.IsNullOrEmpty(Model.Name))
+                {
                 <div class="form-group">
-                    @Html.LabelFor(t => t.FileData)
-                    @Html.TextBoxFor(t => t.FileData, new { type = "file", @class = "btn btn-default" })
-                    @Html.ValidationMessageFor(t => t.FileData)
+                    <label for="FileData">File</label>
+                    <input class="btn btn-default" data-val="true" data-val-required="The File is required." id="FileData" name="FileData" type="file">
+                    <span class="field-validation-valid" data-valmsg-for="FileData" data-valmsg-replace="true"></span>
                 </div>
+                }
                 @Html.HiddenFor(t => t.AlbumId)
+                @Html.HiddenFor(m => m.Id)
                 @Html.AntiForgeryToken()                
             </form>
         </div>

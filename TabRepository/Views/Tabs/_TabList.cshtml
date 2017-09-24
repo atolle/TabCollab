@@ -1,20 +1,32 @@
 ﻿@model IEnumerable<TabRepository.ViewModels.TabIndexViewModel>
 
 <div class="row list-row">
+    @{ int i = 1; }
     @foreach (var tab in Model)
     {
-        <div class="col-md-4 m-b-lg">
+        <div class="col-md-2">
             <div class="panel panel-default panel-profile">
                 <div class="panel-body text-center">
                     <h3>@tab.Name</h3>
                     <p class="m-b">Album: @tab.AlbumName</p>
-                    <div>
-                        <a id="new-tab-version-button" class="btn btn-primary pull-left" data-tab-id="@tab.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")">New Tab Version</a>
-                        <a id="edit-tab-button" class="btn btn-default" data-album-id="@tab.AlbumId" data-tab-id="@tab.Id" href="@Url.Action("GetTabFormPartialView", "Tabs")"><i class="fa fa-pencil edit-button-icon"></i></a>
-                        @Html.ActionLink("Delete", "Delete", "Tabs", new { id = tab.Id }, new { @class = "btn btn-danger pull-right", id = "delete" })
+                    <div class="show-buttons-icon-container">
+                        <i class="fa fa-chevron-down show-buttons-icon"></i>
+                    </div>
+                    <div class="item-button-container">
+                        <a id="new-tab-version-button" class="btn btn-primary pull-left" data-tab-id="@tab.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")"><i class="fa fa-plus" /></a>
+                        <a id="edit-tab-button" class="btn btn-default" data-album-id="@tab.AlbumId" data-tab-id="@tab.Id" href="@Url.Action("GetTabFormPartialView", "Tabs")"><i class="fa fa-pencil edit-button-icon"></i></a>                        
+                        <a id="delete-tab-button" class="btn btn-danger pull-right" href="@Url.Action("Delete", "Tabs", new { id = tab.Id })"><i class="fa fa-times" /></a>
+                    </div>
+                    <div class="hide-buttons-icon-container">
+                        <i class="fa fa-chevron-up hide-buttons-icon"></i>
                     </div>
                 </div>
             </div>
         </div>
+        @if (i % 6 == 0)
+        {
+            <div class="clearfix"></div>
+        }
+        i++;
     }
 </div>

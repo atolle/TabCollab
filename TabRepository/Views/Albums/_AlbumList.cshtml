@@ -1,21 +1,33 @@
 @model IEnumerable<TabRepository.ViewModels.AlbumIndexViewModel>
 
     <div class="row list-row">
+        @{ int i = 1; }
         @foreach (var album in Model)
         {
-            <div class="col-md-4 m-b-lg">
+            <div class="col-md-4">
                 <div class="panel panel-default panel-profile">
                     <div class="panel-heading" style="background-image: url('@album.ImageFilePath');"></div>
                     <div class="panel-body text-center">
                         <h3>@album.Name</h3>
                         <p class="m-b">Project: @album.ProjectName<br />Owner: @album.Owner</p>
-                        <div>
-                            <a id="new-tab-button" class="btn btn-primary pull-left" data-album-id="@album.Id" href="@Url.Action("GetTabFormPartialView", "Tabs")">New Tab</a>
-                            <a id="edit-album-button" class="btn btn-default" data-project-id="@album.ProjectId" data-album-id="@album.Id" href="@Url.Action("GetAlbumFormPartialView", "Albums")"><i class="fa fa-pencil edit-button-icon"></i></a>
-                            @Html.ActionLink("Delete", "Delete", "Albums", new { id = album.Id }, new { @class = "btn btn-danger pull-right", id = "delete" })
+                        <div class="show-buttons-icon-container">
+                            <i class="fa fa-chevron-down show-buttons-icon"></i>
+                        </div>
+                        <div class="item-button-container">
+                            <a id="new-tab-button" class="btn btn-primary pull-left" data-album-id="@album.Id" href="@Url.Action("GetTabFormPartialView", "Tabs")"><i class="fa fa-plus" /></a>
+                            <a id="edit-album-button" class="btn btn-default" data-project-id="@album.ProjectId" data-album-id="@album.Id" href="@Url.Action("GetAlbumFormPartialView", "Albums")"><i class="fa fa-pencil edit-button-icon" /></a>                           
+                            <a id="delete-album-button" class="btn btn-danger pull-right" href="@Url.Action("Delete", "Albums", new { id = album.Id })"><i class="fa fa-times" /></a>
+                        </div>
+                        <div class="hide-buttons-icon-container">
+                            <i class="fa fa-chevron-up hide-buttons-icon"></i>
                         </div>
                     </div>
                 </div>
             </div>
+            @if (i % 3 == 0)
+            {
+                <div class="clearfix"></div>
+            }
+            i++;
         }
     </div>

@@ -134,6 +134,18 @@ $(document).ready(function () {
             })
     });
 
+    $("#page").on("click", ".show-buttons-icon-container", function (e, data) {
+        $(this).hide();
+        $(this).siblings('.item-button-container').show();
+        $(this).siblings('.hide-buttons-icon-container').show();
+    });
+
+    $("#page").on("click", ".hide-buttons-icon-container", function (e, data) {
+        $(this).hide();
+        $(this).siblings('.item-button-container').hide();
+        $(this).siblings('.show-buttons-icon-container').show();
+    });
+
     $("#page").on("submit", function (e, data) {
         e.preventDefault();
 

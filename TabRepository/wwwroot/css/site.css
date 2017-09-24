@@ -190,3 +190,18 @@ textarea {
         top: 0px;
     }
 }
+
+/*button container for edit and delete buttons on projects, albums, and tabs*/
+.item-button-container {
+    display: none;
+}
+
+.show-buttons-icon-container {
+    cursor: pointer; 
+}
+
+.hide-buttons-icon-container {
+    margin-top: 10px;
+    display: none;
+    cursor: pointer;
+}

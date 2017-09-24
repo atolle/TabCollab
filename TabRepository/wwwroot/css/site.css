@@ -141,6 +141,7 @@ textarea {
     min-height: 34px;
 }
 
+/*loader animations for loading lists and for saving*/
 .loader {
     margin: auto;
     position: center;
@@ -170,5 +171,22 @@ textarea {
 
     100% {
         transform: rotate(360deg);
+    }
+}
+
+/*animate the lists*/
+.list-row {
+    position: relative;
+    animation-name: example;
+    animation-duration: .5s;
+}
+
+@keyframes example {
+    0% {
+        top: 200px;
+    }
+
+    100% {
+        top: 0px;
     }
 }

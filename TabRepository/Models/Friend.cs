@@ -26,6 +26,7 @@ namespace TabRepository.Models
     {
         None = 0,
         Friends = 1,
-        Blocked = 2
+        Blocked = 2,
+        Requested = 3
     }
 }

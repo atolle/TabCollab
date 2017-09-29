@@ -9,7 +9,7 @@ $(document).on('keyup', '.search-form input', function (e) {
     searchTimeout = setTimeout(function () {
         $.ajax({
             type: "POST",
-            url: "/Friends/Search",
+            url: "/Friends/FuzzySearch",
             data: { searchString: thisForm[0].value },
             success: function (result) {
                 addSearchSuggestions(result);

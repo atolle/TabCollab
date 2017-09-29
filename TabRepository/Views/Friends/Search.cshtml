@@ -1,0 +1,31 @@
+@model IEnumerable<TabRepository.ViewModels.FriendSearchViewModel>
+@{
+    ViewData["Title"] = "Search";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="page">
+    <p></p>
+    <p></p>
+    <div class="row list-row">
+        @foreach (var person in Model)
+        {
+            <div class="col-md-4">
+                <div class="panel panel-default panel-profile">
+                    <div class="panel-heading"></div>
+                    <div class="panel-body text-center">
+                        <h3>@person.Username</h3>
+                        <p class="m-b">@person.FirstName @person.LastName</p>
+                        <div class="item-button-containerz">                            
+                            <a id="add-friend-button" class="btn btn-primary pull-left"><i class="fa fa-plus"></i></a>
+                            <a id="remove-friend-button" class="btn btn-danger pull-right"><i class="fa fa-times"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts
+{}

@@ -204,7 +204,7 @@ namespace TabRepository.Controllers
 
             foreach (var proj in projects)
             {
-                var elem = new ProjectIndexViewModel()
+                var vm = new ProjectIndexViewModel()
                 {
                     Id = proj.Id,
                     UserId = proj.UserId,
@@ -219,7 +219,7 @@ namespace TabRepository.Controllers
                 };
 
                 // Add projects to project view model
-                viewModel.Add(elem);
+                viewModel.Add(vm);
             }
 
             return PartialView("_ProjectList", viewModel);

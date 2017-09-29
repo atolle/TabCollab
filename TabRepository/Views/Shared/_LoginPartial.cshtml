@@ -16,9 +16,9 @@
             </li>
         </ul>
     </form>
-    <form id="search-form" class="navbar-left navbar-form search-form" asp-controller="Friends" asp-action="Search" data-ajax="true" data-ajax-method="POST">
+    <form id="search-form" class="navbar-left navbar-form search-form" asp-controller="Friends" asp-action="Search" method="get" autocomplete="off">
         <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search">
+            <input type="text" class="form-control" placeholder="Search" name="search">
             <div class="input-group-btn">
                 <button type="submit" class="btn btn-default search-btn">
                     <span class="glyphicon glyphicon-search"></span>

@@ -26,7 +26,7 @@
                 <td>@tabVersion.Version</td>
                 @if (System.IO.Path.GetExtension(tabVersion.TabFile.Name).Contains(".gp"))
                 {
-                    <td>@Html.ActionLink("Listen", "Player", "TabFiles", new { id = tabVersion.TabFile.Id }, new { @class = "btn btn-primary" })</td>
+                    <td>@Html.ActionLink("Play", "Player", "TabFiles", new { id = tabVersion.TabFile.Id }, new { @class = "btn btn-primary" })</td>
                 }
                 else
                 {

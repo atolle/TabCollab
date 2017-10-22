@@ -24,9 +24,15 @@ namespace TabRepository.Models
 
     public enum FriendStatus
     {
-        None = 0,
-        Friends = 1,
-        Blocked = 2,
-        Requested = 3
+        None,
+        Friends,
+        Blocked,
+        Requested
+    }
+
+    public enum Direction
+    {
+        From,
+        To
     }
 }

@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using TabRepository.Data;
-using TabRepository.Models;
 
 namespace TabRepository.Data.Migrations
 {

@@ -117,6 +117,10 @@ textarea {
     margin: 0;
 }
 
+.panel-body {
+    word-wrap: break-word;
+}
+
 .m-b-0 {
     margin-bottom: 0 !important;
 }

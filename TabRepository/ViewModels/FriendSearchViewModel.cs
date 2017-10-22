@@ -8,6 +8,10 @@ namespace TabRepository.ViewModels
 {
     public class FriendSearchViewModel
     {
+        public string FromUsername { get; set; }
+
+        public string ToUsername { get; set; }
+
         public string Username { get; set; }
 
         public string FirstName { get; set; }
@@ -15,5 +19,9 @@ namespace TabRepository.ViewModels
         public string LastName { get; set; }
 
         public FriendStatus Status { get; set; }
+
+        public Direction Direction { get; set; }
+
+        public bool IsCurrentUser { get; set; }
     }
 }

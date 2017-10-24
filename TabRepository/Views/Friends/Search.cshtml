@@ -1,4 +1,4 @@
-@model IEnumerable<TabRepository.ViewModels.FriendSearchViewModel>
+@model IEnumerable<TabRepository.ViewModels.FriendViewModel>
 @{
     ViewData["Title"] = "Search";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -77,7 +77,7 @@
             })
     });
 
-    // Add friend
+    // Accept friend
     $("#page").on("click", "#accept-friend-button", function (e, data) {
         e.preventDefault();
 
@@ -145,7 +145,7 @@
             })
     });
 
-    // Cacnel request
+    // Cancel request
     $("#page").on("click", "#cancel-request-button", function (e, data) {
         e.preventDefault();
 

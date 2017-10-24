@@ -1,8 +1,124 @@
-﻿
+﻿@model IEnumerable<TabRepository.ViewModels.FriendViewModel>
 @{
-    ViewBag.Title = "Index";
+    ViewData["Title"] = "Search";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>My Connections</h2>
+<div id="page">
+    <p></p>
+    <p></p>
+    <div class="row list-row">
+        @foreach (var user in Model)
+        {
+            <div class="col-md-4">
+                <div class="panel panel-default panel-profile">
+                    <div class="panel-heading"></div>
+                    <div class="panel-body text-center">
+                        <h3>@user.Username</h3>
+                        <p class="m-b">@user.FirstName @user.LastName</p>
+                        <div class="item-button-containerz">
+                            <a class="btn btn-success pull-left">Friends</a>
+                            <a id="remove-friend-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("RemoveFriend", "Friends")">Unfriend</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
 
+@section scripts
+{
+    <script>
+    // Add friend
+    $("#page").on("click", "#add-friend-button", function (e, data) {
+        e.preventDefault();
+
+        var href = this.href,
+            that = this;
+            username = { username: $(that).attr('data-username') };
+
+        $.ajax({
+            url: href,
+            type: 'POST',
+            data: username,
+            dataType: 'json'
+        })
+            .then(function (data) {
+                $(that).html("Friend Request Sent");
+                $(that).toggleClass('btn-primary btn-default disabled pull-left');
+                $(that).parent().append('<a id="cancel-request-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/CancelRequest">Cancel Request</a>');
+            })
+            .fail(function (error) {
+                bootbox.alert("Unable to send friend request. Error: " + error.statusText);
+            })
+    });
+
+    // Remove friend
+    $("#page").on("click", "#remove-friend-button", function (e, data) {
+        e.preventDefault();
+
+        var href = this.href,
+            that = this;
+        username = { username: $(that).attr('data-username') };
+
+        $.ajax({
+            url: href,
+            type: 'POST',
+            data: username,
+            dataType: 'json'
+        })
+            .then(function (data) {
+                $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
+            })
+            .fail(function (error) {
+                bootbox.alert("Unable to remove friend. Error: " + error.statusText);
+            })
+    });
+
+    // Decline friend
+    $("#page").on("click", "#decline-friend-button", function (e, data) {
+        e.preventDefault();
+
+        var href = this.href,
+            that = this;
+        username = { username: $(that).attr('data-username') };
+
+        $.ajax({
+            url: href,
+            type: 'POST',
+            data: username,
+            dataType: 'json'
+        })
+            .then(function (data) {
+                $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
+            })
+            .fail(function (error) {
+                bootbox.alert("Unable to decline friend request. Error: " + error.statusText);
+            })
+    });
+
+    // Cancel request
+    $("#page").on("click", "#cancel-request-button", function (e, data) {
+        e.preventDefault();
+
+        var href = this.href,
+            that = this;
+        username = { username: $(that).attr('data-username') };
+
+        $.ajax({
+            url: href,
+            type: 'POST',
+            data: username,
+            dataType: 'json'
+        })
+            .then(function (data) {
+                $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
+            })
+            .fail(function (error) {
+                bootbox.alert("Unable to cancel friend request. Error: " + error.statusText);
+            })
+    });
+
+    </script>
+}

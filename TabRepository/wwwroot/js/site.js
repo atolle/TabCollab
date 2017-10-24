@@ -22,7 +22,9 @@ $(document).on('keyup', '.search-form input', function (e) {
 });
 
 $(document).on('blur', '.search-form input', function (e) {
-    clearSearchSuggestions();
+    setTimeout(function () {
+        clearSearchSuggestions();
+    }, 500);
 });
 
 function clearSearchSuggestions() {
@@ -41,8 +43,9 @@ function addSearchSuggestions(suggestions) {
     clearSearchSuggestions();
 
     for (var i = 0; i < suggestions.length; i++) {
-        var input = document.createElement("li");
-        input.className = "list-group-item";
+        var input = document.createElement("a");
+        input.className = "btn list-group-item";
+        input.setAttribute('href', '/Friends/Search?search=' + suggestions[i]);
         input.innerHTML = suggestions[i];
         input.name = suggestions[i];
         container.appendChild(input);

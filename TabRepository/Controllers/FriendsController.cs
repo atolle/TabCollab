@@ -16,7 +16,7 @@ namespace TabRepository.Controllers
 
         public FriendsController(ApplicationDbContext context)
         {
-            _context = context;
+            _context = context; 
         }
 
         protected override void Dispose(bool disposing)
@@ -26,7 +26,48 @@ namespace TabRepository.Controllers
         // GET: Friends
         public ActionResult Index()
         {
-            return View();
+            string currentUserId = User.GetUserId();
+
+            var friends = from u in _context.Users
+                        from f in _context.Friends.Where(f => (u.Id == f.User1Id && currentUserId == f.User2Id) || (u.Id == f.User2Id && currentUserId == f.User1Id))
+                        select new { u.Id, u.UserName, u.FirstName, u.LastName, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status };
+
+            List<FriendViewModel> viewModel = new List<FriendViewModel>();
+
+            foreach (var user in friends)
+            {
+                var vm = new FriendViewModel();
+
+                vm.Username = user.UserName;
+                vm.FirstName = user.FirstName;
+                vm.LastName = user.LastName;
+                vm.Status = user.Status;
+
+                if (user.User1Id != null && user.User2Id != null)
+                {
+                    if (user.ActingUserId == currentUserId)
+                    {
+                        vm.Direction = Direction.To;
+                    }
+                    else
+                    {
+                        vm.Direction = Direction.From;
+                    }
+                }
+
+                if (user.Id == currentUserId)
+                {
+                    vm.IsCurrentUser = true;
+                }
+                else
+                {
+                    vm.IsCurrentUser = false;
+                }
+
+                viewModel.Add(vm);
+            }
+
+            return View(viewModel);
         }
 
         public ApplicationUser GetCurrentUser()
@@ -53,11 +94,11 @@ namespace TabRepository.Controllers
                         where u.UserName.Contains(search)
                         select new { u.Id, u.UserName, u.FirstName, u.LastName, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status };
 
-            List < FriendSearchViewModel > viewModel = new List<FriendSearchViewModel>();
+            List < FriendViewModel > viewModel = new List<FriendViewModel>();
 
             foreach (var user in users)
             {
-                var vm = new FriendSearchViewModel();
+                var vm = new FriendViewModel();
 
                 vm.Username = user.UserName;
                 vm.FirstName = user.FirstName;

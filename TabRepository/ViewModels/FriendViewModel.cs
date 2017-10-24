@@ -6,7 +6,7 @@ using TabRepository.Models;
 
 namespace TabRepository.ViewModels
 {
-    public class FriendSearchViewModel
+    public class FriendViewModel
     {
         public string FromUsername { get; set; }
 

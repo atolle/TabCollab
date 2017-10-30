@@ -17,8 +17,31 @@
                         <h3>@user.Username</h3>
                         <p class="m-b">@user.FirstName @user.LastName</p>
                         <div class="item-button-containerz">
-                            <a class="btn btn-success pull-left">Friends</a>
-                            <a id="remove-friend-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("RemoveFriend", "Friends")">Unfriend</a>
+                            @if (!@user.IsCurrentUser)
+                            {
+                                if (@user.Status == FriendStatus.None)
+                                {
+                                    <a id="add-friend-button" data-username="@user.Username" class="btn btn-primary" href="@Url.Action("AddFriend", "Friends")">Add Friend</a>
+                                }
+                                else if (@user.Status == FriendStatus.Requested)
+                                {
+                                    if (@user.Direction == Direction.To)
+                                    {
+                                        <a class="btn btn-default pull-left disabled">Friend Request Sent</a>
+                                        <a id="cancel-request-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("CancelRequest", "Friends")">Cancel Request</a>
+                                    }
+                                    else
+                                    {
+                                        <a id="accept-friend-button" data-username="@user.Username" class="btn btn-primary pull-left" href="@Url.Action("AcceptFriend", "Friends")">Accept Friend</a>
+                                        <a id="decline-friend-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("DeclineFriend", "Friends")">Decline Friend</a>
+                                    }
+                                }
+                                else if (@user.Status == FriendStatus.Friends)
+                                {
+                                    <a class="btn btn-success pull-left">Friends</a>
+                                    <a id="remove-friend-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("RemoveFriend", "Friends")">Unfriend</a>
+                                }
+                            }
                         </div>
                     </div>
                 </div>
@@ -44,18 +67,18 @@
             data: username,
             dataType: 'json'
         })
-            .then(function (data) {
-                $(that).html("Friend Request Sent");
-                $(that).toggleClass('btn-primary btn-default disabled pull-left');
-                $(that).parent().append('<a id="cancel-request-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/CancelRequest">Cancel Request</a>');
-            })
-            .fail(function (error) {
-                bootbox.alert("Unable to send friend request. Error: " + error.statusText);
-            })
+        .then(function (data) {
+            $(that).html("Friend Request Sent");
+            $(that).toggleClass('btn-primary btn-default disabled pull-left');
+            $(that).parent().append('<a id="cancel-request-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/CancelRequest">Cancel Request</a>');
+        })
+        .fail(function (error) {
+            bootbox.alert("Unable to send friend request. Error: " + error.statusText);
+        })
     });
 
-    // Remove friend
-    $("#page").on("click", "#remove-friend-button", function (e, data) {
+    // Accept friend
+    $("#page").on("click", "#accept-friend-button", function (e, data) {
         e.preventDefault();
 
         var href = this.href,
@@ -69,11 +92,39 @@
             dataType: 'json'
         })
             .then(function (data) {
-                $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
+                $(that).html("Friends");
+                $(that).toggleClass('btn-primary btn-success');
+                $(that).parent().html('<a class="btn btn-success pull-left">Friends</a><a id="remove-friend-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/RemoveFriend">Unfriend</a>')
             })
             .fail(function (error) {
-                bootbox.alert("Unable to remove friend. Error: " + error.statusText);
+                bootbox.alert("Unable to accept friend request. Error: " + error.statusText);
             })
+    });
+
+    // Remove friend
+    $("#page").on("click", "#remove-friend-button", function (e, data) {
+        e.preventDefault();
+
+        var href = this.href,
+            that = this;
+        username = { username: $(that).attr('data-username') };
+        
+        bootbox.confirm("Are you sure you wish to unfriend " + username.username + "?", function (result) {
+            if (result) {
+                $.ajax({
+                    url: href,
+                    type: 'POST',
+                    data: username,
+                    dataType: 'json'
+                })
+                .then(function (data) {
+                    $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
+                })
+                .fail(function (error) {
+                    bootbox.alert("Unable to remove friend. Error: " + error.statusText);
+                });
+            }
+        });
     });
 
     // Decline friend
@@ -90,12 +141,12 @@
             data: username,
             dataType: 'json'
         })
-            .then(function (data) {
-                $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
-            })
-            .fail(function (error) {
-                bootbox.alert("Unable to decline friend request. Error: " + error.statusText);
-            })
+        .then(function (data) {
+            $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
+        })
+        .fail(function (error) {
+            bootbox.alert("Unable to decline friend request. Error: " + error.statusText);
+        })
     });
 
     // Cancel request

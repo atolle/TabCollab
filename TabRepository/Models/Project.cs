@@ -25,6 +25,8 @@ namespace TabRepository.Models
 
         public virtual ApplicationUser User { get; set; }
 
-        public virtual ICollection<Album> Albums { get; set; }  
+        public virtual ICollection<Album> Albums { get; set; } 
+        
+        public virtual ICollection<ApplicationUser> Contributors { get; set; }
     }
 }

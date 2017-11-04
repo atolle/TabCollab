@@ -5,10 +5,13 @@
     List<SelectListItem> listItems = new List<SelectListItem>();
     foreach (ApplicationUser f in Model.Friends)
     {
-        // Skip any friends that are already contributors
-        if (Model.Contributors.Any(c => c.Username == f.UserName))
+        if (Model.Contributors != null)
         {
-            continue;
+            // Skip any friends that are already contributors
+            if (Model.Contributors.Any(c => c.Username == f.UserName))
+            {
+                continue;
+            }
         }
         listItems.Add(new SelectListItem
         {
@@ -61,16 +64,19 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <div id="contributors-panels">
+                    <div id="contributors-panels">                        
                         @{
                             int i = 0;
-                        }                        
-                        @foreach (UserViewModel user in Model.Contributors)
-                        {
-                            var name = user.FirstName + " " + user.LastName + " (" + user.Username + ")";
-                            <input type='hidden' class='form-control' name='Contributors[@i].Username' value='@user.Username'>
-                            <button data-username='@user.Username' data-text='@name' class='contributor-btn btn btn-default'>@name<i class='fa fa-times' style='padding-left: 7px;' /></button>
-                            i++;
+                            if (Model.Contributors != null)
+                            {
+                                @foreach (UserViewModel user in Model.Contributors)
+                                {
+                                    var name = user.FirstName + " " + user.LastName + " (" + user.Username + ")";
+                                    <input type='hidden' class='form-control' name='Contributors[@i].Username' value='@user.Username'>
+                                    <button data-username='@user.Username' data-text='@name' class='contributor-btn btn btn-default'>@name<i class='fa fa-times' style='padding-left: 7px;' /></button>
+                                    i++;
+                                }
+                            }
                         }
                     </div>
                 </div>

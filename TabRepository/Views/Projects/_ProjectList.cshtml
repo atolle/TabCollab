@@ -13,10 +13,17 @@
                     <div class="show-buttons-icon-container">
                         <i class="fa fa-chevron-down show-buttons-icon"></i>
                     </div>
-                    <div class="item-button-container">
-                        <a id="new-album-button" class="btn btn-primary pull-left" data-project-id="@project.Id" href="@Url.Action("GetAlbumFormPartialView", "Albums")"><i class="fa fa-plus" /></a>                       
-                        <a id="edit-project-button" class="btn btn-default" href="@Url.Action("GetProjectFormPartialView", "Projects", new { id = project.Id })"><i class="fa fa-pencil edit-button-icon" /></a>                      
-                        <a id="delete-project-button" class="btn btn-danger pull-right" href="@Url.Action("Delete", "Projects", new { id = project.Id })"><i class="fa fa-times" /></a>
+                    <div class="item-button-container">                        
+                        @if (project.IsOwner)
+                        {
+                            <a id="new-album-button" class="btn btn-primary pull-left" data-project-id="@project.Id" href="@Url.Action("GetAlbumFormPartialView", "Albums")"><i class="fa fa-plus" /></a>
+                            <a id="edit-project-button" class="btn btn-default" href="@Url.Action("GetProjectFormPartialView", "Projects", new { id = project.Id })"><i class="fa fa-pencil edit-button-icon" /></a>                           
+                            <a id="delete-project-button" class="btn btn-danger pull-right" href="@Url.Action("Delete", "Projects", new { id = project.Id })"><i class="fa fa-times" /></a>
+                        }
+                        else
+                        {
+                            <a id="new-album-button" class="btn btn-primary" data-project-id="@project.Id" href="@Url.Action("GetAlbumFormPartialView", "Albums")"><i class="fa fa-plus" /></a>
+                        }
                     </div>
                     <div class="hide-buttons-icon-container">
                         <i class="fa fa-chevron-up hide-buttons-icon"></i>

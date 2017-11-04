@@ -16,24 +16,29 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var tabVersion in Model.TabVersions)
+        @foreach (var t in Model.TabVersions)
         {
             <tr>
-                <td>@tabVersion.Description</td>
-                <td>@Html.ActionLink(@tabVersion.TabFile.Name, "Download", "TabFiles", new { id = tabVersion.TabFile.Id }, null)</td>
-                <td>@tabVersion.User.UserName</td>
-                <td>@tabVersion.DateCreated</td>
-                <td>@tabVersion.Version</td>
-                @if (System.IO.Path.GetExtension(tabVersion.TabFile.Name).Contains(".gp"))
+                <td>@t.TabVersion.Description</td>
+                <td>@Html.ActionLink(Model.TabName, "Download", "TabFiles", new { id = t.TabVersion.TabFile.Id }, null)</td>
+                <td>@t.TabVersion.User.UserName</td>
+                <td>@t.TabVersion.DateCreated</td>
+                <td>@t.TabVersion.Version</td>
+                @if (System.IO.Path.GetExtension(t.TabVersion.TabFile.Name).Contains(".gp"))
                 {
-                    <td>@Html.ActionLink("Play", "Player", "TabFiles", new { id = tabVersion.TabFile.Id }, new { @class = "btn btn-primary" })</td>
+                    <td>
+                        <a id="delete-project-button" class="btn btn-primary" href="@Url.Action("Player", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-play" /></a>
+                    </td>
                 }
                 else
                 {
-                    <td><button class="btn btn-primary" disabled>Play</button></td>
+                    <td><a class="btn btn-primary" disabled><i class="fa fa-play" /></a></td>
                 }
                 <td>
-                    @Html.ActionLink("Delete", "AjaxDelete", "TabVersions", new { id = tabVersion.Id }, new { @class = "btn btn-danger", id = "delete" })                  
+                    @if (t.IsOwner)
+                    {                      
+                        <a id="delete-project-button" class="btn btn-danger" href="@Url.Action("Delete", "TabVersions", new { id = t.TabVersion.Id })"><i class="fa fa-times" /></a>
+                    }
                 </td>
             </tr>
         }

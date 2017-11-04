@@ -198,6 +198,7 @@ textarea {
 /*button container for edit and delete buttons on projects, albums, and tabs*/
 .item-button-container {
     display: none;
+    width: 100%;
 }
 
 .show-buttons-icon-container {

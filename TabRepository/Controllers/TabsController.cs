@@ -60,6 +60,24 @@ namespace TabRepository.Controllers
 
                 if (viewModel.Id == 0)  // We are creating a new Tab
                 {
+                    // Verify current user has access to this project
+                    var albumInDb = _context.Albums.SingleOrDefault(p => p.Id == viewModel.AlbumId && p.UserId == currentUserId);
+
+                    // If there is not project matching this project Id and this user Id, check to see if this user is a contributor
+                    if (albumInDb == null)
+                    {
+                        albumInDb = (from album in _context.Albums
+                                     join project in _context.Projects on album.ProjectId equals project.Id
+                                     join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
+                                     where contributor.UserId == currentUserId && project.Id == album.ProjectId && album.Id == viewModel.AlbumId
+                                     select album).Include(u => u.User).FirstOrDefault();
+
+                        if (albumInDb == null)
+                        {
+                            return NotFound();
+                        }
+                    }
+
                     TabFile tabFile = new TabFile();
 
                     if (viewModel.FileData.Length > 0)
@@ -79,8 +97,8 @@ namespace TabRepository.Controllers
                     // Create new Tab
                     Tab tab = new Tab()
                     {
-                        UserId = User.GetUserId(),
-                        Album = _context.Albums.Single(p => p.Id == viewModel.AlbumId && p.UserId == currentUserId),
+                        UserId = albumInDb.UserId,
+                        Album = albumInDb,
                         Name = viewModel.Name,
                         Description = viewModel.Description,
                         DateCreated = DateTime.Now,
@@ -91,9 +109,9 @@ namespace TabRepository.Controllers
                     // Create first Tab Version
                     TabVersion tabVersion = new TabVersion()
                     {
-                        Version = 1,                    // NEED TO DETERMINE HOW TO REFERENCE TABVERSION
-                        Description = viewModel.Description,    // TO TABFILE AND VICE VERSA
-                        UserId = tab.UserId,                    // CHICKEN AND THE EGG PROBLEM
+                        Version = 1,                    
+                        Description = viewModel.Description,   
+                        UserId = currentUserId,                   
                         DateCreated = tab.DateCreated,
                         Tab = tab,
                         TabFile = tabFile
@@ -189,10 +207,21 @@ namespace TabRepository.Controllers
                 if (tabId == 0)
                 {
                     // Verify current user has access to this album
-                    var albumInDb = _context.Albums.Single(a => a.Id == albumId && a.UserId == currentUserId);
+                    var albumInDb = _context.Albums.SingleOrDefault(a => a.Id == albumId && a.UserId == currentUserId);
+
+                    // If there is no album matching this album Id and this user Id, check to see if this user is a contributor
                     if (albumInDb == null)
                     {
-                        return NotFound();
+                        albumInDb = (from album in _context.Albums
+                                       join project in _context.Projects on album.ProjectId equals project.Id
+                                       join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
+                                       where contributor.UserId == currentUserId && project.Id == album.ProjectId && album.Id == albumId
+                                       select album).Include(u => u.User).FirstOrDefault();
+
+                        if (albumInDb == null)
+                        {
+                            return NotFound();
+                        }
                     }
 
                     viewModel.AlbumId = albumInDb.Id;
@@ -236,6 +265,15 @@ namespace TabRepository.Controllers
                         .OrderBy(a => a.Name)
                         .ToList();
 
+                    // Return a list of all Projects belonging to the current user
+                    var contributorTabs = (from tab in _context.Tabs
+                                           join album in _context.Albums on tab.AlbumId equals album.Id
+                                           join contributor in _context.ProjectContributors on album.ProjectId equals contributor.ProjectId
+                                           where contributor.UserId == currentUserId
+                                           select tab).Include(u => u.User).Include(a => a.Album).ToList();
+
+                    tabs = tabs.Union(contributorTabs).ToList();
+
                     foreach (var tab in tabs)
                     {
                         var elem = new TabIndexViewModel()
@@ -248,7 +286,8 @@ namespace TabRepository.Controllers
                             DateCreated = tab.DateCreated,
                             DateModified = tab.DateModified,
                             User = tab.User,
-                            TabVersions = tab.TabVersions
+                            TabVersions = tab.TabVersions,
+                            IsOwner = tab.UserId == currentUserId
                         };
 
                         // Add projects to project view model

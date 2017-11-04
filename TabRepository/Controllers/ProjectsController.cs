@@ -194,17 +194,35 @@ namespace TabRepository.Controllers
             return _context.Users.FirstOrDefault(u => u.Id == currentUserId);
         }
 
-        public ViewResult Main()
+        public ActionResult Main()
         {
             string currentUserId = User.GetUserId();
 
-            // Return a list of all Projects belonging to the current user
-            var projects = _context.Projects
-                .Include(p => p.Albums)    
-                .ThenInclude(a => a.Tabs)
-                .Where(p => p.UserId == currentUserId).ToList();
+            try
+            {
+                // Find projects for which user is owner
+                var projects = _context.Projects
+                    .Include(p => p.Albums)
+                    .ThenInclude(a => a.Tabs)
+                    .Where(p => p.UserId == currentUserId).ToList();
 
-            return View(projects);
+                // Find projecst for which user is contributor
+                var contributorProjects = _context.ProjectContributors                    
+                    .Where(c => c.UserId == currentUserId)
+                    .Select(c => c.Project)
+                    .Include(p => p.Albums)
+                    .ThenInclude(a => a.Tabs)
+                    .Include(u => u.User).ToList();
+
+                projects = projects.Union(contributorProjects).ToList();
+
+                return View(projects);
+            }
+            catch
+            {
+                return NotFound();
+            }
+
         }
 
         [HttpGet]
@@ -246,9 +264,23 @@ namespace TabRepository.Controllers
             }
             else
             {
-                var viewModel = new ProjectFormViewModel();
+                try
+                {
+                    var friends = _context.Friends
+                        .Where(f => f.User1Id == currentUserId || f.User2Id == currentUserId)
+                        .Select(f => f.User1Id == currentUserId ? f.User2 : f.User1).ToList();
 
-                return PartialView("_ProjectForm", viewModel);
+                    var viewModel = new ProjectFormViewModel()
+                    {
+                        Friends = friends
+                    };
+
+                    return PartialView("_ProjectForm", viewModel);
+                }
+                catch
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
             }
         }
 
@@ -264,6 +296,13 @@ namespace TabRepository.Controllers
                 .OrderBy(p => p.Name)
                 .ToList();
 
+            var contributorProjects = _context.ProjectContributors
+                .Where(c => c.UserId == currentUserId)
+                .Select(c => c.Project)
+                .Include(u => u.User).ToList();
+
+            projects = projects.Union(contributorProjects).ToList();
+
             foreach (var proj in projects)
             {
                 var vm = new ProjectIndexViewModel()
@@ -277,7 +316,8 @@ namespace TabRepository.Controllers
                     DateCreated = proj.DateCreated,
                     DateModified = proj.DateModified,
                     User = proj.User,
-                    Albums = proj.Albums
+                    Albums = proj.Albums,
+                    IsOwner = proj.UserId == currentUserId
                 };
 
                 // Add projects to project view model

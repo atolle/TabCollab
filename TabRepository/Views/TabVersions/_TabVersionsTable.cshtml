@@ -27,7 +27,7 @@
                 @if (System.IO.Path.GetExtension(t.TabVersion.TabFile.Name).Contains(".gp"))
                 {
                     <td>
-                        <a id="delete-project-button" class="btn btn-primary" href="@Url.Action("Player", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-play" /></a>
+                        <a class="btn btn-primary" href="@Url.Action("Player", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-play" /></a>
                     </td>
                 }
                 else
@@ -37,7 +37,7 @@
                 <td>
                     @if (t.IsOwner)
                     {                      
-                        <a id="delete-project-button" class="btn btn-danger" href="@Url.Action("Delete", "TabVersions", new { id = t.TabVersion.Id })"><i class="fa fa-times" /></a>
+                        <a id="delete-tabversion-button" class="btn btn-danger" href="@Url.Action("Delete", "TabVersions", new { id = t.TabVersion.Id })"><i class="fa fa-times" /></a>
                     }
                 </td>
             </tr>

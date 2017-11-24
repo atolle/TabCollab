@@ -210,3 +210,12 @@ textarea {
     display: none;
     cursor: pointer;
 }
+
+.contributor-btn {
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2
+}

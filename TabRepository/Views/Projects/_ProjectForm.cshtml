@@ -66,15 +66,13 @@
                 <div class="form-group">
                     <div id="contributors-panels">                        
                         @{
-                            int i = 0;
                             if (Model.Contributors != null)
                             {
                                 @foreach (UserViewModel user in Model.Contributors)
                                 {
                                     var name = user.FirstName + " " + user.LastName + " (" + user.Username + ")";
-                                    <input type='hidden' class='form-control' name='Contributors[@i].Username' value='@user.Username'>
+                                    <input type='hidden' class='form-control contributor' name='' value='@user.Username'>
                                     <button data-username='@user.Username' data-text='@name' class='contributor-btn btn btn-default'>@name<i class='fa fa-times' style='padding-left: 7px;' /></button>
-                                    i++;
                                 }
                             }
                         }

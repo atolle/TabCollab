@@ -72,15 +72,18 @@ namespace TabRepository.Controllers
                     _context.SaveChanges();
 
                     // Add contributors
-                    foreach (UserViewModel user in viewModel.Contributors)
+                    if (viewModel.Contributors != null)
                     {
-                        ProjectContributor contributor = new ProjectContributor()
+                        foreach (UserViewModel user in viewModel.Contributors)
                         {
-                            UserId = _context.Users.Where(u => u.UserName == user.Username).Select(u => u.Id).FirstOrDefault(),
-                            ProjectId = project.Id                            
-                        };
+                            ProjectContributor contributor = new ProjectContributor()
+                            {
+                                UserId = _context.Users.Where(u => u.UserName == user.Username).Select(u => u.Id).FirstOrDefault(),
+                                ProjectId = project.Id
+                            };
 
-                        _context.ProjectContributors.Add(contributor);
+                            _context.ProjectContributors.Add(contributor);
+                        }
                     }
 
                     _context.SaveChanges();

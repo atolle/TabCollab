@@ -264,10 +264,17 @@ namespace TabRepository.Controllers
                 var tabVersionInDb = _context.TabVersions.SingleOrDefault(v => v.Id == id && v.UserId == currentUserId);
 
                 if (tabVersionInDb == null)
-                    return NotFound();
+                {
+                    tabVersionInDb = (from tabVersion in _context.TabVersions
+                                   join tab in _context.Tabs on tabVersion.TabId equals tab.Id
+                                   where tab.UserId == currentUserId && tabVersion.Id == id
+                                   select tabVersion).Include(u => u.User).FirstOrDefault();
 
-                // Get Tab Id to return to view
-                var tabId = _context.TabVersions.Single(v => v.Id == id && v.UserId == currentUserId).TabId;
+                    if (tabVersionInDb == null)
+                    {
+                        return Json(new { success = false });
+                    }
+                }
 
                 _context.TabVersions.Remove(tabVersionInDb);
                 _context.SaveChanges();

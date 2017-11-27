@@ -207,7 +207,7 @@ namespace TabRepository.Controllers
                     var tabVersionViewModel = new TabVersionViewModel()
                     {
                         TabVersion = tabVersion,
-                        IsOwner = tabInDb.UserId == currentUserId
+                        IsOwner = tabInDb.UserId == currentUserId || tabVersion.UserId == currentUserId
                     };
 
                     tabVersions.Add(tabVersionViewModel);

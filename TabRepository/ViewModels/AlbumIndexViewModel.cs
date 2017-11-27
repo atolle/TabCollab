@@ -30,6 +30,8 @@ namespace TabRepository.ViewModels
 
         public DateTime DateModified { get; set; }
 
+        public bool IsOwner { get; set; }
+
         public virtual ApplicationUser User { get; set; }
 
         public virtual ICollection<Tab> Tabs { get; set; }

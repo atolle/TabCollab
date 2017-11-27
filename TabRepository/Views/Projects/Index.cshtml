@@ -90,7 +90,7 @@ $(document).ready(function () {
     $("#page").on("click", "#edit-project-button", function (e, data) {
         e.preventDefault();
 
-        var href = this.href;
+        var href = this.href;       
 
         $.ajax({
             url: href,
@@ -146,8 +146,40 @@ $(document).ready(function () {
         $(this).siblings('.show-buttons-icon-container').show();
     });
 
+    $(document).on("change", "#contributors-list", function (e, data) {
+        e.preventDefault();
+
+        var selected = $(this).find('option:selected'),
+            contributorCount = getContributorCount(),
+            username = $(this).val(),
+            name = selected.text();
+
+        // Create button for contributor and remove from list
+        $("#contributors-panels").append("<input type='hidden' class='form-control contributor' name='' value='" + username + "'>");
+        $("#contributors-panels").append("<button data-username='" + username + "' data-text='" + name + "' class='contributor-btn btn btn-default'>" + name + "<i class='fa fa-times' style='padding-left: 7px;' /></button>");
+        selected.remove();
+        $("#contributors-list option[value=default]").prop("selected", true);
+    });
+
+    $(document).on("click", ".contributor-btn", function (e, data) {
+        e.preventDefault();
+
+        var username = $(this).attr("data-username"),
+            text = $(this).attr("data-text");
+
+        // Add contributor back to dropdown list and remove the button
+        $("#contributors-list").append("<option value='" + username + "'>" + text + "</option>");
+        $(this).remove();
+        $("input[value=" + username + "]").remove();
+    });
+
     $("#page").on("submit", function (e, data) {
         e.preventDefault();
+
+        // Loop through all contributors to add index for model binding
+        $('.contributor').each(function (index) {
+            $(this).attr('name', 'Contributors[' + index + '].Username');
+        });
 
         var form = e.target;
         var formData = new FormData(form);
@@ -170,7 +202,7 @@ $(document).ready(function () {
             })
             .fail(function (error) {
                 currentModal.modal('hide');
-                bootbox.alert("Unable to save album. Error: " + error.statusText);
+                bootbox.alert("Unable to save project. Error: " + error.statusText);
             })
     });
 
@@ -181,9 +213,13 @@ $(document).ready(function () {
             $.get(url, function (data) {
                 $('#project-list-wrapper').empty().append(data);
             })
-            .then(resolve)
-            .fail(reject)
+                .then(resolve)
+                .fail(reject)
         })
+    }
+
+    function getContributorCount() {
+        return $('.contributor-btn').length;
     }
 });
 </script>

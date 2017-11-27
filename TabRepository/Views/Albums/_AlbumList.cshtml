@@ -14,9 +14,16 @@
                             <i class="fa fa-chevron-down show-buttons-icon"></i>
                         </div>
                         <div class="item-button-container">
-                            <a id="new-tab-button" class="btn btn-primary pull-left" data-album-id="@album.Id" href="@Url.Action("GetTabFormPartialView", "Tabs")"><i class="fa fa-plus" /></a>
-                            <a id="edit-album-button" class="btn btn-default" data-project-id="@album.ProjectId" data-album-id="@album.Id" href="@Url.Action("GetAlbumFormPartialView", "Albums")"><i class="fa fa-pencil edit-button-icon" /></a>                           
-                            <a id="delete-album-button" class="btn btn-danger pull-right" href="@Url.Action("Delete", "Albums", new { id = album.Id })"><i class="fa fa-times" /></a>
+                            @if (album.IsOwner)
+                            {
+                                <a id="new-tab-button" class="btn btn-primary pull-left" data-album-id="@album.Id" href="@Url.Action("GetTabFormPartialView", "Tabs")"><i class="fa fa-plus" /></a>
+                                <a id="edit-album-button" class="btn btn-default" data-project-id="@album.ProjectId" data-album-id="@album.Id" href="@Url.Action("GetAlbumFormPartialView", "Albums")"><i class="fa fa-pencil edit-button-icon" /></a>                           
+                                <a id="delete-album-button" class="btn btn-danger pull-right" href="@Url.Action("Delete", "Albums", new { id = album.Id })"><i class="fa fa-times" /></a>
+                            }
+                            else
+                            {
+                                <a id="new-tab-button" class="btn btn-primary" data-album-id="@album.Id" href="@Url.Action("GetTabFormPartialView", "Tabs")"><i class="fa fa-plus" /></a>
+                            }
                         </div>
                         <div class="hide-buttons-icon-container">
                             <i class="fa fa-chevron-up hide-buttons-icon"></i>

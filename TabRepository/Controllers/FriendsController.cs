@@ -181,7 +181,7 @@ namespace TabRepository.Controllers
 
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
-            catch (Exception e)
+            catch
             {
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }            

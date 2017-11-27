@@ -16,7 +16,7 @@
                     <div class="panel-body text-center">
                         <h3>@user.Username</h3>
                         <p class="m-b">@user.FirstName @user.LastName</p>
-                        <div class="item-button-containerz">   
+                        <div>   
                             @if (!@user.IsCurrentUser)
                             {
                                 if (@user.Status == FriendStatus.None)
@@ -109,18 +109,22 @@
             that = this;
         username = { username: $(that).attr('data-username') };
 
-        $.ajax({
-            url: href,
-            type: 'POST',
-            data: username,
-            dataType: 'json'
-        })
-            .then(function (data) {
-                $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
-            })
-            .fail(function (error) {
-                bootbox.alert("Unable to remove friend. Error: " + error.statusText);
-            })
+        bootbox.confirm("Are you sure you wish to unfriend " + username.username + "?", function (result) {
+            if (result) {
+                $.ajax({
+                    url: href,
+                    type: 'POST',
+                    data: username,
+                    dataType: 'json'
+                })
+                .then(function (data) {
+                    $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
+                })
+                .fail(function (error) {
+                    bootbox.alert("Unable to remove friend. Error: " + error.statusText);
+                })
+            }
+        });
     });
 
     // Decline friend

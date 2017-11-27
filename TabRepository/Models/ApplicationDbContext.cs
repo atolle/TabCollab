@@ -59,6 +59,20 @@ namespace TabRepository.Data
                 .HasOne(f => f.User2)
                 .WithMany()
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Contirbutors Table
+            builder.Entity<ProjectContributor>()
+                .HasKey(p => new { p.UserId, p.ProjectId });
+
+            builder.Entity<ProjectContributor>()
+                .HasOne(p => p.User)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<ProjectContributor>()
+                .HasOne(p => p.Project)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         public DbSet<Tab> Tabs { get; set; }
@@ -67,6 +81,7 @@ namespace TabRepository.Data
         public DbSet<TabFile> TabFiles { get; set; }
         public DbSet<Friend> Friends { get; set; }
         public DbSet<Album> Albums { get; set; }
+        public DbSet<ProjectContributor> ProjectContributors { get; set; }
 
         public ApplicationDbContext()
             : base()

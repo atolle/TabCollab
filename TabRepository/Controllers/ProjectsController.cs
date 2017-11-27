@@ -71,6 +71,23 @@ namespace TabRepository.Controllers
                     _context.Projects.Add(project);
                     _context.SaveChanges();
 
+                    // Add contributors
+                    if (viewModel.Contributors != null)
+                    {
+                        foreach (UserViewModel user in viewModel.Contributors)
+                        {
+                            ProjectContributor contributor = new ProjectContributor()
+                            {
+                                UserId = _context.Users.Where(u => u.UserName == user.Username).Select(u => u.Id).FirstOrDefault(),
+                                ProjectId = project.Id
+                            };
+
+                            _context.ProjectContributors.Add(contributor);
+                        }
+                    }
+
+                    _context.SaveChanges();
+
                     await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + project.Id.ToString());
 
                     return Json(new { name = project.Name, id = project.Id });
@@ -93,6 +110,41 @@ namespace TabRepository.Controllers
                     {
                         projectInDb.ImageFileName = viewModel.Image.FileName;
                         await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + projectInDb.Id.ToString());
+                    }
+
+                    // Add new contributors, remove any that were removed
+                    var contributors = _context.ProjectContributors.Where(c => c.ProjectId == projectInDb.Id).ToList();
+
+                    if (viewModel.Contributors != null)
+                    {
+                        foreach (UserViewModel user in viewModel.Contributors)
+                        {
+                            var userId = _context.Users.Where(u => u.UserName == user.Username).Select(u => u.Id).FirstOrDefault();
+
+                            // Skip this contributor if they're already added
+                            if (contributors.Any(c => c.UserId == userId))
+                            {
+                                // Remove them from the list
+                                contributors = contributors.Where(u => u.UserId != userId).ToList();
+                                continue;
+                            }
+                            else
+                            {
+                                ProjectContributor contributor = new ProjectContributor()
+                                {
+                                    UserId = _context.Users.Where(u => u.UserName == user.Username).Select(u => u.Id).FirstOrDefault(),
+                                    ProjectId = projectInDb.Id
+                                };
+
+                                _context.ProjectContributors.Add(contributor);
+                            }
+                        }
+                    }
+
+                    // Remove any contributors who did not come over from the view
+                    foreach (ProjectContributor contributor in contributors)
+                    {
+                        _context.ProjectContributors.Remove(contributor);
                     }
 
                     _context.Projects.Update(projectInDb);
@@ -145,17 +197,35 @@ namespace TabRepository.Controllers
             return _context.Users.FirstOrDefault(u => u.Id == currentUserId);
         }
 
-        public ViewResult Main()
+        public ActionResult Main()
         {
             string currentUserId = User.GetUserId();
 
-            // Return a list of all Projects belonging to the current user
-            var projects = _context.Projects
-                .Include(p => p.Albums)    
-                .ThenInclude(a => a.Tabs)
-                .Where(p => p.UserId == currentUserId).ToList();
+            try
+            {
+                // Find projects for which user is owner
+                var projects = _context.Projects
+                    .Include(p => p.Albums)
+                    .ThenInclude(a => a.Tabs)
+                    .Where(p => p.UserId == currentUserId).ToList();
 
-            return View(projects);
+                // Find projecst for which user is contributor
+                var contributorProjects = _context.ProjectContributors                    
+                    .Where(c => c.UserId == currentUserId)
+                    .Select(c => c.Project)
+                    .Include(p => p.Albums)
+                    .ThenInclude(a => a.Tabs)
+                    .Include(u => u.User).ToList();
+
+                projects = projects.Union(contributorProjects).ToList();
+
+                return View(projects);
+            }
+            catch
+            {
+                return NotFound();
+            }
+
         }
 
         [HttpGet]
@@ -167,12 +237,25 @@ namespace TabRepository.Controllers
                 try
                 {
                     // Return a list of all Projects belonging to the current user
-                    var projectInDb = _context.Projects.SingleOrDefault(p => p.UserId == currentUserId && p.Id == id);
+                    var projectInDb = _context.Projects
+                        .SingleOrDefault(p => p.UserId == currentUserId && p.Id == id);
+
+                    var contributors = _context.ProjectContributors
+                        .Where(p => p.ProjectId == projectInDb.Id)
+                        .Select(p => new UserViewModel { Username = p.User.UserName, FirstName =  p.User.FirstName, LastName = p.User.LastName }).ToList();
+
+                    var friends = _context.Friends
+                        .Where(f => f.User1Id == currentUserId || f.User2Id == currentUserId)
+                        .Select(f => f.User1Id == currentUserId ? f.User2 : f.User1).ToList();
+
+
                     var viewModel = new ProjectFormViewModel()
                     {
                         Id = projectInDb.Id,
                         Name = projectInDb.Name,
-                        Description = projectInDb.Description
+                        Description = projectInDb.Description,
+                        Contributors = contributors,
+                        Friends = friends
                     };
 
                     return PartialView("_ProjectForm", viewModel);
@@ -184,9 +267,23 @@ namespace TabRepository.Controllers
             }
             else
             {
-                var viewModel = new ProjectFormViewModel();
+                try
+                {
+                    var friends = _context.Friends
+                        .Where(f => f.User1Id == currentUserId || f.User2Id == currentUserId)
+                        .Select(f => f.User1Id == currentUserId ? f.User2 : f.User1).ToList();
 
-                return PartialView("_ProjectForm", viewModel);
+                    var viewModel = new ProjectFormViewModel()
+                    {
+                        Friends = friends
+                    };
+
+                    return PartialView("_ProjectForm", viewModel);
+                }
+                catch
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
             }
         }
 
@@ -202,6 +299,13 @@ namespace TabRepository.Controllers
                 .OrderBy(p => p.Name)
                 .ToList();
 
+            var contributorProjects = _context.ProjectContributors
+                .Where(c => c.UserId == currentUserId)
+                .Select(c => c.Project)
+                .Include(u => u.User).ToList();
+
+            projects = projects.Union(contributorProjects).ToList();
+
             foreach (var proj in projects)
             {
                 var vm = new ProjectIndexViewModel()
@@ -215,7 +319,8 @@ namespace TabRepository.Controllers
                     DateCreated = proj.DateCreated,
                     DateModified = proj.DateModified,
                     User = proj.User,
-                    Albums = proj.Albums
+                    Albums = proj.Albums,
+                    IsOwner = proj.UserId == currentUserId
                 };
 
                 // Add projects to project view model

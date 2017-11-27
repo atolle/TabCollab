@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using TabRepository.Models;
 
 namespace TabRepository.Models
 {
@@ -26,6 +25,8 @@ namespace TabRepository.Models
 
         public virtual ApplicationUser User { get; set; }
 
-        public virtual ICollection<Album> Albums { get; set; }  
+        public virtual ICollection<Album> Albums { get; set; } 
+        
+        public virtual ICollection<ApplicationUser> Contributors { get; set; }
     }
 }

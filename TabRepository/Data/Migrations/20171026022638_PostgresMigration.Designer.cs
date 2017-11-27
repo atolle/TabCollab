@@ -12,9 +12,10 @@ using TabRepository.Models;
 namespace TabRepository.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20171026022638_PostgresMigration")]
+    partial class PostgresMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -197,8 +198,6 @@ namespace TabRepository.Data.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed");
 
-                    b.Property<int?>("ProjectId");
-
                     b.Property<string>("SecurityStamp");
 
                     b.Property<bool>("TwoFactorEnabled");
@@ -214,8 +213,6 @@ namespace TabRepository.Data.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasName("UserNameIndex");
-
-                    b.HasIndex("ProjectId");
 
                     b.ToTable("AspNetUsers");
                 });
@@ -263,19 +260,6 @@ namespace TabRepository.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Projects");
-                });
-
-            modelBuilder.Entity("TabRepository.Models.ProjectContributor", b =>
-                {
-                    b.Property<string>("UserId");
-
-                    b.Property<int>("ProjectId");
-
-                    b.HasKey("UserId", "ProjectId");
-
-                    b.HasAlternateKey("ProjectId", "UserId");
-
-                    b.ToTable("ProjectContributors");
                 });
 
             modelBuilder.Entity("TabRepository.Models.Tab", b =>
@@ -404,13 +388,6 @@ namespace TabRepository.Data.Migrations
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("TabRepository.Models.ApplicationUser", b =>
-                {
-                    b.HasOne("TabRepository.Models.Project")
-                        .WithMany("Contributors")
-                        .HasForeignKey("ProjectId");
-                });
-
             modelBuilder.Entity("TabRepository.Models.Friend", b =>
                 {
                     b.HasOne("TabRepository.Models.ApplicationUser", "ActingUser")
@@ -433,19 +410,6 @@ namespace TabRepository.Data.Migrations
                     b.HasOne("TabRepository.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("TabRepository.Models.ProjectContributor", b =>
-                {
-                    b.HasOne("TabRepository.Models.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("TabRepository.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("TabRepository.Models.Tab", b =>

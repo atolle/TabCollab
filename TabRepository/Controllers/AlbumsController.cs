@@ -67,12 +67,29 @@ namespace TabRepository.Controllers
             {
                 string currentUserId = User.GetUserId();
 
+                // Verify current user has access to this project
+                var projectInDb = _context.Projects.SingleOrDefault(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId);
+
+                // If there is not project matching this project Id and this user Id, check to see if this user is a contributor
+                if (projectInDb == null)
+                {
+                    projectInDb = (from project in _context.Projects
+                                   join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
+                                   where contributor.UserId == currentUserId && project.Id == viewModel.ProjectId
+                                   select project).Include(u => u.User).FirstOrDefault();
+
+                    if (projectInDb == null)
+                    {
+                        return NotFound();
+                    }
+                }
+
                 if (viewModel.Id == 0)  // We are creating a new album
                 {                    
                     Album album = new Album()
                     {
-                        UserId = User.GetUserId(),
-                        Project = _context.Projects.Single(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId),
+                        UserId = projectInDb.UserId,
+                        Project = projectInDb,
                         Name = viewModel.Name,
                         Description = viewModel.Description,
                         DateCreated = DateTime.Now,
@@ -83,7 +100,7 @@ namespace TabRepository.Controllers
                     _context.Albums.Add(album);
                     _context.SaveChanges();
 
-                    await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Album" + album.Id.ToString());
+                    await _fileUploader.UploadFileToFileSystem(viewModel.Image, projectInDb.UserId, "Album" + album.Id.ToString());
 
                     return Json(new { name = album.Name, id = album.Id });
                 }
@@ -113,7 +130,7 @@ namespace TabRepository.Controllers
                     return Json(new { name = albumInDb.Name, id = albumInDb.Id });
                 }
             }
-            catch
+            catch 
             {
                 // Need to return failure to form
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
@@ -169,18 +186,30 @@ namespace TabRepository.Controllers
                 string currentUserId = User.GetUserId();
                 var viewModel = new AlbumFormViewModel();
 
+                // New album
                 if (albumId == 0)
                 {
                     // Verify current user has access to this project
-                    var projectInDb = _context.Projects.Single(p => p.Id == projectId && p.UserId == currentUserId);
+                    var projectInDb = _context.Projects.SingleOrDefault(p => p.Id == projectId && p.UserId == currentUserId);
+
+                    
                     if (projectInDb == null)
                     {
-                        return NotFound();
+                        projectInDb = (from project in _context.Projects
+                                        join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId                                        
+                                        where contributor.UserId == currentUserId && project.Id == projectId
+                                        select project).Include(u => u.User).FirstOrDefault();
+                        
+                        if (projectInDb == null)
+                        {
+                            return NotFound();
+                        }                        
                     }
 
                     viewModel.ProjectId = projectInDb.Id;
                     viewModel.ProjectName = projectInDb.Name;
                 }
+                // Existing album
                 else
                 {
                     var albumInDb = _context.Albums.Single(p => p.Id == albumId && p.UserId == currentUserId);
@@ -196,7 +225,7 @@ namespace TabRepository.Controllers
 
                 return PartialView("_AlbumForm", viewModel);
             }
-            catch
+            catch (Exception e)
             {
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             } 
@@ -219,6 +248,13 @@ namespace TabRepository.Controllers
                         .OrderBy(a => a.Name)
                         .ToList();
 
+                    var contributorAlbums = (from album in _context.Albums
+                                             join contributor in _context.ProjectContributors on album.ProjectId equals contributor.ProjectId
+                                             where contributor.UserId == currentUserId                                            
+                                             select album).Include(u => u.User).Include(a => a.Project).ToList();
+
+                    albums = albums.Union(contributorAlbums).ToList();
+
                     foreach (var album in albums)
                     {
                         var elem = new AlbumIndexViewModel()
@@ -234,7 +270,8 @@ namespace TabRepository.Controllers
                             DateCreated = album.DateCreated,
                             DateModified = album.DateModified,
                             User = album.User,
-                            Tabs = album.Tabs
+                            Tabs = album.Tabs,
+                            IsOwner = album.UserId == currentUserId
                         };
 
                         // Add projects to project view model
@@ -243,7 +280,7 @@ namespace TabRepository.Controllers
 
                     return PartialView("_AlbumList", viewModel);
                 }
-                catch
+                catch (Exception e)
                 {
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }

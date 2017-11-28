@@ -137,16 +137,16 @@ $(document).ready(function () {
             })
     });
 
-    $("#page").on("click", ".show-buttons-icon-container", function (e, data) {
+    $("#page").on("click", ".show-items-icon-container", function (e, data) {
         $(this).hide();
-        $(this).siblings('.item-button-container').show();
-        $(this).siblings('.hide-buttons-icon-container').show();
+        $(this).siblings('.item-container').show();
+        $(this).siblings('.hide-items-icon-container').show();
     });
 
-    $("#page").on("click", ".hide-buttons-icon-container", function (e, data) {
+    $("#page").on("click", ".hide-items-icon-container", function (e, data) {
         $(this).hide();
-        $(this).siblings('.item-button-container').hide();
-        $(this).siblings('.show-buttons-icon-container').show();
+        $(this).siblings('.item-container').hide();
+        $(this).siblings('.show-items-icon-container').show();
     });
 
     $("#page").on("submit", function (e, data) {

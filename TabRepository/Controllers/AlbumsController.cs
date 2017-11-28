@@ -244,6 +244,7 @@ namespace TabRepository.Controllers
                     // Return a list of all Albums belonging to the current user
                     var albums = _context.Albums.Include(u => u.User)
                         .Include(a => a.Project)
+                        .Include(a => a.Tabs)
                         .Where(a => a.UserId == currentUserId)
                         .OrderBy(a => a.Name)
                         .ToList();
@@ -251,7 +252,7 @@ namespace TabRepository.Controllers
                     var contributorAlbums = (from album in _context.Albums
                                              join contributor in _context.ProjectContributors on album.ProjectId equals contributor.ProjectId
                                              where contributor.UserId == currentUserId                                            
-                                             select album).Include(u => u.User).Include(a => a.Project).ToList();
+                                             select album).Include(u => u.User).Include(a => a.Project).Include(a => a.Tabs).ToList();
 
                     albums = albums.Union(contributorAlbums).ToList();
 

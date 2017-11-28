@@ -1,39 +1,50 @@
-﻿@model IEnumerable<TabRepository.ViewModels.TabIndexViewModel>
+﻿@model IEnumerable<TabRepository.ViewModels.AlbumIndexViewModel>
 
 <div class="row list-row">
     @{ int i = 1; }
-    @foreach (var tab in Model)
+    @foreach (var album in Model)
     {
-        <div class="col-md-2">
+        <div class="col-xs-6" style="width: 50%;">
             <div class="panel panel-default panel-profile">
+                <div class="panel-heading" style="background-image: url('@album.ImageFilePath');"></div>
                 <div class="panel-body text-center">
-                    <h3>@tab.Name</h3>
-                    <p class="m-b">Album: @tab.AlbumName</p>
-                    <div class="show-buttons-icon-container">
+                    <h3>@album.Name</h3>
+                    <p class="m-b">Project: @album.ProjectName<br />Owner: @album.Owner</p>
+                    <div class="show-items-icon-container">
                         <i class="fa fa-chevron-down show-buttons-icon"></i>
                     </div>
-                    <div class="item-button-container">
-                        @if (tab.IsOwner)
-                        {
-                            <a id="new-tab-version-button" class="btn btn-primary pull-left" data-tab-id="@tab.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")"><i class="fa fa-plus" /></a>
-                            <a id="edit-tab-button" class="btn btn-default" data-album-id="@tab.AlbumId" data-tab-id="@tab.Id" href="@Url.Action("GetTabFormPartialView", "Tabs")"><i class="fa fa-pencil edit-button-icon"></i></a>
-                            <a id="delete-tab-button" class="btn btn-danger pull-right" href="@Url.Action("Delete", "Tabs", new { id = tab.Id })"><i class="fa fa-times" /></a>
-                        }
-                        else
-                        {
-                            <a id="new-tab-version-button" class="btn btn-primary" data-tab-id="@tab.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")"><i class="fa fa-plus" /></a>
-                        }
-                    </div>
-                    <div class="hide-buttons-icon-container">
+                    @foreach (var tab in album.Tabs)
+                    {   
+                        <div class="item-container">
+                            <div class="row list-row" style="width: 75%; margin:0 auto;">
+                                <div class="panel panel-default tab-panel">
+                                    <p>@tab.Name</p>
+                                    @if (album.IsOwner)
+                                    {
+                                        <a id="new-tab-version-button" class="btn btn-primary pull-left" data-tab-id="@tab.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")"><i class="fa fa-plus" /></a>
+                                        <a id="edit-tab-button" class="btn btn-default" data-album-id="@tab.AlbumId" data-tab-id="@tab.Id" href="@Url.Action("GetTabFormPartialView", "Tabs")"><i class="fa fa-pencil edit-button-icon"></i></a>
+                                        <a id="delete-tab-button" class="btn btn-danger pull-right" href="@Url.Action("Delete", "Tabs", new { id = tab.Id })"><i class="fa fa-times" /></a>
+                                    }
+                                    else
+                                    {
+                                        <a id="new-tab-version-button" class="btn btn-primary" data-tab-id="@tab.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")"><i class="fa fa-plus" /></a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div class="hide-items-icon-container">
                         <i class="fa fa-chevron-up hide-buttons-icon"></i>
                     </div>
                 </div>
             </div>
         </div>
-        @if (i % 6 == 0)
+        @if (i % 2 == 0)
         {
             <div class="clearfix"></div>
         }
         i++;
     }
+
 </div>
+

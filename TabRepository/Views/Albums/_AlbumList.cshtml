@@ -10,10 +10,10 @@
                     <div class="panel-body text-center">
                         <h3>@album.Name</h3>
                         <p class="m-b">Project: @album.ProjectName<br />Owner: @album.Owner</p>
-                        <div class="show-buttons-icon-container">
-                            <i class="fa fa-chevron-down show-buttons-icon"></i>
+                        <div class="show-items-icon-container">
+                            <i class="fa fa-chevron-down"></i>
                         </div>
-                        <div class="item-button-container">
+                        <div class="item-container">
                             @if (album.IsOwner)
                             {
                                 <a id="new-tab-button" class="btn btn-primary pull-left" data-album-id="@album.Id" href="@Url.Action("GetTabFormPartialView", "Tabs")"><i class="fa fa-plus" /></a>
@@ -25,8 +25,8 @@
                                 <a id="new-tab-button" class="btn btn-primary" data-album-id="@album.Id" href="@Url.Action("GetTabFormPartialView", "Tabs")"><i class="fa fa-plus" /></a>
                             }
                         </div>
-                        <div class="hide-buttons-icon-container">
-                            <i class="fa fa-chevron-up hide-buttons-icon"></i>
+                        <div class="hide-items-icon-container">
+                            <i class="fa fa-chevron-up"></i>
                         </div>
                     </div>
                 </div>

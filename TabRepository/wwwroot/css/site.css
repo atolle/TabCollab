@@ -57,6 +57,10 @@ textarea {
     }
 }
 
+#search-form .form-control {
+    width: 500px;
+}
+
 .search-btn {
     margin-left: -4px;
 }
@@ -196,16 +200,16 @@ textarea {
 }
 
 /*button container for edit and delete buttons on projects, albums, and tabs*/
-.item-button-container {
+.item-container {
     display: none;
     width: 100%;
 }
 
-.show-buttons-icon-container {
+.show-items-icon-container {
     cursor: pointer; 
 }
 
-.hide-buttons-icon-container {
+.hide-items-icon-container {
     margin-top: 10px;
     display: none;
     cursor: pointer;
@@ -216,6 +220,6 @@ textarea {
     margin-bottom: 10px;
 }
 
-tr:nth-child(even) {
-    background-color: #f2f2f2
+.tab-panel {
+    background-color: #19262B
 }

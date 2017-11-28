@@ -138,6 +138,7 @@ $(document).ready(function () {
     });
 
     $("#page").on("click", ".show-items-icon-container", function (e, data) {
+        $('[data-toggle="tooltip"]').tooltip(); 
         $(this).hide();
         $(this).siblings('.item-container').show();
         $(this).siblings('.hide-items-icon-container').show();

@@ -331,7 +331,7 @@ namespace TabRepository.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetProjectSelectionFormPartialView()
+        public ActionResult GetProjectSelectionPartialView()
         {
             string currentUserId = User.GetUserId();
             List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
@@ -370,7 +370,7 @@ namespace TabRepository.Controllers
                 viewModel.Add(vm);
             }
 
-            return PartialView("_ProjectSelectionForm", viewModel);
+            return PartialView("_ProjectSelection", viewModel);
         }
     }
 }

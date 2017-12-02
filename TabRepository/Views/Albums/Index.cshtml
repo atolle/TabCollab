@@ -4,12 +4,8 @@ Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div id="page">
-    @*<div class="buttons-container">
-        @Html.ActionLink("New Album", "GetAlbumFormPartialView", "Albums", null, new { @class = "btn btn-primary", id = "new-album-button" })
-    </div>*@
-
     <div class="buttons-container">
-        <a id="new-album-button" data-toggle="tooltip" title="Add new album" class="btn btn-primary pull-left" href="@Url.Action("GetProjectSelectionFormPartialView", "Projects")"><i class="fa fa-plus"></i></a>
+        <a id="new-album-button" data-toggle="tooltip" title="Add new album" class="btn btn-primary pull-left" href="@Url.Action("GetProjectSelectionPartialView", "Projects")"><i class="fa fa-plus"></i></a>
     </div>
 
     <div class="list-loader"></div>
@@ -18,11 +14,6 @@ Layout = "~/Views/Shared/_Layout.cshtml";
 
     <div id='album-form-modal' class='modal fade'>
         <div id='album-form-container'>
-        </div>
-    </div>
-
-    <div id='tab-form-modal' class='modal fade'>
-        <div id='tab-form-container'>
         </div>
     </div>
 </div>
@@ -115,30 +106,6 @@ $(document).ready(function () {
         })
     });
 
-    // Show modal for new tab
-    $("#page").on("click", "#new-tab-button", function (e, data) {
-        e.preventDefault();
-
-        var href = this.href + "/?albumId=" + $(this).attr("data-album-id");
-
-        $.ajax({
-            url: href,
-            type: 'GET',
-        })
-            .then(function (data) {
-                $('#tab-form-container').html(data);
-                // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#tab-form"));
-
-                currentModal = $('#tab-form-modal');
-                currentModal.modal('show');
-
-            })
-            .fail(function (error) {
-                bootbox.alert("Unable to show tab form. Error: " + error.statusText);
-            })
-    });
-
     $("#page").on("click", ".show-items-icon-container", function (e, data) {
         $('[data-toggle="tooltip"]').tooltip();
 
@@ -165,8 +132,9 @@ $(document).ready(function () {
 
         var that = this;
 
+        // Give modal time to close
         setTimeout(function () {
-            var href = $(that).attr("href") + "/?projectId=" + $(that).attr("data-project-id");
+            var href = "@Url.Action("GetAlbumFormPartialView", "Albums")" + "/?projectId=" + $(that).attr("data-project-id");
 
             $.ajax({
                 url: href,

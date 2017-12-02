@@ -5,17 +5,12 @@
 
 <div id="page">
     <div class="buttons-container">
-        @Html.ActionLink("New Tab", "GetTabFormPartialView", "Tabs", null, new { @class = "btn btn-primary", id = "new-tab-button" })
+        <a id="new-tab-button" data-toggle="tooltip" title="Add new tab" class="btn btn-primary pull-left" href="@Url.Action("GetProjectSelectionPartialView", "Projects")"><i class="fa fa-plus"></i></a>
     </div>
 
     <div class="list-loader"></div>
 
     <div id="tab-list-wrapper"></div>
-
-    <div id='album-form-modal' class='modal fade'>
-        <div id='album-form-container'>
-        </div>
-    </div>
 
     <div id='tab-form-modal' class='modal fade'>
         <div id='tab-form-container'>
@@ -138,7 +133,7 @@ $(document).ready(function () {
     });
 
     $("#page").on("click", ".show-items-icon-container", function (e, data) {
-        $('[data-toggle="tooltip"]').tooltip(); 
+        $('[data-toggle="tooltip"]').tooltip();
         $(this).hide();
         $(this).siblings('.item-container').show();
         $(this).siblings('.hide-items-icon-container').show();
@@ -148,6 +143,62 @@ $(document).ready(function () {
         $(this).hide();
         $(this).siblings('.item-container').hide();
         $(this).siblings('.show-items-icon-container').show();
+    });
+
+    $("#page").on("click", ".project-selection-panel", function (e, data) {
+        e.preventDefault();
+
+        var that = this;
+
+        // Give modal time to close
+        setTimeout(function () {
+            var href = "@Url.Action("GetAlbumSelectionPartialView", "Albums")" + "/?projectId=" + $(that).attr("data-project-id");
+
+            $.ajax({
+                url: href,
+                type: 'GET',
+            })
+                .then(function (data) {
+                    $('#tab-form-container').html(data);
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($("#tab-form"));
+
+                    currentModal = $('#tab-form-modal');
+                    currentModal.modal('show');
+
+                })
+                .fail(function (error) {
+                    bootbox.alert("Unable to show tab form. Error: " + error.statusText);
+                })
+        }, 500)
+    });
+
+    $("#page").on("click", ".album-selection-panel", function (e, data) {
+        e.preventDefault();
+
+        var that = this;
+
+        // Give modal time to close
+        setTimeout(function () {
+            var href = "@Url.Action("GetTabFormPartialView", "Tabs")" + "/?albumId=" + $(that).attr("data-album-id");
+
+            $.ajax({
+                url: href,
+                type: 'GET',
+            })
+                .then(function (data) {
+                    $('#tab-form-container').html(data);
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($("#tab-form"));
+
+                    currentModal = $('#tab-form-modal');
+                    currentModal.modal('show');
+
+                })
+                .fail(function (error) {
+                    bootbox.alert("Unable to show tab form. Error: " + error.statusText);
+                })
+        }, 500)
     });
 
     $("#page").on("submit", function (e, data) {

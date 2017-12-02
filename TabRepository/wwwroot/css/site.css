@@ -185,11 +185,11 @@ textarea {
 /*animate the lists*/
 .list-row {
     position: relative;
-    animation-name: example;
+    animation-name: list-load;
     animation-duration: .5s;
 }
 
-@keyframes example {
+@keyframes list-load {
     0% {
         top: 200px;
     }
@@ -203,6 +203,7 @@ textarea {
 .item-container {
     display: none;
     width: 100%;
+    overflow: hidden;
 }
 
 .show-items-icon-container {
@@ -221,5 +222,21 @@ textarea {
 }
 
 .tab-panel {
-    background-color: #19262B
+    background-color: #19262B;
+}
+
+.selection-panel {
+    background-color: #19262B;
+}
+
+.selection-panel:active {
+    opacity: 0.5;
+}
+
+.selection-panel:hover {
+    cursor: pointer;
+}
+
+.modal-dialog {
+    width: 25%;
 }

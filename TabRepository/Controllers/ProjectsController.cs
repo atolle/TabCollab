@@ -329,5 +329,48 @@ namespace TabRepository.Controllers
 
             return PartialView("_ProjectList", viewModel);
         }
+
+        [HttpGet]
+        public ActionResult GetProjectSelectionFormPartialView()
+        {
+            string currentUserId = User.GetUserId();
+            List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
+
+            // Return a list of all Projects belonging to the current user
+            var projects = _context.Projects.Include(u => u.User)
+                .Where(p => p.UserId == currentUserId)
+                .OrderBy(p => p.Name)
+                .ToList();
+
+            var contributorProjects = _context.ProjectContributors
+                .Where(c => c.UserId == currentUserId)
+                .Select(c => c.Project)
+                .Include(u => u.User).ToList();
+
+            projects = projects.Union(contributorProjects).ToList();
+
+            foreach (var proj in projects)
+            {
+                var vm = new ProjectIndexViewModel()
+                {
+                    Id = proj.Id,
+                    UserId = proj.UserId,
+                    Name = proj.Name,
+                    Owner = proj.User.UserName,
+                    ImageFileName = proj.ImageFileName,
+                    ImageFilePath = "/images/" + proj.UserId + "/Project" + proj.Id + "/" + proj.ImageFileName,
+                    DateCreated = proj.DateCreated,
+                    DateModified = proj.DateModified,
+                    User = proj.User,
+                    Albums = proj.Albums,
+                    IsOwner = proj.UserId == currentUserId
+                };
+
+                // Add projects to project view model
+                viewModel.Add(vm);
+            }
+
+            return PartialView("_ProjectSelectionForm", viewModel);
+        }
     }
 }

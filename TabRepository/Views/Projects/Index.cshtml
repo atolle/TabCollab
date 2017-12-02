@@ -4,7 +4,7 @@
 }
 <div id="page">
     <div class="buttons-container">
-        @Html.ActionLink("New Project", "GetProjectFormPartialView", "Projects", null, new { @class = "btn btn-primary", id = "new-project-button", @display = "none" })
+        <a id="new-project-button" data-toggle="tooltip" title="Add new project" class="btn btn-primary pull-left" href="@Url.Action("GetProjectFormPartialView", "Projects")"><i class="fa fa-plus"></i></a>        
     </div>
 
     <div class="list-loader"></div>
@@ -39,6 +39,8 @@ $(document).ready(function () {
         .catch(function (error) {
             bootbox.alert("Unable to load projects. Error: " + error.statusText);
         });
+
+    $('[data-toggle="tooltip"]').tooltip(); 
 
     // Deleting a project
     $("#page").on("click", "#delete-project-button", function (e, data) {
@@ -90,7 +92,7 @@ $(document).ready(function () {
     $("#page").on("click", "#edit-project-button", function (e, data) {
         e.preventDefault();
 
-        var href = this.href;       
+        var href = this.href + "/?projectId=" + $(this).attr("data-project-id");  
 
         $.ajax({
             url: href,
@@ -110,40 +112,24 @@ $(document).ready(function () {
             })
     });
 
-    // Show modal for new album
-    $("#page").on("click", "#new-album-button", function (e, data) {
-        e.preventDefault();
-
-        var href = this.href + "/?projectId=" + $(this).attr("data-project-id");
-
-        $.ajax({
-            url: href,
-            type: 'GET',
-        })
-            .then(function (data) {
-                $('#album-form-container').html(data);
-                // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#album-form"));
-
-                currentModal = $('#album-form-modal');
-                currentModal.modal('show');
-
-            })
-            .fail(function (error) {
-                bootbox.alert("Unable to show album form. Error: " + error.statusText);
-            })
-    });
-
     $("#page").on("click", ".show-items-icon-container", function (e, data) {
         $('[data-toggle="tooltip"]').tooltip(); 
+
+        var that = this;
+
         $(this).hide();
-        $(this).siblings('.item-container').show();
+        $(this).siblings('.item-container').show(100);
+        // Wait until the expansion animation is complete to show the buttons
+        setTimeout(function () {
+            $(that).siblings('.item-container').children().css("visibility", "visible");
+        }, 100)
         $(this).siblings('.hide-items-icon-container').show();
     });
 
     $("#page").on("click", ".hide-items-icon-container", function (e, data) {
         $(this).hide();
-        $(this).siblings('.item-container').hide();
+        $(this).siblings('.item-container').children().css("visibility", "hidden");
+        $(this).siblings('.item-container').hide(100);
         $(this).siblings('.show-items-icon-container').show();
     });
 

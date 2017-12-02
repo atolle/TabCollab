@@ -4,8 +4,12 @@ Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div id="page">
-    <div class="buttons-container">
+    @*<div class="buttons-container">
         @Html.ActionLink("New Album", "GetAlbumFormPartialView", "Albums", null, new { @class = "btn btn-primary", id = "new-album-button" })
+    </div>*@
+
+    <div class="buttons-container">
+        <a id="new-album-button" data-toggle="tooltip" title="Add new album" class="btn btn-primary pull-left" href="@Url.Action("GetProjectSelectionFormPartialView", "Projects")"><i class="fa fa-plus"></i></a>
     </div>
 
     <div class="list-loader"></div>
@@ -39,6 +43,8 @@ $(document).ready(function () {
         .catch(function (error) {
             bootbox.alert("Unable to load albums. Error: " + error.statusText);
         });
+
+    $('[data-toggle="tooltip"]').tooltip(); 
 
     // Deleting an album
     $("#page").on("click", "#delete-album-button", function (e, data) {
@@ -134,16 +140,51 @@ $(document).ready(function () {
     });
 
     $("#page").on("click", ".show-items-icon-container", function (e, data) {
-        $('[data-toggle="tooltip"]').tooltip(); 
+        $('[data-toggle="tooltip"]').tooltip();
+
+        var that = this;
+
         $(this).hide();
-        $(this).siblings('.item-container').show();
+        $(this).siblings('.item-container').show(100);
+        // Wait until the expansion animation is complete to show the buttons
+        setTimeout(function () {
+            $(that).siblings('.item-container').children().css("visibility", "visible");
+        }, 100)
         $(this).siblings('.hide-items-icon-container').show();
     });
 
     $("#page").on("click", ".hide-items-icon-container", function (e, data) {
         $(this).hide();
-        $(this).siblings('.item-container').hide();
+        $(this).siblings('.item-container').children().css("visibility", "hidden");
+        $(this).siblings('.item-container').hide(100);
         $(this).siblings('.show-items-icon-container').show();
+    });
+
+    $("#page").on("click", ".project-selection-panel", function (e, data) {
+        e.preventDefault();
+
+        var that = this;
+
+        setTimeout(function () {
+            var href = $(that).attr("href") + "/?projectId=" + $(that).attr("data-project-id");
+
+            $.ajax({
+                url: href,
+                type: 'GET',
+            })
+            .then(function (data) {
+                $('#album-form-container').html(data);
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($("#album-form"));
+
+                currentModal = $('#album-form-modal');
+                currentModal.modal('show');
+
+            })
+            .fail(function (error) {
+                bootbox.alert("Unable to show album form. Error: " + error.statusText);
+            })
+        }, 500)
     });
 
     $("#page").on("submit", function (e, data) {

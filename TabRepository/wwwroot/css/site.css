@@ -223,6 +223,7 @@ textarea {
 
 .tab-panel {
     background-color: #19262B;
+    margin-bottom: 5px;
 }
 
 .selection-panel {
@@ -239,4 +240,14 @@ textarea {
 
 .modal-dialog {
     width: 25%;
+}
+
+.tab-panel-row {
+    width: 75%; 
+    margin:0 auto; 
+    visibility: hidden;
+}
+
+.placeholder {
+    height: 75px;
 }

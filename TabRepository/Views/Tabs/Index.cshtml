@@ -34,6 +34,15 @@ $(document).ready(function () {
             $('.list-loader').remove();
             $('hr').show();
             $('footer').show();
+            $(".tab-panel-sort").each(function () {
+                var that = this;
+                $(this).sortable({
+                    containment: $(that).parent(),
+                    placeholder: "placeholder",
+                    cursor: "pointer"
+                });
+            });
+            $('[data-toggle="tooltip"]').tooltip();
         })
         .catch(function (error) {
             bootbox.alert("Unable to load tabs. Error: " + error.statusText);
@@ -134,14 +143,22 @@ $(document).ready(function () {
 
     $("#page").on("click", ".show-items-icon-container", function (e, data) {
         $('[data-toggle="tooltip"]').tooltip();
+
+        var that = this;
+
         $(this).hide();
-        $(this).siblings('.item-container').show();
+        $(this).siblings('.tab-panel-sort').children('.item-container').show(200);
+        // Wait until the expansion animation is complete to show the buttons
+        setTimeout(function () {
+            $(that).siblings('.tab-panel-sort').children('.item-container').children().css("visibility", "visible");
+        }, 200)
         $(this).siblings('.hide-items-icon-container').show();
     });
 
     $("#page").on("click", ".hide-items-icon-container", function (e, data) {
         $(this).hide();
-        $(this).siblings('.item-container').hide();
+        $(this).siblings('.tab-panel-sort').children('.item-container').children().css("visibility", "hidden");
+        $(this).siblings('.tab-panel-sort').children('.item-container').hide(200);
         $(this).siblings('.show-items-icon-container').show();
     });
 

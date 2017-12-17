@@ -118,18 +118,18 @@ $(document).ready(function () {
         var that = this;
 
         $(this).hide();
-        $(this).siblings('.item-container').show(100);
+        $(this).siblings('.item-container').show(200);
         // Wait until the expansion animation is complete to show the buttons
         setTimeout(function () {
             $(that).siblings('.item-container').children().css("visibility", "visible");
-        }, 100)
+        }, 200)
         $(this).siblings('.hide-items-icon-container').show();
     });
 
     $("#page").on("click", ".hide-items-icon-container", function (e, data) {
         $(this).hide();
         $(this).siblings('.item-container').children().css("visibility", "hidden");
-        $(this).siblings('.item-container').hide(100);
+        $(this).siblings('.item-container').hide(200);
         $(this).siblings('.show-items-icon-container').show();
     });
 

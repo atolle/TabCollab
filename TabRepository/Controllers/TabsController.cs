@@ -61,7 +61,7 @@ namespace TabRepository.Controllers
                 if (viewModel.Id == 0)  // We are creating a new Tab
                 {
                     // Verify current user has access to this project
-                    var albumInDb = _context.Albums.SingleOrDefault(p => p.Id == viewModel.AlbumId && p.UserId == currentUserId);
+                    var albumInDb = _context.Albums.Include(a => a.Tabs).SingleOrDefault(p => p.Id == viewModel.AlbumId && p.UserId == currentUserId);
 
                     // If there is not project matching this project Id and this user Id, check to see if this user is a contributor
                     if (albumInDb == null)
@@ -70,12 +70,20 @@ namespace TabRepository.Controllers
                                      join project in _context.Projects on album.ProjectId equals project.Id
                                      join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
                                      where contributor.UserId == currentUserId && project.Id == album.ProjectId && album.Id == viewModel.AlbumId
-                                     select album).Include(u => u.User).FirstOrDefault();
+                                     select album).Include(u => u.User).Include(a => a.Tabs).FirstOrDefault();
 
                         if (albumInDb == null)
                         {
                             return NotFound();
                         }
+                    }
+
+                    int order = 0;
+
+                    // Order is max order + 1
+                    if (albumInDb.Tabs != null)
+                    {
+                        order = Convert.ToInt32(albumInDb.Tabs.Max(t => t.Order)) + 1;
                     }
 
                     TabFile tabFile = new TabFile();
@@ -103,7 +111,8 @@ namespace TabRepository.Controllers
                         Description = viewModel.Description,
                         DateCreated = DateTime.Now,
                         DateModified = DateTime.Now,
-                        CurrentVersion = 1
+                        CurrentVersion = 1,
+                        Order = order
                     };
 
                     // Create first Tab Version
@@ -147,7 +156,7 @@ namespace TabRepository.Controllers
                     return Json(new { name = tabInDb.Name, id = tabInDb.Id });
                 }
             }
-            catch
+            catch (Exception e)
             {
                 // Need to return failure to form
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);

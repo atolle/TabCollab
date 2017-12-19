@@ -34,26 +34,6 @@ $(document).ready(function () {
             $('.list-loader').remove();
             $('hr').show();
             $('footer').show();
-            $(".tab-list-sort").each(function () {
-                var that = this;
-                $(this).sortable({
-                    containment: $(that).parent(),
-                    placeholder: "placeholder",
-                    cursor: "pointer",
-                    update: function (event, ui) {
-                        var data = { tabIds: $(this).sortable('toArray') };
-                        
-                        // POST to server using $.post or $.ajax
-                        $.ajax({
-                            data: data,
-                            type: 'POST',
-                            dataType: 'json',
-                            traditional: 'true',
-                            url: '@Url.Action("ReorderTabs", "Tabs")'
-                        });
-                    }
-                });
-            });
             $('[data-toggle="tooltip"]').tooltip();
         })
         .catch(function (error) {
@@ -265,6 +245,29 @@ $(document).ready(function () {
 
             $.get(url, function (data) {
                 $('#tab-list-wrapper').empty().append(data);
+            })
+            .then(function (result) {
+                // Add sortable functionality to all owned tabs
+                $(".tab-list-sort").each(function () {
+                    var that = this;
+                    $(this).sortable({
+                        containment: $(that).parent(),
+                        placeholder: "placeholder",
+                        cursor: "pointer",
+                        update: function (event, ui) {
+                            var data = { tabIds: $(this).sortable('toArray') };
+
+                            // POST to server using $.post or $.ajax
+                            $.ajax({
+                                data: data,
+                                type: 'POST',
+                                dataType: 'json',
+                                traditional: 'true',
+                                url: '@Url.Action("ReorderTabs", "Tabs")'
+                            });
+                        }
+                    });
+                })
             })
             .then(resolve)
             .fail(reject)

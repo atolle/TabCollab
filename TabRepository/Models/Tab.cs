@@ -21,6 +21,8 @@ namespace TabRepository.Models
 
         public int CurrentVersion { get; set; }
 
+        public int Order { get; set; }
+
         public DateTime DateCreated { get; set; }
 
         public DateTime DateModified { get; set; }

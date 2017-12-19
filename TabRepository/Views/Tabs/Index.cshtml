@@ -34,12 +34,24 @@ $(document).ready(function () {
             $('.list-loader').remove();
             $('hr').show();
             $('footer').show();
-            $(".tab-panel-sort").each(function () {
+            $(".tab-list-sort").each(function () {
                 var that = this;
                 $(this).sortable({
                     containment: $(that).parent(),
                     placeholder: "placeholder",
-                    cursor: "pointer"
+                    cursor: "pointer",
+                    update: function (event, ui) {
+                        var data = { tabIds: $(this).sortable('toArray') };
+                        
+                        // POST to server using $.post or $.ajax
+                        $.ajax({
+                            data: data,
+                            type: 'POST',
+                            dataType: 'json',
+                            traditional: 'true',
+                            url: '@Url.Action("ReorderTabs", "Tabs")'
+                        });
+                    }
                 });
             });
             $('[data-toggle="tooltip"]').tooltip();
@@ -147,18 +159,18 @@ $(document).ready(function () {
         var that = this;
 
         $(this).hide();
-        $(this).siblings('.tab-panel-sort').children('.item-container').show(200);
+        $(this).siblings('.tab-list').children('.item-container').show(200);
         // Wait until the expansion animation is complete to show the buttons
         setTimeout(function () {
-            $(that).siblings('.tab-panel-sort').children('.item-container').children().css("visibility", "visible");
+            $(that).siblings('.tab-list').children('.item-container').children().css("visibility", "visible");
         }, 200)
         $(this).siblings('.hide-items-icon-container').show();
     });
 
     $("#page").on("click", ".hide-items-icon-container", function (e, data) {
         $(this).hide();
-        $(this).siblings('.tab-panel-sort').children('.item-container').children().css("visibility", "hidden");
-        $(this).siblings('.tab-panel-sort').children('.item-container').hide(200);
+        $(this).siblings('.tab-list').children('.item-container').children().css("visibility", "hidden");
+        $(this).siblings('.tab-list').children('.item-container').hide(200);
         $(this).siblings('.show-items-icon-container').show();
     });
 

@@ -209,7 +209,7 @@ namespace TabRepository.Controllers
                     .ThenInclude(a => a.Tabs)
                     .Where(p => p.UserId == currentUserId).ToList();
 
-                // Find projecst for which user is contributor
+                // Find projects for which user is contributor
                 var contributorProjects = _context.ProjectContributors                    
                     .Where(c => c.UserId == currentUserId)
                     .Select(c => c.Project)
@@ -219,9 +219,17 @@ namespace TabRepository.Controllers
 
                 projects = projects.Union(contributorProjects).ToList();
 
+                foreach (var project in projects)
+                {
+                    foreach (var album in project.Albums)
+                    {
+                        album.Tabs = album.Tabs.OrderBy(t => t.Order).ToList();
+                    }
+                }
+
                 return View(projects);
             }
-            catch
+            catch (Exception e)
             {
                 return NotFound();
             }

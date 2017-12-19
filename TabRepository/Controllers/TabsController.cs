@@ -288,7 +288,7 @@ namespace TabRepository.Controllers
                             DateCreated = album.DateCreated,
                             DateModified = album.DateModified,
                             User = album.User,
-                            Tabs = album.Tabs,
+                            Tabs = album.Tabs.OrderBy(t => t.Order).ToList(),
                             IsOwner = album.UserId == currentUserId
                         };
 
@@ -330,7 +330,7 @@ namespace TabRepository.Controllers
                             DateCreated = album.DateCreated,
                             DateModified = album.DateModified,
                             User = album.User,
-                            Tabs = album.Tabs
+                            Tabs = album.Tabs.OrderBy(t => t.Order).ToList()
                         };
 
                         // Add projects to project view model
@@ -346,7 +346,38 @@ namespace TabRepository.Controllers
 
             }
         }
+
+        [HttpPost]
+        public ActionResult ReorderTabs(List<int> tabIds)
+        {
+            string currentUserId = User.GetUserId();
+
+            try
+            {
+                for (int i = 0; i < tabIds.Count; i++)
+                {
+                    var tab = _context.Tabs.Where(t => t.Id == tabIds[i]).FirstOrDefault();
+
+                    if (tab.UserId != currentUserId)
+                    {
+                        return NotFound();
+                    }
+
+                    tab.Order = i;
+                }
+
+                _context.SaveChanges();
+
+                return Json(new { });
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
     }
+
+
 
         //[HttpGet]
         //public ActionResult GetTabListPartialView(int albumId)

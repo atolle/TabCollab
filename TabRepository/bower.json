@@ -9,6 +9,10 @@
     "seiyria-bootstrap-slider": "^9.8.1",
     "bootbox.js": "bootbox#v4.4.0",
     "modernizr": "v3.5.0",
-    "bootswatch": "v3.3.7"
+    "bootswatch": "v3.3.7",
+    "jquery-resizable": "0.20.0"
+  },
+  "resolutions": {
+    "jquery": "1.9.1 - 3"
   }
 }

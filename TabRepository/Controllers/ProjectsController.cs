@@ -201,12 +201,15 @@ namespace TabRepository.Controllers
         {
             string currentUserId = User.GetUserId();
 
+            List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
+
             try
             {
                 // Find projects for which user is owner
                 var projects = _context.Projects
                     .Include(p => p.Albums)
                     .ThenInclude(a => a.Tabs)
+                    .Include(u => u.User)
                     .Where(p => p.UserId == currentUserId).ToList();
 
                 // Find projects for which user is contributor
@@ -221,13 +224,30 @@ namespace TabRepository.Controllers
 
                 foreach (var project in projects)
                 {
-                    foreach (var album in project.Albums)
+                    ProjectIndexViewModel vm = new ProjectIndexViewModel()
+                    {
+                        Id = project.Id,
+                        UserId = project.UserId,
+                        Name = project.Name,
+                        Owner = project.User.UserName,
+                        ImageFileName = project.ImageFileName,
+                        ImageFilePath = "/images/" + project.UserId + "/Project" + project.Id + "/" + project.ImageFileName,
+                        DateCreated = project.DateCreated,
+                        DateModified = project.DateModified,
+                        User = project.User,
+                        Albums = project.Albums,
+                        IsOwner = project.UserId == currentUserId
+                    };
+                    foreach (var album in vm.Albums)
                     {
                         album.Tabs = album.Tabs.OrderBy(t => t.Order).ToList();
                     }
+
+                    // Add projects to project view model
+                    viewModel.Add(vm);
                 }
 
-                return View(projects);
+                return View(viewModel);
             }
             catch (Exception e)
             {
@@ -314,21 +334,21 @@ namespace TabRepository.Controllers
 
             projects = projects.Union(contributorProjects).ToList();
 
-            foreach (var proj in projects)
+            foreach (var project in projects)
             {
                 var vm = new ProjectIndexViewModel()
                 {
-                    Id = proj.Id,
-                    UserId = proj.UserId,
-                    Name = proj.Name,
-                    Owner = proj.User.UserName,
-                    ImageFileName = proj.ImageFileName,
-                    ImageFilePath = "/images/" + proj.UserId + "/Project" + proj.Id + "/" + proj.ImageFileName,
-                    DateCreated = proj.DateCreated,
-                    DateModified = proj.DateModified,
-                    User = proj.User,
-                    Albums = proj.Albums,
-                    IsOwner = proj.UserId == currentUserId
+                    Id = project.Id,
+                    UserId = project.UserId,
+                    Name = project.Name,
+                    Owner = project.User.UserName,
+                    ImageFileName = project.ImageFileName,
+                    ImageFilePath = "/images/" + project.UserId + "/Project" + project.Id + "/" + project.ImageFileName,
+                    DateCreated = project.DateCreated,
+                    DateModified = project.DateModified,
+                    User = project.User,
+                    Albums = project.Albums,
+                    IsOwner = project.UserId == currentUserId
                 };
 
                 // Add projects to project view model

@@ -251,8 +251,3 @@ textarea {
 .placeholder {
     height: 75px;
 }
-
-#jstree {
-    overflow-y: auto;
-    overflow-x: auto;
-}

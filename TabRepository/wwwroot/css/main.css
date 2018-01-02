@@ -34,8 +34,7 @@
 
 .splitter-horizontal {
     flex: 0 0 auto;
-    height: 18px;
-    background: url(https://raw.githubusercontent.com/RickStrahl/jquery-resizable/master/assets/hsizegrip.png) center center no-repeat #535353;
+    height: 10px;
     cursor: row-resize;
 }
 
@@ -44,14 +43,13 @@
     flex-direction: column;
     height: 100%;
     width: 20%;
-    border: 1px solid silver;
     overflow: hidden;
 }
 
 .treeWrapperTop {
     flex: 0 0 auto;
     height: 50%;
-    /*display: block;*/
+    border: 1px solid silver;
     width: 100%;
     overflow: auto;
 }
@@ -59,7 +57,13 @@
 .treeWrapperBottom {
     flex: 1 1 auto;
     height: 50%;
-    /*display: block;*/
+    border: 1px solid silver;
     width: 100%;
     overflow: auto;
+}
+
+.treeLabel {
+    background-color: dimgrey;
+    display: inline;
+    border-radius: 0px 10px 0px 0px;
 }

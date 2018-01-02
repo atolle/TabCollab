@@ -24,6 +24,7 @@
     </div>
     <div id="treeTableContainer">
         <div class="treeWrapperContainer">
+            <b><span class="treeLabel">My Projects</span></b>
             <div class="treeWrapperTop">
                 <div class="jstree ownerTree">
                     @foreach (var project in Model)
@@ -54,6 +55,7 @@
                 </div>
             </div>
             <div class="splitter-horizontal"></div>
+            <b><span class="treeLabel">Contributor Projects</span></b>
             <div class="treeWrapperBottom">
                 <div class="jstree contributorTree">
                     @foreach (var project in Model)

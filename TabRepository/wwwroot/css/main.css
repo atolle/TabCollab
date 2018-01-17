@@ -48,7 +48,7 @@
 
 .treeWrapperTop {
     flex: 0 0 auto;
-    height: 50%;
+    height: 45%;
     border: 1px solid silver;
     width: 100%;
     overflow: auto;
@@ -56,7 +56,7 @@
 
 .treeWrapperBottom {
     flex: 1 1 auto;
-    height: 50%;
+    height: 55%;
     border: 1px solid silver;
     width: 100%;
     overflow: auto;
@@ -66,4 +66,14 @@
     background-color: dimgrey;
     display: inline;
     border-radius: 0px 10px 0px 0px;
+}
+
+.jstree-default .jstree-clicked {
+    color: black;
+    background-color: lightgrey;
+}
+
+.jstree-anchor:hover{
+    color: black;
+    background-color: lightgrey;
 }

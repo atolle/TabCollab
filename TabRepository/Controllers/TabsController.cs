@@ -81,7 +81,7 @@ namespace TabRepository.Controllers
                     int order = 0;
 
                     // Order is max order + 1
-                    if (albumInDb.Tabs != null)
+                    if (albumInDb.Tabs != null && albumInDb.Tabs.Count > 0)
                     {
                         order = Convert.ToInt32(albumInDb.Tabs.Max(t => t.Order)) + 1;
                     }

@@ -167,6 +167,17 @@ namespace TabRepository.Controllers
             {
                 string currentUserId = User.GetUserId();
 
+                // Since we're removing a project, we need to remove its contributor records first
+                var contributorsInDb = _context.ProjectContributors.Where(c => c.ProjectId == id).ToList();
+
+                if (contributorsInDb != null)
+                {
+                    foreach (ProjectContributor contributor in contributorsInDb)
+                    {
+                        _context.ProjectContributors.Remove(contributor);
+                    }
+                }
+
                 var projectInDb = _context.Projects.SingleOrDefault(p => p.Id == id && p.UserId == currentUserId);
 
                 // If current user does not have access to project or project does not exist

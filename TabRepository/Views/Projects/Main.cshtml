@@ -136,23 +136,40 @@
     <script src="~/lib/jquery-resizable/dist/jquery-resizable.min.js"></script>
 
     <script>
-    $(document).ready(function () {
-        $('hr').show();
-        $('footer').show();
+        $(document).ready(function () {
+            $('hr').show();
+            $('footer').show();
 
-        $(function () {
-            $(".jstree").jstree({
-                "core": {
-                    check_callback: true
-                }
+            $(function () {
+                $(".jstree").jstree({
+                    "core": {
+                        check_callback: true
+                    }
+                });
+            })
+
+            // Vertical resizing of treeviews
+            $(".treeWrapperTop").resizable({
+                handleSelector: ".splitter-horizontal",
+                resizeWidth: false
             });
 
-        })
+            // Horizontal resizing of treeviews and table
+            $(".treeWrapperContainer").resizable({
+                handleSelector: "#splitter",                
+                resizeHeight: false,
+                onDrag: function (e, $el, newWidth, newHeight, opt) {
+                    // limit box size
+                    if (newWidth > 500)
+                        newWidth = 500;
 
-        $(".treeWrapperTop").resizable({
-            handleSelector: ".splitter-horizontal",
-            resizeWidth: false
-        });
+                    $el.width(newWidth);
+
+                    // explicitly return **false** if you don't want
+                    // auto-height computation to occur
+                    return false;
+                }
+            });       
 
         var currentModal, selectedTree;
 
@@ -161,10 +178,10 @@
         // Tab: Tab versions table, Project: Empty table
         $(".jstree").on("select_node.jstree", function (e, data) {
             if ($(this).hasClass('ownerTree')) {
-                $('.contributorTree').jstree("deselect_all");                
+                $('.contributorTree').jstree("deselect_all");
             }
             else {
-                $('.ownerTree').jstree("deselect_all");              
+                $('.ownerTree').jstree("deselect_all");
             }
 
             selectedTree = $(this);

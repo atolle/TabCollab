@@ -17,10 +17,12 @@
 
 #splitter {
     width: 10px;
+    cursor: col-resize;
 }
 
 #tab-versions-table-container {
-    width:80%;
+    display: flex;
+    flex: 1 1 auto;
 }
 
 #new-tab-button-container {
@@ -39,6 +41,7 @@
 }
 
 .treeWrapperContainer {
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -63,7 +66,7 @@
 }
 
 .treeLabel {
-    background-color: dimgrey;
+    background-color: transparent;
     display: inline;
     border-radius: 0px 10px 0px 0px;
 }

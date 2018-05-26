@@ -26,49 +26,7 @@ namespace TabRepository.Controllers
         // GET: Friends
         public ActionResult Index()
         {
-            string currentUserId = User.GetUserId();
-
-            var friends = from u in _context.Users
-                        from f in _context.Friends.Where(f => (u.Id == f.User1Id && currentUserId == f.User2Id) || (u.Id == f.User2Id && currentUserId == f.User1Id))
-                        select new { u.Id, u.UserName, u.FirstName, u.LastName, u.ImageFilePath, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status };
-
-            List<FriendViewModel> viewModel = new List<FriendViewModel>();
-
-            foreach (var user in friends)
-            {
-                var vm = new FriendViewModel();
-
-                vm.Username = user.UserName;
-                vm.FirstName = user.FirstName;
-                vm.LastName = user.LastName;
-                vm.Status = user.Status;
-                vm.ImageFilePath = user.ImageFilePath;
-
-                if (user.User1Id != null && user.User2Id != null)
-                {
-                    if (user.ActingUserId == currentUserId)
-                    {
-                        vm.Direction = Direction.To;
-                    }
-                    else
-                    {
-                        vm.Direction = Direction.From;
-                    }
-                }
-
-                if (user.Id == currentUserId)
-                {
-                    vm.IsCurrentUser = true;
-                }
-                else
-                {
-                    vm.IsCurrentUser = false;
-                }
-
-                viewModel.Add(vm);
-            }
-
-            return View(viewModel);
+            return View();
         }
 
         public ApplicationUser GetCurrentUser()
@@ -346,6 +304,64 @@ namespace TabRepository.Controllers
                 }
 
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult GetFriendsListPartialView()
+        {
+            try
+            {
+                string currentUserId = User.GetUserId();
+
+                var friends = from u in _context.Users
+                              from f in _context.Friends.Where(f => (u.Id == f.User1Id && currentUserId == f.User2Id) || (u.Id == f.User2Id && currentUserId == f.User1Id))
+                              select new { u.Id, u.UserName, u.FirstName, u.LastName, u.ImageFilePath, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status };
+
+                List<FriendViewModel> viewModel = new List<FriendViewModel>();
+
+                foreach (var user in friends)
+                {
+                    if (user.Status == FriendStatus.Friends || user.Status == FriendStatus.Requested)
+                    {
+                        var vm = new FriendViewModel();
+
+                        vm.Username = user.UserName;
+                        vm.FirstName = user.FirstName;
+                        vm.LastName = user.LastName;
+                        vm.Status = user.Status;
+                        vm.ImageFilePath = user.ImageFilePath;
+
+                        if (user.User1Id != null && user.User2Id != null)
+                        {
+                            if (user.ActingUserId == currentUserId)
+                            {
+                                vm.Direction = Direction.To;
+                            }
+                            else
+                            {
+                                vm.Direction = Direction.From;
+                            }
+                        }
+
+                        if (user.Id == currentUserId)
+                        {
+                            vm.IsCurrentUser = true;
+                        }
+                        else
+                        {
+                            vm.IsCurrentUser = false;
+                        }
+
+                        viewModel.Add(vm);
+                    }
+                }
+
+                return PartialView("_FriendsList", viewModel);
             }
             catch
             {

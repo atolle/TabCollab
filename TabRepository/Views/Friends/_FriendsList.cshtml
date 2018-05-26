@@ -1,0 +1,43 @@
+﻿@model IEnumerable<TabRepository.ViewModels.FriendViewModel>
+
+<div class="row list-row">
+    @foreach (var user in Model)
+    {
+        <div class="col-md-4">
+            <div class="panel panel-default panel-profile">
+                <div class="panel-heading" style="background-image: url('@user.ImageFilePath');"></div>
+                <div class="panel-body text-center">
+                    <h3>@user.Username</h3>
+                    <p class="m-b">@user.FirstName @user.LastName</p>
+                    <div>
+                        @if (!@user.IsCurrentUser)
+                        {
+                            if (@user.Status == FriendStatus.None)
+                            {
+                                <a id="add-friend-button" data-username="@user.Username" class="btn btn-primary" href="@Url.Action("AddFriend", "Friends")">Add Friend</a>
+                            }
+                            else if (@user.Status == FriendStatus.Requested)
+                            {
+                                if (@user.Direction == Direction.To)
+                                {
+                                    <a class="btn btn-default pull-left disabled">Friend Request Sent</a>
+                                    <a id="cancel-request-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("CancelRequest", "Friends")">Cancel Request</a>
+                                }
+                                else
+                                {
+                                    <a id="accept-friend-button" data-username="@user.Username" class="btn btn-primary pull-left" href="@Url.Action("AcceptFriend", "Friends")">Accept Friend</a>
+                                    <a id="decline-friend-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("DeclineFriend", "Friends")">Decline Friend</a>
+                                }
+                            }
+                            else if (@user.Status == FriendStatus.Friends)
+                            {
+                                <a class="btn btn-success pull-left">Friends</a>
+                                <a id="remove-friend-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("RemoveFriend", "Friends")">Unfriend</a>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

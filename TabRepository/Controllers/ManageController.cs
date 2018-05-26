@@ -11,6 +11,10 @@ using TabRepository.Models;
 using TabRepository.Models.ManageViewModels;
 using TabRepository.Services;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using TabRepository.Helpers;
+using TabRepository.Data;
+using Microsoft.AspNetCore.Hosting;
 
 namespace TabRepository.Controllers
 {
@@ -23,19 +27,27 @@ namespace TabRepository.Controllers
         private readonly IEmailSender _emailSender;
         private readonly ISmsSender _smsSender;
         private readonly ILogger _logger;
+        private ApplicationDbContext _context;
+        private FileUploader _fileUploader;
+        private readonly IHostingEnvironment _appEnvironment;
 
         public ManageController(
           UserManager<ApplicationUser> userManager,
           SignInManager<ApplicationUser> signInManager,
           IEmailSender emailSender,
           ISmsSender smsSender,
-          ILoggerFactory loggerFactory)
+          ILoggerFactory loggerFactory,
+          ApplicationDbContext context, 
+          IHostingEnvironment appEnvironment)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _smsSender = smsSender;
             _logger = loggerFactory.CreateLogger<ManageController>();
+            _context = context;
+            _appEnvironment = appEnvironment;
+            _fileUploader = new FileUploader(context, appEnvironment);
         }
 
         //
@@ -57,13 +69,18 @@ namespace TabRepository.Controllers
             {
                 return View("Error");
             }
-            var model = new IndexViewModel
+            var model = new ManageViewModel
             {
                 HasPassword = await _userManager.HasPasswordAsync(user),
                 PhoneNumber = await _userManager.GetPhoneNumberAsync(user),
                 TwoFactor = await _userManager.GetTwoFactorEnabledAsync(user),
                 Logins = await _userManager.GetLoginsAsync(user),
-                BrowserRemembered = await _signInManager.IsTwoFactorClientRememberedAsync(user)
+                BrowserRemembered = await _signInManager.IsTwoFactorClientRememberedAsync(user),
+                Username = user.UserName,
+                Firstname = user.FirstName,
+                Lastname = user.LastName,
+                ImageFileName = user.ImageFileName,
+                ImageFilePath = user.ImageFilePath
             };
             return View(model);
         }
@@ -313,6 +330,31 @@ namespace TabRepository.Controllers
             var redirectUrl = Url.Action(nameof(LinkLoginCallback), "Manage");
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl, _userManager.GetUserId(User));
             return Challenge(properties, provider);
+        }
+
+        // POST: Projects
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveProfileImage(ManageViewModel viewModel)
+        {
+            if (!ModelState.IsValid)    // If not valid, set the view model to current customer
+            {                           // initialize membershiptypes and pass it back to same view
+                // Need to return JSON failure to form
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+
+            string currentUserId = User.GetUserId();
+
+            var user = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
+
+            string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, currentUserId, "Profile");
+
+            user.ImageFileName = viewModel.Image.FileName;
+            user.ImageFilePath = imageFilePath;
+
+            _context.SaveChanges();
+
+            return new JsonResult(new { user.ImageFilePath }); 
         }
 
         //

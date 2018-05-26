@@ -12,8 +12,15 @@ namespace TabRepository.Models
     public class ApplicationUser : IdentityUser
     {
         public string FirstName { get; set; }
+
         public string LastName { get; set; }
+
         public string Bio { get; set; }
+
+        public string ImageFileName { get; set; }
+
+        public string ImageFilePath { get; set; }
+
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             var authenticationType = "Put authentication type Here";

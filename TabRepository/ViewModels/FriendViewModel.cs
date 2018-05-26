@@ -23,5 +23,7 @@ namespace TabRepository.ViewModels
         public Direction Direction { get; set; }
 
         public bool IsCurrentUser { get; set; }
+
+        public string ImageFilePath { get; set; }
     }
 }

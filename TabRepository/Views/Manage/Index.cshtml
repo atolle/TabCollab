@@ -1,4 +1,4 @@
-﻿@model IndexViewModel
+﻿@model ManageViewModel
 @{
     ViewData["Title"] = "Manage your account";
 }
@@ -6,66 +6,73 @@
 <h2>@ViewData["Title"].</h2>
 <p class="text-success">@ViewData["StatusMessage"]</p>
 
-<div>
-    <h4>Change your account settings</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>Password:</dt>
-        <dd>
-            @if (Model.HasPassword)
-            {
-                <a asp-controller="Manage" asp-action="ChangePassword" class="btn-bracketed">Change</a>
-            }
-            else
-            {
-                <a asp-controller="Manage" asp-action="SetPassword" class="btn-bracketed">Create</a>
-            }
-        </dd>
-        <dt>External Logins:</dt>
-        <dd>
-
-            @Model.Logins.Count <a asp-controller="Manage" asp-action="ManageLogins" class="btn-bracketed">Manage</a>
-        </dd>
-        <dt>Phone Number:</dt>
-        <dd>
-            <p>
-                Phone Numbers can be used as a second factor of verification in two-factor authentication.
-                See <a href="https://go.microsoft.com/fwlink/?LinkID=532713">this article</a>
-                for details on setting up this ASP.NET application to support two-factor authentication using SMS.
-            </p>
-            @*@(Model.PhoneNumber ?? "None")
-                @if (Model.PhoneNumber != null)
-                {
-                    <br />
-                    <a asp-controller="Manage" asp-action="AddPhoneNumber" class="btn-bracketed">Change</a>
-                    <form asp-controller="Manage" asp-action="RemovePhoneNumber" method="post">
-                        [<button type="submit" class="btn-link">Remove</button>]
-                    </form>
-                }
-                else
-                {
-                    <a asp-controller="Manage" asp-action="AddPhoneNumber" class="btn-bracketed">Add</a>
-                }*@
-        </dd>
-
-        <dt>Two-Factor Authentication:</dt>
-        <dd>
-            <p>
-                There are no two-factor authentication providers configured. See <a href="https://go.microsoft.com/fwlink/?LinkID=532713">this article</a>
-                for setting up this application to support two-factor authentication.
-            </p>
-            @*@if (Model.TwoFactor)
-                {
-                    <form asp-controller="Manage" asp-action="DisableTwoFactorAuthentication" method="post" class="form-horizontal">
-                        Enabled <button type="submit" class="btn-link btn-bracketed">Disable</button>
-                    </form>
-                }
-                else
-                {
-                    <form asp-controller="Manage" asp-action="EnableTwoFactorAuthentication" method="post" class="form-horizontal">
-                        <button type="submit" class="btn-link btn-bracketed">Enable</button> Disabled
-                    </form>
-                }*@
-        </dd>
-    </dl>
+<div id="page">
+    <div>
+        <h4>Change your account settings</h4>
+        <hr />
+        <div class="panel panel-default panel-profile">
+            <div id="profile-image" class="panel-heading" style="background-image: url('@Model.ImageFilePath');"></div>
+            <div class="panel-body text-center">
+                <h3>@Model.Username</h3>
+            </div>
+        </div>
+        <form id="project-form" asp-controller="Manage" asp-action="SaveProfileImage" data-ajax="true" data-ajax-method="POST">
+            @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
+            <div class="form-group">
+                @Html.LabelFor(m => m.Image)
+                @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default" })
+                @Html.ValidationMessageFor(m => m.Image)
+            </div>
+            <button type="submit" class="btn btn-primary button-save disabled" form="project-form"> Save</button>
+        </form>
+        @if (Model.HasPassword)
+        {
+            <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default">Change Password</a>
+        }
+        else
+        {
+            <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default">Create Password</a>
+        }
+    </div>
 </div>
+@section scripts
+    {
+    <script>
+        var submitButton = $('.button-save');
+
+        $("#Image").on("change", function (e, data) {
+            submitButton[0].classList.remove("disabled");
+        });
+
+        $("#page").on("submit", function (e, data) {
+            e.preventDefault();
+
+            var form = e.target;
+            var formData = new FormData(form);
+
+            // Show spinner on save button
+            //$($(document.activeElement)[0]).html('<div class="loader"></div>');
+
+            var submitButtonHtml = submitButton.html();
+            // Show spinner on submit button and disable it
+            submitButton.html('<div class="loader"></div>');
+
+            $.ajax({
+                url: form.action,
+                type: 'POST',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false
+            })
+                .then(function (response) {
+                    submitButton.html(submitButtonHtml);
+                    $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
+                })
+                .fail(function (error) {
+                    bootbox.alert("Unable to save profile image. Error: " + error.statusText);
+                    submitButton.html(submitButtonHtml);
+                })
+        });
+    </script>
+}

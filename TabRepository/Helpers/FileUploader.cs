@@ -17,10 +17,11 @@ namespace TabRepository.Helpers
             _appEnvironment = appEnvironment;
         }
 
-        public async Task UploadFileToFileSystem(IFormFile file, string userId, string folderId)
+        public async Task<string> UploadFileToFileSystem(IFormFile file, string userId, string folderId)
         {
             // Path to webroot\images\userId\folderId (i.e. webroot\images\1234\Project1)
-            var userFolderPath = _appEnvironment.WebRootPath + "\\images\\" + userId + "\\" + folderId;
+            string relativePath = "\\images\\" + userId + "\\" + folderId;
+            string userFolderPath = _appEnvironment.WebRootPath + relativePath;
 
             if (!Directory.Exists(userFolderPath))
             {
@@ -28,13 +29,19 @@ namespace TabRepository.Helpers
             }
 
             string filePath = userFolderPath + "\\" + file.FileName;
+            relativePath += "\\" + file.FileName;
 
             if (file.Length > 0)
             {
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
+                    return relativePath.Replace("\\", "/");
                 }
+            }
+            else
+            {
+                return "";
             }
         }
     }

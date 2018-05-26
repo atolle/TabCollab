@@ -30,7 +30,7 @@ namespace TabRepository.Controllers
 
             var friends = from u in _context.Users
                         from f in _context.Friends.Where(f => (u.Id == f.User1Id && currentUserId == f.User2Id) || (u.Id == f.User2Id && currentUserId == f.User1Id))
-                        select new { u.Id, u.UserName, u.FirstName, u.LastName, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status };
+                        select new { u.Id, u.UserName, u.FirstName, u.LastName, u.ImageFilePath, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status };
 
             List<FriendViewModel> viewModel = new List<FriendViewModel>();
 
@@ -42,6 +42,7 @@ namespace TabRepository.Controllers
                 vm.FirstName = user.FirstName;
                 vm.LastName = user.LastName;
                 vm.Status = user.Status;
+                vm.ImageFilePath = user.ImageFilePath;
 
                 if (user.User1Id != null && user.User2Id != null)
                 {
@@ -92,7 +93,7 @@ namespace TabRepository.Controllers
             var users = from u in _context.Users
                         from f in _context.Friends.Where(f => (u.Id == f.User1Id && currentUserId == f.User2Id) || (u.Id == f.User2Id && currentUserId == f.User1Id)).DefaultIfEmpty()
                         where u.UserName.Contains(search)
-                        select new { u.Id, u.UserName, u.FirstName, u.LastName, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status };
+                        select new { u.Id, u.UserName, u.FirstName, u.LastName, u.ImageFilePath, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status };
 
             List < FriendViewModel > viewModel = new List<FriendViewModel>();
 
@@ -104,6 +105,7 @@ namespace TabRepository.Controllers
                 vm.FirstName = user.FirstName;
                 vm.LastName = user.LastName;
                 vm.Status = user.Status;
+                vm.ImageFilePath = user.ImageFilePath;
                 
                 if (user.User1Id != null && user.User2Id != null)
                 {

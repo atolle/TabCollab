@@ -208,7 +208,7 @@ namespace TabRepository.Controllers
             return _context.Users.FirstOrDefault(u => u.Id == currentUserId);
         }
 
-        public ActionResult Main()
+        public ActionResult Dashboard()
         {
             string currentUserId = User.GetUserId();
 

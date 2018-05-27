@@ -182,15 +182,15 @@ $(document).ready(function () {
             contentType: false,
             processData: false
         })
-            .then(function (response) {
-                currentModal.modal('hide');
-                // Call GetProjectListPartialView to repopulate the project list
-                repopulateProjectList();
-            })
-            .fail(function (error) {
-                currentModal.modal('hide');
-                bootbox.alert("Unable to save project. Error: " + error.statusText);
-            })
+        .then(function (response) {
+            currentModal.modal('hide');
+            // Call GetProjectListPartialView to repopulate the project list
+            repopulateProjectList();
+        })
+        .fail(function (error) {
+            currentModal.modal('hide');
+            bootbox.alert("Unable to save project. Error: " + error.statusText);
+        })
     });
 
     function repopulateProjectList() {

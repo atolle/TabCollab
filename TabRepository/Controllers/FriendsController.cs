@@ -256,6 +256,42 @@ namespace TabRepository.Controllers
                     {
                         friendInDb.Status = FriendStatus.None;
 
+                        // Friend needs to be removed from all project for which they were a contributor
+                        var currentUserProjects = _context.Projects.Where(p => p.UserId == currentUserId).ToList();
+                        var otherUserProjects = _context.Projects.Where(p => p.UserId == otherUserId).ToList();
+
+                        // Remove other user from current user's projects
+                        if (currentUserProjects != null)
+                        {
+                            foreach (Project project in currentUserProjects)
+                            {
+                                var contributorProjects = _context
+                                    .ProjectContributors
+                                    .Where(c => c.ProjectId == project.Id && c.UserId == otherUserId).ToList();
+
+                                foreach (ProjectContributor contributor in contributorProjects)
+                                {
+                                    _context.ProjectContributors.Remove(contributor);
+                                }
+                            }
+                        }
+
+                        // Remove current user from other user's projects
+                        if (otherUserProjects != null)
+                        {
+                            foreach (Project project in otherUserProjects)
+                            {
+                                var contributorProjects = _context
+                                    .ProjectContributors
+                                    .Where(c => c.ProjectId == project.Id && c.UserId == currentUserId).ToList();
+
+                                foreach (ProjectContributor contributor in contributorProjects)
+                                {
+                                    _context.ProjectContributors.Remove(contributor);
+                                }
+                            }
+                        }
+
                         _context.Friends.Update(friendInDb);
                         _context.SaveChanges();
                     }

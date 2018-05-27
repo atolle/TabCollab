@@ -287,7 +287,7 @@ namespace TabRepository.Controllers
                         .Select(p => new UserViewModel { Username = p.User.UserName, FirstName =  p.User.FirstName, LastName = p.User.LastName }).ToList();
 
                     var friends = _context.Friends
-                        .Where(f => f.User1Id == currentUserId || f.User2Id == currentUserId)
+                        .Where(f => (f.User1Id == currentUserId || f.User2Id == currentUserId) && f.Status == FriendStatus.Friends)
                         .Select(f => f.User1Id == currentUserId ? f.User2 : f.User1).ToList();
 
 
@@ -312,7 +312,7 @@ namespace TabRepository.Controllers
                 try
                 {
                     var friends = _context.Friends
-                        .Where(f => f.User1Id == currentUserId || f.User2Id == currentUserId)
+                        .Where(f => (f.User1Id == currentUserId || f.User2Id == currentUserId) && f.Status == FriendStatus.Friends)
                         .Select(f => f.User1Id == currentUserId ? f.User2 : f.User1).ToList();
 
                     var viewModel = new ProjectFormViewModel()

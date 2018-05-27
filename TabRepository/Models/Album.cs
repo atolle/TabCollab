@@ -16,6 +16,8 @@ namespace TabRepository.Models
 
         public string ImageFileName { get; set; }
 
+        public string ImageFilePath { get; set; }
+
         [Required]
         [Display(Name = "Album Name")]
         [StringLength(255)]

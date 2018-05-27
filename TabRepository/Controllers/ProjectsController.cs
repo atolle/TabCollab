@@ -68,6 +68,10 @@ namespace TabRepository.Controllers
                         ImageFileName = viewModel.Image.FileName
                     };
 
+                    string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + project.Id.ToString());
+
+                    project.ImageFilePath = imageFilePath;
+
                     _context.Projects.Add(project);
                     _context.SaveChanges();
 
@@ -86,9 +90,7 @@ namespace TabRepository.Controllers
                         }
                     }
 
-                    _context.SaveChanges();
-
-                    await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + project.Id.ToString());
+                    _context.SaveChanges();                    
 
                     return Json(new { name = project.Name, id = project.Id });
                 }
@@ -109,7 +111,8 @@ namespace TabRepository.Controllers
                     if (viewModel.Image != null)
                     {
                         projectInDb.ImageFileName = viewModel.Image.FileName;
-                        await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + projectInDb.Id.ToString());
+                        string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + projectInDb.Id.ToString());
+                        projectInDb.ImageFilePath = imageFilePath;
                     }
 
                     // Add new contributors, remove any that were removed
@@ -245,7 +248,7 @@ namespace TabRepository.Controllers
                         Name = project.Name,
                         Owner = project.User.UserName,
                         ImageFileName = project.ImageFileName,
-                        ImageFilePath = "/images/" + project.UserId + "/Project" + project.Id + "/" + project.ImageFileName,
+                        ImageFilePath = project.ImageFilePath,
                         DateCreated = project.DateCreated,
                         DateModified = project.DateModified,
                         User = project.User,
@@ -357,7 +360,7 @@ namespace TabRepository.Controllers
                     Name = project.Name,
                     Owner = project.User.UserName,
                     ImageFileName = project.ImageFileName,
-                    ImageFilePath = "/images/" + project.UserId + "/Project" + project.Id + "/" + project.ImageFileName,
+                    ImageFilePath = project.ImageFilePath,
                     DateCreated = project.DateCreated,
                     DateModified = project.DateModified,
                     User = project.User,
@@ -400,7 +403,7 @@ namespace TabRepository.Controllers
                     Name = proj.Name,
                     Owner = proj.User.UserName,
                     ImageFileName = proj.ImageFileName,
-                    ImageFilePath = "/images/" + proj.UserId + "/Project" + proj.Id + "/" + proj.ImageFileName,
+                    ImageFilePath = proj.ImageFilePath,
                     DateCreated = proj.DateCreated,
                     DateModified = proj.DateModified,
                     User = proj.User,

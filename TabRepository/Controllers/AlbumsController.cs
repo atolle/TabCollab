@@ -97,10 +97,12 @@ namespace TabRepository.Controllers
                         ImageFileName = viewModel.Image.FileName
                     };
 
-                    _context.Albums.Add(album);
-                    _context.SaveChanges();
+                    string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, projectInDb.UserId, "Album" + album.Id.ToString());
 
-                    await _fileUploader.UploadFileToFileSystem(viewModel.Image, projectInDb.UserId, "Album" + album.Id.ToString());
+                    album.ImageFilePath = imageFilePath;
+
+                    _context.Albums.Add(album);
+                    _context.SaveChanges();                    
 
                     return Json(new { name = album.Name, id = album.Id });
                 }
@@ -121,7 +123,8 @@ namespace TabRepository.Controllers
                     if (viewModel.Image != null)
                     {
                         albumInDb.ImageFileName = viewModel.Image.FileName;
-                        await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Album" + albumInDb.Id.ToString());
+                        string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Album" + albumInDb.Id.ToString());
+                        albumInDb.ImageFilePath = imageFilePath;
                     }
 
                     _context.Albums.Update(albumInDb);
@@ -267,7 +270,7 @@ namespace TabRepository.Controllers
                             ProjectId = album.Project.Id,
                             ProjectName = album.Project.Name,
                             ImageFileName = album.ImageFileName,
-                            ImageFilePath = "/images/" + album.UserId + "/Album" + album.Id + "/" + album.ImageFileName,
+                            ImageFilePath = album.ImageFilePath,
                             DateCreated = album.DateCreated,
                             DateModified = album.DateModified,
                             User = album.User,
@@ -309,7 +312,7 @@ namespace TabRepository.Controllers
                             ProjectId = album.Project.Id,
                             ProjectName = album.Project.Name,
                             ImageFileName = album.ImageFileName,
-                            ImageFilePath = "/images/" + album.UserId + "/Album" + album.Id + "/" + album.ImageFileName,
+                            ImageFilePath = album.ImageFilePath,
                             DateCreated = album.DateCreated,
                             DateModified = album.DateModified,
                             User = album.User,
@@ -366,7 +369,7 @@ namespace TabRepository.Controllers
                             ProjectId = album.Project.Id,
                             ProjectName = album.Project.Name,
                             ImageFileName = album.ImageFileName,
-                            ImageFilePath = "/images/" + album.UserId + "/Album" + album.Id + "/" + album.ImageFileName,
+                            ImageFilePath = album.ImageFilePath,
                             DateCreated = album.DateCreated,
                             DateModified = album.DateModified,
                             User = album.User,
@@ -408,7 +411,7 @@ namespace TabRepository.Controllers
                             ProjectId = album.Project.Id,
                             ProjectName = album.Project.Name,
                             ImageFileName = album.ImageFileName,
-                            ImageFilePath = "/images/" + album.UserId + "/Album" + album.Id + "/" + album.ImageFileName,
+                            ImageFilePath = album.ImageFilePath,
                             DateCreated = album.DateCreated,
                             DateModified = album.DateModified,
                             User = album.User,

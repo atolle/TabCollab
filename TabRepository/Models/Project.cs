@@ -19,6 +19,8 @@ namespace TabRepository.Models
 
         public string ImageFileName { get; set; }
 
+        public string ImageFilePath { get; set; }
+
         public DateTime DateCreated { get; set; }
 
         public DateTime DateModified { get; set; }

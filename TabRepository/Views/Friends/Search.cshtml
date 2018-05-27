@@ -8,6 +8,7 @@
     <p></p>
     <p></p>
     <div class="row list-row">
+        @{ int i = 1; }
         @foreach (var user in Model)
         {
             <div class="col-md-4">
@@ -16,7 +17,7 @@
                     <div class="panel-body text-center">
                         <h3>@user.Username</h3>
                         <p class="m-b">@user.FirstName @user.LastName</p>
-                        <div>   
+                        <div>
                             @if (!@user.IsCurrentUser)
                             {
                                 if (@user.Status == FriendStatus.None)
@@ -46,6 +47,11 @@
                     </div>
                 </div>
             </div>
+            if (i % 3 == 0)
+            {
+                <div class="clearfix"></div>
+            }
+            i++;
         }
     </div>
 </div>

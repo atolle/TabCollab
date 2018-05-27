@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<TabRepository.ViewModels.FriendViewModel>
 
 <div class="row list-row">
+    @{ int i = 1; }
     @foreach (var user in Model)
     {
         <div class="col-md-4">
@@ -39,5 +40,10 @@
                 </div>
             </div>
         </div>
+        if (i % 3 == 0)
+        {
+            <div class="clearfix"></div>
+        }
+        i++;
     }
 </div>

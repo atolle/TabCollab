@@ -83,6 +83,10 @@ textarea {
     padding: 10px 15px;
 }
 
+.panel {
+    max-width: 300px;
+}
+
 .panel-profile-img {
     max-width: 100px;
     margin-top: -70px;

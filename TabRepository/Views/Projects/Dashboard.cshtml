@@ -455,12 +455,12 @@
                     $.get(url, function (data) {
                         $('#tab-versions-table-container').empty().append(data);
                     });
-                    var currentNode = $(selectedTree).jstree().get_selected(true)[0];
+                    var currentNode = $('.ownerTree').jstree().get_selected(true)[0];
                     if (currentNode != null) {
-                        $(selectedTree).jstree().deselect_node(currentNode.id, false, false);
+                        $('.ownerTree').jstree().deselect_node(currentNode.id, false, false);
                     }
-                    $(selectedTree).jstree().create_node("#", { id: "project " + response.id, text: response.name }, "last", false, false);
-                    $(selectedTree).jstree().select_node("project " + response.id, false, false);
+                    $('.ownerTree').jstree().create_node("#", { id: "project " + response.id, text: response.name }, "last", false, false);
+                    $('.ownerTree').jstree().select_node("project " + response.id, false, false);
                 }
             })
             .fail(function (error) {

@@ -221,12 +221,15 @@ namespace TabRepository.Controllers
                     .Include(p => p.Albums)
                     .ThenInclude(a => a.Tabs)
                     .Include(u => u.User)
-                    .Where(p => p.UserId == currentUserId).ToList();
+                    .Where(p => p.UserId == currentUserId)
+                    .OrderBy(p => p.Name)
+                    .ToList();
 
                 // Find projects for which user is contributor
                 var contributorProjects = _context.ProjectContributors                    
                     .Where(c => c.UserId == currentUserId)
                     .Select(c => c.Project)
+                    .OrderBy(p => p.Name)
                     .Include(p => p.Albums)
                     .ThenInclude(a => a.Tabs)
                     .Include(u => u.User).ToList();

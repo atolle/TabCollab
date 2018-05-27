@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,6 +11,7 @@ using TabRepository.ViewModels;
 
 namespace TabRepository.Controllers
 {
+    [Authorize]
     public class FriendsController : Controller
     {
         private ApplicationDbContext _context;

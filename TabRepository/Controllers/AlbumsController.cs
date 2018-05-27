@@ -93,13 +93,15 @@ namespace TabRepository.Controllers
                         Name = viewModel.Name,
                         Description = viewModel.Description,
                         DateCreated = DateTime.Now,
-                        DateModified = DateTime.Now,
-                        ImageFileName = viewModel.Image.FileName
+                        DateModified = DateTime.Now
                     };
 
-                    string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, projectInDb.UserId, "Album" + album.Id.ToString());
-
-                    album.ImageFilePath = imageFilePath;
+                    if (viewModel.Image != null)
+                    {
+                        album.ImageFileName = viewModel.Image.FileName;
+                        string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, projectInDb.UserId, "Album" + album.Id.ToString());
+                        album.ImageFilePath = imageFilePath;
+                    }
 
                     _context.Albums.Add(album);
                     _context.SaveChanges();                    

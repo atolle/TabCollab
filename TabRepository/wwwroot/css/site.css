@@ -226,8 +226,28 @@ textarea {
 }
 
 .tab-panel {
-    background-color: #19262B;
+    /*background-color: #19262B;*/
+    background-color: rgb(66,66,66);
     margin-bottom: 5px;
+    color: white;
+}
+
+.white-icon {
+    color: white;
+}
+
+.white-icon:hover {
+    color: white;
+    opacity: .5;
+}
+
+.white-icon:focus {
+    color: white;
+}
+
+.list-icon {
+    margin-left: 15px;
+    margin-right: 15px;
 }
 
 .selection-panel {

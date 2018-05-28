@@ -23,13 +23,13 @@
                                         <p>@tab.Name</p>
                                         @if (album.IsOwner)
                                         {
-                                            <a id="new-tab-version-button" data-toggle="tooltip" title="Add new tab version" class="btn btn-primary pull-left" data-tab-id="@tab.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")"><i class="fa fa-plus" /></a>
-                                            <a id="edit-tab-button" data-toggle="tooltip" title="Edit tab" class="btn btn-default" data-album-id="@tab.AlbumId" data-tab-id="@tab.Id" href="@Url.Action("GetTabFormPartialView", "Tabs")"><i class="fa fa-pencil edit-button-icon"></i></a>
-                                            <a id="delete-tab-button" data-toggle="tooltip" title="Delete tab" class="btn btn-danger pull-right" href="@Url.Action("Delete", "Tabs", new { id = tab.Id })"><i class="fa fa-times" /></a>
+                                            <a id="new-tab-version-button" data-toggle="tooltip" title="Add new tab version" class="list-icon pull-left white-icon" data-tab-id="@tab.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")"><i class="fa fa-plus fa-lg" /></a>
+                                            <a id="edit-tab-button" data-toggle="tooltip" title="Edit tab" class="list-icon white-icon" data-album-id="@tab.AlbumId" data-tab-id="@tab.Id" href="@Url.Action("GetTabFormPartialView", "Tabs")"><i class="fa fa-pencil fa-lg"></i></a>
+                                            <a id="delete-tab-button" data-toggle="tooltip" title="Delete tab" class="list-icon pull-right white-icon" href="@Url.Action("Delete", "Tabs", new { id = tab.Id })"><i class="fa fa-times fa-lg" /></a>
                                         }
                                         else
                                         {
-                                            <a id="new-tab-version-button" data-toggle="tooltip" title="Add new tab version" class="btn btn-primary" data-tab-id="@tab.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")"><i class="fa fa-plus" /></a>
+                                            <a id="new-tab-version-button" data-toggle="tooltip" title="Add new tab version" class="list-icon white-icon" data-tab-id="@tab.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")"><i class="fa fa-plus fa-lg" /></a>
                                         }
                                     </div>
                                 </div>

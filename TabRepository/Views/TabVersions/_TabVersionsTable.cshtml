@@ -24,22 +24,22 @@
                 <td>@t.TabVersion.DateCreated.ToString("g")</td>
                 <td>@t.TabVersion.Version</td>
                 <td align="center" style="vertical-align: middle;">
-                    <a href="@Url.Action("Download", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-download" /></a>
+                    <a class="white-icon" href="@Url.Action("Download", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-download fa-lg" /></a>
                 </td>
                 @if (System.IO.Path.GetExtension(t.TabVersion.TabFile.Name).Contains(".gp"))
                 {
                     <td align="center" style="vertical-align: middle;">
-                        <a href="@Url.Action("Player", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-play" /></a>
+                        <a class="white-icon" href="@Url.Action("Player", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-play fa-lg" /></a>
                     </td>
                 }
                 else
                 {
-                    <td align="center" style="vertical-align: middle;"><i class="fa fa-play" style="display: none;" /></td>
+                    <td class="white-icon" align="center" style="vertical-align: middle;"><i class="fa fa-play" style="display: none;" /></td>
                 }
                 <td align="center" style="vertical-align: middle;">
                     @if (t.IsOwner)
                     {
-                        <a id="delete-tabversion-button" href="@Url.Action("Delete", "TabVersions", new { id = t.TabVersion.Id })"><i class="fa fa-times" /></a>
+                        <a id="delete-tabversion-button" class="white-icon" href="@Url.Action("Delete", "TabVersions", new { id = t.TabVersion.Id })"><i class="fa fa-times fa-lg" /></a>
                     }
                 </td>
             </tr>

@@ -5,7 +5,7 @@
 
 <div id="page">
     <div class="buttons-container">
-        <a id="new-tab-button" data-toggle="tooltip" title="Add new tab" class="btn btn-primary pull-left" href="@Url.Action("GetProjectSelectionPartialView", "Projects")"><i class="fa fa-plus"></i></a>
+        <a id="new-tab-button" data-toggle="tooltip" title="Add new tab" class="white-icon pull-left" href="@Url.Action("GetProjectSelectionPartialView", "Projects")"><i class="fa fa-plus fa-2x"></i></a>
     </div>
 
     <div class="list-loader"></div>
@@ -39,7 +39,7 @@ $(document).ready(function () {
             $('.list-loader').remove();
             $('hr').show();
             $('footer').show();
-            $('[data-toggle="tooltip"]').tooltip();
+            $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
         })
         .catch(function (error) {
             bootbox.alert("Unable to load tabs. Error: " + error.statusText);
@@ -139,7 +139,7 @@ $(document).ready(function () {
     });
 
     $("#page").on("click", ".show-items-icon-container", function (e, data) {
-        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
 
         var that = this;
 

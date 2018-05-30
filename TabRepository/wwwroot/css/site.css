@@ -78,6 +78,19 @@ textarea {
     top: 100%;
 }
 
+.navbar-fixed-top .navbar-collapse {
+    max-height: 600px !important;
+}
+
+.navbar-collapse.in {
+    overflow-y: unset !important;
+}
+
+.list-group-item {
+    background-color: rgb(66,66,66) !important;
+    color: white !important;
+}
+
 .search-results li {
     height: 40px;
     padding: 10px 15px;

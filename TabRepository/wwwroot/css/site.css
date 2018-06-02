@@ -276,7 +276,7 @@ textarea {
 }
 
 .modal-dialog {
-    width: 25%;
+    max-width: 325px;
 }
 
 .tab-panel-row {

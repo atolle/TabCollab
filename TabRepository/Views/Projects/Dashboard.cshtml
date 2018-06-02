@@ -159,9 +159,18 @@
                 handleSelector: "#splitter",                
                 resizeHeight: false,
                 onDrag: function (e, $el, newWidth, newHeight, opt) {
-                    // limit box size
-                    if (newWidth > 500)
-                        newWidth = 500;
+                    if ($(document).width() < 700) {
+                        // limit box size
+                        if (newWidth > 200) {
+                            newWidth = 200;
+                        }
+                    }
+                    else {
+                        // limit box size
+                        if (newWidth > 500) {
+                            newWidth = 500;
+                        }
+                    }
 
                     $el.width(newWidth);
 

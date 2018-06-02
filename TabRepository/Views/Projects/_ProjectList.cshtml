@@ -4,7 +4,7 @@
     @{ int i = 1; }
     @foreach (var project in Model)
     {
-        <div class="col-md-4">
+        <div class="col-md-4" align="center">
             <div class="panel panel-default panel-profile">
                 <div class="panel-heading" style="background-image: url('@project.ImageFilePath');"></div>
                 <div class="panel-body text-center">
@@ -15,8 +15,8 @@
                         <div class="show-items-icon-container">
                             <i class="fa fa-chevron-down show-buttons-icon"></i>
                         </div>
-                        <div class="item-container">                                                    
-                            <a id="edit-project-button" style="visibility: hidden;" data-toggle="tooltip" title="Edit project" class="list-icon pull-left white-icon" href="@Url.Action("GetProjectFormPartialView", "Projects", new { id = project.Id })"><i class="fa fa-pencil fa-lg" /></a>                           
+                        <div class="item-container">
+                            <a id="edit-project-button" style="visibility: hidden;" data-toggle="tooltip" title="Edit project" class="list-icon pull-left white-icon" href="@Url.Action("GetProjectFormPartialView", "Projects", new { id = project.Id })"><i class="fa fa-pencil fa-lg" /></a>
                             <a id="delete-project-button" style="visibility: hidden;" data-toggle="tooltip" title="Delete project" class="list-icon pull-right white-icon" href="@Url.Action("Delete", "Projects", new { id = project.Id })"><i class="fa fa-times fa-lg" /></a>
                         </div>
                         <div class="hide-items-icon-container">
@@ -33,3 +33,4 @@
         i++;
     }
 </div>
+

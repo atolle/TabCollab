@@ -264,7 +264,7 @@ textarea {
 }
 
 .selection-panel {
-    background-color: #19262B;
+    background-color: rgb(66,66,66);
 }
 
 .selection-panel:active {

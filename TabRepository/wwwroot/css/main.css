@@ -18,6 +18,7 @@
 #splitter {
     width: 10px;
     cursor: col-resize;
+    min-width: 10px;
 }
 
 #tab-versions-table-container {

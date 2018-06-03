@@ -16,8 +16,8 @@
             </li>
         </ul>
     </form>
-    <form id="search-form" class="navbar-left navbar-form search-form" asp-controller="Friends" asp-action="Search" method="get" autocomplete="off">
-        <div class="input-group">
+    <div class="input-group">
+        <form id="search-form" class="navbar-left navbar-form search-form" asp-controller="Friends" asp-action="Search" method="get" autocomplete="off">
             <input type="text" class="form-control" placeholder="Search" name="search">
             <div class="input-group-btn">
                 <button type="submit" class="btn btn-default search-btn">
@@ -25,8 +25,8 @@
                 </button>
             </div>
             <ul class="list-group search-results"></ul>
-        </div>
-    </form>
+        </form>
+    </div>
 }
 else
 {

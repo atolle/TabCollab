@@ -26,23 +26,23 @@
         <div class="treeWrapperContainer">
             <b><span class="treeLabel">My Projects</span></b>
             <div class="treeWrapperTop">
-                <div class="jstree ownerTree">
+                <div class="jstree ownerTree" jstree-type="owner">
                     @foreach (var project in Model)
                     {
                         @if (project.IsOwner)
                         {
                             <ul>
-                                <li id="project @project.Id">
+                                <li id="project-@project.Id" jstree-type="owner">
                                     @project.Name
                                     @foreach (var album in project.Albums)
                                     {
                                         <ul>
-                                            <li id="album @album.Id" data-jstree='{"icon":"/images/cd(16x12).png"}'>
+                                            <li id="album-@album.Id" jstree-type="owner" data-jstree='{"icon":"/images/cd(16x12).png"}'>
                                                 @album.Name
                                                 @foreach (var tab in album.Tabs)
                                                 {
                                                     <ul>
-                                                        <li id="tab @tab.Id" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>@tab.Name</li>
+                                                        <li id="tab-@tab.Id" jstree-type="owner" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>@tab.Name</li>
                                                     </ul>
                                                 }
                                             </li>
@@ -57,23 +57,23 @@
             <div class="splitter-horizontal"></div>
             <b><span class="treeLabel">Contributor Projects</span></b>
             <div class="treeWrapperBottom">
-                <div class="jstree contributorTree">
+                <div class="jstree contributorTree" jstree-type="contributor">
                     @foreach (var project in Model)
                     {
                         @if (!project.IsOwner)
                         {
                             <ul>
-                                <li id="project @project.Id">
+                                <li id="project-@project.Id" jstree-type="contributor">
                                     @project.Name
                                     @foreach (var album in project.Albums)
                                     {
                                         <ul>
-                                            <li id="album @album.Id" data-jstree='{"icon":"/images/cd(16x12).png"}'>
+                                            <li id="album-@album.Id" jstree-type="contributor" data-jstree='{"icon":"/images/cd(16x12).png"}'>
                                                 @album.Name
                                                 @foreach (var tab in album.Tabs)
                                                 {
                                                     <ul>
-                                                        <li id="tab @tab.Id" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>@tab.Name</li>
+                                                        <li id="tab-@tab.Id" jstree-type="contributor" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>@tab.Name</li>
                                                     </ul>
                                                 }
                                             </li>
@@ -143,8 +143,36 @@
             $(function () {
                 $(".jstree").jstree({
                     "core": {
-                        check_callback: true
-                    }
+                        "check_callback": function (operation, node, node_parent, node_position, more) {
+                            if (operation == 'move_node') {
+                                if (node_parent.id == '#') {                                    
+                                    return false;
+                                }
+                                // Don't allow nodes to be moved between trees
+                                else if ((node.li_attr['jstree-type'].includes('owner') && node_parent.li_attr['jstree-type'].includes('contributor')) || (node.li_attr['jstree-type'].includes('contributor') && node_parent.li_attr['jstree-type'].includes('owner'))) {
+                                    return false;
+                                } else {
+                                    if (node.id.includes('album') && !node_parent.id.includes('project')) {
+                                        return false;
+                                    }
+                                    else if (node.id.includes('tab') && !node_parent.id.includes('album')) {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
+                        }
+                    },
+                    "dnd": {
+                        "is_draggable": function (node) {
+                            // Don't allow users to move projects or any node in the contributor tree
+                            if (node[0].id.includes('project') || node[0].li_attr['jstree-type'].includes('contributor')) {
+                                return false;
+                            }                      
+                            return true;
+                        }
+                    },
+                    "plugins": ["dnd"]
                 });
             })
 
@@ -432,10 +460,15 @@
 
                     // Create new tab node and select it - expand and deselect project node
                     var currentNode = $(selectedTree).jstree().get_selected(true)[0];
-                    $(selectedTree).jstree().open_node(currentNode.id, false, false);
-                    $(selectedTree).jstree().create_node(currentNode.id, { id: "tab " + response.id, text: response.name, icon: "/images/eighthnote(16x23).png"  }, "last", false, false);
+                    $(selectedTree).jstree().open_node(currentNode.id, false, false);                    
+                    if ($(selectedTree)[0].className.includes('ownerTree')) {
+                        $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
+                    }
+                    else {
+                        $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "contributor" }, text: response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
+                    }
                     $(selectedTree).jstree().deselect_node(currentNode.id, false, false);
-                    $(selectedTree).jstree().select_node("tab " + response.id, false, false);
+                    $(selectedTree).jstree().select_node("tab-" + response.id, false, false);
                 }
                 else if (form.id === "tabversion-form") {
                     var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
@@ -453,9 +486,14 @@
 
                     var currentNode = $(selectedTree).jstree().get_selected(true)[0];
                     $(selectedTree).jstree().open_node(currentNode.id, false, false);
-                    $(selectedTree).jstree().create_node(currentNode.id, { id: "album " + response.id, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);
+                    if ($(selectedTree)[0].className.includes('ownerTree')) {
+                        $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);                        
+                    }
+                    else {
+                        $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "contributor" }, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);                       
+                    }                    
                     $(selectedTree).jstree().deselect_node(currentNode.id, false, false);
-                    $(selectedTree).jstree().select_node("album " + response.id, false, false);
+                    $(selectedTree).jstree().select_node("album-" + response.id, false, false);
                 }
                 // This will handle new project
                 else if (form.id === "project-form") {
@@ -468,8 +506,8 @@
                     if (currentNode != null) {
                         $('.ownerTree').jstree().deselect_node(currentNode.id, false, false);
                     }
-                    $('.ownerTree').jstree().create_node("#", { id: "project " + response.id, text: response.name }, "last", false, false);
-                    $('.ownerTree').jstree().select_node("project " + response.id, false, false);
+                    $('.ownerTree').jstree().create_node("#", { id: "project-" + response.id, text: response.name }, "last", false, false);
+                    $('.ownerTree').jstree().select_node("project-" + response.id, false, false);
                 }
             })
             .fail(function (error) {

@@ -140,6 +140,64 @@
             $('hr').show();
             $('footer').show();
 
+            // Event that fires when user drops a jstree node after dragging
+            $(document).on('dnd_stop.vakata', function (e, data) {
+                var ownerTree = $('.ownerTree').jstree(true);
+                var node = ownerTree.get_node(data.data.nodes[0]);
+                var node_parent = ownerTree.get_node(node.parent);
+
+                if (node_parent.id == '#') {
+                    return false;
+                }
+                // Don't allow nodes to be moved between trees
+                else if ((node.li_attr['jstree-type'].includes('owner') && node_parent.li_attr['jstree-type'].includes('contributor')) || (node.li_attr['jstree-type'].includes('contributor') && node_parent.li_attr['jstree-type'].includes('owner'))) {
+                    return false;
+                }
+                else {
+                    // Only allow albums to be moved beneath projects
+                    if (node.id.includes('album') && !node_parent.id.includes('project')) {
+                        return false;
+                    }
+                    // Only allow tabs to be moved beneath albums
+                    else if (node.id.includes('tab') && !node_parent.id.includes('album')) {
+                        return false;
+                    }
+                }
+
+                if (node.id.includes('tab')) {
+                    var data = { tabId: node.id.substring(4), albumId: node_parent.id.substring(6) };
+
+                    $.ajax({
+                        data: data,
+                        type: 'POST',
+                        dataType: 'json',
+                        traditional: 'true',
+                        url: '@Url.Action("MoveTab", "Tabs")'
+                    })
+                    .then(function (response) {
+                    })
+                    .fail(function (error) {
+                        bootbox.alert("Unable to move album. Error code: " + error);
+                    });
+                }
+                else if (node.id.includes('album')) {
+                    var data = { albumId: node.id.substring(6), projectId: node_parent.id.substring(8) };
+
+                    $.ajax({
+                        data: data,
+                        type: 'POST',
+                        dataType: 'json',
+                        traditional: 'true',
+                        url: '@Url.Action("MoveAlbum", "Albums")'
+                    })
+                    .then(function (response) {
+                    })
+                    .fail(function (error) {
+                        bootbox.alert("Unable to move album. Error code: " + error);
+                    });
+                }
+            });
+
             $(function () {
                 $(".jstree").jstree({
                     "core": {
@@ -151,10 +209,13 @@
                                 // Don't allow nodes to be moved between trees
                                 else if ((node.li_attr['jstree-type'].includes('owner') && node_parent.li_attr['jstree-type'].includes('contributor')) || (node.li_attr['jstree-type'].includes('contributor') && node_parent.li_attr['jstree-type'].includes('owner'))) {
                                     return false;
-                                } else {
+                                }
+                                else {
+                                    // Only allow albums to be moved beneath projects
                                     if (node.id.includes('album') && !node_parent.id.includes('project')) {
                                         return false;
                                     }
+                                    // Only allow tabs to be moved beneath albums
                                     else if (node.id.includes('tab') && !node_parent.id.includes('album')) {
                                         return false;
                                     }

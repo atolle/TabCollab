@@ -433,5 +433,38 @@ namespace TabRepository.Controllers
 
             }
         }
+
+        [HttpPost]
+        public ActionResult MoveAlbum(int albumId, int projectId)
+        {
+            string currentUserId = User.GetUserId();
+
+            try
+            {
+                var project = _context.Projects.Where(p => p.Id == projectId && p.UserId == currentUserId).FirstOrDefault();
+
+                if (project == null)
+                {
+                    return NotFound();
+                }
+
+                var album = _context.Albums.Where(a => a.Id == albumId && a.UserId == currentUserId).FirstOrDefault();
+
+                if (album == null)
+                {
+                    return NotFound();
+                }
+
+                album.Project = project;
+
+                _context.SaveChanges();                
+
+                return Json(new { });
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
     }
 }

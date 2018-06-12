@@ -384,6 +384,39 @@ namespace TabRepository.Controllers
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
+
+        [HttpPost]
+        public ActionResult MoveTab(int tabId, int albumId)
+        {
+            string currentUserId = User.GetUserId();
+
+            try
+            {
+                var album = _context.Albums.Where(a => a.Id == albumId && a.UserId == currentUserId).FirstOrDefault();
+
+                if (album == null)
+                {
+                    return NotFound();
+                }
+
+                var tab = _context.Tabs.Where(t => t.Id == tabId && t.UserId == currentUserId).FirstOrDefault();
+
+                if (tab == null)
+                {
+                    return NotFound();
+                }
+
+                tab.Album = album;
+
+                _context.SaveChanges();
+
+                return Json(new { });
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
     }
 
 

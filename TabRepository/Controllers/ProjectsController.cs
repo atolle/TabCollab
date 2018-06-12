@@ -243,6 +243,7 @@ namespace TabRepository.Controllers
 
                 foreach (var project in projects)
                 {
+                    project.Albums = project.Albums.OrderBy(a => a.Order).ToList();
                     ProjectIndexViewModel vm = new ProjectIndexViewModel()
                     {
                         Id = project.Id,

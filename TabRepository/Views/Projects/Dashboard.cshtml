@@ -136,9 +136,54 @@
     <script src="~/lib/jquery-resizable/dist/jquery-resizable.min.js"></script>
 
     <script>
+        var original_parent;
+
         $(document).ready(function () {
             $('hr').show();
             $('footer').show();
+
+            $(function () {
+                $(".jstree").jstree({
+                    "core": {
+                        "check_callback": function (operation, node, node_parent, node_position, more) {
+                            if (operation == 'move_node') {
+                                if (node_parent.id == '#') {
+                                    return false;
+                                }
+                                // Don't allow nodes to be moved between trees
+                                else if ((node.li_attr['jstree-type'].includes('owner') && node_parent.li_attr['jstree-type'].includes('contributor')) || (node.li_attr['jstree-type'].includes('contributor') && node_parent.li_attr['jstree-type'].includes('owner'))) {
+                                    return false;
+                                }
+                                else {
+                                    // Only allow albums to be moved beneath projects
+                                    if (node.id.includes('album') && !node_parent.id.includes('project')) {
+                                        return false;
+                                    }
+                                    // Only allow tabs to be moved beneath albums
+                                    else if (node.id.includes('tab') && !node_parent.id.includes('album')) {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
+                        }
+                    },
+                    "dnd": {
+                        "is_draggable": function (node) {
+                            // Don't allow users to move projects or any node in the contributor tree
+                            if (node[0].id.includes('project') || node[0].li_attr['jstree-type'].includes('contributor')) {
+                                return false;
+                            }
+                            else {
+                                var ownerTree = $('.ownerTree').jstree(true);
+                                original_parent = ownerTree.get_node(node[0].parent);
+                                return true;
+                            }
+                        }
+                    },
+                    "plugins": ["dnd"]
+                });
+            })
 
             // Event that fires when user drops a jstree node after dragging
             $(document).on('dnd_stop.vakata', function (e, data) {
@@ -165,6 +210,8 @@
                 }
 
                 if (node.id.includes('tab')) {
+                    var orderArray = node_parent.children.map(c => c.substring(4));
+
                     var data = { tabId: node.id.substring(4), albumId: node_parent.id.substring(6) };
 
                     $.ajax({
@@ -175,12 +222,38 @@
                         url: '@Url.Action("MoveTab", "Tabs")'
                     })
                     .then(function (response) {
+                        // Reorder tabs in under destination album
+                        data = { tabIds: orderArray };
+
+                        $.ajax({
+                            data: data,
+                            type: 'POST',
+                            dataType: 'json',
+                            traditional: 'true',
+                            url: '@Url.Action("ReorderTabs", "Tabs")'
+                        })                        
+                    })
+                    .then(function (response) {
+                        // Reorder tabs in under previous album
+                        orderArray = original_parent.children.map(c => c.substring(4));
+
+                        data = { tabIds: orderArray };
+
+                        $.ajax({
+                            data: data,
+                            type: 'POST',
+                            dataType: 'json',
+                            traditional: 'true',
+                            url: '@Url.Action("ReorderTabs", "Tabs")'
+                        }) 
                     })
                     .fail(function (error) {
-                        bootbox.alert("Unable to move album. Error code: " + error);
+                        bootbox.alert("Unable to move tab. Error code: " + error);
                     });
                 }
                 else if (node.id.includes('album')) {
+                    var orderArray = node_parent.children.map(c => c.substring(6));
+
                     var data = { albumId: node.id.substring(6), projectId: node_parent.id.substring(8) };
 
                     $.ajax({
@@ -191,51 +264,36 @@
                         url: '@Url.Action("MoveAlbum", "Albums")'
                     })
                     .then(function (response) {
+                        // Reorder albums in under destination project
+                        data = { albumIds: orderArray };
+
+                        $.ajax({
+                            data: data,
+                            type: 'POST',
+                            dataType: 'json',
+                            traditional: 'true',
+                            url: '@Url.Action("ReorderAlbums", "Albums")'
+                        })                        
+                    })
+                    .then(function (response) {
+                        // Reorder albums in under previous project
+                        orderArray = original_parent.children.map(c => c.substring(6));
+
+                        data = { albumIds: orderArray };
+
+                        $.ajax({
+                            data: data,
+                            type: 'POST',
+                            dataType: 'json',
+                            traditional: 'true',
+                            url: '@Url.Action("ReorderAlbums", "Albums")'
+                        }) 
                     })
                     .fail(function (error) {
                         bootbox.alert("Unable to move album. Error code: " + error);
                     });
                 }
             });
-
-            $(function () {
-                $(".jstree").jstree({
-                    "core": {
-                        "check_callback": function (operation, node, node_parent, node_position, more) {
-                            if (operation == 'move_node') {
-                                if (node_parent.id == '#') {                                    
-                                    return false;
-                                }
-                                // Don't allow nodes to be moved between trees
-                                else if ((node.li_attr['jstree-type'].includes('owner') && node_parent.li_attr['jstree-type'].includes('contributor')) || (node.li_attr['jstree-type'].includes('contributor') && node_parent.li_attr['jstree-type'].includes('owner'))) {
-                                    return false;
-                                }
-                                else {
-                                    // Only allow albums to be moved beneath projects
-                                    if (node.id.includes('album') && !node_parent.id.includes('project')) {
-                                        return false;
-                                    }
-                                    // Only allow tabs to be moved beneath albums
-                                    else if (node.id.includes('tab') && !node_parent.id.includes('album')) {
-                                        return false;
-                                    }
-                                }
-                                return true;
-                            }
-                        }
-                    },
-                    "dnd": {
-                        "is_draggable": function (node) {
-                            // Don't allow users to move projects or any node in the contributor tree
-                            if (node[0].id.includes('project') || node[0].li_attr['jstree-type'].includes('contributor')) {
-                                return false;
-                            }                      
-                            return true;
-                        }
-                    },
-                    "plugins": ["dnd"]
-                });
-            })
 
             // Vertical resizing of treeviews
             $(".treeWrapperTop").resizable({

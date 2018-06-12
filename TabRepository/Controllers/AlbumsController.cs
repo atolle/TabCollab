@@ -251,7 +251,8 @@ namespace TabRepository.Controllers
                         .Include(a => a.Project)
                         .Include(a => a.Tabs)
                         .Where(a => a.UserId == currentUserId)
-                        .OrderBy(a => a.Name)
+                        .OrderBy(a => a.Project)
+                        .ThenBy(a => a.Order)
                         .ToList();
 
                     var contributorAlbums = (from album in _context.Albums
@@ -300,7 +301,8 @@ namespace TabRepository.Controllers
                     var albums = _context.Albums.Include(u => u.User)
                         .Include(a => a.Project)
                         .Where(a => a.UserId == currentUserId && a.ProjectId == projectId)
-                        .OrderBy(a => a.Name)
+                        .OrderBy(a => a.Project)
+                        .ThenBy(a => a.Order)
                         .ToList();
 
                     foreach (var album in albums)
@@ -350,7 +352,8 @@ namespace TabRepository.Controllers
                         .Include(a => a.Project)
                         .Include(a => a.Tabs)
                         .Where(a => a.UserId == currentUserId)
-                        .OrderBy(a => a.Name)
+                        .OrderBy(a => a.Project)
+                        .ThenBy(a => a.Order)
                         .ToList();
 
                     var contributorAlbums = (from album in _context.Albums
@@ -399,7 +402,8 @@ namespace TabRepository.Controllers
                     var albums = _context.Albums.Include(u => u.User)
                         .Include(a => a.Project)
                         .Where(a => a.UserId == currentUserId && a.ProjectId == projectId)
-                        .OrderBy(a => a.Name)
+                        .OrderBy(a => a.Project)
+                        .ThenBy(a => a.Order)
                         .ToList();
 
                     foreach (var album in albums)
@@ -431,6 +435,35 @@ namespace TabRepository.Controllers
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
 
+            }
+        }
+
+        [HttpPost]
+        public ActionResult ReorderAlbums(List<int> albumIds)
+        {
+            string currentUserId = User.GetUserId();
+
+            try
+            {
+                for (int i = 0; i < albumIds.Count; i++)
+                {
+                    var album = _context.Albums.Where(a => a.Id == albumIds[i]).FirstOrDefault();
+
+                    if (album.UserId != currentUserId)
+                    {
+                        return NotFound();
+                    }
+
+                    album.Order = i;
+                }
+
+                _context.SaveChanges();
+
+                return Json(new { });
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
 

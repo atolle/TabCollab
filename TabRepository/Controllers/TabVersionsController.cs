@@ -60,10 +60,10 @@ namespace TabRepository.Controllers
             {
                 try
                 {
+                    string currentUserId = User.GetUserId();
+
                     if (viewModel.Id == 0)  // We are creating a new Tab
                     {
-                        string currentUserId = User.GetUserId();
-
                         // Verify user has access to this tab
                         var tabInDb = _context.Tabs.SingleOrDefault(t => t.Id == viewModel.TabId && t.UserId == currentUserId);
 
@@ -123,8 +123,47 @@ namespace TabRepository.Controllers
                     }
                     else
                     {
-                        // TO DO: Return correct table when editing a tab version
-                        return Json(new { });
+                        // Verify user has access to this tab
+                        var tabInDb = _context.Tabs.SingleOrDefault(t => t.Id == viewModel.TabId && t.UserId == currentUserId);
+
+                        // If we are not the owner, are we a contributor?
+                        if (tabInDb == null)
+                        {
+                            tabInDb = (from tab in _context.Tabs
+                                       join album in _context.Albums on tab.AlbumId equals album.Id
+                                       join project in _context.Projects on album.ProjectId equals project.Id
+                                       join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
+                                       where contributor.UserId == currentUserId && tab.Id == viewModel.TabId
+                                       select tab).FirstOrDefault();
+
+                            if (tabInDb == null)
+                            {
+                                return NotFound();
+                            }
+                        }
+
+                        var tabVersionInDb = _context.TabVersions.SingleOrDefault(v => v.Id == viewModel.Id && v.UserId == currentUserId);
+
+                        // If we are not the owner, are we a contributor?
+                        if (tabVersionInDb == null)
+                        {
+                            tabVersionInDb = (from tabVersion in _context.TabVersions
+                                              join tab in _context.Tabs on tabVersion.TabId equals tab.Id
+                                              where tab.UserId == currentUserId && tabVersion.Id == viewModel.Id
+                                              select tabVersion).Include(u => u.User).FirstOrDefault();
+
+                            if (tabVersionInDb == null)
+                            {
+                                return NotFound();
+                            }                            
+                        }
+
+                        tabVersionInDb.Description = viewModel.Description;
+
+                        _context.TabVersions.Update(tabVersionInDb);
+                        _context.SaveChanges();
+
+                        return Json(new { name = tabInDb.Name, id = tabInDb.Id });
                     }
                 }
                 catch
@@ -190,7 +229,9 @@ namespace TabRepository.Controllers
                 var tabVersionsInDb = _context.TabVersions
                         .Include(v => v.TabFile)
                         .Include(v => v.User)
-                        .Where(v => v.TabId == id).ToList();
+                        .Where(v => v.TabId == id)
+                        .OrderBy(v => v.Version)
+                        .ToList();
 
                 var albumInDb = _context.Tabs.Include(t => t.Album).SingleOrDefault(t => t.Id == id).Album;
 
@@ -297,36 +338,65 @@ namespace TabRepository.Controllers
 
         // GET: Tab version form
         [HttpGet]
-        public ActionResult GetTabVersionFormPartialView(int tabId)
+        public ActionResult GetTabVersionFormPartialView(int tabId, int tabVersionId)
         {
-            string currentUserId = User.GetUserId();
+            try
+            { 
+                string currentUserId = User.GetUserId();
+                var viewModel = new TabVersionFormViewModel();
 
-            // Verify user has access to this tab
-            var tabInDb = _context.Tabs.SingleOrDefault(t => t.Id == tabId && t.UserId == currentUserId);
-
-            // If we are not the owner, are we a contributor?
-            if (tabInDb == null)
-            {
-                tabInDb = (from tab in _context.Tabs
-                           join album in _context.Albums on tab.AlbumId equals album.Id
-                           join project in _context.Projects on album.ProjectId equals project.Id
-                           join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
-                           where contributor.UserId == currentUserId && tab.Id == tabId
-                           select tab).FirstOrDefault();
-
-                if (tabInDb == null)
+                if (tabVersionId == 0)
                 {
-                    return NotFound();
+                    // Verify user has access to this tab
+                    var tabInDb = _context.Tabs.SingleOrDefault(t => t.Id == tabId && t.UserId == currentUserId);
+
+                    // If we are not the owner, are we a contributor?
+                    if (tabInDb == null)
+                    {
+                        tabInDb = (from tab in _context.Tabs
+                                   join album in _context.Albums on tab.AlbumId equals album.Id
+                                   join project in _context.Projects on album.ProjectId equals project.Id
+                                   join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
+                                   where contributor.UserId == currentUserId && tab.Id == tabId
+                                   select tab).FirstOrDefault();
+
+                        if (tabInDb == null)
+                        {
+                            return NotFound();
+                        }
+                    }
+
+                    viewModel.TabId = tabId;
+                    viewModel.TabName = tabInDb.Name;
                 }
+                else
+                {
+                    var tabVersionInDb = _context.TabVersions.SingleOrDefault(v => v.Id == tabVersionId && v.UserId == currentUserId);
+
+                    if (tabVersionInDb == null)
+                    {
+                        tabVersionInDb = (from tabVersion in _context.TabVersions
+                                          join tab in _context.Tabs on tabVersion.TabId equals tab.Id
+                                          where tab.UserId == currentUserId && tabVersion.Id == tabVersionId
+                                          select tabVersion).Include(u => u.User).FirstOrDefault();
+
+                        if (tabVersionInDb == null)
+                        {
+                            return Json(new { success = false });
+                        }
+                    }
+
+                    viewModel.Id = tabVersionInDb.Id;
+                    viewModel.TabId = tabId;
+                    viewModel.Description = tabVersionInDb.Description;
+                }
+
+                return PartialView("_TabVersionForm", viewModel);
             }
-
-            var viewModel = new TabVersionFormViewModel()
+            catch
             {
-                TabId = tabId,
-                TabName = tabInDb.Name
-            };
-
-            return PartialView("_TabVersionForm", viewModel);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
         }
     }
 }

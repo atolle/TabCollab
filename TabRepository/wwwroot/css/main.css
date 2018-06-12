@@ -21,7 +21,7 @@
     min-width: 10px;
 }
 
-#tab-versions-table-container {
+#tabversions-table-container {
     display: flex;
     flex: 1 1 auto;
 }

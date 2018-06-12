@@ -18,7 +18,7 @@
         <div id="new-tab-button-container">
             <button class="btn btn-primary pull-right" disabled>New Tab</button>
         </div>
-        <div id="new-tab-version-button-container">
+        <div id="new-tabversion-button-container">
             <button class="btn btn-primary" disabled>New Tab Version</button>
         </div>
     </div>
@@ -87,14 +87,15 @@
             </div>
         </div>
         <div id="splitter"></div>
-        <div id="tab-versions-table-container">
+        <div id="tabversions-table-container">
             <table class="table table-bordered table-hover">
                 <thead>
                     <tr>
-                        <th width="35%">Description</th>
+                        <th width="30%">Description</th>
                         <th width="20%">Contributor</th>
                         <th width="20%">Date Added</th>
                         <th width="10%">Version</th>
+                        <th width="5%"></th>
                         <th width="5%"></th>
                         <th width="5%"></th>
                         <th width="5%"></th>
@@ -122,8 +123,8 @@
         </div>
     </div>
 
-    <div id='tab-version-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetTabVersionFormPartialView", "TabVersions")'>
-        <div id='tab-version-form-container'>
+    <div id='tabversion-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetTabVersionFormPartialView", "TabVersions")'>
+        <div id='tabversion-form-container'>
         </div>
     </div>
 </div>
@@ -348,19 +349,19 @@
             if (nodeId.substring(0, 3) == 'tab') {
                 nodeId = nodeId.substring(4);
 
-                //var $tab-versions-table-container = $('#tab-versions-table-container'),
+                //var $tabversions-table-container = $('#tabversions-table-container'),
                 var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
 
                 $.get(url, function (data) {
-                    $('#tab-versions-table-container').empty().append(data);
+                    $('#tabversions-table-container').empty().append(data);
 
                 });
                 $('#new-tab-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab</button>');
                 $('#new-album-button-container').empty().append('<button class="btn btn-primary" disabled>New Album</button>');
 
-                var actionLink = '@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = -1 }, new { @class = "btn btn-primary", id = "new-tab-version-button" })'
+                var actionLink = '@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = -1 }, new { @class = "btn btn-primary", id = "new-tabversion-button" })'
                 actionLink = actionLink.replace('-1', nodeId);
-                $('#new-tab-version-button-container').empty().append(actionLink);
+                $('#new-tabversion-button-container').empty().append(actionLink);
             }
             else if (nodeId.substring(0, 5) == 'album') {
                 nodeId = nodeId.substring(6);
@@ -368,12 +369,12 @@
                 actionLink = actionLink.replace('-1', nodeId);
                 $('#new-tab-button-container').empty().append(actionLink);
                 $('#new-album-button-container').empty().append('<button class="btn btn-primary" disabled>New Album</button>');
-                $('#new-tab-version-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab Version</button>');
+                $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab Version</button>');
 
                 var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
                 $.get(url, function (data) {
-                    $('#tab-versions-table-container').empty().append(data);
+                    $('#tabversions-table-container').empty().append(data);
                 })
             }
             else if (nodeId.substring(0, 7) == 'project') {
@@ -382,12 +383,12 @@
                 actionLink = actionLink.replace('-1', nodeId);
                 $('#new-album-button-container').empty().append(actionLink);
                 $('#new-tab-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab</button>');
-                $('#new-tab-version-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab Version</button>');
+                $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab Version</button>');
 
                 var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
                 $.get(url, function (data) {
-                    $('#tab-versions-table-container').empty().append(data);
+                    $('#tabversions-table-container').empty().append(data);
                 })
             }
         });
@@ -409,17 +410,17 @@
                             if (nodeId.substring(0, 3) == 'tab') {
                                 nodeId = nodeId.substring(4);
 
-                                //var $tab-versions-table-container = $('#tab-versions-table-container'),
+                                //var $tabversions-table-container = $('#tabversions-table-container'),
                                 var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
                                 $.get(url, function (data) {
-                                    $('#tab-versions-table-container').empty().append(data);
+                                    $('#tabversions-table-container').empty().append(data);
                                 });
                             }
                             else if (nodeId.substring(0, 7) == 'project') {
                                 nodeId = nodeId.substring(8);
                                 var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
                                 $.get(url, function (data) {
-                                    $('#tab-versions-table-container').empty().append(data);
+                                    $('#tabversions-table-container').empty().append(data);
                                 })
                             }
                         }
@@ -494,10 +495,10 @@
         });
 
         // Show modal for new tab version
-        $("#page").on("click", "#new-tab-version-button", function (e, data) {
+        $("#page").on("click", "#new-tabversion-button", function (e, data) {
             e.preventDefault();
 
-            var url = $('#tab-version-form-modal').data('url');
+            var url = $('#tabversion-form-modal').data('url');
 
             var nodeId = $(selectedTree).jstree().get_selected(true)[0].id;
             if (nodeId.substring(0, 3) == 'tab') {
@@ -506,15 +507,43 @@
                 url = url + "?tabId=" + nodeId;
 
                 $.get(url, function (data) {
-                    $('#tab-version-form-container').html(data);
+                    $('#tabversion-form-container').html(data);
+
+                    $('#tabversion-form')
+                        .removeData("validator") /* added by the raw jquery.validate plugin */
+                        .removeData("unobtrusiveValidation");  /* added by the jquery unobtrusive plugin*/
 
                     // Client side validation for dynamic modal injection
                     $.validator.unobtrusive.parse($("#tabversion-form"));
 
-                    currentModal = $('#tab-version-form-modal');
+                    currentModal = $('#tabversion-form-modal');
                     currentModal.modal('show');
                 });
             }
+        });
+
+        // Show modal for edit album
+        $("#page").on("click", "#edit-tabversion-button", function (e, data) {
+            e.preventDefault();
+
+            var href = this.href + "?tabId=" + $(this).attr("data-tab-id") + "&tabVersionId=" + $(this).attr("data-tabversion-id");
+
+            $.ajax({
+                url: href,
+                type: 'GET',
+            })
+                .then(function (data) {
+                    $('#tabversion-form-container').html(data);
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($("#tabversion-form"));
+
+                    currentModal = $('#tabversion-form-modal');
+                    currentModal.modal('show');
+
+                })
+                .fail(function (error) {
+                    bootbox.alert("Unable to show album form. Error: " + error.statusText);
+                })
         });
 
         $(document).on("change", "#contributors-list", function (e, data) {
@@ -574,7 +603,7 @@
                     var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
 
                     $.get(url, function (data) {
-                        $('#tab-versions-table-container').empty().append(data);
+                        $('#tabversions-table-container').empty().append(data);
                     });
 
                     // Create new tab node and select it - expand and deselect project node
@@ -593,14 +622,14 @@
                     var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
 
                     $.get(url, function (data) {
-                        $('#tab-versions-table-container').empty().append(data);
+                        $('#tabversions-table-container').empty().append(data);
                     });
                 }
                 else if (form.id === "album-form") {
                     var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)?id=' + response.id;
 
                     $.get(url, function (data) {
-                        $('#tab-versions-table-container').empty().append(data);
+                        $('#tabversions-table-container').empty().append(data);
                     });
 
                     var currentNode = $(selectedTree).jstree().get_selected(true)[0];
@@ -619,7 +648,7 @@
                     var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
                     $.get(url, function (data) {
-                        $('#tab-versions-table-container').empty().append(data);
+                        $('#tabversions-table-container').empty().append(data);
                     });
                     var currentNode = $('.ownerTree').jstree().get_selected(true)[0];
                     if (currentNode != null) {

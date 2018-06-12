@@ -6,10 +6,11 @@
 <table class="table table-bordered table-hover">
     <thead>
         <tr>
-            <th width="35%">Description</th>
+            <th width="30%">Description</th>
             <th width="20%">Contributor</th>
             <th width="20%">Date Added</th>
             <th width="10%">Version</th>
+            <th width="5%"></th>
             <th width="5%"></th>
             <th width="5%"></th>
             <th width="5%"></th>
@@ -18,31 +19,37 @@
     <tbody>
         @foreach (var t in Model.TabVersions)
         {
-            <tr>
-                <td>@t.TabVersion.Description</td>
-                <td>@t.TabVersion.User.UserName</td>
-                <td>@t.TabVersion.DateCreated.ToString("g")</td>
-                <td>@t.TabVersion.Version</td>
-                <td align="center" style="vertical-align: middle;">
-                    <a class="white-icon" href="@Url.Action("Download", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-download fa-lg" /></a>
-                </td>
-                @if (System.IO.Path.GetExtension(t.TabVersion.TabFile.Name).Contains(".gp"))
+        <tr>
+            <td>@t.TabVersion.Description</td>
+            <td>@t.TabVersion.User.UserName</td>
+            <td>@t.TabVersion.DateCreated.ToString("g")</td>
+            <td>@t.TabVersion.Version</td>
+            <td align="center" style="vertical-align: middle;">
+                @if (t.IsOwner)
                 {
-                    <td align="center" style="vertical-align: middle;">
-                        <a class="white-icon" href="@Url.Action("Player", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-play fa-lg" /></a>
-                    </td>
+                    <a id="edit-tabversion-button" class="white-icon" data-tab-id="@t.TabVersion.TabId" data-tabversion-id="@t.TabVersion.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")"><i class="fa fa-pencil fa-lg" /></a>
                 }
-                else
-                {
-                    <td class="white-icon" align="center" style="vertical-align: middle;"><i class="fa fa-play" style="display: none;" /></td>
-                }
+            </td>
+            <td align="center" style="vertical-align: middle;">
+                <a class="white-icon" href="@Url.Action("Download", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-download fa-lg" /></a>
+            </td>
+            @if (System.IO.Path.GetExtension(t.TabVersion.TabFile.Name).Contains(".gp"))
+            {
                 <td align="center" style="vertical-align: middle;">
-                    @if (t.IsOwner)
-                    {
-                        <a id="delete-tabversion-button" class="white-icon" href="@Url.Action("Delete", "TabVersions", new { id = t.TabVersion.Id })"><i class="fa fa-times fa-lg" /></a>
-                    }
+                    <a class="white-icon" href="@Url.Action("Player", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-play fa-lg" /></a>
                 </td>
-            </tr>
+            }
+            else
+            {
+                <td class="white-icon" align="center" style="vertical-align: middle;"><i class="fa fa-play" style="display: none;" /></td>
+            }
+            <td align="center" style="vertical-align: middle;">
+                @if (t.IsOwner)
+                {
+                    <a id="delete-tabversion-button" class="white-icon" href="@Url.Action("Delete", "TabVersions", new { id = t.TabVersion.Id })"><i class="fa fa-times fa-lg" /></a>
+                }
+            </td>
+        </tr>
         }
     </tbody>
 </table>

@@ -17,8 +17,8 @@
         </div>
     </div>
 
-    <div id='tab-version-form-modal' class='modal fade' align="center">
-        <div id='tab-version-form-container'>
+    <div id='tabversion-form-modal' class='modal fade' align="center">
+        <div id='tabversion-form-container'>
         </div>
     </div>
 </div>
@@ -115,7 +115,7 @@ $(document).ready(function () {
     });
 
     // Show modal for new tab
-    $("#page").on("click", "#new-tab-version-button", function (e, data) {
+    $("#page").on("click", "#new-tabversion-button", function (e, data) {
         e.preventDefault();
 
         var href = this.href + "/?tabId=" + $(this).attr("data-tab-id");
@@ -125,11 +125,11 @@ $(document).ready(function () {
             type: 'GET',
         })
             .then(function (data) {
-                $('#tab-version-form-container').html(data);
+                $('#tabversion-form-container').html(data);
                 // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#tab-version-form"));
+                $.validator.unobtrusive.parse($("#tabversion-form"));
 
-                currentModal = $('#tab-version-form-modal');
+                currentModal = $('#tabversion-form-modal');
                 currentModal.modal('show');
 
             })

@@ -2,9 +2,18 @@
     height: 87%;
 }
 
+html {
+    height: 100%;
+}
+
 body {
     padding-top: 50px;
     padding-bottom: 20px;
+    height: 100%;
+}
+
+.body-content {
+    height: 100%;
 }
 
 hr, footer {
@@ -158,12 +167,40 @@ textarea {
 }
 
 .button-save {
-    width: 58px;
-    max-width: 58px;
-    min-width: 58px;
-    height: 34px;
-    max-height: 34px;
-    min-height: 34px;
+    width: 56px;
+    height: 38px;
+}
+
+.button-login {
+    width: 280px;
+    height: 38px;
+}
+
+.col-centered {
+    float: none;
+    margin: 0 auto;
+}
+
+.form-login {
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-login-outer-container {
+    display: table;
+    height: 100%;
+    width: 100%;
+}
+
+.form-login-inner-container {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.login-label {
+    text-align: left;
+    margin-left: 15px;
 }
 
 /*loader animations for loading lists and for saving*/
@@ -171,7 +208,7 @@ textarea {
     margin: auto;
     position: center;
     border: 3px solid #f3f3f3; /* Light grey */
-    border-top: 3px solid #3498db; /* Blue */
+    border-top: 3px solid rgb(66,66,66); /* Blue */
     border-radius: 50%;
     width: 2em;
     height: 2em;

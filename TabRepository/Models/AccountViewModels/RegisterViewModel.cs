@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TabRepository.Models.AccountViewModels
 {
@@ -36,5 +33,11 @@ namespace TabRepository.Models.AccountViewModels
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+
+        public string ImageFilePath { get; set; }
+
+        public string ImageFileName { get; set; }
+
+        public IFormFile Image { get; set; }
     }
 }

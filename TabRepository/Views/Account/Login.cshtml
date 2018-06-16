@@ -8,8 +8,8 @@
     ViewData["Title"] = "TabCollab";
 }
 
-<div class="form-login-outer-container" align="center">
-    <div class="form-login-inner-container">
+<div class="center-form-outer-container" align="center">
+    <div class="center-form-inner-container">
         <h2>@ViewData["Title"]</h2>
         <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal form-login">
             <div asp-validation-summary="All" class="text-danger"></div>
@@ -90,5 +90,4 @@
         $($(document.activeElement)[0]).html('<div class="loader"></div>');
     });
 </script>
-
 }

@@ -12,10 +12,6 @@ body {
     height: 100%;
 }
 
-.body-content {
-    height: 100%;
-}
-
 hr, footer {
     display: none;
 }
@@ -25,6 +21,7 @@ hr, footer {
 .body-content {
     padding-left: 15px;
     padding-right: 15px;
+    height: 100%;
 }
 
 /* Set widths on the form inputs since otherwise they're 100% wide */
@@ -176,6 +173,11 @@ textarea {
     height: 38px;
 }
 
+.button-register {
+    width: 280px;
+    height: 38px;
+}
+
 .col-centered {
     float: none;
     margin: 0 auto;
@@ -187,13 +189,19 @@ textarea {
     margin-right: auto;
 }
 
-.form-login-outer-container {
+.form-register {
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.center-form-outer-container {
     display: table;
     height: 100%;
     width: 100%;
 }
 
-.form-login-inner-container {
+.center-form-inner-container {
     display: table-cell;
     vertical-align: middle;
 }

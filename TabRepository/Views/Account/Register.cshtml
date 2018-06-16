@@ -3,61 +3,75 @@
     ViewData["Title"] = "Register";
 }
 
-<h2>@ViewData["Title"].</h2>
-
-<form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
-    <h4>Create a new account.</h4>
-    <hr />
-    <div asp-validation-summary="All" class="text-danger"></div>
-    <div class="form-group">
-        <label asp-for="Username" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="Username" class="form-control" />
-            <span asp-validation-for="Username" class="text-danger"></span>
-        </div>
+<div class="center-form-outer-container" align="center">
+    <div class="center-form-inner-container">
+        <h2>@ViewData["Title"]</h2>
+        <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal form-register">
+            <h4>Create a new account</h4>
+            <hr />
+            <div asp-validation-summary="All"></div>
+            <div class="form-group">
+                <div style="text-align: left; margin-left: 15px;">
+                    <label asp-for="Username" class="float-left"></label>
+                </div>
+                <input asp-for="Username" class="form-control" />
+                <span asp-validation-for="Username"></span>
+            </div>
+            <div class="form-group">
+                <div style="text-align: left; margin-left: 15px;">
+                    <label asp-for="FirstName" class="float-left">First Name</label>
+                </div>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName"></span>
+            </div>
+            <div class="form-group">
+                <div style="text-align: left; margin-left: 15px;">
+                    <label asp-for="LastName" class="float-left">Last Name</label>
+                </div>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName"></span>
+            </div>
+            <div class="form-group">
+                <div style="text-align: left; margin-left: 15px;">
+                    <label asp-for="Email" class="float-left"></label>
+                </div>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email"></span>
+            </div>
+            <div class="form-group">
+                <div style="text-align: left; margin-left: 15px;">
+                    <label asp-for="Password" class="float-left"></label>
+                </div>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password"></span>
+            </div>
+            <div class="form-group">
+                <div style="text-align: left; margin-left: 15px;">
+                    <label asp-for="ConfirmPassword" class="float-left"></label>
+                </div>
+                <input asp-for="ConfirmPassword" class="form-control" />
+                <span asp-validation-for="ConfirmPassword"></span>
+            </div>
+            <div class="form-group">
+                <div style="text-align: left; margin-left: 15px;">
+                    @Html.LabelFor(m => m.Image, "Profile Image")
+                </div>
+                @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default" })
+                @Html.ValidationMessageFor(m => m.Image)
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-default button-register">Register</button>
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <label asp-for="FirstName" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="FirstName" class="form-control" />
-            <span asp-validation-for="FirstName" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group">
-        <label asp-for="LastName" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="LastName" class="form-control" />
-            <span asp-validation-for="LastName" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group">
-        <label asp-for="Email" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="Email" class="form-control" />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group">
-        <label asp-for="Password" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="Password" class="form-control" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group">
-        <label asp-for="ConfirmPassword" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="ConfirmPassword" class="form-control" />
-            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <button type="submit" class="btn btn-default">Register</button>
-        </div>
-    </div>
-</form>
+</div>
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+<script>
+    $(document).on("submit", function (e, data) {
+        // Show spinner on login button
+        $($(document.activeElement)[0]).html('<div class="loader"></div>');
+    });
+</script>
 }

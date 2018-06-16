@@ -11,6 +11,9 @@ using TabRepository.Models;
 using TabRepository.Models.AccountViewModels;
 using TabRepository.Services;
 using Microsoft.AspNetCore.Authentication;
+using TabRepository.Data;
+using TabRepository.Helpers;
+using Microsoft.AspNetCore.Hosting;
 
 namespace TabRepository.Controllers
 {
@@ -23,19 +26,27 @@ namespace TabRepository.Controllers
         private readonly ISmsSender _smsSender;
         private readonly ILogger _logger;
         private readonly string _externalCookieScheme;
+        private ApplicationDbContext _context;
+        private FileUploader _fileUploader;
+        private readonly IHostingEnvironment _appEnvironment;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
             ISmsSender smsSender,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            ApplicationDbContext context,
+            IHostingEnvironment appEnvironment)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _smsSender = smsSender;
             _logger = loggerFactory.CreateLogger<AccountController>();
+            _context = context;
+            _appEnvironment = appEnvironment;
+            _fileUploader = new FileUploader(context, appEnvironment);
         }
 
         //
@@ -120,6 +131,21 @@ namespace TabRepository.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    // Save profile image if it was added
+                    if (model.Image != null)
+                    {
+                        string currentUserId = user.Id;
+
+                        var userInDb = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
+
+                        string imageFilePath = await _fileUploader.UploadFileToFileSystem(model.Image, currentUserId, "Profile");
+
+                        userInDb.ImageFileName = model.Image.FileName;
+                        userInDb.ImageFilePath = imageFilePath;
+
+                        _context.SaveChanges();
+                    }
+
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=532713
                     // Send an email with this link
                     //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

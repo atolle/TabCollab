@@ -83,3 +83,8 @@
     color: black;
     background-color: lightgrey;
 }
+
+td {
+    word-wrap: break-word;
+    max-width: 1px;
+}

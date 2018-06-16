@@ -216,7 +216,7 @@ textarea {
     margin: auto;
     position: center;
     border: 3px solid #f3f3f3; /* Light grey */
-    border-top: 3px solid rgb(66,66,66); /* Blue */
+    border-top: 3px solid rgb(66,66,66); /* Dark grey */
     border-radius: 50%;
     width: 2em;
     height: 2em;
@@ -227,7 +227,7 @@ textarea {
 .list-loader {
     margin: 100px auto auto auto;
     border: 8px solid #f3f3f3; /* Light grey */
-    border-top: 8px solid #3498db; /* Blue */
+    border-top: 8px solid rgb(66,66,66); /* Dark grey */
     border-radius: 50%;
     width: 120px;
     height: 120px;

@@ -5,7 +5,14 @@
     <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">New Tab for Tab @Model.TabName</h4>
+            @if (Model.Id == 0)
+            {
+                <h4 class="modal-title">New tab version for @Model.TabName</h4>
+            }
+            else
+            {
+                <h4 class="modal-title">Edit version</h4>
+            }
         </div>
         <div class="modal-body">
             <form id="tabversion-form" asp-controller="TabVersions" asp-action="Save" data-ajax="true" data-ajax-method="POST" enctype="multipart/form-data">

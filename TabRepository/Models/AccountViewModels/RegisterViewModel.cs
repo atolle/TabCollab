@@ -14,10 +14,10 @@ namespace TabRepository.Models.AccountViewModels
         [Display(Name = "Email")]
         public string Email { get; set; }
 
-        [Display(Name = "Firstname")]
+        [Display(Name = "First Name")]
         public string FirstName { get; set; }
 
-        [Display(Name = "Lastname")]
+        [Display(Name = "Last Name")]
         public string LastName { get; set; }
 
         [Display(Name = "Bio")]

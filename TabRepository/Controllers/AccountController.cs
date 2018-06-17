@@ -244,10 +244,25 @@ namespace TabRepository.Controllers
                 {
                     return View("ExternalLoginFailure");
                 }
-                var user = new ApplicationUser { UserName = model.Username, Email = model.Email };
+                var user = new ApplicationUser { UserName = model.Username, Email = model.Email, FirstName = model.FirstName, LastName = model.LastName };
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
+                    // Save profile image if it was added
+                    if (model.Image != null)
+                    {
+                        string currentUserId = user.Id;
+
+                        var userInDb = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
+
+                        string imageFilePath = await _fileUploader.UploadFileToFileSystem(model.Image, currentUserId, "Profile");
+
+                        userInDb.ImageFileName = model.Image.FileName;
+                        userInDb.ImageFilePath = imageFilePath;
+
+                        _context.SaveChanges();
+                    }
+
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {

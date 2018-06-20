@@ -23,6 +23,7 @@
        
         var midi = AlphaTab.Audio.Generator.MidiFileGenerator.GenerateMidiFile(score);
         element.data('alphaSynthTickCache', midi.TickLookup);
+        
         var ms = new AlphaTab.IO.ByteBuffer();
         midi.WriteTo(ms);
         var bytes = ms.ToArray();
@@ -54,9 +55,40 @@
     
     //
     // Plugin 01: Player 
-    api.playerInit = function(element, context) {
+    
+    var playerOptionsDefaults = {
+        autoScroll: 'vertical',
+        scrollSpeed: 300,
+        scrollOffset: 0,
+        scrollElement: 'html,body',
+        scrollAdjustment: 0,
+        beatCursorWidth: 3,
+        handleClick: true
+    };
+
+    api.playerOptions = function(element, context, options) {
+        if(options) {
+            var defaults = $.extend({}, playerOptionsDefaults);
+            context.player.options = $.extend(defaults, options);
+        }
+        else {
+            return context.player.options;
+        }
+    };
+
+    api.playerInit = function(element, context, options) {
         var as = element.data('alphaSynth');
         if(!as) {
+            
+            var defaults = $.extend({}, playerOptionsDefaults);                  
+            context.player = {
+                options: $.extend(defaults, options),
+                elements: {},
+                previousBeat: null,
+                previousCache: null,
+                previousState: null
+            };
+
             // initialize alphaSynth
             as = AlphaSynth.Main.AlphaSynthApi.Create();
             as.On('ready', function() {
@@ -69,7 +101,7 @@
             
             // hook into events and forward them
             as.On('readyForPlayback', function() {
-                context.cursorOptions.playbackSpeed = as.get_PlaybackSpeed();
+                context.player.options.playbackSpeed = as.get_PlaybackSpeed();
                 context.TriggerEvent('playerReady');
             });
             
@@ -147,7 +179,17 @@
         }
         else {
             as.set_PlaybackSpeed(value);
-            context.cursorOptions.playbackSpeed = as.get_PlaybackSpeed();
+            context.player.options.playbackSpeed = as.get_PlaybackSpeed();
+        }
+    };
+    
+    api.metronomeVolume = function(element, context, value) {
+        var as = getAlphaSynth(element);
+        if(typeof value === 'undefined') {
+            return as.get_MetronomeVolume(value);
+        }
+        else {
+            as.set_MetronomeVolume(value);
         }
     };
     
@@ -250,11 +292,11 @@
     
     api.autoScroll = function(element, context, value) {
         if(typeof value === 'undefined') {
-            return context.cursorOptions.autoScroll;
+            return context.player.options.autoScroll;
         }
         else {
-            context.cursorOptions.autoScroll = value;
-            api.playerCursorUpdateBeat(element, context, context.cursorOptions.currentBeat);
+            context.player.options.autoScroll = value;
+            api.playerCursorUpdateBeat(element, context, context.player.options.currentBeat);
         }
     },
     
@@ -280,7 +322,7 @@
             return;
         }
         
-        var selectionWrapper = context.cursorOptions.selectionWrapper;
+        var selectionWrapper = context.player.elements.selectionWrapper;
         selectionWrapper.empty();
         
         if(startBeat == null || endBeat == null || startBeat.beat == endBeat.beat) {
@@ -374,20 +416,20 @@
             return;
         }
 
-        var previousBeat = context.cursorOptions.currentBeat;
-        var previousCache = context.cursorOptions.cursorCache;
-        var previousState = context.cursorOptions.playerState;
-        context.cursorOptions.currentBeat = beat;
-        context.cursorOptions.cursorCache = cache;
-        context.cursorOptions.playerState = context.playerState;
+        var previousBeat = context.player.currentBeat;
+        var previousCache = context.player.cursorCache;
+        var previousState = context.player.playerState;
+        context.player.currentBeat = beat;
+        context.player.cursorCache = cache;
+        context.player.playerState = context.playerState;
         
         if(beat == previousBeat && cache == previousCache && previousState == context.playerState) {
             return;
         }
         
-        var cursorWrapper = context.cursorOptions.cursors;
-        var barCursor = context.cursorOptions.barCursor;
-        var beatCursor = context.cursorOptions.beatCursor;
+        var cursorWrapper = context.player.elements.wrapper;
+        var barCursor = context.player.elements.barCursor;
+        var beatCursor = context.player.elements.beatCursor;
         
         var beatBoundings = cache.FindBeat(beat);
         if(!beatBoundings) {
@@ -406,7 +448,7 @@
             .css({
                 top: barBoundings.VisualBounds.Y + 'px', 
                 left: (beatBoundings.VisualBounds.X) + 'px',
-                width: context.cursorOptions.beatCursorWidth + 'px',
+                width: context.player.options.beatCursorWidth + 'px',
                 height: barBoundings.VisualBounds.H + 'px'
             })
         ;
@@ -414,7 +456,7 @@
         // if playing, animate the cursor to the next beat
         $('.atHighlight', element).removeClass('atHighlight');
         if(context.playerState == 1 || stop) {
-            duration /= context.cursorOptions.playbackSpeed;
+            duration /= context.player.options.playbackSpeed;
             
             if(!stop) {
                 $('.b' + beat.Id, element).addClass('atHighlight');            
@@ -435,58 +477,64 @@
             if(!selecting) {
                                 
                 // calculate position of whole music wheet within the scroll parent
-                var scrollElement = $(context.cursorOptions.scrollElement);
-                var scrollElementOffset = scrollElement.offset();
+                var scrollElement = $(context.player.options.scrollElement);
+
                 var elementOffset = element.offset();
-                elementOffset = {
-                    top: elementOffset.top - scrollElementOffset.top,
-                    left: elementOffset.left - scrollElementOffset.left,
-                };
-                if(context.cursorOptions.autoScroll == 'vertical') {
+                if(!scrollElement.is('html,body')) {
+                    var scrollElementOffset = scrollElement.offset();
+                    elementOffset = {
+                        top: elementOffset.top + scrollElement.scrollTop() - scrollElementOffset.top,
+                        left: elementOffset.left + scrollElement.scrollLeft() - scrollElementOffset.left,
+                    };
+                }
+                
+                
+                if(context.player.options.autoScroll == 'vertical') {
                     var scrollTop = elementOffset.top + barBoundings.RealBounds.Y;
-                    if(context.cursorOptions.scrollOffset.length) {
-                        scrollTop += context.cursorOptions.scrollOffset[1];
+
+                    if(context.player.options.scrollOffset.length) {
+                        scrollTop += context.player.options.scrollOffset[1];
                     }
-                    else if(context.cursorOptions.scrollOffset) {
-                        scrollTop += context.cursorOptions.scrollOffset;                        
+                    else if(context.player.options.scrollOffset) {
+                        scrollTop += context.player.options.scrollOffset;                        
                     }
-                    if(scrollTop != context.cursorOptions.lastScroll) {
-                        context.cursorOptions.lastScroll = scrollTop;
-                        $(context.cursorOptions.scrollElement).animate({
+                    if(scrollTop != context.player.options.lastScroll) {
+                        context.player.options.lastScroll = scrollTop;
+                        scrollElement.animate({
                             scrollTop:scrollTop + 'px'
-                        }, context.cursorOptions.scrollSpeed);
+                        });
                     }
                 }
-                else if(context.cursorOptions.autoScroll == 'horizontal-bar') {
-                    if(barBoundings.VisualBounds.X != context.cursorOptions.lastScroll) {
+                else if(context.player.options.autoScroll == 'horizontal-bar') {
+                    if(barBoundings.VisualBounds.X != context.player.options.lastScroll) {
                         var scrollLeft = barBoundings.RealBounds.X;
-                        if(context.cursorOptions.scrollOffset.length) {
-                            scrollLeft += context.cursorOptions.scrollOffset[0];
+                        if(context.player.options.scrollOffset.length) {
+                            scrollLeft += context.player.options.scrollOffset[0];
                         }
-                        else if(context.cursorOptions.scrollOffset) {
-                            scrollLeft += context.cursorOptions.scrollOffset;                        
+                        else if(context.player.options.scrollOffset) {
+                            scrollLeft += context.player.options.scrollOffset;                        
                         }                        
-                        context.cursorOptions.lastScroll = barBoundings.VisualBounds.X;
-                        $(context.cursorOptions.scrollElement).animate({
+                        context.player.options.lastScroll = barBoundings.VisualBounds.X;
+                        scrollElement.animate({
                             scrollLeft:scrollLeft + 'px'
-                        }, context.cursorOptions.scrollSpeed);
+                        }, context.player.options.scrollSpeed);
                     }
                 }
-                else if(context.cursorOptions.autoScroll == 'horizontal-offscreen') {
-                    var elementRight = $(context.cursorOptions.scrollElement).scrollLeft() + 
-                                       $(context.cursorOptions.scrollElement).width();
-                    if( (barBoundings.VisualBounds.X + barBoundings.VisualBounds.W) >= elementRight || barBoundings.VisualBounds.X < $(context.cursorOptions.scrollElement).scrollLeft() ) {
+                else if(context.player.options.autoScroll == 'horizontal-offscreen') {
+                    var elementRight = scrollElement.scrollLeft() + 
+                                       scrollElement.width();
+                    if( (barBoundings.VisualBounds.X + barBoundings.VisualBounds.W) >= elementRight || barBoundings.VisualBounds.X < scrollElement.scrollLeft() ) {
                         var scrollLeft = barBoundings.RealBounds.X;
-                        if(context.cursorOptions.scrollOffset.length) {
-                            scrollLeft += context.cursorOptions.scrollOffset[0];
+                        if(context.player.options.scrollOffset.length) {
+                            scrollLeft += context.player.options.scrollOffset[0];
                         }
-                        else if(context.cursorOptions.scrollOffset) {
-                            scrollLeft += context.cursorOptions.scrollOffset;                        
+                        else if(context.player.options.scrollOffset) {
+                            scrollLeft += context.player.options.scrollOffset;                        
                         }                
-                        context.cursorOptions.lastScroll = barBoundings.VisualBounds.X;
-                        $(context.cursorOptions.scrollElement).animate({
+                        context.player.options.lastScroll = barBoundings.VisualBounds.X;
+                        scrollElement.animate({
                             scrollLeft:scrollLeft + 'px'
-                        }, context.cursorOptions.scrollSpeed);
+                        }, context.player.options.scrollSpeed);
                     }
                 }
             }            
@@ -495,27 +543,8 @@
         // trigger an event for others to indicate which beat/bar is played
         context.TriggerEvent('playedBeatChanged', beat);
     };
-
-    var cursorOptionsDefaults = {
-        autoScroll: 'vertical',
-        scrollSpeed: 300,
-        scrollOffset: 0,
-        scrollElement: 'body',
-        scrollAdjustment: 0,
-        beatCursorWidth: 3,
-        handleClick: true
-    };
-
     
-    api.cursorOptions = function(element, context, options) {
-        if(options) {
-            var defaults = $.extend({}, cursorOptionsDefaults);
-            context.cursorOptions = $.extend(defaults, options);
-        }
-        else {
-            return context.cursorOptions;
-        }
-    };
+    api.cursorOptions = api.playerOptions
     
     api.playerCursor = function(element, context, options) {
         var as = element.data('alphaSynth');
@@ -527,12 +556,9 @@
         if(element.data('alphaSynthCursor')) { return; }
         element.data('alphaSynthCursor', true);
                 
-        var defaults = $.extend({}, cursorOptionsDefaults);                
-        context.cursorOptions = $.extend(defaults, options);
-        
         var scrollOffset = element.data("player-offset");
         if(scrollOffset) {
-            context.cursorOptions.scrollOffset = scrollOffset;
+            context.player.options.scrollOffset = scrollOffset;
         }
         
         //
@@ -553,10 +579,10 @@
         beatCursor.css({position: 'absolute'});
 
         // store options and created elements for fast access
-        context.cursorOptions.cursors = cursorWrapper;
-        context.cursorOptions.barCursor = barCursor;
-        context.cursorOptions.beatCursor = beatCursor;
-        context.cursorOptions.selectionWrapper = selectionWrapper;
+        context.player.elements.wrapper = cursorWrapper;
+        context.player.elements.barCursor = barCursor;
+        context.player.elements.beatCursor = beatCursor;
+        context.player.elements.selectionWrapper = selectionWrapper;
         
         // add cursors to UI
         element.prepend(cursorWrapper);
@@ -594,7 +620,7 @@
         //
         // Click Handling
         
-        if(context.cursorOptions.handleClick) {
+        if(context.player.options.handleClick) {
             $(context.CanvasElement).on('mousedown', function(e) {
                 if(e.which != 1) {
                     return;

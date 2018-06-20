@@ -9,10 +9,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.min.css" integrity="sha256-6b+gYy3DG/roKdQiHqp1FJYFQkaZdM6ohUpGyFyUAGk=" crossorigin="anonymous" />
 
 <div id="alphaTab" class="alphaTab" data-file="@Url.Action("Download", "TabFiles", new { ViewBag.Id })" data-tracks="0"
-     data-player="@Url.Content("~/misc/default.sf2")"></div>
+     data-player="@Url.Content("~/misc/default.sf2")" data-player-offset="[-10,-70]"></div>
 
 @section scripts
-{
+    {
     <script src="~/lib/seiyria-bootstrap-slider/dist/bootstrap-slider.min.js"></script>
     <script src="~/js/AlphaTab.js"></script>
     <script src="~/js/jquery.alphaTab.js"></script>
@@ -22,7 +22,7 @@
 
     <script type="text/javascript">
         var at = $('#alphaTab');
-       
+
         //
         // 1. setup events
         at.on('alphaTab.soundFontLoad', function (e, progress) {
@@ -79,28 +79,6 @@
             }
         }
 
-        $('a[data-layout]').click(function (e) {
-            $('a[data-layout]').closest('li').removeClass('active');
-            $(this).closest('li').addClass('active');
-
-            e.preventDefault();
-
-            var layout = $(this).data('layout');
-            var scrollmode = $(this).data('scrollmode');
-
-            at.removeClass('horizontal page');
-            at.addClass(layout);
-
-            // update renderer
-            at.alphaTab('layout', layout);
-
-            // update player
-            at.alphaTab('autoScroll', scrollmode);
-            $('body,html').animate({
-                scrollTop: 0
-            }, 300);
-        });
-
         //
         // 4. Track selector
         var tracks = [];
@@ -111,6 +89,12 @@
         at.on('alphaTab.loaded', function (e, score) {
             var trackList = $('#trackList');
             trackList.empty();
+
+            //// update renderer
+            //at.alphaTab('layout', 'page');
+
+            //// update player
+            //at.alphaTab('autoScroll', 'vertical');
 
             for (var i = 0; i < score.Tracks.length; i++) {
                 // build list item for track
@@ -193,6 +177,6 @@
         });
 
 
-</script>
+    </script>
 
 }

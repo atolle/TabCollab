@@ -8,12 +8,12 @@ using TabRepository.Data;
 using TabRepository.Models;
 using TabRepository.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 
 namespace TabRepository
 {
     public class Startup
     {
-        string _testSecret = null;
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder();
@@ -45,7 +45,10 @@ namespace TabRepository
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("Postgres")));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>(config =>
+            {
+                config.SignIn.RequireConfirmedEmail = true;
+            })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -61,7 +64,13 @@ namespace TabRepository
                 googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
             });
 
-            _testSecret = Configuration["MySecret"];
+            services.AddHttpsRedirection(options =>
+            {
+                options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+                options.HttpsPort = 5001;
+            });
+
+            services.Configure<AuthMessageSenderOptions>(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -80,6 +89,8 @@ namespace TabRepository
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            app.UseHttpsRedirection();
 
             app.UseStaticFiles(new StaticFileOptions()
             {   // Introduces security risk - should change later

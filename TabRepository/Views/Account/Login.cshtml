@@ -38,7 +38,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <button type="submit" class="btn btn-default button-login">Log in</button>
+                <button type="submit" class="btn btn-default button-submit-wide">Log in</button>
             </div>
         </form>
         @{
@@ -59,7 +59,7 @@
                         <p>
                             @foreach (var provider in loginProviders)
                             {
-                                <button type="submit" class="btn btn-default button-login" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">Log in with @provider.DisplayName</button>
+                                <button type="submit" class="btn btn-default button-submit-wide" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">Log in with @provider.DisplayName</button>
                             }
                         </p>
                     </div>

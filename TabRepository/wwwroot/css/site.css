@@ -170,12 +170,7 @@ textarea {
     height: 38px;
 }
 
-.button-login {
-    width: 280px;
-    height: 38px;
-}
-
-.button-register {
+.button-submit-wide {
     width: 280px;
     height: 38px;
 }

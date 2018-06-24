@@ -11,49 +11,49 @@
             <hr />
             <div asp-validation-summary="All"></div>
             <div class="form-group">
-                <div style="text-align: left; margin-left: 15px;">
-                    <label asp-for="Username" class="float-left"></label>
+                <div class="form-label">
+                    <label asp-for="Username"></label>
                 </div>
                 <input asp-for="Username" class="form-control" />
                 <span asp-validation-for="Username"></span>
             </div>
             <div class="form-group">
-                <div style="text-align: left; margin-left: 15px;">
-                    <label asp-for="FirstName" class="float-left"></label>
+                <div class="form-label">
+                    <label asp-for="FirstName"></label>
                 </div>
                 <input asp-for="FirstName" class="form-control" />
                 <span asp-validation-for="FirstName"></span>
             </div>
             <div class="form-group">
-                <div style="text-align: left; margin-left: 15px;">
-                    <label asp-for="LastName" class="float-left"></label>
+                <div class="form-label">
+                    <label asp-for="LastName"></label>
                 </div>
                 <input asp-for="LastName" class="form-control" />
                 <span asp-validation-for="LastName"></span>
             </div>
             <div class="form-group">
-                <div style="text-align: left; margin-left: 15px;">
-                    <label asp-for="Email" class="float-left"></label>
+                <div class="form-label">
+                    <label asp-for="Email"></label>
                 </div>
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email"></span>
             </div>
             <div class="form-group">
-                <div style="text-align: left; margin-left: 15px;">
-                    <label asp-for="Password" class="float-left"></label>
+                <div class="form-label">
+                    <label asp-for="Password"></label>
                 </div>
                 <input asp-for="Password" class="form-control" />
                 <span asp-validation-for="Password"></span>
             </div>
             <div class="form-group">
-                <div style="text-align: left; margin-left: 15px;">
-                    <label asp-for="ConfirmPassword" class="float-left"></label>
+                <div class="form-label">
+                    <label asp-for="ConfirmPassword"></label>
                 </div>
                 <input asp-for="ConfirmPassword" class="form-control" />
                 <span asp-validation-for="ConfirmPassword"></span>
             </div>
             <div class="form-group">
-                <div style="text-align: left; margin-left: 15px;">
+                <div class="form-label">
                     @Html.LabelFor(m => m.Image, "Profile Image")
                 </div>
                 @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default" })
@@ -70,8 +70,48 @@
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 <script>
     $(document).on("submit", function (e, data) {
-        // Show spinner on login button
+        // Show spinner on reset button
         $($(document.activeElement)[0]).html('<div class="loader"></div>');
+
+        e.preventDefault();
+
+        var form = e.target;
+        var formData = new FormData(form);
+
+        $.ajax({
+            url: form.action,
+            type: 'POST',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false
+        })
+        .then(function (response) {
+            bootbox.dialog({
+                message: "We have sent you a confirmation email. Please confirm your account prior to logging in.",
+                buttons: {
+                    confirm: {
+                        label: 'Go to login',
+                        className: 'btn-default',
+                    }
+                }
+            });
+        })
+        .fail(function (error) {
+            bootbox.dialog({
+                message: "An error occurred while submitting the form.<br /><br />Error: " + error.statusText,
+                buttons: {
+                    confirm: {
+                        label: 'Close',
+                        className: 'btn-default'
+                    },
+                }
+            });
+        });
+    });
+
+    $(document).on('hidden.bs.modal', function () {
+        window.location.href = ("@Url.Action("Login", "Account")");        
     });
 </script>
 }

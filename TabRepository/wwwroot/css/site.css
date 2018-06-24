@@ -192,6 +192,12 @@ textarea {
     margin-right: auto;
 }
 
+.form-password-reset {
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .center-form-outer-container {
     display: table;
     height: 100%;
@@ -203,7 +209,7 @@ textarea {
     vertical-align: middle;
 }
 
-.login-label {
+.form-label {
     text-align: left;
     margin-left: 15px;
 }

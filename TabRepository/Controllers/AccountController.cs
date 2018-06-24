@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication;
 using TabRepository.Data;
 using TabRepository.Helpers;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 
 namespace TabRepository.Controllers
 {
@@ -376,15 +377,16 @@ namespace TabRepository.Controllers
             if (user == null)
             {
                 // Don't reveal that the user does not exist
-                return RedirectToAction(nameof(AccountController.ResetPasswordConfirmation), "Account");
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
             var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
             if (result.Succeeded)
             {
-                return RedirectToAction(nameof(AccountController.ResetPasswordConfirmation), "Account");
+                return new StatusCodeResult(StatusCodes.Status200OK);
             }
             AddErrors(result);
-            return View();
+
+            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
 
         //

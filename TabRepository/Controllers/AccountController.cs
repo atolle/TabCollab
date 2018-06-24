@@ -306,6 +306,15 @@ namespace TabRepository.Controllers
         }
 
         //
+        // GET: /Account/ForgotPassword
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPasswordPartial()
+        {
+            return PartialView("_ForgotPassword");
+        }
+
+        //
         // POST: /Account/ForgotPassword
         [HttpPost]
         [AllowAnonymous]

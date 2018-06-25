@@ -324,24 +324,34 @@ namespace TabRepository.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
-                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                var userByUsername = await _userManager.FindByNameAsync(model.Username);
+
+                if (userByUsername == null || !(await _userManager.IsEmailConfirmedAsync(userByUsername)))
                 {
                     // Don't reveal that the user does not exist or is not confirmed
                     return View("ForgotPasswordConfirmation");
                 }
 
+                if (userByUsername != null)
+                {
+                    if (userByUsername.Email != model.Email)
+                    {
+                        // Don't reveal that the user does not exist or is not confirmed
+                        return View("ForgotPasswordConfirmation");
+                    }
+                }
+
                 // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=532713
                 // Send an email with this link
-                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var callbackUrl = Url.Action(nameof(ResetPassword), "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                var code = await _userManager.GeneratePasswordResetTokenAsync(userByUsername);
+                var callbackUrl = Url.Action(nameof(ResetPassword), "Account", new { userId = userByUsername.Id, code = code }, protocol: HttpContext.Request.Scheme);
                 await _emailSender.SendEmailAsync(model.Email, "Reset Password",
                    $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
                 return View("ForgotPasswordConfirmation");
             }
 
-            // If we got this far, something failed, redisplay form
-            return View(model);
+            // If we got this far, something failed
+            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
 
         //
@@ -373,13 +383,18 @@ namespace TabRepository.Controllers
             {
                 return View(model);
             }
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
+            var userByUserName = await _userManager.FindByNameAsync(model.Username);
+            if (userByUserName == null)
             {
                 // Don't reveal that the user does not exist
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
-            var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
+            else if (userByUserName.Email != model.Email)
+            {
+                // Don't reveal that the user does not exist
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+            var result = await _userManager.ResetPasswordAsync(userByUserName, model.Code, model.Password);
             if (result.Succeeded)
             {
                 return new StatusCodeResult(StatusCodes.Status200OK);

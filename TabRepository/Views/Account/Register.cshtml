@@ -69,6 +69,8 @@
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 <script>
+    var registerSuccess = false;
+
     $(document).on("submit", function (e, data) {
         // Show spinner on reset button
         $($(document.activeElement)[0]).html('<div class="loader"></div>');
@@ -87,12 +89,13 @@
             processData: false
         })
         .then(function (response) {
+            registerSuccess = true;
             bootbox.dialog({
                 message: "We have sent you a confirmation email. Please confirm your account prior to logging in.",
                 buttons: {
                     confirm: {
                         label: 'Go to login',
-                        className: 'btn-default',
+                        className: 'btn-default'
                     }
                 }
             });
@@ -111,7 +114,10 @@
     });
 
     $(document).on('hidden.bs.modal', function () {
-        window.location.href = ("@Url.Action("Login", "Account")");        
+        $('.button-submit-wide').html('Register');
+        if (registerSuccess) {
+            window.location.href = ("@Url.Action("Login", "Account")");
+        }
     });
 </script>
 }

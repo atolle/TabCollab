@@ -155,13 +155,13 @@ namespace TabRepository.Controllers
                         $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
                     
                     _logger.LogInformation(3, "User created a new account with password.");
-                    return RedirectToLocal(returnUrl);
+                    return PartialView("_RegisterConfirmation");
                 }
                 AddErrors(result);
             }
 
             // If we got this far, something failed, redisplay form
-            return View(model);
+            return PartialView("_RegisterForm", model);
         }
 
         //
@@ -387,31 +387,23 @@ namespace TabRepository.Controllers
             if (userByUserName == null)
             {
                 // Don't reveal that the user does not exist
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return PartialView("_ResetPasswordConfirmation");
             }
             else if (userByUserName.Email != model.Email)
             {
                 // Don't reveal that the user does not exist
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return PartialView("_ResetPasswordConfirmation");
             }
             var result = await _userManager.ResetPasswordAsync(userByUserName, model.Code, model.Password);
             if (result.Succeeded)
             {
-                return new StatusCodeResult(StatusCodes.Status200OK);
+                return PartialView("_ResetPasswordConfirmation");
             }
             AddErrors(result);
 
-            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            return PartialView("_ResetPasswordForm", model);
         }
 
-        //
-        // GET: /Account/ResetPasswordConfirmation
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult ResetPasswordConfirmation()
-        {
-            return View();
-        }
 
         //
         // GET: /Account/SendCode

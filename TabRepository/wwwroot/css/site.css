@@ -271,6 +271,14 @@ textarea {
     overflow: hidden;
 }
 
+#register-container {
+    height: 100%;
+}
+
+#reset-password-container {
+    height: 100%;
+}
+
 .show-items-icon-container {
     cursor: pointer; 
 }

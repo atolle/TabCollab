@@ -3,74 +3,74 @@
     ViewData["Title"] = "Register";
 }
 
-<div class="center-form-outer-container" align="center">
-    <div class="center-form-inner-container">
-        <h2>@ViewData["Title"]</h2>
-        <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal form-register">
-            <h4>Create your account</h4>
-            <hr />
-            <div asp-validation-summary="All"></div>
-            <div class="form-group">
-                <div class="form-label">
-                    <label asp-for="Username"></label>
+<div id="register-container">
+    <div class="center-form-outer-container" align="center">
+        <div class="center-form-inner-container">
+            <h2>@ViewData["Title"]</h2>
+            <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" id="register-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal form-register">
+                <h4>Create your account</h4>
+                <hr />
+                <div asp-validation-summary="All"></div>
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="Username"></label>
+                    </div>
+                    <input asp-for="Username" class="form-control" />
+                    <span asp-validation-for="Username"></span>
                 </div>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username"></span>
-            </div>
-            <div class="form-group">
-                <div class="form-label">
-                    <label asp-for="FirstName"></label>
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="FirstName"></label>
+                    </div>
+                    <input asp-for="FirstName" class="form-control" />
+                    <span asp-validation-for="FirstName"></span>
                 </div>
-                <input asp-for="FirstName" class="form-control" />
-                <span asp-validation-for="FirstName"></span>
-            </div>
-            <div class="form-group">
-                <div class="form-label">
-                    <label asp-for="LastName"></label>
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="LastName"></label>
+                    </div>
+                    <input asp-for="LastName" class="form-control" />
+                    <span asp-validation-for="LastName"></span>
                 </div>
-                <input asp-for="LastName" class="form-control" />
-                <span asp-validation-for="LastName"></span>
-            </div>
-            <div class="form-group">
-                <div class="form-label">
-                    <label asp-for="Email"></label>
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="Email"></label>
+                    </div>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email"></span>
                 </div>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email"></span>
-            </div>
-            <div class="form-group">
-                <div class="form-label">
-                    <label asp-for="Password"></label>
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="Password"></label>
+                    </div>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password"></span>
                 </div>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password"></span>
-            </div>
-            <div class="form-group">
-                <div class="form-label">
-                    <label asp-for="ConfirmPassword"></label>
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="ConfirmPassword"></label>
+                    </div>
+                    <input asp-for="ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword"></span>
                 </div>
-                <input asp-for="ConfirmPassword" class="form-control" />
-                <span asp-validation-for="ConfirmPassword"></span>
-            </div>
-            <div class="form-group">
-                <div class="form-label">
-                    @Html.LabelFor(m => m.Image, "Profile Image")
+                <div class="form-group">
+                    <div class="form-label">
+                        @Html.LabelFor(m => m.Image, "Profile Image")
+                    </div>
+                    @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default" })
+                    @Html.ValidationMessageFor(m => m.Image)
                 </div>
-                @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default" })
-                @Html.ValidationMessageFor(m => m.Image)
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-default button-submit-wide">Register</button>
-            </div>
-        </form>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-default button-submit-wide">Register</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 <script>
-    var registerSuccess = false;
-
     $(document).on("submit", function (e, data) {
         // Show spinner on reset button
         $($(document.activeElement)[0]).html('<div class="loader"></div>');
@@ -88,17 +88,10 @@
             contentType: false,
             processData: false
         })
-        .then(function (response) {
-            registerSuccess = true;
-            bootbox.dialog({
-                message: "We have sent you a confirmation email. Please confirm your account prior to logging in.",
-                buttons: {
-                    confirm: {
-                        label: 'Go to login',
-                        className: 'btn-default'
-                    }
-                }
-            });
+        .then(function (data) {
+            $('.button-submit-wide').html('Register');
+            $('#register-container').html(data);
+            $.validator.unobtrusive.parse($("#register-form"));
         })
         .fail(function (error) {
             bootbox.dialog({
@@ -115,9 +108,6 @@
 
     $(document).on('hidden.bs.modal', function () {
         $('.button-submit-wide').html('Register');
-        if (registerSuccess) {
-            window.location.href = ("@Url.Action("Login", "Account")");
-        }
     });
 </script>
 }

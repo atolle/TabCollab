@@ -11,7 +11,7 @@
 <div class="center-form-outer-container" align="center">
     <div class="center-form-inner-container">
         <h2>@ViewData["Title"]</h2>
-        <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal form-login">
+        <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal form-center">
             <div asp-validation-summary="All"></div>
             <div class="form-group">
                 <div class="form-label">
@@ -54,7 +54,7 @@
             }
             else
             {
-                <form asp-controller="Account" asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
+                <form asp-controller="Account" asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal form-center">
                     <div>
                         <p>
                             @foreach (var provider in loginProviders)
@@ -66,7 +66,7 @@
                 </form>
             }
         }
-        <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal form-login">
+        <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal form-center">
             <div asp-validation-summary="All"></div>
             <div class="form-group">
                 <div class="form-label">
@@ -74,7 +74,7 @@
                         <a asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]">Register as a new user?</a>
                     </p>
                     <p>
-                        <a asp-action="ForgotPasswordPartial" id="forgot-password">Forgot your password?</a>
+                        <a asp-action="ForgotPassword">Forgot your password?</a>
                     </p>
                 </div>
             </div>
@@ -88,80 +88,11 @@
 </div>
 
 @section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-    <script>
-        $(document).on("submit", function (e, data) {
-            // Show spinner on login button
-            $($(document.activeElement)[0]).html('<div class="loader"></div>');
-
-            // If this is the forgot password form, send the request via ajax so that we can show a success/failure message
-            if (e.target.id == 'forgot-password-form') {
-                e.preventDefault();
-
-                var form = e.target;
-                var formData = new FormData(form);
-
-                $.ajax({
-                    url: form.action,
-                    type: 'POST',
-                    data: formData,
-                    cache: false,
-                    contentType: false,
-                    processData: false
-                })
-                .then(function (response) {
-                    currentModal = $('#forgot-password-form-modal');
-                    currentModal.modal('hide');
-                    bootbox.dialog({
-                        message: "An email has been sent with instructions on how to reset your password.",
-                        buttons: {
-                            confirm: {
-                                label: 'Close',
-                                className: 'btn-default'
-                            },
-                        },
-                        callback: function () { }
-                    });
-                })
-                .fail(function (error) {
-                    currentModal = $('#forgot-password-form-modal');
-                    currentModal.modal('hide');
-                    bootbox.dialog({
-                        message: "An error occurred while submitting the form.<br /><br />Error: " + error.statusText,
-                        buttons: {
-                            confirm: {
-                                label: 'Close',
-                                className: 'btn-default'
-                            },
-                        },
-                        callback: function () { }
-                    });
-                });
-            }
-        });
-
-        // Show modal for new tab
-        $(document).on("click", "#forgot-password", function (e, data) {
-            e.preventDefault();
-
-            var href = this.href;
-
-            $.ajax({
-                url: href,
-                type: 'GET',
-            })
-            .then(function (data) {
-                $('#forgot-password-form-container').html(data);
-                // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#forgot-password-form"));
-
-                currentModal = $('#forgot-password-form-modal');
-                currentModal.modal('show');
-
-            })
-            .fail(function (error) {
-                bootbox.alert("Unable to show forgot password form. Error: " + error.statusText);
-            })
-        });
-    </script>
+@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+<script>
+    $(document).on("submit", function (e, data) {
+        // Show spinner on login button
+        $($(document.activeElement)[0]).html('<div class="loader"></div>');
+    });
+</script>
 }

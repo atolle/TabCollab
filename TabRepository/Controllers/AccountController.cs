@@ -307,15 +307,6 @@ namespace TabRepository.Controllers
         }
 
         //
-        // GET: /Account/ForgotPassword
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult ForgotPasswordPartial()
-        {
-            return PartialView("_ForgotPassword");
-        }
-
-        //
         // POST: /Account/ForgotPassword
         [HttpPost]
         [AllowAnonymous]
@@ -329,7 +320,7 @@ namespace TabRepository.Controllers
                 if (userByUsername == null || !(await _userManager.IsEmailConfirmedAsync(userByUsername)))
                 {
                     // Don't reveal that the user does not exist or is not confirmed
-                    return View("ForgotPasswordConfirmation");
+                    return PartialView("_ForgotPasswordConfirmation");
                 }
 
                 if (userByUsername != null)
@@ -337,7 +328,7 @@ namespace TabRepository.Controllers
                     if (userByUsername.Email != model.Email)
                     {
                         // Don't reveal that the user does not exist or is not confirmed
-                        return View("ForgotPasswordConfirmation");
+                        return PartialView("_ForgotPasswordConfirmation");
                     }
                 }
 
@@ -347,11 +338,11 @@ namespace TabRepository.Controllers
                 var callbackUrl = Url.Action(nameof(ResetPassword), "Account", new { userId = userByUsername.Id, code = code }, protocol: HttpContext.Request.Scheme);
                 await _emailSender.SendEmailAsync(model.Email, "Reset Password",
                    $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
-                return View("ForgotPasswordConfirmation");
+                return PartialView("_ForgotPasswordConfirmation");
             }
 
             // If we got this far, something failed
-            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            return PartialView("_ForgotPasswordForm", model);
         }
 
         //

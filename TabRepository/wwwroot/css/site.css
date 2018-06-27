@@ -180,19 +180,7 @@ textarea {
     margin: 0 auto;
 }
 
-.form-login {
-    max-width: 280px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.form-register {
-    max-width: 280px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.form-password-reset {
+.form-center {
     max-width: 280px;
     margin-left: auto;
     margin-right: auto;
@@ -276,6 +264,10 @@ textarea {
 }
 
 #reset-password-container {
+    height: 100%;
+}
+
+#forgot-password-container {
     height: 100%;
 }
 

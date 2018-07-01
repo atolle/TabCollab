@@ -69,6 +69,10 @@ hr, footer {
     top: 100%;
 }
 
+.search-btn {
+    width: auto !important;
+}
+
 .input-group-addon:hover {
     cursor: pointer;
 }

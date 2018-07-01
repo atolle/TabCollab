@@ -16,17 +16,17 @@
             </li>
         </ul>
     </form>
-    <div class="input-group">
-        <form id="search-form" class="navbar-left navbar-form search-form" asp-controller="Friends" asp-action="Search" method="get" autocomplete="off">
-            <input type="text" class="form-control" placeholder="Search" name="search">
-            <div class="input-group-btn">
-                <button type="submit" class="btn btn-default search-btn">
+    <form id="search-form" class="navbar-form search-form" asp-controller="Friends" asp-action="Search" method="get" autocomplete="off">
+        <div class="form-group" style="display:inline;">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search" name="search">
+                <ul class="list-group search-results"></ul>
+                <span class="input-group-addon search-btn">
                     <span class="glyphicon glyphicon-search"></span>
-                </button>
+                </span>
             </div>
-            <ul class="list-group search-results"></ul>
-        </form>
-    </div>
+        </div>
+    </form>
 }
 else
 {

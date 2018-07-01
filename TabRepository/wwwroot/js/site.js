@@ -27,6 +27,10 @@ $(document).on('blur', '.search-form input', function (e) {
     }, 500);
 });
 
+$(document).on('click', '.search-btn', function (e) {
+    $(this).closest('form').submit();
+});
+
 function clearSearchSuggestions() {
     var container = document.getElementsByClassName("search-results");
     container = container[0];

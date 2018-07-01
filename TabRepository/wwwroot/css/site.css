@@ -24,13 +24,6 @@ hr, footer {
     height: 100%;
 }
 
-/* Set widths on the form inputs since otherwise they're 100% wide */
-input,
-select,
-textarea {
-    max-width: 280px;
-}
-
 /* Carousel */
 .carousel-caption p {
     font-size: 20px;
@@ -63,14 +56,6 @@ textarea {
     }   
 }
 
-#search-form .form-control {
-    width: 500px;
-}
-
-.search-btn {
-    margin-left: -4px;
-}
-
 .navbar-form .input-group {
     position: relative;
     display: flex;
@@ -82,6 +67,10 @@ textarea {
     left: 0;
     right: 0;
     top: 100%;
+}
+
+.input-group-addon:hover {
+    cursor: pointer;
 }
 
 .navbar-fixed-top .navbar-collapse {

@@ -1,8 +1,4 @@
-﻿#page {
-    height: 87%;
-}
-
-html {
+﻿html {
     height: 100%;
 }
 
@@ -10,10 +6,6 @@ body {
     padding-top: 50px;
     padding-bottom: 20px;
     height: 100%;
-}
-
-hr, footer {
-    display: none;
 }
 
 /* Wrapping element */
@@ -330,6 +322,6 @@ hr, footer {
     height: 75px;
 }
 
-#tabversions-table-container {
-    margin-top: 19px;
+.manage-wrapper {
+    margin-top: 40px;
 }

@@ -82,6 +82,7 @@ namespace TabRepository.Data
         public DbSet<Friend> Friends { get; set; }
         public DbSet<Album> Albums { get; set; }
         public DbSet<ProjectContributor> ProjectContributors { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         public ApplicationDbContext()
             : base()

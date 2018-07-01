@@ -3,13 +3,8 @@
     ViewData["Title"] = "Manage your account";
 }
 
-<h2>@ViewData["Title"].</h2>
-<p class="text-success">@ViewData["StatusMessage"]</p>
-
-<div id="page">
-    <div>
-        <h4>Change your account settings</h4>
-        <hr />
+<div id="page" style="height: 100%;">
+    <div class="manage-wrapper">
         <div class="col-md-4">
             <div class="panel panel-default panel-profile">
                 <div id="profile-image" class="panel-heading" style="background-image: url('@Model.ImageFilePath');"></div>

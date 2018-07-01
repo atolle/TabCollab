@@ -88,3 +88,7 @@ td {
     word-wrap: break-word;
     max-width: 1px;
 }
+
+#tabversions-table-container {
+    margin-top: 19px;
+}

@@ -9,9 +9,11 @@ namespace TabRepository.Models
     {
         public int Id { get; set; }
 
-        public int ToUserId { get; set; }
+        public string ToUserId { get; set; }
 
-        public int FromUserId { get; set; }
+        public string FromUserId { get; set; }
+
+        public int? ProjectId { get; set; }
 
         public string Title { get; set; }
 
@@ -19,10 +21,27 @@ namespace TabRepository.Models
 
         public DateTime Timestamp { get; set; }
 
-        public bool IsRead { get; set; }
+        public NotificationType NotificationType { get; set; }
 
         public virtual ApplicationUser ToUser { get; set; }
 
         public virtual ApplicationUser FromUser { get; set; }
+
+        public virtual Project Project { get; set; }
+    }
+
+    public enum NotificationType
+    {   // Do not rearrange - only add to bottom
+        FriendRequested,
+        FriendAccepted,
+        ProjectAdded,
+        ProjectDeleted,
+        AlbumAdded,
+        AlbumDeleted,
+        TabAdded,
+        TabDeleted,
+        TabVersionAdded,
+        TabVersionDeleted,
+        ContributorAdded
     }
 }

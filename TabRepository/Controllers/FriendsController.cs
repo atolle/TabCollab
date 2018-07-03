@@ -99,54 +99,86 @@ namespace TabRepository.Controllers
         {
             var friendStatus = CheckFriendStatus(username);
 
-            try
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                if (friendStatus != FriendStatus.Blocked)
+                try
                 {
-                    string currentUserId = User.GetUserId();
-                    string otherUserId = _context.Users.Where(u => u.UserName == username).Select(u => u.Id).FirstOrDefault();
-
-                    if (otherUserId == null)
+                    if (friendStatus != FriendStatus.Blocked)
                     {
-                        return new StatusCodeResult(StatusCodes.Status404NotFound);
-                    }
+                        string currentUserId = User.GetUserId();
+                        string currentUsername = User.GetUsername();
+                        ApplicationUser otherUser = _context.Users.Where(u => u.UserName == username).FirstOrDefault();
+                        string otherUserId = otherUser.Id;
 
-                    var friendInDb = _context
-                        .Friends
-                        .SingleOrDefault(u => (u.User1Id == currentUserId || u.User2Id == currentUserId) && (u.User1Id == otherUserId || u.User2Id == otherUserId));
 
-                    if (friendInDb == null)
-                    {
-                        Friend friend = new Friend()
+                        if (otherUserId == null)
                         {
-                            User1Id = currentUserId,
-                            User2Id = otherUserId,
-                            ActingUserId = currentUserId, 
-                            Status = FriendStatus.Requested
+                            return new StatusCodeResult(StatusCodes.Status404NotFound);
+                        }
+
+                        var friendInDb = _context
+                            .Friends
+                            .SingleOrDefault(u => (u.User1Id == currentUserId || u.User2Id == currentUserId) && (u.User1Id == otherUserId || u.User2Id == otherUserId));
+
+                        if (friendInDb == null)
+                        {
+                            Friend friend = new Friend()
+                            {
+                                User1Id = currentUserId,
+                                User2Id = otherUserId,
+                                ActingUserId = currentUserId,
+                                Status = FriendStatus.Requested
+                            };
+
+                            _context.Friends.Add(friend);
+                            _context.SaveChanges();
+                        }
+                        else
+                        {
+                            friendInDb.ActingUserId = currentUserId;
+                            friendInDb.Status = FriendStatus.Requested;
+
+                            _context.Friends.Update(friendInDb);
+                            _context.SaveChanges();
+                        }
+
+                        Notification notification = new Notification()
+                        {
+                            ToUserId = otherUserId,
+                            FromUserId = currentUserId,
+                            Title = "Friend Request",
+                            Message = currentUsername + " has sent you a friend request",
+                            Timestamp = DateTime.Now,
+                            ProjectId = null,
+                            NotificationType = NotificationType.FriendRequested
                         };
 
-                        _context.Friends.Add(friend);
+                        _context.Notifications.Add(notification);
                         _context.SaveChanges();
-                    }
-                    else
-                    {
-                        friendInDb.ActingUserId = currentUserId;
-                        friendInDb.Status = FriendStatus.Requested;
 
-                        _context.Friends.Update(friendInDb);
+                        NotificationUser notificationUser = new NotificationUser()
+                        {
+                            UserId = otherUserId,
+                            NotificationId = notification.Id,
+                            IsRead = false
+                        };
+
+                        _context.NotificationUsers.Add(notificationUser);
                         _context.SaveChanges();
+
+                        transaction.Commit();
+
+                        // Return a null json result as the POST is expecting json
+                        return new JsonResult(null);
                     }
 
-                    // Return a null json result as the POST is expecting json
-                    return new JsonResult(null);
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
-
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                catch (Exception e)
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
             }
-            catch
-            {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }            
         }
 
         [HttpPost]
@@ -154,39 +186,70 @@ namespace TabRepository.Controllers
         {
             var friendStatus = CheckFriendStatus(username);
 
-            try
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                if (friendStatus != FriendStatus.Blocked)
+                try
                 {
-                    string currentUserId = User.GetUserId();
-                    string otherUserId = _context.Users.Where(u => u.UserName == username).Select(u => u.Id).FirstOrDefault();
-
-                    if (otherUserId == null)
+                    if (friendStatus != FriendStatus.Blocked)
                     {
-                        return new StatusCodeResult(StatusCodes.Status404NotFound);
-                    }
+                        string currentUserId = User.GetUserId();
+                        string currentUsername = User.GetUsername();
+                        ApplicationUser otherUser = _context.Users.Where(u => u.UserName == username).FirstOrDefault();
+                        string otherUserId = otherUser.Id;
 
-                    var friendInDb = _context
-                        .Friends
-                        .SingleOrDefault(u => (u.User1Id == currentUserId || u.User2Id == currentUserId) && (u.User1Id == otherUserId || u.User2Id == otherUserId));
+                        if (otherUserId == null)
+                        {
+                            return new StatusCodeResult(StatusCodes.Status404NotFound);
+                        }
 
-                    if (friendInDb != null)
-                    {
-                        friendInDb.Status = FriendStatus.Friends;
+                        var friendInDb = _context
+                            .Friends
+                            .SingleOrDefault(u => (u.User1Id == currentUserId || u.User2Id == currentUserId) && (u.User1Id == otherUserId || u.User2Id == otherUserId));
 
-                        _context.Friends.Update(friendInDb);
+                        if (friendInDb != null)
+                        {
+                            friendInDb.Status = FriendStatus.Friends;
+
+                            _context.Friends.Update(friendInDb);
+                            _context.SaveChanges();
+                        }
+
+                        Notification notification = new Notification()
+                        {
+                            ToUserId = otherUserId,
+                            FromUserId = currentUserId,
+                            Title = "Friend Accepted",
+                            Message = currentUsername + " has accepted your friend request",
+                            Timestamp = DateTime.Now,
+                            ProjectId = null,
+                            NotificationType = NotificationType.FriendAccepted
+                        };
+
+                        _context.Notifications.Add(notification);
                         _context.SaveChanges();
+
+                        NotificationUser notificationUser = new NotificationUser()
+                        {
+                            UserId = otherUserId,
+                            NotificationId = notification.Id,
+                            IsRead = false
+                        };
+
+                        _context.NotificationUsers.Add(notificationUser);
+                        _context.SaveChanges();
+
+                        transaction.Commit();
+
+                        // Return a null json result as the POST is expecting json
+                        return new JsonResult(null);
                     }
 
-                    // Return a null json result as the POST is expecting json
-                    return new JsonResult(null);
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
-
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
-            catch
-            {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                catch
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
             }
         }
 

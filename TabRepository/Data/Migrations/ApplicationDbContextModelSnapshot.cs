@@ -252,29 +252,49 @@ namespace TabRepository.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("FromUserId");
-
-                    b.Property<string>("FromUserId1");
-
-                    b.Property<bool>("IsRead");
+                    b.Property<string>("FromUserId");
 
                     b.Property<string>("Message");
+
+                    b.Property<int>("NotificationType");
+
+                    b.Property<int>("ProjectId");
 
                     b.Property<DateTime>("Timestamp");
 
                     b.Property<string>("Title");
 
-                    b.Property<int>("ToUserId");
-
-                    b.Property<string>("ToUserId1");
+                    b.Property<string>("ToUserId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FromUserId1");
+                    b.HasIndex("FromUserId");
 
-                    b.HasIndex("ToUserId1");
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("ToUserId");
 
                     b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("TabRepository.Models.NotificationUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("IsRead");
+
+                    b.Property<int>("NotificationId");
+
+                    b.Property<string>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NotificationId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("NotificationUsers");
                 });
 
             modelBuilder.Entity("TabRepository.Models.Project", b =>
@@ -474,11 +494,28 @@ namespace TabRepository.Data.Migrations
                 {
                     b.HasOne("TabRepository.Models.ApplicationUser", "FromUser")
                         .WithMany()
-                        .HasForeignKey("FromUserId1");
+                        .HasForeignKey("FromUserId");
+
+                    b.HasOne("TabRepository.Models.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TabRepository.Models.ApplicationUser", "ToUser")
                         .WithMany()
-                        .HasForeignKey("ToUserId1");
+                        .HasForeignKey("ToUserId");
+                });
+
+            modelBuilder.Entity("TabRepository.Models.NotificationUser", b =>
+                {
+                    b.HasOne("TabRepository.Models.Notification", "Notification")
+                        .WithMany()
+                        .HasForeignKey("NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TabRepository.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("TabRepository.Models.Project", b =>

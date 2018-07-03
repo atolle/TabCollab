@@ -61,3 +61,16 @@ $(document).ready(function () {
     $('li.active').removeClass('active');
     $('a[href="' + location.pathname + '"]').closest('li').addClass('active');
 });
+
+$(document).ready(function () {
+    $.ajax({
+        url: '/Notifications/GetNotifications',
+        type: 'GET',
+    })
+    .then(function (data) {
+        $('.notifications').html(data);
+    })
+    .fail(function (error) {
+
+    })
+});

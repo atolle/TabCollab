@@ -1,0 +1,12 @@
+﻿@model IEnumerable<TabRepository.Models.Notification>
+
+@foreach (var notification in Model)
+{
+    <li>
+        <button>
+            <h5>@notification.Title</h5><br />
+            <h6>@notification.Message</h6>
+            <i class='fa fa-times' style='padding-left: 7px;' />
+        </button>
+    </li>
+}

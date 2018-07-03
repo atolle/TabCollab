@@ -8,6 +8,10 @@
 {
     <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" id="logoutForm" class="navbar-right">
         <ul class="nav navbar-nav navbar-right">
+            <li class="notifications-btn">
+                TC
+                <ul class="notifications" hidden></ul>
+            </li>
             <li>
                 <a asp-area="" asp-controller="Manage" asp-action="Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
             </li>
@@ -18,7 +22,7 @@
     </form>
     <form id="search-form" class="navbar-form search-form" asp-controller="Friends" asp-action="Search" method="get" autocomplete="off">
         <div class="form-group" style="display:inline;">
-            <div class="input-group">
+            <div class="input-group search-input">
                 <input type="text" class="form-control" placeholder="Search" name="search">
                 <ul class="list-group search-results"></ul>
                 <span class="input-group-addon search-btn">

@@ -88,7 +88,7 @@ body {
 }
 
 .panel {
-    max-width: 400px;
+    width: 350px;
 }
 
 .panel-profile-img {
@@ -268,7 +268,7 @@ body {
 
 .contributor-btn {
     margin-right: 10px;
-    margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 .tab-panel {
@@ -324,4 +324,8 @@ body {
 
 .manage-wrapper {
     margin-top: 40px;
+}
+
+.form-input {
+    max-width: 280px;
 }

@@ -271,6 +271,16 @@ body {
     margin-top: 10px;
 }
 
+.contributor-btn:hover {
+    color: #ffffff !important;
+    background-color: #424242 !important;
+    border-color: #424242 !important;
+}
+
+.contributor-btn:hover .fa-times {
+    opacity: 0.6;
+}
+
 .tab-panel {
     /*background-color: #19262B;*/
     background-color: rgb(66,66,66);
@@ -341,7 +351,7 @@ body {
     top: 100%;
     top: 50%; /* position the top  edge of the element at the middle of the parent */
     left: 50%; /* position the left edge of the element at the middle of the parent */
-    transform: translate(-50%, 25%); /* This is a shorthand of translateX(-50%) and translateY(30%) */
+    transform: translate(-50%, 26px); /* This is a shorthand of translateX(-50%) and translateY(30%) */
 }
 
 .notifications-btn:hover {
@@ -351,4 +361,8 @@ body {
 .clear-btn {
     color: black;
     margin-right: 13px;
+}
+
+.notification-delete-btn:hover {
+    opacity: 0.6;
 }

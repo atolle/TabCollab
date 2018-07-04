@@ -143,7 +143,7 @@ $(document).ready(function () {
 
         // Create button for contributor and remove from list
         $("#contributors-panels").append("<input type='hidden' class='form-control contributor' name='' value='" + username + "'>");
-        $("#contributors-panels").append("<button data-username='" + username + "' data-text='" + name + "' class='contributor-btn btn btn-default'>" + name + "<i class='fa fa-times' style='padding-left: 7px;' /></button>");
+        $("#contributors-panels").append("<button data-username='" + username + "' data-text='" + name + "' class='contributor-btn btn btn-default'>" + name + "<i class='fa fa-times' style='padding-left: 7px;' /></button>");        
         selected.remove();
         $("#contributors-list option[value=default]").prop("selected", true);
     });

@@ -65,22 +65,33 @@ $(document).ready(function () {
     $('a[href="' + location.pathname + '"]').closest('li').addClass('active');
 });
 
-$(document).ready(function () {
+$(document).ready(GetNotificationPanel());
+
+function GetNotificationPanel() {
     $.ajax({
-        url: '/Notifications/GetNotifications',
+        url: '/Notifications/GetNotificationPanel',
         type: 'GET',
     })
-    .then(function (data) {
-        if (data.count > 0) {
+        .then(function (data) {
             notificationCount = data.count;
-            $('.notifications-btn').css("color", "red");
-            $('.notifications').html(data.html);
-        }        
-    })
-    .fail(function (error) {
+            if (data.count > 0) {
+                if ($('.notifications').is(':hidden')) {
+                    $('.notifications-btn').css("color", "red");
+                }
+                else {
+                    $('.notifications-btn').css("color", "gray");
+                }
+                $('.notifications').html(data.html);
+            }
+            else {
+                $('.notifications-btn').css("color", "gray");
+                $('.notifications').hide();
+            }
+        })
+        .fail(function (error) {
 
-    })
-});
+        })
+};
 
 $(document).on('click', '.notifications-btn', function (e) {
     if (notificationCount > 0) {
@@ -95,8 +106,8 @@ $(document).on('click', '.notifications-btn', function (e) {
 });
 
 $(document.body).click(function (e) {
-    if (notificationCount > 0) {
-        if (e.target != $('.notifications-btn')[0]) {
+    if (notificationCount > 0) {        
+        if (e.target != $('.notifications-btn')[0] && e.target != $('.notification-delete-btn')[0] && e.target != $('notification-delete-all-btn')[0]) {
             $('.notifications').hide();
         }
         if ($('.notifications').is(':hidden')) {
@@ -106,4 +117,38 @@ $(document.body).click(function (e) {
             $('.notifications-btn').css("color", "gray");
         }
     }
+});
+
+$(document).on('click', '.notification-delete-btn', function (e) {
+    e.preventDefault();
+
+    var notificationId = { notificationId: $(this).attr('data-notification-id') };
+
+    $.ajax({
+        url: '/Notifications/DeleteNotificationForUser',
+        type: 'POST',
+        data: notificationId,
+        dataType: 'json'
+    })
+    .then(function () {        
+        GetNotificationPanel();
+    })
+    .fail(function (error) {
+
+    })
+});
+
+$(document).on('click', '.notification-delete-all-btn', function (e) {
+    e.preventDefault();
+
+    $.ajax({
+        url: '/Notifications/DeleteAllNotificationsForUser',
+        type: 'POST'
+    })
+    .then(function () {
+        GetNotificationPanel();
+    })
+    .fail(function (error) {
+
+    })
 });

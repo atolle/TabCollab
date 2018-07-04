@@ -1,4 +1,7 @@
 ﻿var searchTimeout = undefined;
+var bodyClick = false;
+var notificationCount = 0;
+
 $(document).on('keyup', '.search-form input', function (e) {
     if (searchTimeout) {
         clearTimeout(searchTimeout);
@@ -68,9 +71,39 @@ $(document).ready(function () {
         type: 'GET',
     })
     .then(function (data) {
-        $('.notifications').html(data);
+        if (data.count > 0) {
+            notificationCount = data.count;
+            $('.notifications-btn').css("color", "red");
+            $('.notifications').html(data.html);
+        }        
     })
     .fail(function (error) {
 
     })
+});
+
+$(document).on('click', '.notifications-btn', function (e) {
+    if (notificationCount > 0) {
+        $('.notifications').toggle();
+        if ($('.notifications').is(':hidden')) {
+            $('.notifications-btn').css("color", "red");
+        }
+        else {
+            $('.notifications-btn').css("color", "gray");
+        }
+    }
+});
+
+$(document.body).click(function (e) {
+    if (notificationCount > 0) {
+        if (e.target != $('.notifications-btn')[0]) {
+            $('.notifications').hide();
+        }
+        if ($('.notifications').is(':hidden')) {
+            $('.notifications-btn').css("color", "red");
+        }
+        else {
+            $('.notifications-btn').css("color", "gray");
+        }
+    }
 });

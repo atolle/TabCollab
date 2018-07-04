@@ -8,9 +8,9 @@
 {
     <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" id="logoutForm" class="navbar-right">
         <ul class="nav navbar-nav navbar-right">
-            <li class="notifications-btn">
-                TC
-                <ul class="notifications" hidden></ul>
+            <li>
+                <a class="notifications-btn">TC</a>
+                <ul class="list-group notifications" hidden></ul>                
             </li>
             <li>
                 <a asp-area="" asp-controller="Manage" asp-action="Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>

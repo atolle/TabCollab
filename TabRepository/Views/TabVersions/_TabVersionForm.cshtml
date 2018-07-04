@@ -19,7 +19,7 @@
                 @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
                 <div class="form-group">
                     @Html.LabelFor(t => t.Description)
-                    @Html.TextAreaFor(t => t.Description, new { @class = "form-control" })
+                    @Html.TextAreaFor(t => t.Description, new { @class = "form-control form-input" })
                     @Html.ValidationMessageFor(t => t.Description)
                 </div>
                 @if (Model.Id == 0)
@@ -27,7 +27,7 @@
                 <div class="form-group">
                     <div class="form-group">
                         <label for="FileData">File</label>
-                        <input class="btn btn-default" data-val="true" data-val-required="The tab file is required." id="FileData" name="FileData" type="file">
+                        <input class="btn btn-default form-input" data-val="true" data-val-required="The tab file is required." id="FileData" name="FileData" type="file">
                         <span class="field-validation-valid" data-valmsg-for="FileData" data-valmsg-replace="true"></span>
                     </div>
                 </div>

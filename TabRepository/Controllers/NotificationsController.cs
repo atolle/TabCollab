@@ -24,7 +24,7 @@ namespace TabRepository.Controllers
         {
             _context.Dispose();
         }
-        public string GetNotifications()
+        public ActionResult GetNotifications()
         {
             string currentUserId = User.GetUserId();
 
@@ -32,6 +32,7 @@ namespace TabRepository.Controllers
             {
                 var notifications = _context.NotificationUsers.Where(n => n.UserId == currentUserId).Select(n => n.Notification).ToList();
                 string html = "";
+                int count = 0;
 
                 foreach (Notification notification in notifications)
                 {
@@ -43,14 +44,17 @@ namespace TabRepository.Controllers
                         case NotificationType.FriendRequested: href = Url.Action("Index", "Friends");
                             break;
                     }
-                    html += "<a class='btn list-group-item' href='" + href + "'>" + notification.Message + "<i class='fa fa-times' style='padding-left: 7px;' /></a>"; 
+                    html += "<div class='notification'><a class='btn list-group-item notification-item' href='" + href + "'>" + notification.Message + "<i class='fa fa-times' style='padding-left: 7px;' /></a></div>";
+                    count++;
                 }
+                
+                html += "<div class='notification'><a class='clear-btn pull-right' href='#'>Clear</a></div>";
 
-                return html;
+                return Json(new { html, count });
             }
             catch (Exception e)
             {
-                return "";
+                return Json(new { });
             }
         }
     }

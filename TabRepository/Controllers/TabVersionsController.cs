@@ -124,6 +124,33 @@ namespace TabRepository.Controllers
 
                             _context.SaveChanges();
 
+                            var userTabVersionInDb = _context
+                                .UserTabVersions
+                                .Where(v => v.UserId == currentUserId && v.TabId == tabVersion.TabId)
+                                .FirstOrDefault();
+
+                            if (userTabVersionInDb != null)
+                            {
+                                if (tabVersion.Version > userTabVersionInDb.Version)
+                                {
+                                    userTabVersionInDb.Version = tabVersion.Version;
+                                    _context.UserTabVersions.Update(userTabVersionInDb);
+                                    _context.SaveChanges();
+                                }
+                            }
+                            else
+                            {
+                                UserTabVersion userTabVersion = new UserTabVersion
+                                {
+                                    UserId = currentUserId,
+                                    TabId = tabVersion.TabId,
+                                    Version = tabVersion.Version
+                                };
+
+                                _context.UserTabVersions.Add(userTabVersion);
+                                _context.SaveChanges();
+                            }
+
                             NotificationsController.AddNotification(_context, NotificationType.TabVersionAdded, null, tabVersion.Tab.Album.ProjectId, currentUsername, currentUserId, tabVersion.Version.ToString(), tabVersion.Tab.Name);
 
                             transaction.Commit();
@@ -425,6 +452,42 @@ namespace TabRepository.Controllers
             catch
             {
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult CheckLatestTabVersion(int tabId)
+        {
+            bool hasLatest = false;
+
+            try
+            {
+                string currentUserId = User.GetUserId();
+
+                int? latestUserVersion = _context
+                    .UserTabVersions
+                    .Where(v => v.TabId == tabId && v.UserId == currentUserId)
+                    .Select(v => v.Version)
+                    .FirstOrDefault();
+
+                int? latestVersion = _context
+                    .TabVersions
+                    .Where(v => v.TabId == tabId)                    
+                    .Max(v => v.Version);
+
+                if (latestUserVersion != null && latestVersion != null)
+                {
+                    if (latestUserVersion >= latestVersion)
+                    {
+                        hasLatest = true;
+                    }
+                }
+
+                return Json(new { hasLatest });
+            }
+            catch
+            {
+                return Json(new { hasLatest });
             }
         }
     }

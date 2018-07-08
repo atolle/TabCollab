@@ -52,110 +52,123 @@ namespace TabRepository.Controllers
             }
 
             string currentUserId = User.GetUserId();
+            string currentUsername = User.GetUsername();
 
             try
             {
                 if (viewModel.Id == 0)  // We are creating a new project
                 {
-                    // Saving properties for new Project
-                    Project project = new Project()
+                    using (var transaction = _context.Database.BeginTransaction())
                     {
-                        UserId = User.GetUserId(),
-                        Name = viewModel.Name,
-                        Description = viewModel.Description,
-                        DateCreated = DateTime.Now,
-                        DateModified = DateTime.Now
-                    };
-
-                    if (viewModel.Image != null)
-                    {
-                        project.ImageFileName = viewModel.Image.FileName;
-                        string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + project.Id.ToString());
-                        project.ImageFilePath = imageFilePath;
-                    }
-
-                    _context.Projects.Add(project);
-                    _context.SaveChanges();
-
-                    // Add contributors
-                    if (viewModel.Contributors != null)
-                    {
-                        foreach (UserViewModel user in viewModel.Contributors)
+                        // Saving properties for new Project
+                        Project project = new Project()
                         {
-                            ProjectContributor contributor = new ProjectContributor()
-                            {
-                                UserId = _context.Users.Where(u => u.UserName == user.Username).Select(u => u.Id).FirstOrDefault(),
-                                ProjectId = project.Id
-                            };
+                            UserId = User.GetUserId(),
+                            Name = viewModel.Name,
+                            Description = viewModel.Description,
+                            DateCreated = DateTime.Now,
+                            DateModified = DateTime.Now
+                        };
 
-                            _context.ProjectContributors.Add(contributor);
+                        if (viewModel.Image != null)
+                        {
+                            project.ImageFileName = viewModel.Image.FileName;
+                            string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + project.Id.ToString());
+                            project.ImageFilePath = imageFilePath;
                         }
-                    }
 
-                    _context.SaveChanges();                    
+                        _context.Projects.Add(project);
+                        _context.SaveChanges();
 
-                    return Json(new { name = project.Name, id = project.Id });
-                }
-                else // We're updating a project
-                {
-                    var projectInDb = _context.Projects.SingleOrDefault(p => p.Id == viewModel.Id && p.UserId == currentUserId);
-
-                    // If current user does not have access to project or project does not exist
-                    if (projectInDb == null)
-                    {
-                        return NotFound();
-                    }
-
-                    projectInDb.Name = viewModel.Name;
-                    projectInDb.Description = viewModel.Description;
-                    projectInDb.DateModified = DateTime.Now;
-
-                    if (viewModel.Image != null)
-                    {
-                        projectInDb.ImageFileName = viewModel.Image.FileName;
-                        string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + projectInDb.Id.ToString());
-                        projectInDb.ImageFilePath = imageFilePath;
-                    }
-
-                    // Add new contributors, remove any that were removed
-                    var contributors = _context.ProjectContributors.Where(c => c.ProjectId == projectInDb.Id).ToList();
-
-                    if (viewModel.Contributors != null)
-                    {
-                        foreach (UserViewModel user in viewModel.Contributors)
+                        // Add contributors
+                        if (viewModel.Contributors != null)
                         {
-                            var userId = _context.Users.Where(u => u.UserName == user.Username).Select(u => u.Id).FirstOrDefault();
-
-                            // Skip this contributor if they're already added
-                            if (contributors.Any(c => c.UserId == userId))
-                            {
-                                // Remove them from the list
-                                contributors = contributors.Where(u => u.UserId != userId).ToList();
-                                continue;
-                            }
-                            else
+                            foreach (UserViewModel user in viewModel.Contributors)
                             {
                                 ProjectContributor contributor = new ProjectContributor()
                                 {
                                     UserId = _context.Users.Where(u => u.UserName == user.Username).Select(u => u.Id).FirstOrDefault(),
-                                    ProjectId = projectInDb.Id
+                                    ProjectId = project.Id
                                 };
 
-                                _context.ProjectContributors.Add(contributor);
+                                _context.ProjectContributors.Add(contributor);                              
                             }
                         }
-                    }
 
-                    // Remove any contributors who did not come over from the view
-                    foreach (ProjectContributor contributor in contributors)
+                        _context.SaveChanges();
+
+                        transaction.Commit();
+
+                        return Json(new { name = project.Name, id = project.Id });
+                    }
+                }
+                else // We're updating a project
+                {
+                    using (var transaction = _context.Database.BeginTransaction())
                     {
-                        _context.ProjectContributors.Remove(contributor);
-                    }
+                        var projectInDb = _context.Projects.SingleOrDefault(p => p.Id == viewModel.Id && p.UserId == currentUserId);
 
-                    _context.Projects.Update(projectInDb);
-                    _context.SaveChanges();
+                        // If current user does not have access to project or project does not exist
+                        if (projectInDb == null)
+                        {
+                            return NotFound();
+                        }
 
-                    return Json(new { name = projectInDb.Name, id = projectInDb.Id });           
+                        projectInDb.Name = viewModel.Name;
+                        projectInDb.Description = viewModel.Description;
+                        projectInDb.DateModified = DateTime.Now;
+
+                        if (viewModel.Image != null)
+                        {
+                            projectInDb.ImageFileName = viewModel.Image.FileName;
+                            string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + projectInDb.Id.ToString());
+                            projectInDb.ImageFilePath = imageFilePath;
+                        }
+
+                        // Add new contributors, remove any that were removed
+                        var contributors = _context.ProjectContributors.Where(c => c.ProjectId == projectInDb.Id).ToList();
+
+                        if (viewModel.Contributors != null)
+                        {
+                            foreach (UserViewModel user in viewModel.Contributors)
+                            {
+                                var userId = _context.Users.Where(u => u.UserName == user.Username).Select(u => u.Id).FirstOrDefault();
+
+                                // Skip this contributor if they're already added
+                                if (contributors.Any(c => c.UserId == userId))
+                                {
+                                    // Remove them from the list
+                                    contributors = contributors.Where(u => u.UserId != userId).ToList();
+                                    continue;
+                                }
+                                else
+                                {
+                                    ProjectContributor contributor = new ProjectContributor()
+                                    {
+                                        UserId = _context.Users.Where(u => u.UserName == user.Username).Select(u => u.Id).FirstOrDefault(),
+                                        ProjectId = projectInDb.Id
+                                    };
+
+                                    _context.ProjectContributors.Add(contributor);
+
+                                    NotificationsController.AddNotification(_context, NotificationType.ContributorAdded, null, projectInDb.Id, currentUsername, currentUserId, user.Username, projectInDb.Name);
+                                }
+                            }
+                        }
+
+                        // Remove any contributors who did not come over from the view
+                        foreach (ProjectContributor contributor in contributors)
+                        {
+                            _context.ProjectContributors.Remove(contributor);
+                        }
+
+                        _context.Projects.Update(projectInDb);
+                        _context.SaveChanges();
+
+                        transaction.Commit();
+
+                        return Json(new { name = projectInDb.Name, id = projectInDb.Id });
+                    }       
                 }
             }
             catch

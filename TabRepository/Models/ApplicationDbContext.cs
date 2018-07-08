@@ -73,6 +73,9 @@ namespace TabRepository.Data
                 .HasOne(p => p.Project)
                 .WithMany()
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<UserTabVersion>()
+                .HasKey(v => new { v.UserId, v.TabId });
         }
 
         public DbSet<Tab> Tabs { get; set; }
@@ -84,6 +87,7 @@ namespace TabRepository.Data
         public DbSet<ProjectContributor> ProjectContributors { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<NotificationUser> NotificationUsers { get; set; }
+        public DbSet<UserTabVersion> UserTabVersions { get; set; }
 
         public ApplicationDbContext()
             : base()

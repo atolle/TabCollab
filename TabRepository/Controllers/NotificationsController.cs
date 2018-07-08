@@ -132,7 +132,7 @@ namespace TabRepository.Controllers
                     break;
                 case NotificationType.ContributorAdded:
                     title = "Contributor Added";
-                    message = currentUsername + " added " + objectName + " to " + parentName;
+                    message = currentUsername + " added contributor " + objectName + " to " + parentName;
                     break;
                 case NotificationType.FriendAccepted:
                     title = "Friend Accepted";

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using TabRepository.Data;
+using TabRepository.Models;
 
 namespace TabRepository.Controllers
 {
@@ -29,7 +30,11 @@ namespace TabRepository.Controllers
 
             try
             {
-                var tabVersionInDb = _context.TabVersions.SingleOrDefault(v => v.Id == id && v.UserId == currentUserId);
+                var tabVersionInDb = _context
+                    .TabVersions
+                    .Include(v => v.Tab)
+                    .Where(v => v.Id == id && v.UserId == currentUserId)
+                    .FirstOrDefault();
 
                 // If we are not the owner, are we a contributor?
                 if (tabVersionInDb == null)
@@ -39,8 +44,11 @@ namespace TabRepository.Controllers
                                       join album in _context.Albums on tab.AlbumId equals album.Id
                                       join project in _context.Projects on album.ProjectId equals project.Id
                                       join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
-                                      where contributor.UserId == currentUserId
-                                      select tabVersion).Include(u => u.User).FirstOrDefault();
+                                      where (contributor.UserId == currentUserId || project.UserId == currentUserId) && tabVersion.Id == id
+                                      select tabVersion)
+                                      .Include(v => v.User)
+                                      .Include(v => v.Tab)
+                                      .FirstOrDefault();
 
                     if (tabVersionInDb == null)
                     {
@@ -57,6 +65,33 @@ namespace TabRepository.Controllers
 
                 byte[] fileBytes = tabFileInDb.TabData;
                 string fileName = tabFileInDb.Name;
+
+                var userTabVersionInDb = _context
+                    .UserTabVersions
+                    .Where(v => v.UserId == currentUserId && v.TabId == tabVersionInDb.TabId)
+                    .FirstOrDefault();
+
+                if (userTabVersionInDb != null)
+                {
+                    if (tabVersionInDb.Version > userTabVersionInDb.Version)
+                    {
+                        userTabVersionInDb.Version = tabVersionInDb.Version;
+                        _context.UserTabVersions.Update(userTabVersionInDb);
+                        _context.SaveChanges();
+                    }
+                }
+                else
+                {
+                    UserTabVersion userTabVersion = new UserTabVersion
+                    {
+                        UserId = currentUserId,
+                        TabId = tabVersionInDb.TabId,
+                        Version = tabVersionInDb.Version
+                    };
+
+                    _context.UserTabVersions.Add(userTabVersion);
+                    _context.SaveChanges();
+                }
 
                 return File(fileBytes, "application/octet-stream", fileName);
             }

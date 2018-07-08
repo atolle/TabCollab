@@ -506,19 +506,42 @@
 
                 url = url + "?tabId=" + nodeId;
 
-                $.get(url, function (data) {
-                    $('#tabversion-form-container').html(data);
+                $.get("@Url.Action("CheckLatestTabVersion", "TabVersions")" + "?tabId=" + nodeId, function (result) { 
+                    if (!result.hasLatest) {
+                        bootbox.confirm("You have not yet downloaded the latest version for this tab. Make sure to download latest to prevent overwriting previous changes.<br /><br /> Do you wish to proceed?", function (result) {
+                            if (result) {
+                                $.get(url, function (data) {
+                                    $('#tabversion-form-container').html(data);
 
-                    $('#tabversion-form')
-                        .removeData("validator") /* added by the raw jquery.validate plugin */
-                        .removeData("unobtrusiveValidation");  /* added by the jquery unobtrusive plugin*/
+                                    $('#tabversion-form')
+                                        .removeData("validator") /* added by the raw jquery.validate plugin */
+                                        .removeData("unobtrusiveValidation");  /* added by the jquery unobtrusive plugin*/
 
-                    // Client side validation for dynamic modal injection
-                    $.validator.unobtrusive.parse($("#tabversion-form"));
+                                    // Client side validation for dynamic modal injection
+                                    $.validator.unobtrusive.parse($("#tabversion-form"));
 
-                    currentModal = $('#tabversion-form-modal');
-                    currentModal.modal('show');
-                });
+                                    currentModal = $('#tabversion-form-modal');
+                                    currentModal.modal('show');
+                                });
+                            }
+                        });
+                    }
+                    else {
+                        $.get(url, function (data) {
+                            $('#tabversion-form-container').html(data);
+
+                            $('#tabversion-form')
+                                .removeData("validator") /* added by the raw jquery.validate plugin */
+                                .removeData("unobtrusiveValidation");  /* added by the jquery unobtrusive plugin*/
+
+                            // Client side validation for dynamic modal injection
+                            $.validator.unobtrusive.parse($("#tabversion-form"));
+
+                            currentModal = $('#tabversion-form-modal');
+                            currentModal.modal('show');
+                        });
+                    }
+                })
             }
         });
 

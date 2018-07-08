@@ -66,6 +66,7 @@ namespace TabRepository.Controllers
             try
             {
                 string currentUserId = User.GetUserId();
+                string currentUsername = User.GetUsername();
 
                 // Verify current user has access to this project
                 var projectInDb = _context.Projects.SingleOrDefault(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId);
@@ -85,28 +86,35 @@ namespace TabRepository.Controllers
                 }
 
                 if (viewModel.Id == 0)  // We are creating a new album
-                {                    
-                    Album album = new Album()
+                {
+                    using (var transaction = _context.Database.BeginTransaction())
                     {
-                        UserId = projectInDb.UserId,
-                        Project = projectInDb,
-                        Name = viewModel.Name,
-                        Description = viewModel.Description,
-                        DateCreated = DateTime.Now,
-                        DateModified = DateTime.Now
-                    };
+                        Album album = new Album()
+                        {
+                            UserId = projectInDb.UserId,
+                            Project = projectInDb,
+                            Name = viewModel.Name,
+                            Description = viewModel.Description,
+                            DateCreated = DateTime.Now,
+                            DateModified = DateTime.Now
+                        };
 
-                    if (viewModel.Image != null)
-                    {
-                        album.ImageFileName = viewModel.Image.FileName;
-                        string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, projectInDb.UserId, "Album" + album.Id.ToString());
-                        album.ImageFilePath = imageFilePath;
+                        if (viewModel.Image != null)
+                        {
+                            album.ImageFileName = viewModel.Image.FileName;
+                            string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, projectInDb.UserId, "Album" + album.Id.ToString());
+                            album.ImageFilePath = imageFilePath;
+                        }
+
+                        _context.Albums.Add(album);
+                        _context.SaveChanges();
+
+                        NotificationsController.AddNotification(_context, NotificationType.AlbumAdded, null, album.ProjectId, currentUsername, currentUserId, album.Name, album.Project.Name);
+
+                        transaction.Commit();
+
+                        return Json(new { name = album.Name, id = album.Id });
                     }
-
-                    _context.Albums.Add(album);
-                    _context.SaveChanges();                    
-
-                    return Json(new { name = album.Name, id = album.Id });
                 }
                 else // We're updating an album
                 {
@@ -147,18 +155,29 @@ namespace TabRepository.Controllers
         {
             try
             {
-                string currentUserId = User.GetUserId();
+                using (var transaction = _context.Database.BeginTransaction())
+                {
+                    string currentUserId = User.GetUserId();
+                    string currentUsername = User.GetUsername();
 
-                var albumInDb = _context.Albums.SingleOrDefault(a => a.Id == id && a.UserId == currentUserId);
+                    var albumInDb = _context
+                        .Albums
+                        .Include(a => a.Project)
+                        .SingleOrDefault(a => a.Id == id && a.UserId == currentUserId);
 
-                // If current user does not have access to project or project does not exist
-                if (albumInDb == null)
-                    return NotFound();
+                    // If current user does not have access to project or project does not exist
+                    if (albumInDb == null)
+                        return NotFound();
 
-                _context.Albums.Remove(albumInDb);
-                _context.SaveChanges();
+                    _context.Albums.Remove(albumInDb);
+                    _context.SaveChanges();
 
-                return Json(new { success = true });
+                    NotificationsController.AddNotification(_context, NotificationType.AlbumDeleted, null, albumInDb.ProjectId, currentUsername, currentUserId, albumInDb.Name, albumInDb.Project.Name);
+
+                    transaction.Commit();
+
+                    return Json(new { success = true });
+                }
             }
             catch
             {

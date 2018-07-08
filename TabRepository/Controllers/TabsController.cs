@@ -57,84 +57,92 @@ namespace TabRepository.Controllers
             try
             {
                 string currentUserId = User.GetUserId();
+                string currentUsername = User.GetUsername();
 
                 if (viewModel.Id == 0)  // We are creating a new Tab
                 {
-                    // Verify current user has access to this project
-                    var albumInDb = _context.Albums.Include(a => a.Tabs).SingleOrDefault(p => p.Id == viewModel.AlbumId && p.UserId == currentUserId);
-
-                    // If there is not project matching this project Id and this user Id, check to see if this user is a contributor
-                    if (albumInDb == null)
+                    using (var transaction = _context.Database.BeginTransaction())
                     {
-                        albumInDb = (from album in _context.Albums
-                                     join project in _context.Projects on album.ProjectId equals project.Id
-                                     join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
-                                     where contributor.UserId == currentUserId && project.Id == album.ProjectId && album.Id == viewModel.AlbumId
-                                     select album).Include(u => u.User).Include(a => a.Tabs).FirstOrDefault();
+                        // Verify current user has access to this project
+                        var albumInDb = _context.Albums.Include(a => a.Tabs).SingleOrDefault(p => p.Id == viewModel.AlbumId && p.UserId == currentUserId);
 
+                        // If there is not project matching this project Id and this user Id, check to see if this user is a contributor
                         if (albumInDb == null)
                         {
-                            return NotFound();
+                            albumInDb = (from album in _context.Albums
+                                         join project in _context.Projects on album.ProjectId equals project.Id
+                                         join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
+                                         where contributor.UserId == currentUserId && project.Id == album.ProjectId && album.Id == viewModel.AlbumId
+                                         select album).Include(u => u.User).Include(a => a.Tabs).FirstOrDefault();
+
+                            if (albumInDb == null)
+                            {
+                                return NotFound();
+                            }
                         }
-                    }
 
-                    int order = 0;
+                        int order = 0;
 
-                    // Order is max order + 1
-                    if (albumInDb.Tabs != null && albumInDb.Tabs.Count > 0)
-                    {
-                        order = Convert.ToInt32(albumInDb.Tabs.Max(t => t.Order)) + 1;
-                    }
-
-                    TabFile tabFile = new TabFile();
-
-                    if (viewModel.FileData.Length > 0)
-                    {
-                        using (var fileStream = viewModel.FileData.OpenReadStream())
-                        using (var ms = new MemoryStream())
+                        // Order is max order + 1
+                        if (albumInDb.Tabs != null && albumInDb.Tabs.Count > 0)
                         {
-                            fileStream.CopyTo(ms);
-                            var fileBytes = ms.ToArray();
-                            tabFile.TabData = fileBytes;
+                            order = Convert.ToInt32(albumInDb.Tabs.Max(t => t.Order)) + 1;
                         }
 
-                        tabFile.Name = viewModel.FileData.FileName;
-                        tabFile.DateCreated = DateTime.Now;
+                        TabFile tabFile = new TabFile();
+
+                        if (viewModel.FileData.Length > 0)
+                        {
+                            using (var fileStream = viewModel.FileData.OpenReadStream())
+                            using (var ms = new MemoryStream())
+                            {
+                                fileStream.CopyTo(ms);
+                                var fileBytes = ms.ToArray();
+                                tabFile.TabData = fileBytes;
+                            }
+
+                            tabFile.Name = viewModel.FileData.FileName;
+                            tabFile.DateCreated = DateTime.Now;
+                        }
+
+                        // Create new Tab
+                        Tab tab = new Tab()
+                        {
+                            UserId = albumInDb.UserId,
+                            Album = albumInDb,
+                            Name = viewModel.Name,
+                            Description = viewModel.Description,
+                            DateCreated = DateTime.Now,
+                            DateModified = DateTime.Now,
+                            CurrentVersion = 1,
+                            Order = order
+                        };
+
+                        // Create first Tab Version
+                        TabVersion tabVersion = new TabVersion()
+                        {
+                            Version = 1,
+                            Description = viewModel.Description,
+                            UserId = currentUserId,
+                            DateCreated = tab.DateCreated,
+                            Tab = tab,
+                            TabFile = tabFile
+                        };
+
+                        tabVersion.TabFile = tabFile;
+
+                        _context.Tabs.Add(tab);
+                        _context.TabVersions.Add(tabVersion);
+                        _context.TabFiles.Add(tabFile);
+                        _context.SaveChanges();
+
+                        NotificationsController.AddNotification(_context, NotificationType.TabAdded, null, tab.Album.ProjectId, currentUsername, currentUserId, tab.Name, tab.Album.Name);
+
+                        transaction.Commit();
+
+                        // Return tab name and id
+                        return Json(new { name = tab.Name, id = tab.Id });
                     }
-
-                    // Create new Tab
-                    Tab tab = new Tab()
-                    {
-                        UserId = albumInDb.UserId,
-                        Album = albumInDb,
-                        Name = viewModel.Name,
-                        Description = viewModel.Description,
-                        DateCreated = DateTime.Now,
-                        DateModified = DateTime.Now,
-                        CurrentVersion = 1,
-                        Order = order
-                    };
-
-                    // Create first Tab Version
-                    TabVersion tabVersion = new TabVersion()
-                    {
-                        Version = 1,                    
-                        Description = viewModel.Description,   
-                        UserId = currentUserId,                   
-                        DateCreated = tab.DateCreated,
-                        Tab = tab,
-                        TabFile = tabFile
-                    };
-
-                    tabVersion.TabFile = tabFile;
-
-                    _context.Tabs.Add(tab);
-                    _context.TabVersions.Add(tabVersion);
-                    _context.TabFiles.Add(tabFile);
-                    _context.SaveChanges();
-
-                    // Return tab name and id
-                    return Json(new { name = tab.Name, id = tab.Id });
                 }
                 else
                 {
@@ -176,20 +184,28 @@ namespace TabRepository.Controllers
 
         public ActionResult Delete(int id)
         {
-            // Verify user has access to current Tab (id)
-            string currentUserId = User.GetUserId();
-            var tabInDb = _context.Tabs.SingleOrDefault(t => t.Id == id && t.UserId == currentUserId);
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                // Verify user has access to current Tab (id)
+                string currentUserId = User.GetUserId();
+                string currentUsername = User.GetUsername();
 
-            if (tabInDb == null)
-                return NotFound();
+                var tabInDb = _context.Tabs.SingleOrDefault(t => t.Id == id && t.UserId == currentUserId);
 
-            // Get Project Id to return to view
-            int projectId = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId).AlbumId;
+                if (tabInDb == null)
+                    return NotFound();
 
-            _context.Tabs.Remove(tabInDb);
-            _context.SaveChanges();
+                // Get Project Id to return to view
+                int projectId = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId).AlbumId;
 
-            //return RedirectToAction("Index", "Tabs", new { id = projectId }); 
+                _context.Tabs.Remove(tabInDb);
+                _context.SaveChanges();
+
+                NotificationsController.AddNotification(_context, NotificationType.TabDeleted, null, tabInDb.Album.ProjectId, currentUsername, currentUserId, tabInDb.Name, tabInDb.Album.Name);
+
+                transaction.Commit();
+            }
+
             return RedirectToAction("Main", "Projects"); 
         }
 

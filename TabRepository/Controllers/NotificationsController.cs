@@ -39,9 +39,20 @@ namespace TabRepository.Controllers
                     string href = "";
                     switch (notification.NotificationType)
                     {
-                        case NotificationType.FriendAccepted: href = Url.Action("Index", "Friends");
+                        case NotificationType.FriendAccepted: 
+                        case NotificationType.FriendRequested:
+                            href = Url.Action("Index", "Friends");
                             break;
-                        case NotificationType.FriendRequested: href = Url.Action("Index", "Friends");
+                        case NotificationType.AlbumAdded:
+                        case NotificationType.AlbumDeleted:
+                            href = Url.Action("Index", "Albums");
+                            break;
+                        case NotificationType.TabAdded:
+                        case NotificationType.TabDeleted:
+                        case NotificationType.TabVersionAdded:
+                        case NotificationType.TabVersionDeleted:
+                        case NotificationType.ContributorAdded:
+                            href = Url.Action("Dashboard", "Projects");
                             break;
                     }                    
                     html += "<div class='notification' data-notification-id='" + notification.Id + "'><a class='btn list-group-item notification-item' href='" + href + "'>" + notification.Message + "<i class='fa fa-times notification-delete-btn' data-notification-id='" + notification.Id + "' style='padding-left: 7px;' /></a></div>";
@@ -102,6 +113,117 @@ namespace TabRepository.Controllers
             {
                 return Json(new { });
             }
+        }
+
+        public static void AddNotification(ApplicationDbContext context, NotificationType notificationType, string toUserId, int? projectId, string currentUsername, string currentUserId, string objectName, string parentName)
+        {
+            string title = "";
+            string message = "";
+
+            switch (notificationType)
+            {
+                case NotificationType.AlbumAdded:
+                    title = "Album Added";
+                    message = currentUsername + " added " + objectName + " to " + parentName;
+                    break;
+                case NotificationType.AlbumDeleted:
+                    title = "Album Added";
+                    message = currentUsername + " deleted " + objectName + " from " + parentName;
+                    break;
+                case NotificationType.ContributorAdded:
+                    title = "Contributor Added";
+                    message = currentUsername + " added " + objectName + " to " + parentName;
+                    break;
+                case NotificationType.FriendAccepted:
+                    title = "Friend Accepted";
+                    message = currentUsername + " accepted your friend request";
+                    break;
+                case NotificationType.FriendRequested:
+                    title = "Friend Requested";
+                    message = currentUsername + " sent you a friend request";
+                    break;
+                case NotificationType.TabAdded:
+                    title = "Tab Added";
+                    message = currentUsername + " added " + objectName + " to " + parentName;
+                    break;
+                case NotificationType.TabDeleted:
+                    title = "Tab Deleted";
+                    message = currentUsername + " deleted " + objectName + " from " + parentName;
+                    break;
+                case NotificationType.TabVersionAdded:
+                    title = "Tab Version Added";
+                    message = currentUsername + " added new version to " + parentName;
+                    break;
+                case NotificationType.TabVersionDeleted:
+                    title = "Tab Version Deleted";
+                    message = currentUsername + " deleted version " + objectName + " from " + parentName;
+                    break;
+            }
+
+            Notification notification = new Notification()
+            {
+                ToUserId = toUserId,
+                FromUserId = currentUserId,
+                Title = title,
+                Message = message,
+                Timestamp = DateTime.Now,
+                ProjectId = projectId,
+                NotificationType = notificationType
+            };
+
+            context.Notifications.Add(notification);
+            context.SaveChanges();
+
+            if (projectId != null)
+            {
+                var contributors = context
+                    .ProjectContributors
+                    .Where(c => c.ProjectId == projectId && c.UserId != currentUserId)
+                    .ToList();                
+
+                foreach (ProjectContributor contributor in contributors)
+                {
+                    NotificationUser notificationUser = new NotificationUser()
+                    {
+                        UserId = contributor.UserId,
+                        NotificationId = notification.Id,
+                        IsRead = false
+                    };
+
+                    context.NotificationUsers.Add(notificationUser);
+                }
+
+                var ownerId = context
+                    .Projects
+                    .Where(p => p.Id == projectId && p.UserId != currentUserId)
+                    .Select(p => p.UserId)
+                    .FirstOrDefault();
+
+                if (ownerId != null)
+                {
+                    NotificationUser notificationUser = new NotificationUser()
+                    {
+                        UserId = ownerId,
+                        NotificationId = notification.Id,
+                        IsRead = false
+                    };
+
+                    context.NotificationUsers.Add(notificationUser);
+                }
+            }
+            else
+            {
+                NotificationUser notificationUser = new NotificationUser()
+                {
+                    UserId = toUserId,
+                    NotificationId = notification.Id,
+                    IsRead = false
+                };
+
+                context.NotificationUsers.Add(notificationUser);
+            }
+
+            context.SaveChanges();
         }
     }
 }

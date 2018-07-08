@@ -142,29 +142,7 @@ namespace TabRepository.Controllers
                             _context.SaveChanges();
                         }
 
-                        Notification notification = new Notification()
-                        {
-                            ToUserId = otherUserId,
-                            FromUserId = currentUserId,
-                            Title = "Friend Request",
-                            Message = currentUsername + " has sent you a friend request",
-                            Timestamp = DateTime.Now,
-                            ProjectId = null,
-                            NotificationType = NotificationType.FriendRequested
-                        };
-
-                        _context.Notifications.Add(notification);
-                        _context.SaveChanges();
-
-                        NotificationUser notificationUser = new NotificationUser()
-                        {
-                            UserId = otherUserId,
-                            NotificationId = notification.Id,
-                            IsRead = false
-                        };
-
-                        _context.NotificationUsers.Add(notificationUser);
-                        _context.SaveChanges();
+                        NotificationsController.AddNotification(_context, NotificationType.FriendRequested, otherUserId, null, currentUsername, currentUserId, null, null);
 
                         transaction.Commit();
 
@@ -193,7 +171,7 @@ namespace TabRepository.Controllers
                     if (friendStatus != FriendStatus.Blocked)
                     {
                         string currentUserId = User.GetUserId();
-                        string currentUsername = User.GetUsername();
+                        string currentUsername = User.GetUsername();                        
                         ApplicationUser otherUser = _context.Users.Where(u => u.UserName == username).FirstOrDefault();
                         string otherUserId = otherUser.Id;
 
@@ -214,29 +192,7 @@ namespace TabRepository.Controllers
                             _context.SaveChanges();
                         }
 
-                        Notification notification = new Notification()
-                        {
-                            ToUserId = otherUserId,
-                            FromUserId = currentUserId,
-                            Title = "Friend Accepted",
-                            Message = currentUsername + " has accepted your friend request",
-                            Timestamp = DateTime.Now,
-                            ProjectId = null,
-                            NotificationType = NotificationType.FriendAccepted
-                        };
-
-                        _context.Notifications.Add(notification);
-                        _context.SaveChanges();
-
-                        NotificationUser notificationUser = new NotificationUser()
-                        {
-                            UserId = otherUserId,
-                            NotificationId = notification.Id,
-                            IsRead = false
-                        };
-
-                        _context.NotificationUsers.Add(notificationUser);
-                        _context.SaveChanges();
+                        NotificationsController.AddNotification(_context, NotificationType.FriendAccepted, otherUserId, null, currentUsername, currentUserId, null, null);
 
                         transaction.Commit();
 

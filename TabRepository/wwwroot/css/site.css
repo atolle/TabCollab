@@ -366,3 +366,7 @@ body {
 .notification-delete-btn:hover {
     opacity: 0.6;
 }
+
+.selection-modal {
+    max-width: 400px;
+}

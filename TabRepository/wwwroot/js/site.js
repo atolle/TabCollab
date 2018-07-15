@@ -76,7 +76,7 @@ function GetNotificationPanel() {
             notificationCount = data.count;
             if (data.count > 0) {
                 if ($('.notifications').is(':hidden')) {
-                    $('.notifications-btn').css("color", "red");
+                    $('.notifications-btn').css("color", "green");
                 }
                 else {
                     $('.notifications-btn').css("color", "gray");
@@ -97,7 +97,7 @@ $(document).on('click', '.notifications-btn', function (e) {
     if (notificationCount > 0) {
         $('.notifications').toggle();
         if ($('.notifications').is(':hidden')) {
-            $('.notifications-btn').css("color", "red");
+            $('.notifications-btn').css("color", "green");
         }
         else {
             $('.notifications-btn').css("color", "gray");
@@ -111,7 +111,7 @@ $(document.body).click(function (e) {
             $('.notifications').hide();
         }
         if ($('.notifications').is(':hidden')) {
-            $('.notifications-btn').css("color", "red");
+            $('.notifications-btn').css("color", "green");
         }
         else {
             $('.notifications-btn').css("color", "gray");

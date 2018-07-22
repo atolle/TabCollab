@@ -92,7 +92,7 @@ body {
 }
 
 .panel {
-    width: 350px;
+    max-width: 350px;
 }
 
 .panel-profile-img {

@@ -92,3 +92,7 @@ td {
 #tabversions-table-container {
     margin-top: 19px;
 }
+
+#dashboard {
+    height: 100%;
+}

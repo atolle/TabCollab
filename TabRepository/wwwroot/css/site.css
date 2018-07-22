@@ -8,6 +8,10 @@ body {
     height: 100%;
 }
 
+#page {
+    min-height: 100%;
+}
+
 /* Wrapping element */
 /* Set some basic padding to keep content from hitting the edges */
 .body-content {
@@ -242,10 +246,6 @@ body {
     display: none;
     width: 100%;
     overflow: hidden;
-}
-
-#register-container {
-    height: 100%;
 }
 
 #reset-password-container {

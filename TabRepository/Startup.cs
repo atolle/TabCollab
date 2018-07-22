@@ -68,22 +68,11 @@ namespace TabRepository
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
            
-            if (_env.IsProduction())
+            services.AddAuthentication().AddGoogle(googleOptions =>
             {
-                services.AddAuthentication().AddGoogle(googleOptions =>
-                {
-                    googleOptions.ClientId = Configuration["GoogleClientId"];
-                    googleOptions.ClientSecret = Configuration["GoogleClientSecret"];
-                });
-            }
-            else
-            {
-                services.AddAuthentication().AddGoogle(googleOptions =>
-                {
-                    googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
-                    googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
-                });
-            }
+                googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
+                googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+            });
 
             services.AddHttpsRedirection(options =>
             {

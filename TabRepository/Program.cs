@@ -19,12 +19,7 @@ namespace TabRepository
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-                .ConfigureAppConfiguration((hostContext, config) =>
-                {
-                    // delete all default configuration providers
-                    config.Sources.Clear();
-                    config.AddJsonFile("appsettings.json", optional: true);
-                })
+                .UseApplicationInsights()
                 .Build();
     }
 }

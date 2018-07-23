@@ -394,7 +394,7 @@
         });
 
         // Deleting a tab version
-        $("#page").on("click", "#delete-tabversion-button", function (e, data) {
+        $("#dashboard").on("click", "#delete-tabversion-button", function (e, data) {
             e.preventDefault();
             var href = this.href;
 
@@ -430,7 +430,7 @@
         });
 
         // Show modal for new tab
-        $("#page").on("click", "#new-tab-button", function (e, data) {
+        $("#dashboard").on("click", "#new-tab-button", function (e, data) {
             e.preventDefault();
 
             var url = $('#tab-form-modal').data('url');
@@ -454,7 +454,7 @@
         });
 
         // Show modal for new project
-        $("#page").on("click", "#new-project-button", function (e, data) {
+        $("#dashboard").on("click", "#new-project-button", function (e, data) {
             e.preventDefault();
 
             var url = $('#project-form-modal').data('url');
@@ -471,7 +471,7 @@
         });
 
         // Show modal for new album
-        $("#page").on("click", "#new-album-button", function (e, data) {
+        $("#dashboard").on("click", "#new-album-button", function (e, data) {
             e.preventDefault();
 
             var url = $('#album-form-modal').data('url');
@@ -495,7 +495,7 @@
         });
 
         // Show modal for new tab version
-        $("#page").on("click", "#new-tabversion-button", function (e, data) {
+        $("#dashboard").on("click", "#new-tabversion-button", function (e, data) {
             e.preventDefault();
 
             var url = $('#tabversion-form-modal').data('url');
@@ -546,7 +546,7 @@
         });
 
         // Show modal for edit album
-        $("#page").on("click", "#edit-tabversion-button", function (e, data) {
+        $("#dashboard").on("click", "#edit-tabversion-button", function (e, data) {
             e.preventDefault();
 
             var href = this.href + "?tabId=" + $(this).attr("data-tab-id") + "&tabVersionId=" + $(this).attr("data-tabversion-id");
@@ -596,7 +596,7 @@
             $("input[value=" + username + "]").remove();
         });
 
-        $("#page").on("submit", function (e, data) {
+        $("#dashboard").on("submit", function (e, data) {
             e.preventDefault();
 
             // Loop through all contributors to add index for model binding

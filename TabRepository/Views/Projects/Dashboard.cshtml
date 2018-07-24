@@ -9,17 +9,21 @@
 
 <div id="dashboard">
     <div class="buttons-container">
-        <div id="new-project-button">
-            <button class="btn btn-primary">New Project</button>
+        <div class="col-sm-8" style="padding-left: 0px">
+            <div id="new-project-button" class="btn-group">
+                <button class="btn btn-primary">New Project</button>
+            </div>
+            <div id="new-album-button-container" class="btn-group">
+                <button class="btn btn-primary" disabled>New Album</button>
+            </div>                
         </div>
-        <div id="new-album-button-container">
-            <button class="btn btn-primary" disabled>New Album</button>
-        </div>
-        <div id="new-tab-button-container">
-            <button class="btn btn-primary pull-right" disabled>New Tab</button>
-        </div>
-        <div id="new-tabversion-button-container">
-            <button class="btn btn-primary" disabled>New Tab Version</button>
+        <div class="col-sm-8" style="padding-right: 0px">            
+            <div id="new-tab-button-container" class="pull-right btn-group">
+                <button class="btn btn-primary" disabled>New Tab</button>
+            </div>
+            <div id="new-tabversion-button-container" class="pull-right btn-group">
+                <button class="btn btn-primary" disabled>New Tab Version</button>
+            </div>                               
         </div>
     </div>
     <div id="treeTableContainer">
@@ -88,13 +92,13 @@
         </div>
         <div id="splitter"></div>
         <div id="tabversions-table-container">
-            <table class="table table-bordered table-hover">
+            <table class="table table-bordered table-hover tabversions-table">
                 <thead>
                     <tr>
-                        <th width="30%">Description</th>
-                        <th width="20%">Contributor</th>
-                        <th width="20%">Date Added</th>
-                        <th width="10%">Version</th>
+                        <th width="30%"><div class="table-header">Description</div></th>
+                        <th width="20%"><div class="table-header">Contributor</div></th>
+                        <th width="20%"><div class="table-header">Date Added</div></th>
+                        <th width="10%"><div class="table-header">Version</div></th>
                         <th width="5%"></th>
                         <th width="5%"></th>
                         <th width="5%"></th>

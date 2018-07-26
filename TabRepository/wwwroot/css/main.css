@@ -90,6 +90,7 @@ td {
 
 #tabversions-table-container {
     margin-top: 19px;
+    overflow: auto;
 }
 
 #dashboard {
@@ -102,4 +103,9 @@ td {
 
 .tabversions-table {
     table-layout: fixed;
+    margin-bottom: 0px;
+}
+
+.dashboard-button {
+    margin-bottom: 10px;
 }

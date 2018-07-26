@@ -11,19 +11,19 @@
     <div class="buttons-container">
         <div class="col-sm-8" style="padding-left: 0px">
             <div id="new-project-button" class="btn-group">
-                <button class="btn btn-primary">New Project</button>
+                <button class="btn btn-primary dashboard-button">New Project</button>
             </div>
             <div id="new-album-button-container" class="btn-group">
-                <button class="btn btn-primary" disabled>New Album</button>
-            </div>                
+                <button class="btn btn-primary dashboard-button" disabled>New Album</button>
+            </div>
         </div>
-        <div class="col-sm-8" style="padding-right: 0px">            
+        <div class="col-sm-8" style="padding-right: 0px">
             <div id="new-tab-button-container" class="pull-right btn-group">
-                <button class="btn btn-primary" disabled>New Tab</button>
+                <button class="btn btn-primary dashboard-button" disabled>New Tab</button>
             </div>
             <div id="new-tabversion-button-container" class="pull-right btn-group">
-                <button class="btn btn-primary" disabled>New Tab Version</button>
-            </div>                               
+                <button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>
+            </div>
         </div>
     </div>
     <div id="treeTableContainer">
@@ -99,10 +99,7 @@
                         <th width="20%"><div class="table-header">Contributor</div></th>
                         <th width="20%"><div class="table-header">Date Added</div></th>
                         <th width="10%"><div class="table-header">Version</div></th>
-                        <th width="5%"></th>
-                        <th width="5%"></th>
-                        <th width="5%"></th>
-                        <th width="5%"></th>
+                        <th width="20%" id="edit-header"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -360,8 +357,8 @@
                     $('#tabversions-table-container').empty().append(data);
 
                 });
-                $('#new-tab-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab</button>');
-                $('#new-album-button-container').empty().append('<button class="btn btn-primary" disabled>New Album</button>');
+                $('#new-tab-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab</button>');
+                $('#new-album-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Album</button>');
 
                 var actionLink = '@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = -1 }, new { @class = "btn btn-primary", id = "new-tabversion-button" })'
                 actionLink = actionLink.replace('-1', nodeId);
@@ -372,8 +369,8 @@
                 var actionLink = '@Html.ActionLink("New Tab", "New", "Tabs", new { id = -1 }, new { @class = "btn btn-primary", id = "new-tab-button" })'
                 actionLink = actionLink.replace('-1', nodeId);
                 $('#new-tab-button-container').empty().append(actionLink);
-                $('#new-album-button-container').empty().append('<button class="btn btn-primary" disabled>New Album</button>');
-                $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab Version</button>');
+                $('#new-album-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Album</button>');
+                $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>');
 
                 var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
@@ -386,8 +383,8 @@
                 var actionLink = '@Html.ActionLink("New Album", "New", "Albums", new { id = -1 }, new { @class = "btn btn-primary", id = "new-album-button" })'
                 actionLink = actionLink.replace('-1', nodeId);
                 $('#new-album-button-container').empty().append(actionLink);
-                $('#new-tab-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab</button>');
-                $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab Version</button>');
+                $('#new-tab-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab</button>');
+                $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>');
 
                 var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 

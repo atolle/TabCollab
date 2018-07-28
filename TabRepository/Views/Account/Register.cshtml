@@ -90,7 +90,9 @@
         .then(function (data) {
             $('.button-submit-wide').html('Register');
             $('#register-container').html(data);
-            $('#register-container').css('height', '100%');
+            if (data.toLowerCase().includes('registration successful')) {
+                $('#register-container').css('height', '100%');
+            }
             $.validator.unobtrusive.parse($("#register-form"));
         })
         .fail(function (error) {

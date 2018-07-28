@@ -140,9 +140,11 @@
     <script>
         var original_parent;
 
-        $(document).ready(function () {
+        $(document).ready(function () {            
             $('hr').show();
             $('footer').show();
+
+            onResize();
 
             $(function () {
                 $(".jstree").jstree({
@@ -691,6 +693,16 @@
         function getContributorCount() {
             return $('.contributor-btn').length;
         }
+
+        // Make sure the treeview/table height is set properly on resize
+        function onResize() {
+            var dashboardHeight = $('#dashboard').outerHeight();
+            var buttonContainerHeight = $('.buttons-container').outerHeight();
+            var treeTableContainerHeight = ((dashboardHeight - buttonContainerHeight) / dashboardHeight) * 100;
+
+            $('#treeTableContainer').css('height', treeTableContainerHeight + '%');
+        };
+        window.addEventListener("resize", onResize);
     });
     </script>
 }

@@ -357,6 +357,15 @@ body {
     cursor: pointer;
 }
 
+@media screen and (max-width: 767px) {
+    /* Hide captions */
+    .notifications {
+        width: 100%;
+        top: 25%;
+        z-index: 100;
+    }
+}
+
 .clear-btn {
     color: black;
     margin-right: 13px;

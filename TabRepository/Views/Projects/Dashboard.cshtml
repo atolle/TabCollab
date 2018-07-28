@@ -9,7 +9,7 @@
 
 <div id="dashboard">
     <div class="buttons-container">
-        <div class="col-sm-8" style="padding-left: 0px">
+        <div class="col-xs-6" style="padding-left: 0px">
             <div id="new-project-button" class="btn-group">
                 <button class="btn btn-primary dashboard-button">New Project</button>
             </div>
@@ -17,7 +17,7 @@
                 <button class="btn btn-primary dashboard-button" disabled>New Album</button>
             </div>
         </div>
-        <div class="col-sm-8" style="padding-right: 0px">
+        <div class="col-xs-6" style="padding-right: 0px">
             <div id="new-tab-button-container" class="pull-right btn-group">
                 <button class="btn btn-primary dashboard-button" disabled>New Tab</button>
             </div>
@@ -26,109 +26,109 @@
             </div>
         </div>
     </div>
-    <div id="treeTableContainer">
-        <div class="treeWrapperContainer">
-            <b><span class="treeLabel">My Projects</span></b>
-            <div class="treeWrapperTop">
-                <div class="jstree ownerTree" jstree-type="owner">
-                    @foreach (var project in Model)
-                    {
-                        @if (project.IsOwner)
+        <div id="treeTableContainer">
+            <div class="treeWrapperContainer">
+                <b><span class="treeLabel">My Projects</span></b>
+                <div class="treeWrapperTop">
+                    <div class="jstree ownerTree" jstree-type="owner">
+                        @foreach (var project in Model)
                         {
-                            <ul>
-                                <li id="project-@project.Id" jstree-type="owner">
-                                    @project.Name
-                                    @foreach (var album in project.Albums)
-                                    {
-                                        <ul>
-                                            <li id="album-@album.Id" jstree-type="owner" data-jstree='{"icon":"/images/cd(16x12).png"}'>
-                                                @album.Name
-                                                @foreach (var tab in album.Tabs)
-                                                {
-                                                    <ul>
-                                                        <li id="tab-@tab.Id" jstree-type="owner" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>@tab.Name</li>
-                                                    </ul>
-                                                }
-                                            </li>
-                                        </ul>
-                                    }
-                                </li>
-                            </ul>
+                            @if (project.IsOwner)
+                            {
+                                <ul>
+                                    <li id="project-@project.Id" jstree-type="owner">
+                                        @project.Name
+                                        @foreach (var album in project.Albums)
+                                        {
+                                            <ul>
+                                                <li id="album-@album.Id" jstree-type="owner" data-jstree='{"icon":"/images/cd(16x12).png"}'>
+                                                    @album.Name
+                                                    @foreach (var tab in album.Tabs)
+                                                    {
+                                                        <ul>
+                                                            <li id="tab-@tab.Id" jstree-type="owner" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>@tab.Name</li>
+                                                        </ul>
+                                                    }
+                                                </li>
+                                            </ul>
+                                        }
+                                    </li>
+                                </ul>
+                            }
                         }
-                    }
+                    </div>
+                </div>
+                <div class="splitter-horizontal"></div>
+                <b><span class="treeLabel">Contributor Projects</span></b>
+                <div class="treeWrapperBottom">
+                    <div class="jstree contributorTree" jstree-type="contributor">
+                        @foreach (var project in Model)
+                        {
+                            @if (!project.IsOwner)
+                            {
+                                <ul>
+                                    <li id="project-@project.Id" jstree-type="contributor">
+                                        @project.Name
+                                        @foreach (var album in project.Albums)
+                                        {
+                                            <ul>
+                                                <li id="album-@album.Id" jstree-type="contributor" data-jstree='{"icon":"/images/cd(16x12).png"}'>
+                                                    @album.Name
+                                                    @foreach (var tab in album.Tabs)
+                                                    {
+                                                        <ul>
+                                                            <li id="tab-@tab.Id" jstree-type="contributor" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>@tab.Name</li>
+                                                        </ul>
+                                                    }
+                                                </li>
+                                            </ul>
+                                        }
+                                    </li>
+                                </ul>
+                            }
+                        }
+                    </div>
                 </div>
             </div>
-            <div class="splitter-horizontal"></div>
-            <b><span class="treeLabel">Contributor Projects</span></b>
-            <div class="treeWrapperBottom">
-                <div class="jstree contributorTree" jstree-type="contributor">
-                    @foreach (var project in Model)
-                    {
-                        @if (!project.IsOwner)
-                        {
-                            <ul>
-                                <li id="project-@project.Id" jstree-type="contributor">
-                                    @project.Name
-                                    @foreach (var album in project.Albums)
-                                    {
-                                        <ul>
-                                            <li id="album-@album.Id" jstree-type="contributor" data-jstree='{"icon":"/images/cd(16x12).png"}'>
-                                                @album.Name
-                                                @foreach (var tab in album.Tabs)
-                                                {
-                                                    <ul>
-                                                        <li id="tab-@tab.Id" jstree-type="contributor" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>@tab.Name</li>
-                                                    </ul>
-                                                }
-                                            </li>
-                                        </ul>
-                                    }
-                                </li>
-                            </ul>
-                        }
-                    }
-                </div>
+            <div id="splitter"></div>
+            <div id="tabversions-table-container">
+                <table class="table table-bordered table-hover tabversions-table">
+                    <thead>
+                        <tr>
+                            <th width="30%"><div class="table-header">Description</div></th>
+                            <th width="20%"><div class="table-header">Contributor</div></th>
+                            <th width="20%"><div class="table-header">Date Added</div></th>
+                            <th width="10%"><div class="table-header">Version</div></th>
+                            <th width="20%" id="edit-header"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        <div id="splitter"></div>
-        <div id="tabversions-table-container">
-            <table class="table table-bordered table-hover tabversions-table">
-                <thead>
-                    <tr>
-                        <th width="30%"><div class="table-header">Description</div></th>
-                        <th width="20%"><div class="table-header">Contributor</div></th>
-                        <th width="20%"><div class="table-header">Date Added</div></th>
-                        <th width="10%"><div class="table-header">Version</div></th>
-                        <th width="20%" id="edit-header"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
 
-    <div id='tab-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetTabFormPartialView", "Tabs")'>
-        <div id='tab-form-container'>
+        <div id='tab-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetTabFormPartialView", "Tabs")'>
+            <div id='tab-form-container'>
+            </div>
         </div>
-    </div>
 
-    <div id='project-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetProjectFormPartialView", "Projects")'>
-        <div id='project-form-container'>
+        <div id='project-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetProjectFormPartialView", "Projects")'>
+            <div id='project-form-container'>
+            </div>
         </div>
-    </div>
 
-    <div id='album-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetAlbumFormPartialView", "Albums")'>
-        <div id='album-form-container'>
+        <div id='album-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetAlbumFormPartialView", "Albums")'>
+            <div id='album-form-container'>
+            </div>
         </div>
-    </div>
 
-    <div id='tabversion-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetTabVersionFormPartialView", "TabVersions")'>
-        <div id='tabversion-form-container'>
+        <div id='tabversion-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetTabVersionFormPartialView", "TabVersions")'>
+            <div id='tabversion-form-container'>
+            </div>
         </div>
     </div>
-</div>
 
 @section scripts
     {

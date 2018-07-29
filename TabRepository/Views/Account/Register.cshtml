@@ -1,12 +1,9 @@
 ﻿@model RegisterViewModel
-@{
-    ViewData["Title"] = "Register";
-}
 
 <div id="register-container">
-    <div class="center-form-outer-container" align="center">
+    <div class="center-form-outer-container">
         <div class="center-form-inner-container">
-            <h2>@ViewData["Title"]</h2>
+            <h2>Register</h2>
             <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" id="register-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal form-center">
                 <h4>Create your account</h4>
                 <div asp-validation-summary="All"></div>

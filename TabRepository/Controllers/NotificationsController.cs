@@ -55,7 +55,7 @@ namespace TabRepository.Controllers
                             href = Url.Action("Dashboard", "Projects");
                             break;
                     }                    
-                    html += "<div class='notification' data-notification-id='" + notification.Id + "'><a class='btn list-group-item notification-item' href='" + href + "'>" + notification.Message + "<i class='fa fa-times notification-delete-btn' data-notification-id='" + notification.Id + "' style='padding-left: 7px;' /></a></div>";
+                    html += "<div class='notification' data-notification-id='" + notification.Id + "'><a class='btn list-group-item notification-item' style='display: flex; justify-content: space-between;' href='" + href + "'><span style='overflow: hidden; text-overflow: ellipsis'>" + notification.Message + "</span><i class='fa fa-times notification-delete-btn' data-notification-id='" + notification.Id + "' style='padding-left: 7px; padding-top: 2px;' /></a></div>";
                     count++;
                 }
                 

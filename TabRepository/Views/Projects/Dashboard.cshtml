@@ -362,13 +362,13 @@
                 $('#new-tab-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab</button>');
                 $('#new-album-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Album</button>');
 
-                var actionLink = '@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = -1 }, new { @class = "btn btn-primary", id = "new-tabversion-button" })'
+                var actionLink = '@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = -1 }, new { @class = "btn btn-primary dashboard-button", id = "new-tabversion-button" })'
                 actionLink = actionLink.replace('-1', nodeId);
                 $('#new-tabversion-button-container').empty().append(actionLink);
             }
             else if (nodeId.substring(0, 5) == 'album') {
                 nodeId = nodeId.substring(6);
-                var actionLink = '@Html.ActionLink("New Tab", "New", "Tabs", new { id = -1 }, new { @class = "btn btn-primary", id = "new-tab-button" })'
+                var actionLink = '@Html.ActionLink("New Tab", "New", "Tabs", new { id = -1 }, new { @class = "btn btn-primary dashboard-button", id = "new-tab-button" })'
                 actionLink = actionLink.replace('-1', nodeId);
                 $('#new-tab-button-container').empty().append(actionLink);
                 $('#new-album-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Album</button>');
@@ -382,7 +382,7 @@
             }
             else if (nodeId.substring(0, 7) == 'project') {
                 nodeId = nodeId.substring(8);
-                var actionLink = '@Html.ActionLink("New Album", "New", "Albums", new { id = -1 }, new { @class = "btn btn-primary", id = "new-album-button" })'
+                var actionLink = '@Html.ActionLink("New Album", "New", "Albums", new { id = -1 }, new { @class = "btn btn-primary dashboard-button", id = "new-album-button" })'
                 actionLink = actionLink.replace('-1', nodeId);
                 $('#new-album-button-container').empty().append(actionLink);
                 $('#new-tab-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab</button>');

@@ -1,4 +1,7 @@
 ﻿@model RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
 
 <div id="register-container">
     <div class="center-form-outer-container">
@@ -65,48 +68,56 @@
 </div>
 
 @section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 <script>
-    $(document).on("submit", function (e, data) {
-        // Show spinner on reset button
-        $($(document.activeElement)[0]).html('<div class="loader"></div>');
+    $(document).ready(function () {
+        onResize();
 
-        e.preventDefault();
+        $(document).on("submit", function (e, data) {
+            // Show spinner on reset button
+            $('.button-submit-wide').html('<div class="loader"></div>');
 
-        var form = e.target;
-        var formData = new FormData(form);
+            e.preventDefault();
 
-        $.ajax({
-            url: form.action,
-            type: 'POST',
-            data: formData,
-            cache: false,
-            contentType: false,
-            processData: false
-        })
-        .then(function (data) {
-            $('.button-submit-wide').html('Register');
-            $('#register-container').html(data);
-            if (data.toLowerCase().includes('registration successful')) {
-                $('#register-container').css('height', '100%');
-            }
-            $.validator.unobtrusive.parse($("#register-form"));
-        })
-        .fail(function (error) {
-            bootbox.dialog({
-                message: "An error occurred while submitting the form.<br /><br />Error: " + error.statusText,
-                buttons: {
-                    confirm: {
-                        label: 'Close',
-                        className: 'btn-default'
-                    },
-                }
-            });
+            var form = e.target;
+            var formData = new FormData(form);
+
+            $.ajax({
+                url: form.action,
+                type: 'POST',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false
+            })
+                .then(function (data) {
+                    $('.button-submit-wide').html('Register');
+                    $('#register-container').html(data);
+                    $.validator.unobtrusive.parse($("#register-form"));
+                    onResize();
+                })
+                .fail(function (error) {
+                    bootbox.dialog({
+                        message: "An error occurred while submitting the form.<br /><br />Error: " + error.statusText,
+                        buttons: {
+                            confirm: {
+                                label: 'Close',
+                                className: 'btn-default'
+                            },
+                        }
+                    });
+                });
         });
-    });
 
-    $(document).on('hidden.bs.modal', function () {
-        $('.button-submit-wide').html('Register');
+        $(document).on('hidden.bs.modal', function () {
+            $('.button-submit-wide').html('Register');
+        });
+
+        // Make sure the treeview/table height is set properly on resize
+        function onResize() {
+            $('.center-form-outer-container').css('height', $('#register-container').outerHeight());
+        };
+        window.addEventListener("resize", onResize);
     });
 </script>
 }

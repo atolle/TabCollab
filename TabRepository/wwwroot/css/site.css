@@ -6,6 +6,7 @@ body {
     padding-top: 50px;
     padding-bottom: 20px;
     height: 100%;
+    color: white;
 }
 
 #page {
@@ -386,4 +387,8 @@ body {
 
 .add-button {
     margin-bottom: 10px;
+}
+
+#register-container {
+    min-height: 100%;
 }

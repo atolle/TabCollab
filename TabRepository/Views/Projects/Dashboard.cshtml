@@ -582,7 +582,7 @@
 
             // Create button for contributor and remove from list
             $("#contributors-panels").append("<input type='hidden' class='form-control contributor' name='' value='" + username + "'>");
-            $("#contributors-panels").append("<button data-username='" + username + "' data-text='" + name + "' class='contributor-btn btn btn-default'>" + name + "<i class='fa fa-times' style='padding-left: 7px;' /></button>");
+            $("#contributors-panels").append("<button data-username='" + username + "' data-text='" + name + "' class='contributor-btn btn btn-default'><div class='contributor-text'>" + name + "</div><i class='fa fa-times' style='padding-left: 7px; padding-top: 2px;' /></button>");
             selected.remove();
             $("#contributors-list option[value=default]").prop("selected", true);
         });

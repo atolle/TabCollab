@@ -269,6 +269,14 @@ body {
 .contributor-btn {
     margin-right: 10px;
     margin-top: 10px;
+    display: flex; 
+}
+
+.contributor-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 240px;
+    text-align: left;
 }
 
 .contributor-btn:hover {

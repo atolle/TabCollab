@@ -202,12 +202,22 @@ namespace TabRepository.Controllers
                 if (projectInDb == null)
                     return NotFound();
 
+                var notificationsInDb = _context.Notifications.Where(n => n.ProjectId == projectInDb.Id).ToList();
+
+                if (notificationsInDb != null)
+                {
+                    foreach (Notification notification in notificationsInDb)
+                    {
+                        _context.Notifications.Remove(notification);
+                    }
+                }
+
                 _context.Projects.Remove(projectInDb);
                 _context.SaveChanges();
 
                 return Json(new { success = true });
             }
-            catch
+            catch (Exception e)
             {
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }

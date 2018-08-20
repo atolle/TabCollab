@@ -53,6 +53,9 @@ namespace TabRepository
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             //services.AddDbContext<ApplicationDbContext>(options =>
+            //    options.UseSqlServer(Configuration.GetConnectionString("Azure")));
+
+            //services.AddDbContext<ApplicationDbContext>(options =>
             //    options.UseNpgsql(Configuration.GetConnectionString("Postgres")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>(config =>

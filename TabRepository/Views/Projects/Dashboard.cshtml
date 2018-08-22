@@ -422,6 +422,9 @@
                                 var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
                                 $.get(url, function (data) {
                                     $('#tabversions-table-container').empty().append(data);
+
+                                    // Call onResize to resize the user images
+                                    onResize();
                                 });
                             }
                             else if (nodeId.substring(0, 7) == 'project') {
@@ -429,6 +432,9 @@
                                 var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
                                 $.get(url, function (data) {
                                     $('#tabversions-table-container').empty().append(data);
+
+                                    // Call onResize to resize the user images
+                                    onResize();
                                 })
                             }
                         }
@@ -616,7 +622,7 @@
             var formData = new FormData(form);
 
             // Show spinner on save button
-            $($(document.activeElement)[0]).html('<div class="loader"></div>');
+            $('.button-save').html('<div class="loader"></div>');
 
             $.ajax({
                 url: form.action,
@@ -635,6 +641,9 @@
 
                     $.get(url, function (data) {
                         $('#tabversions-table-container').empty().append(data);
+
+                        // Call onResize to resize the user images
+                        onResize();
                     });
 
                     // Create new tab node and select it - expand and deselect project node
@@ -654,6 +663,9 @@
 
                     $.get(url, function (data) {
                         $('#tabversions-table-container').empty().append(data);
+
+                        // Call onResize to resize the user images
+                        onResize();
                     });
                 }
                 else if (form.id === "album-form") {
@@ -661,6 +673,9 @@
 
                     $.get(url, function (data) {
                         $('#tabversions-table-container').empty().append(data);
+
+                        // Call onResize to resize the user images
+                        onResize();
                     });
 
                     var currentNode = $(selectedTree).jstree().get_selected(true)[0];

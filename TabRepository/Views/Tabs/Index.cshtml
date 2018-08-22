@@ -222,7 +222,7 @@ $(document).ready(function () {
         var formData = new FormData(form);
 
         // Show spinner on save button
-        $($(document.activeElement)[0]).html('<div class="loader"></div>');
+        $('.button-save').html('<div class="loader"></div>');
 
         $.ajax({
             url: form.action,

@@ -401,6 +401,10 @@ body {
     min-height: 100%;
 }
 
+#change-password-container {
+    height: 100%;
+}
+
 .tabversion-user-image {
     border-radius: 50%;
     width: 100%;

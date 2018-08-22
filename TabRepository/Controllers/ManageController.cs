@@ -250,12 +250,14 @@ namespace TabRepository.Controllers
                 {
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     _logger.LogInformation(3, "User changed their password successfully.");
-                    return RedirectToAction(nameof(Index), new { Message = ManageMessageId.ChangePasswordSuccess });
+                    return PartialView("_ChangePasswordConfirmation");
                 }
                 AddErrors(result);
-                return View(model);
+                // If we got this far, something failed, redisplay form
+                return PartialView("_ChangePasswordForm", model);
             }
-            return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });
+            // If we got this far, something failed, redisplay form
+            return PartialView("_ChangePasswordForm", model);
         }
 
         //

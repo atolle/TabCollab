@@ -53,6 +53,12 @@ body {
     }   
 }
 
+@media (min-width: 1730px) {
+    .container {
+        width: 1700px;
+    }
+}
+
 .navbar-form .input-group {
     position: relative;
     display: flex;

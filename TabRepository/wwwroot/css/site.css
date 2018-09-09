@@ -415,3 +415,21 @@ body {
     border-radius: 50%;
     width: 100%;
 }
+
+.feature-row {
+    margin-top: 20px;
+    display: flex;
+}
+
+.feature-column {
+    border: solid;
+    border-color: black;
+    padding: 10px;
+    background-color: rgb(24, 24, 24);
+}
+
+@media (max-width: 800px) {
+    .feature-row {
+        display: inline;
+    }
+}

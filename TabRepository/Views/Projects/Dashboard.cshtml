@@ -95,7 +95,7 @@
                 <table class="table table-bordered table-hover tabversions-table">
                     <thead>
                         <tr>
-                            <th width="5%"></th>
+                            <th class="user-image-col" width="5%"></th>
                             <th width="30%"><div class="table-header">Description</div></th>
                             <th width="15%"><div class="table-header">Contributor</div></th>
                             <th width="20%"><div class="table-header">Date Added</div></th>
@@ -734,6 +734,14 @@
             var dashboardHeight = $('#dashboard').outerHeight();
             var buttonContainerHeight = $('.buttons-container').outerHeight();
             var treeTableContainerHeight = ((dashboardHeight - buttonContainerHeight) / dashboardHeight) * 100;
+            var tabVersionTableWidth = $('.tabversions-table').width();
+
+            if (tabVersionTableWidth < 900) {
+                $('.user-image-col').hide();
+            }
+            else {
+                $('.user-image-col').show();
+            }
 
             $('#treeTableContainer').css('height', treeTableContainerHeight + '%');
             $('.tabversion-user-image').css('height', $('.tabversion-user-image').css('width'));

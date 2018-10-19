@@ -6,7 +6,7 @@
 <table class="table table-bordered table-hover tabversions-table">
     <thead>
         <tr>
-            <th width="5%"></th>
+            <th class="user-image-col" width="5%"></th>
             <th width="30%"><div class="table-header">Description</div></th>
             <th width="15%"><div class="table-header">Contributor</div></th>
             <th width="20%"><div class="table-header">Date Added</div></th>
@@ -20,11 +20,11 @@
         <tr>
             @if (String.IsNullOrWhiteSpace(t.TabVersion.User.ImageFilePath))
             {
-                <td></td>
+                <td class="user-image-col"></td>
             }
             else
             {
-                <td><img class ="tabversion-user-image" src="@t.TabVersion.User.ImageFilePath" /></td>
+                <td class="user-image-col"><img class ="tabversion-user-image" src="@t.TabVersion.User.ImageFilePath" /></td>
             }
             <td>@t.TabVersion.Description</td>
             <td>@t.TabVersion.User.UserName</td>

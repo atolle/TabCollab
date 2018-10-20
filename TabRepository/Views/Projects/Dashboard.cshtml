@@ -96,10 +96,10 @@
                     <thead>
                         <tr>
                             <th class="user-image-col" width="5%"></th>
-                            <th width="30%"><div class="table-header">Description</div></th>
-                            <th width="15%"><div class="table-header">Contributor</div></th>
-                            <th width="20%"><div class="table-header">Date Added</div></th>
-                            <th width="10%"><div class="table-header">Version</div></th>
+                            <th class="lg-device-col" width="30%"><div class="table-header">Description</div></th>
+                            <th class="lg-device-col" width="15%"><div class="table-header">Contributor</div></th>
+                            <th class="lg-device-col" width="20%"><div class="table-header">Date Added</div></th>
+                            <th width="10%"><div class="table-header version-header">Ver</div></th>
                             <th width="20%"></th>
                         </tr>
                     </thead>
@@ -145,7 +145,7 @@
             $('hr').show();
             $('footer').show();
 
-            onResize();
+            onResize(true);
 
             $(function () {
                 $(".jstree").jstree({
@@ -215,7 +215,7 @@
                 }
 
                 if (node.id.includes('tab')) {
-                    var orderArray = node_parent.children.map(c => c.substring(4));
+                    var orderArray = node_parent.children.map(function (c) { return c.substring(4) });
 
                     var data = { tabId: node.id.substring(4), albumId: node_parent.id.substring(6) };
 
@@ -239,8 +239,8 @@
                         })                        
                     })
                     .then(function (response) {
-                        // Reorder tabs in under previous album
-                        orderArray = original_parent.children.map(c => c.substring(4));
+                        // Reorder tabs in under previous album function (c) { return c.substring(4) }
+                        orderArray = original_parent.children.map(function (c) { return c.substring(4) });
 
                         data = { tabIds: orderArray };
 
@@ -257,7 +257,7 @@
                     });
                 }
                 else if (node.id.includes('album')) {
-                    var orderArray = node_parent.children.map(c => c.substring(6));
+                    var orderArray = node_parent.children.map(function (c) { return c.substring(6) });
 
                     var data = { albumId: node.id.substring(6), projectId: node_parent.id.substring(8) };
 
@@ -282,7 +282,7 @@
                     })
                     .then(function (response) {
                         // Reorder albums in under previous project
-                        orderArray = original_parent.children.map(c => c.substring(6));
+                        orderArray = original_parent.children.map(function (c) { return c.substring(6) });
 
                         data = { albumIds: orderArray };
 
@@ -311,7 +311,7 @@
                 handleSelector: "#splitter",                
                 resizeHeight: false,
                 onDrag: function (e, $el, newWidth, newHeight, opt) {
-                    if ($(document).width() < 700) {
+                    if ($(document).width() < 650) {
                         // limit box size
                         if (newWidth > 200) {
                             newWidth = 200;
@@ -327,7 +327,7 @@
                     $el.width(newWidth);
 
                     // Call onResize to resize the user images
-                    onResize();
+                    onResize(false);
 
                     // explicitly return **false** if you don't want
                     // auto-height computation to occur
@@ -362,7 +362,7 @@
                 $.get(url, function (data) {
                     $('#tabversions-table-container').empty().append(data);
                     // Call onResize to resize the user images
-                    onResize();
+                    onResize(false);
                 });
                 $('#new-tab-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab</button>');
                 $('#new-album-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Album</button>');
@@ -383,6 +383,7 @@
 
                 $.get(url, function (data) {
                     $('#tabversions-table-container').empty().append(data);
+                    onResize(false);
                 })
             }
             else if (nodeId.substring(0, 7) == 'project') {
@@ -397,6 +398,7 @@
 
                 $.get(url, function (data) {
                     $('#tabversions-table-container').empty().append(data);
+                    onResize(false);
                 })
             }
         });
@@ -424,7 +426,7 @@
                                     $('#tabversions-table-container').empty().append(data);
 
                                     // Call onResize to resize the user images
-                                    onResize();
+                                    onResize(false);
                                 });
                             }
                             else if (nodeId.substring(0, 7) == 'project') {
@@ -434,7 +436,7 @@
                                     $('#tabversions-table-container').empty().append(data);
 
                                     // Call onResize to resize the user images
-                                    onResize();
+                                    onResize(false);
                                 })
                             }
                         }
@@ -658,7 +660,7 @@
                         $('#tabversions-table-container').empty().append(data);
 
                         // Call onResize to resize the user images
-                        onResize();
+                        onResize(false);
                     });
 
                     // Create new tab node and select it - expand and deselect project node
@@ -680,7 +682,7 @@
                         $('#tabversions-table-container').empty().append(data);
 
                         // Call onResize to resize the user images
-                        onResize();
+                        onResize(false);
                     });
                 }
                 else if (form.id === "album-form") {
@@ -690,7 +692,7 @@
                         $('#tabversions-table-container').empty().append(data);
 
                         // Call onResize to resize the user images
-                        onResize();
+                        onResize(false);
                     });
 
                     var currentNode = $(selectedTree).jstree().get_selected(true)[0];
@@ -730,23 +732,42 @@
         }
 
         // Make sure the treeview/table height is set properly on resize
-        function onResize() {
+        function onResize(setTreeWidth) {
             var dashboardHeight = $('#dashboard').outerHeight();
             var buttonContainerHeight = $('.buttons-container').outerHeight();
             var treeTableContainerHeight = ((dashboardHeight - buttonContainerHeight) / dashboardHeight) * 100;
             var tabVersionTableWidth = $('.tabversions-table').width();
 
-            if (tabVersionTableWidth < 900) {
+            if (tabVersionTableWidth < 883) {
                 $('.user-image-col').hide();
             }
             else {
                 $('.user-image-col').show();
             }
 
+            if ($(window).width() < 760) {
+                $('.lg-device-col').hide();
+            }
+            else {
+                $('.lg-device-col').show();
+            }
+
+            if (setTreeWidth) {
+                if ($(window).width() < 760) {
+                    $('.treeWrapperContainer').css('width', '50%');
+                }
+                else {
+                    $('.treeWrapperContainer').css('width', '20%');
+                }
+            }
+
+
             $('#treeTableContainer').css('height', treeTableContainerHeight + '%');
             $('.tabversion-user-image').css('height', $('.tabversion-user-image').css('width'));
         };
-        window.addEventListener("resize", onResize);
+            window.addEventListener("resize", function () {
+                onResize(true);
+            });
     });
     </script>
 }

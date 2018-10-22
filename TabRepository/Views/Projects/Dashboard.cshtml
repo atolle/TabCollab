@@ -891,15 +891,13 @@
         $("#dashboard").on("click", ".show-tabversions", function (e, data) {
             var that = this;
             $(this).hide();
-            $(this).siblings('.tab-list').children('.item-container').show(200);
-            // Wait until the expansion animation is complete to show the buttons
-            setTimeout(function () {
-                $(that).siblings('.tabversions-container').empty().append('<div class="loader"></div>')
-                var url = '@Url.Action("GetTabVersionsList", "TabVersions")?id=' + $(that).attr('data-tab-id');
-                $.get(url, function (data) {
-                    $(that).siblings('.tabversions-container').empty().append(data);
-                });
-            }, 200)
+            $(that).siblings('.tabversions-container').empty().append('<div class="loader"></div>')
+            var url = '@Url.Action("GetTabVersionsList", "TabVersions")?id=' + $(that).attr('data-tab-id');
+            $.get(url, function (data) {
+                $(that).siblings('.tabversions-container').hide();
+                $(that).siblings('.tabversions-container').empty().append(data);
+                $(that).siblings('.tabversions-container').show(200);
+            });
             $(this).siblings('.hide-tabversions').show();
         });
 

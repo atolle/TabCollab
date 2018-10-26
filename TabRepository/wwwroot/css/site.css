@@ -298,8 +298,15 @@ body {
 .tab-panel {
     /*background-color: #19262B;*/
     background-color: rgb(66,66,66);
+    margin-left: 5px;
+    margin-right: 5px;
     margin-bottom: 5px;
     color: white;
+}
+
+.tabversion-panel {
+    background-color: #040303;
+    border-color: #666666;
 }
 
 .white-icon {

@@ -3,10 +3,10 @@
 <div class="tabversion-list">
     @foreach (var t in Model.TabVersions)
     {
-    <div id="tabversion-@t.TabVersion.Id" class="panel panel-default">
+    <div id="tabversion-@t.TabVersion.Id" class="tabversion-panel panel panel-default">
         @if (!String.IsNullOrWhiteSpace(t.TabVersion.User.ImageFilePath))
         {
-            <div><img style="height: 50px; width: 50px; border-radius: 50%;"src="@t.TabVersion.User.ImageFilePath" /></div>
+            <div><img style="height: 50px; width: 50px; border-radius: 50%; margin-top: 5px;"src="@t.TabVersion.User.ImageFilePath" /></div>
         }
         <div>Version: @t.TabVersion.Version</div>
         <div class="row">
@@ -22,7 +22,7 @@
             <div class="col-xs-3">
                 @if (System.IO.Path.GetExtension(t.TabVersion.TabFile.Name).Contains(".gp"))
                 {
-                    <a id="play-tabversion-button" class="white-icon" href="@Url.Action("Player", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-play fa-lg" /></a>
+                    <a id="play-tabversion-button" class="white-icon" target="_blank" href="@Url.Action("Player", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-play fa-lg" /></a>
                 }
                 else
                 {

@@ -144,12 +144,12 @@
                                                         <div id="@tab.Id" class="item-container">
                                                             <div class="row tab-panel-row">
                                                                 <div class="panel panel-default tab-panel">
-                                                                    <p>@tab.Name</p>
+                                                                    <h6>@tab.Name</h6>
                                                                     <div data-tab-id="@tab.Id" class="show-items-icon-container show-tabversions">
                                                                         <i class="fa fa-chevron-down show-buttons-icon"></i>
                                                                     </div>
                                                                     <div class="tabversions-container"></div>
-                                                                    <div data-tab-id="@tab.Id" class="hide-items-icon-container hide-tabversions">
+                                                                    <div class="hide-items-icon-container hide-tabversions">
                                                                         <i class="fa fa-chevron-up hide-buttons-icon"></i>
                                                                     </div>
                                                                 </div>
@@ -891,7 +891,8 @@
         $("#dashboard").on("click", ".show-tabversions", function (e, data) {
             var that = this;
             $(this).hide();
-            $(that).siblings('.tabversions-container').empty().append('<div class="loader"></div>')
+            $(this).siblings('.tabversions-container').empty().append('<div class="loader"></div>')
+            $(this).siblings('.tabversions-container').show();
             var url = '@Url.Action("GetTabVersionsList", "TabVersions")?id=' + $(that).attr('data-tab-id');
             $.get(url, function (data) {
                 $(that).siblings('.tabversions-container').hide();

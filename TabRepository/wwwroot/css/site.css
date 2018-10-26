@@ -80,14 +80,6 @@ body {
     cursor: pointer;
 }
 
-.navbar-fixed-top .navbar-collapse {
-    max-height: 600px !important;
-}
-
-.navbar-collapse.in {
-    overflow-y: unset !important;
-}
-
 .list-group-item {
     background-color: rgb(66,66,66) !important;
     color: white !important;

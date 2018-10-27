@@ -64,6 +64,10 @@ body {
     display: flex;
 }
 
+.navbar-fixed-top .navbar-collapse, .navbar-fixed-bottom .navbar-collapse {
+    overflow-y: scroll;
+}
+
 .search-results {
     position: absolute;
     /*This is relative to the search-form in the navbar*/

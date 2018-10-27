@@ -1,0 +1,41 @@
+﻿@model TabRepository.ViewModels.TabVersionIndexViewModel
+
+<div class="tabversion-list">
+    @foreach (var t in Model.TabVersions)
+    {
+    <div id="tabversion-@t.TabVersion.Id" class="tabversion-panel panel panel-default">
+        @if (!String.IsNullOrWhiteSpace(t.TabVersion.User.ImageFilePath))
+        {
+            <div><img style="height: 50px; width: 50px; border-radius: 50%; margin-top: 5px;"src="@t.TabVersion.User.ImageFilePath" /></div>
+        }
+        <div>Version: @t.TabVersion.Version</div>
+        <div class="row">
+            <div class="col-xs-3">
+                @if (t.IsOwner)
+                {
+                    <a id="edit-tabversion-button" class="white-icon" data-tab-id="@t.TabVersion.TabId" data-tabversion-id="@t.TabVersion.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")"><i class="fa fa-pencil fa-lg" /></a>
+                }
+            </div>
+            <div class="col-xs-3">
+                <a id="download-tabversion-button" class="white-icon" href="@Url.Action("Download", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-download fa-lg" /></a>
+            </div>
+            <div class="col-xs-3">
+                @if (System.IO.Path.GetExtension(t.TabVersion.TabFile.Name).Contains(".gp"))
+                {
+                    <a id="play-tabversion-button" class="white-icon" target="_blank" href="@Url.Action("Player", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-play fa-lg" /></a>
+                }
+                else
+                {
+                    <i class="fa fa-play" style="display: none;" />
+                }
+            </div>
+            <div class="col-xs-3">
+                @if (t.IsOwner)
+                {
+                    <a id="delete-tabversion-button" data-tabversion-id="@t.TabVersion.Id" class="white-icon" href="@Url.Action("Delete", "TabVersions", new { id = t.TabVersion.Id })"><i class="fa fa-times fa-lg" /></a>
+                }
+            </div>
+        </div>
+    </div>
+    }
+</div>

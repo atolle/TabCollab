@@ -7,22 +7,26 @@
 <link href="~/css/jstreestyle.css" rel="stylesheet" />
 <link href="~/css/main.css" rel="stylesheet" />
 
-<div id="page" style="height: 100%;">
-    <div class="buttons-container">
-        <div id="new-project-button">
-            <button class="btn btn-primary">New Project</button>
+<div id="dashboard">
+    <div class="buttons-container" style="display: none;">
+        <div class="col-xs-6" style="padding-left: 0px">
+            <div id="new-project-button" class="btn-group">
+                <button class="btn btn-primary dashboard-button">New Project</button>
+            </div>
+            <div id="new-album-button-container" class="btn-group">
+                <button class="btn btn-primary dashboard-button" disabled>New Album</button>
+            </div>
         </div>
-        <div id="new-album-button-container">
-            <button class="btn btn-primary" disabled>New Album</button>
-        </div>
-        <div id="new-tab-button-container">
-            <button class="btn btn-primary pull-right" disabled>New Tab</button>
-        </div>
-        <div id="new-tabversion-button-container">
-            <button class="btn btn-primary" disabled>New Tab Version</button>
+        <div class="col-xs-6" style="padding-right: 0px">
+            <div id="new-tab-button-container" class="pull-right btn-group">
+                <button class="btn btn-primary dashboard-button" disabled>New Tab</button>
+            </div>
+            <div id="new-tabversion-button-container" class="pull-right btn-group">
+                <button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>
+            </div>
         </div>
     </div>
-    <div id="treeTableContainer">
+    <div id="treeTableContainer" style="display: none;">
         <div class="treeWrapperContainer">
             <b><span class="treeLabel">My Projects</span></b>
             <div class="treeWrapperTop">
@@ -88,17 +92,15 @@
         </div>
         <div id="splitter"></div>
         <div id="tabversions-table-container">
-            <table class="table table-bordered table-hover">
+            <table class="table table-bordered table-hover tabversions-table">
                 <thead>
                     <tr>
-                        <th width="30%">Description</th>
-                        <th width="20%">Contributor</th>
-                        <th width="20%">Date Added</th>
-                        <th width="10%">Version</th>
-                        <th width="5%"></th>
-                        <th width="5%"></th>
-                        <th width="5%"></th>
-                        <th width="5%"></th>
+                        <th class="user-image-col" width="5%"></th>
+                        <th class="lg-device-col" width="30%"><div class="table-header">Description</div></th>
+                        <th class="lg-device-col" width="15%"><div class="table-header">Contributor</div></th>
+                        <th class="lg-device-col" width="20%"><div class="table-header">Date Added</div></th>
+                        <th width="10%"><div class="table-header version-header">Ver</div></th>
+                        <th width="20%"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -106,6 +108,78 @@
                 </tbody>
             </table>
         </div>
+    </div>
+    <div class="list-loader"></div>
+    <div class="projects-container row list-row" style="display: none;">
+        @{ int i = 1; }
+        @foreach (var project in Model)
+        {
+            <div class="col-md-4" align="center">
+                <div class="panel panel-default panel-profile">
+                    <div class="panel-heading" style="background-image: url('@project.ImageFilePath');"></div>
+                    <div class="panel-body text-center">
+                        <h3>@project.Name</h3>
+                        <p></p>
+                        <div class="albums-container">
+                            <div class="show-items-icon-container">
+                                <i class="fa fa-chevron-down fa-lg show-buttons-icon"></i>
+                            </div>
+                            <div class="album-list">
+                                @foreach (var album in project.Albums)
+                                {
+                                    <div id="@album.Id" class="item-container">
+                                        <div class="panel panel-default panel-profile" style="border: white; border-style: solid;">
+                                            <div class="panel-heading" style="background-image: url('@album.ImageFilePath');"></div>
+                                            <div class="panel-body text-center">
+                                                <h5>@album.Name</h5>
+                                            </div>
+                                            <div class="tabs-container">
+                                                <div class="show-items-icon-container">
+                                                    <i class="fa fa-chevron-down show-buttons-icon"></i>
+                                                </div>
+                                                <p></p>
+                                                <div class="tab-list">
+                                                    @foreach (var tab in album.Tabs)
+                                                    {
+                                                        <div id="@tab.Id" class="item-container">
+                                                            <div class="row tab-panel-row">
+                                                                <div class="panel panel-default tab-panel">
+                                                                    <h6>@tab.Name</h6>
+                                                                    <div data-tab-id="@tab.Id" class="show-items-icon-container show-tabversions">
+                                                                        <i class="fa fa-chevron-down show-buttons-icon"></i>
+                                                                    </div>
+                                                                    <div class="tabversions-container"></div>
+                                                                    <div class="hide-items-icon-container hide-tabversions">
+                                                                        <i class="fa fa-chevron-up hide-buttons-icon"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="hide-items-icon-container">
+                                                    <i class="fa fa-chevron-up hide-buttons-icon"></i>
+                                                </div>
+                                                <p></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="hide-items-icon-container">
+                                <i class="fa fa-chevron-up fa-lg hide-buttons-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @if (i % 3 == 0)
+            {
+                <div class="clearfix"></div>
+            }
+            i++;
+        }
+
     </div>
 
     <div id='tab-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetTabFormPartialView", "Tabs")'>
@@ -139,9 +213,13 @@
     <script>
         var original_parent;
 
-        $(document).ready(function () {
+        $(document).ready(function () {            
             $('hr').show();
             $('footer').show();
+
+            $('.list-loader').remove();
+
+            onResize(true);
 
             $(function () {
                 $(".jstree").jstree({
@@ -211,7 +289,7 @@
                 }
 
                 if (node.id.includes('tab')) {
-                    var orderArray = node_parent.children.map(c => c.substring(4));
+                    var orderArray = node_parent.children.map(function (c) { return c.substring(4) });
 
                     var data = { tabId: node.id.substring(4), albumId: node_parent.id.substring(6) };
 
@@ -235,8 +313,8 @@
                         })                        
                     })
                     .then(function (response) {
-                        // Reorder tabs in under previous album
-                        orderArray = original_parent.children.map(c => c.substring(4));
+                        // Reorder tabs in under previous album function (c) { return c.substring(4) }
+                        orderArray = original_parent.children.map(function (c) { return c.substring(4) });
 
                         data = { tabIds: orderArray };
 
@@ -253,7 +331,7 @@
                     });
                 }
                 else if (node.id.includes('album')) {
-                    var orderArray = node_parent.children.map(c => c.substring(6));
+                    var orderArray = node_parent.children.map(function (c) { return c.substring(6) });
 
                     var data = { albumId: node.id.substring(6), projectId: node_parent.id.substring(8) };
 
@@ -278,7 +356,7 @@
                     })
                     .then(function (response) {
                         // Reorder albums in under previous project
-                        orderArray = original_parent.children.map(c => c.substring(6));
+                        orderArray = original_parent.children.map(function (c) { return c.substring(6) });
 
                         data = { albumIds: orderArray };
 
@@ -307,7 +385,7 @@
                 handleSelector: "#splitter",                
                 resizeHeight: false,
                 onDrag: function (e, $el, newWidth, newHeight, opt) {
-                    if ($(document).width() < 700) {
+                    if ($(document).width() < 650) {
                         // limit box size
                         if (newWidth > 200) {
                             newWidth = 200;
@@ -321,6 +399,9 @@
                     }
 
                     $el.width(newWidth);
+
+                    // Call onResize to resize the user images
+                    onResize(false);
 
                     // explicitly return **false** if you don't want
                     // auto-height computation to occur
@@ -354,49 +435,53 @@
 
                 $.get(url, function (data) {
                     $('#tabversions-table-container').empty().append(data);
-
+                    // Call onResize to resize the user images
+                    onResize(false);
                 });
-                $('#new-tab-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab</button>');
-                $('#new-album-button-container').empty().append('<button class="btn btn-primary" disabled>New Album</button>');
+                $('#new-tab-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab</button>');
+                $('#new-album-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Album</button>');
 
-                var actionLink = '@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = -1 }, new { @class = "btn btn-primary", id = "new-tabversion-button" })'
+                var actionLink = '@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = -1 }, new { @class = "btn btn-primary dashboard-button", id = "new-tabversion-button" })'
                 actionLink = actionLink.replace('-1', nodeId);
                 $('#new-tabversion-button-container').empty().append(actionLink);
             }
             else if (nodeId.substring(0, 5) == 'album') {
                 nodeId = nodeId.substring(6);
-                var actionLink = '@Html.ActionLink("New Tab", "New", "Tabs", new { id = -1 }, new { @class = "btn btn-primary", id = "new-tab-button" })'
+                var actionLink = '@Html.ActionLink("New Tab", "New", "Tabs", new { id = -1 }, new { @class = "btn btn-primary dashboard-button", id = "new-tab-button" })'
                 actionLink = actionLink.replace('-1', nodeId);
                 $('#new-tab-button-container').empty().append(actionLink);
-                $('#new-album-button-container').empty().append('<button class="btn btn-primary" disabled>New Album</button>');
-                $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab Version</button>');
+                $('#new-album-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Album</button>');
+                $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>');
 
                 var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
                 $.get(url, function (data) {
                     $('#tabversions-table-container').empty().append(data);
+                    onResize(false);
                 })
             }
             else if (nodeId.substring(0, 7) == 'project') {
                 nodeId = nodeId.substring(8);
-                var actionLink = '@Html.ActionLink("New Album", "New", "Albums", new { id = -1 }, new { @class = "btn btn-primary", id = "new-album-button" })'
+                var actionLink = '@Html.ActionLink("New Album", "New", "Albums", new { id = -1 }, new { @class = "btn btn-primary dashboard-button", id = "new-album-button" })'
                 actionLink = actionLink.replace('-1', nodeId);
                 $('#new-album-button-container').empty().append(actionLink);
-                $('#new-tab-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab</button>');
-                $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary" disabled>New Tab Version</button>');
+                $('#new-tab-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab</button>');
+                $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>');
 
                 var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
                 $.get(url, function (data) {
                     $('#tabversions-table-container').empty().append(data);
+                    onResize(false);
                 })
             }
         });
 
         // Deleting a tab version
-        $("#page").on("click", "#delete-tabversion-button", function (e, data) {
+        $("#dashboard").on("click", "#delete-tabversion-button", function (e, data) {
             e.preventDefault();
             var href = this.href;
+            var tabVersionId = $(this).attr('data-tabversion-id');
 
             bootbox.confirm("Are you sure you wish to delete this tab version? This cannot be undone.", function (result) {
                 if (result) {
@@ -405,23 +490,35 @@
                             bootbox.alert("Unable to delete.");
                         }
                         else {
-                            var nodeId = $(selectedTree).jstree().get_selected(true)[0].id;
-                            // Update tab versions table
-                            if (nodeId.substring(0, 3) == 'tab') {
-                                nodeId = nodeId.substring(4);
+                            if ($('#treeTableContainer').is(':visible')) {
+                                var nodeId = $(selectedTree).jstree().get_selected(true)[0].id;
+                                // Update tab versions table
+                                if (nodeId.substring(0, 3) == 'tab') {
+                                    nodeId = nodeId.substring(4);
 
-                                //var $tabversions-table-container = $('#tabversions-table-container'),
-                                var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
-                                $.get(url, function (data) {
-                                    $('#tabversions-table-container').empty().append(data);
-                                });
+                                    //var $tabversions-table-container = $('#tabversions-table-container'),
+                                    var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
+                                    $.get(url, function (data) {
+                                        $('#tabversions-table-container').empty().append(data);
+
+                                        // Call onResize to resize the user images
+                                        onResize(false);
+                                    });
+                                }
+                                else if (nodeId.substring(0, 7) == 'project') {
+                                    nodeId = nodeId.substring(8);
+                                    var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
+                                    $.get(url, function (data) {
+                                        $('#tabversions-table-container').empty().append(data);
+
+                                        // Call onResize to resize the user images
+                                        onResize(false);
+                                    })
+                                }
                             }
-                            else if (nodeId.substring(0, 7) == 'project') {
-                                nodeId = nodeId.substring(8);
-                                var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
-                                $.get(url, function (data) {
-                                    $('#tabversions-table-container').empty().append(data);
-                                })
+                            else {
+                                // Remove the deleted version
+                                $("#tabversion-" + tabVersionId).remove(); 
                             }
                         }
                     });
@@ -430,7 +527,7 @@
         });
 
         // Show modal for new tab
-        $("#page").on("click", "#new-tab-button", function (e, data) {
+        $("#dashboard").on("click", "#new-tab-button", function (e, data) {
             e.preventDefault();
 
             var url = $('#tab-form-modal').data('url');
@@ -454,7 +551,7 @@
         });
 
         // Show modal for new project
-        $("#page").on("click", "#new-project-button", function (e, data) {
+        $("#dashboard").on("click", "#new-project-button", function (e, data) {
             e.preventDefault();
 
             var url = $('#project-form-modal').data('url');
@@ -471,7 +568,7 @@
         });
 
         // Show modal for new album
-        $("#page").on("click", "#new-album-button", function (e, data) {
+        $("#dashboard").on("click", "#new-album-button", function (e, data) {
             e.preventDefault();
 
             var url = $('#album-form-modal').data('url');
@@ -495,7 +592,7 @@
         });
 
         // Show modal for new tab version
-        $("#page").on("click", "#new-tabversion-button", function (e, data) {
+        $("#dashboard").on("click", "#new-tabversion-button", function (e, data) {
             e.preventDefault();
 
             var url = $('#tabversion-form-modal').data('url');
@@ -510,43 +607,54 @@
                     if (!result.hasLatest) {
                         bootbox.confirm("You have not yet downloaded the latest version for this tab. Make sure to download latest to prevent overwriting previous changes.<br /><br /> Do you wish to proceed?", function (result) {
                             if (result) {
-                                $.get(url, function (data) {
-                                    $('#tabversion-form-container').html(data);
-
-                                    $('#tabversion-form')
-                                        .removeData("validator") /* added by the raw jquery.validate plugin */
-                                        .removeData("unobtrusiveValidation");  /* added by the jquery unobtrusive plugin*/
-
-                                    // Client side validation for dynamic modal injection
-                                    $.validator.unobtrusive.parse($("#tabversion-form"));
-
-                                    currentModal = $('#tabversion-form-modal');
-                                    currentModal.modal('show');
-                                });
+                                showTabVersionModal(url);
                             }
                         });
                     }
                     else {
-                        $.get(url, function (data) {
-                            $('#tabversion-form-container').html(data);
-
-                            $('#tabversion-form')
-                                .removeData("validator") /* added by the raw jquery.validate plugin */
-                                .removeData("unobtrusiveValidation");  /* added by the jquery unobtrusive plugin*/
-
-                            // Client side validation for dynamic modal injection
-                            $.validator.unobtrusive.parse($("#tabversion-form"));
-
-                            currentModal = $('#tabversion-form-modal');
-                            currentModal.modal('show');
-                        });
+                        showTabVersionModal(url);
                     }
                 })
             }
         });
 
+        function showTabVersionModal(url) {
+            $.get(url, function (data) {
+                $('#tabversion-form-container').html(data);
+
+                $('#tabversion-form')
+                    .removeData("validator") /* added by the raw jquery.validate plugin */
+                    .removeData("unobtrusiveValidation");  /* added by the jquery unobtrusive plugin*/
+
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($("#tabversion-form"));
+
+                currentModal = $('#tabversion-form-modal');
+                currentModal.modal('show');
+
+                // Bind onchange event for the file field so that we can check its size
+                var fileData = document.getElementById("FileData");
+
+                fileData.onchange = function () {
+                    // If it's larger than 500 KB, tell user and disable save button
+                    if (this.files[0].size > 500000) {
+                        if (!$(".file-validation").length) {
+                            $(".validation-summary-valid ul").append("<li class='file-validation'>File size must be less than 500 KB.</li>");
+                        }
+                        $(".button-save")[0].classList.add("disabled");
+                    }
+                    else {
+                        if ($(".file-validation").length) {
+                            $(".file-validation").remove();
+                        }
+                        $(".button-save")[0].classList.remove("disabled");
+                    }
+                };
+            });
+        }
+
         // Show modal for edit album
-        $("#page").on("click", "#edit-tabversion-button", function (e, data) {
+        $("#dashboard").on("click", "#edit-tabversion-button", function (e, data) {
             e.preventDefault();
 
             var href = this.href + "?tabId=" + $(this).attr("data-tab-id") + "&tabVersionId=" + $(this).attr("data-tabversion-id");
@@ -579,7 +687,7 @@
 
             // Create button for contributor and remove from list
             $("#contributors-panels").append("<input type='hidden' class='form-control contributor' name='' value='" + username + "'>");
-            $("#contributors-panels").append("<button data-username='" + username + "' data-text='" + name + "' class='contributor-btn btn btn-default'>" + name + "<i class='fa fa-times' style='padding-left: 7px;' /></button>");
+            $("#contributors-panels").append("<button data-username='" + username + "' data-text='" + name + "' class='contributor-btn btn btn-default'><div class='contributor-text'>" + name + "</div><i class='fa fa-times' style='padding-left: 7px; padding-top: 2px;' /></button>");
             selected.remove();
             $("#contributors-list option[value=default]").prop("selected", true);
         });
@@ -596,8 +704,12 @@
             $("input[value=" + username + "]").remove();
         });
 
-        $("#page").on("submit", function (e, data) {
+        $("#dashboard").on("submit", function (e, data) {
             e.preventDefault();
+
+            if ($('.button-save')[0].classList.contains("disabled")) {
+                return;
+            }
 
             // Loop through all contributors to add index for model binding
             $('.contributor').each(function (index) {
@@ -608,7 +720,7 @@
             var formData = new FormData(form);
 
             // Show spinner on save button
-            $($(document.activeElement)[0]).html('<div class="loader"></div>');
+            $('.button-save').html('<div class="loader"></div>');
 
             $.ajax({
                 url: form.action,
@@ -627,6 +739,9 @@
 
                     $.get(url, function (data) {
                         $('#tabversions-table-container').empty().append(data);
+
+                        // Call onResize to resize the user images
+                        onResize(false);
                     });
 
                     // Create new tab node and select it - expand and deselect project node
@@ -646,6 +761,9 @@
 
                     $.get(url, function (data) {
                         $('#tabversions-table-container').empty().append(data);
+
+                        // Call onResize to resize the user images
+                        onResize(false);
                     });
                 }
                 else if (form.id === "album-form") {
@@ -653,6 +771,9 @@
 
                     $.get(url, function (data) {
                         $('#tabversions-table-container').empty().append(data);
+
+                        // Call onResize to resize the user images
+                        onResize(false);
                     });
 
                     var currentNode = $(selectedTree).jstree().get_selected(true)[0];
@@ -683,13 +804,110 @@
             })
             .fail(function (error) {
                 currentModal.modal('hide');
-                bootbox.alert("Unable to save. Error code: " + error);
+                bootbox.alert("Unable to save.<br /><br />Error: " + error.responseText);
             });
         });
 
         function getContributorCount() {
             return $('.contributor-btn').length;
         }
+
+        // Make sure the treeview/table height is set properly on resize
+        function onResize(setTreeWidth) {
+            var dashboardHeight = $('#dashboard').outerHeight();
+            var buttonContainerHeight = $('.buttons-container').outerHeight();
+            var treeTableContainerHeight = ((dashboardHeight - buttonContainerHeight) / dashboardHeight) * 100;
+            var tabVersionTableWidth = $('.tabversions-table').width();
+
+            if (tabVersionTableWidth < 883) {
+                $('.user-image-col').hide();
+            }
+            else {
+                $('.user-image-col').show();
+            }
+
+            if ($(window).width() < 760) {
+                $('.lg-device-col').hide();
+            }
+            else {
+                $('.lg-device-col').show();
+            }
+
+            if ($(window).width() <= 425) {
+                $('.buttons-container').hide();
+                $('#treeTableContainer').hide();
+                $('.projects-container').show();
+                $('#dashboard').css('height', 'auto')
+            }
+            else {
+                $('.buttons-container').show();
+                $('#treeTableContainer').show();
+                $('.projects-container').hide();
+                $('#dashboard').css('height', '100%')
+            }
+
+            if (setTreeWidth) {
+                if ($(window).width() < 760) {
+                    $('.treeWrapperContainer').css('width', '50%');
+                }
+                else {
+                    $('.treeWrapperContainer').css('width', '20%');
+                }
+            }
+
+
+            $('#treeTableContainer').css('height', treeTableContainerHeight + '%');
+            $('.tabversion-user-image').css('height', $('.tabversion-user-image').css('width'));
+        };
+        window.addEventListener("resize", function () {
+            onResize(true);
+        });
+
+        $("#dashboard").on("click", ".show-items-icon-container", function (e, data) {
+            $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+
+            var that = this;
+
+            $(this).hide();
+            $(this).siblings('.album-list').children('.item-container').show(200);
+            $(this).siblings('.tab-list').children('.item-container').show(200);
+            // Wait until the expansion animation is complete to show the buttons
+            setTimeout(function () {
+                $(that).siblings('.album-list').children('.item-container').children().css("visibility", "visible");
+                $(that).siblings('.tab-list').children('.item-container').children().css("visibility", "visible");
+            }, 200)
+            $(this).siblings('.hide-items-icon-container').show();
+        });
+
+        $("#dashboard").on("click", ".hide-items-icon-container", function (e, data) {
+            $(this).hide();
+            $(this).siblings('.album-list').children('.item-container').children().css("visibility", "hidden");
+            $(this).siblings('.album-list').children('.item-container').hide(200);
+            $(this).siblings('.tab-list').children('.item-container').children().css("visibility", "hidden");
+            $(this).siblings('.tab-list').children('.item-container').hide(200);
+            $(this).siblings('.show-items-icon-container').show();
+        });
+
+        $("#dashboard").on("click", ".show-tabversions", function (e, data) {
+            var that = this;
+            $(this).hide();
+            $(this).siblings('.tabversions-container').empty().append('<div class="loader"></div>')
+            $(this).siblings('.tabversions-container').show();
+            var url = '@Url.Action("GetTabVersionsList", "TabVersions")?id=' + $(that).attr('data-tab-id');
+            $.get(url, function (data) {
+                $(that).siblings('.tabversions-container').hide();
+                $(that).siblings('.tabversions-container').empty().append(data);
+                $(that).siblings('.tabversions-container').show(200);
+            });
+            $(this).siblings('.hide-tabversions').show();
+        });
+
+        $("#dashboard").on("click", ".hide-tabversions", function (e, data) {
+            $(this).hide();
+            $(this).siblings('.tabversions-container').hide(200);
+            $(this).siblings('.tabversions-container').empty();
+            $(this).siblings('.show-tabversions').show();
+        });
     });
     </script>
 }

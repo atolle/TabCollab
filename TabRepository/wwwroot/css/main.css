@@ -27,12 +27,11 @@
 }
 
 #new-tab-button-container {
-    margin-left: auto;
-    margin-right: 10px;
+    margin-left: 12px;
 }
 
-#new-album-button-container {
-    margin-left: 10px;
+#new-project-button {
+    margin-right: 10px;
 }
 
 .splitter-horizontal {
@@ -91,4 +90,26 @@ td {
 
 #tabversions-table-container {
     margin-top: 19px;
+    overflow: auto;
+}
+
+#dashboard {
+    height: 100%;
+}
+
+.table-header {
+    word-wrap: break-word;
+}
+
+.tabversions-table {
+    table-layout: fixed;
+    margin-bottom: 0px;
+}
+
+.dashboard-button {
+    margin-bottom: 10px;
+}
+
+.projects-container {
+    padding-top: 15px;
 }

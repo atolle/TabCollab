@@ -6,6 +6,11 @@ body {
     padding-top: 50px;
     padding-bottom: 20px;
     height: 100%;
+    color: white;
+}
+
+#page {
+    min-height: 100%;
 }
 
 /* Wrapping element */
@@ -48,9 +53,19 @@ body {
     }   
 }
 
+@media (min-width: 1730px) {
+    .container {
+        width: 1700px;
+    }
+}
+
 .navbar-form .input-group {
     position: relative;
     display: flex;
+}
+
+.navbar-fixed-top .navbar-collapse, .navbar-fixed-bottom .navbar-collapse {
+    overflow-y: scroll;
 }
 
 .search-results {
@@ -69,14 +84,6 @@ body {
     cursor: pointer;
 }
 
-.navbar-fixed-top .navbar-collapse {
-    max-height: 600px !important;
-}
-
-.navbar-collapse.in {
-    overflow-y: unset !important;
-}
-
 .list-group-item {
     background-color: rgb(66,66,66) !important;
     color: white !important;
@@ -88,7 +95,7 @@ body {
 }
 
 .panel {
-    width: 350px;
+    max-width: 350px;
 }
 
 .panel-profile-img {
@@ -141,7 +148,6 @@ body {
 
 .buttons-container {
     display: flex;
-    margin-bottom: 10px;
     margin-top: 10px;
     width: 100%;
 }
@@ -180,11 +186,11 @@ body {
 .center-form-inner-container {
     display: table-cell;
     vertical-align: middle;
+    text-align: center;
 }
 
 .form-label {
     text-align: left;
-    margin-left: 15px;
 }
 
 /*loader animations for loading lists and for saving*/
@@ -244,10 +250,6 @@ body {
     overflow: hidden;
 }
 
-#register-container {
-    height: 100%;
-}
-
 #reset-password-container {
     height: 100%;
 }
@@ -269,6 +271,14 @@ body {
 .contributor-btn {
     margin-right: 10px;
     margin-top: 10px;
+    display: flex; 
+}
+
+.contributor-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 240px;
+    text-align: left;
 }
 
 .contributor-btn:hover {
@@ -284,8 +294,15 @@ body {
 .tab-panel {
     /*background-color: #19262B;*/
     background-color: rgb(66,66,66);
+    margin-left: 5px;
+    margin-right: 5px;
     margin-bottom: 5px;
     color: white;
+}
+
+.tabversion-panel {
+    background-color: #040303;
+    border-color: #666666;
 }
 
 .white-icon {
@@ -358,6 +375,15 @@ body {
     cursor: pointer;
 }
 
+@media screen and (max-width: 767px) {
+    /* Hide captions */
+    .notifications {
+        width: 100%;
+        top: 25%;
+        z-index: 100;
+    }
+}
+
 .clear-btn {
     color: black;
     margin-right: 13px;
@@ -369,4 +395,44 @@ body {
 
 .selection-modal {
     max-width: 400px;
+}
+
+.form-group {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+}
+
+.add-button {
+    margin-bottom: 10px;
+}
+
+#register-container {
+    min-height: 100%;
+}
+
+#change-password-container {
+    height: 100%;
+}
+
+.tabversion-user-image {
+    border-radius: 50%;
+    width: 100%;
+}
+
+.feature-row {
+    margin-top: 20px;
+    display: flex;
+}
+
+.feature-column {
+    border: solid;
+    border-color: black;
+    padding: 10px;
+    background-color: rgb(24, 24, 24);
+}
+
+@media (max-width: 800px) {
+    .feature-row {
+        display: inline;
+    }
 }

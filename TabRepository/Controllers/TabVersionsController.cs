@@ -93,6 +93,11 @@ namespace TabRepository.Controllers
 
                             if (viewModel.FileData.Length > 0)
                             {
+                                // Limit file size to 500 KB
+                                if (viewModel.FileData.Length > 500000)
+                                {
+                                    return StatusCode(StatusCodes.Status500InternalServerError, "File size must be less than 500 KB.");
+                                }
                                 using (var fileStream = viewModel.FileData.OpenReadStream())
                                 using (var ms = new MemoryStream())
                                 {
@@ -301,6 +306,76 @@ namespace TabRepository.Controllers
                 };
 
                 return PartialView("_TabVersionsTable", viewModel);
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult GetTabVersionsList(int id)
+        {
+            // Return a list of all TabVersions belonging to the current user for current Tab (id)
+            string currentUserId = User.GetUserId();
+
+            try
+            {
+                var tabInDb = _context.Tabs.SingleOrDefault(t => t.Id == id && t.UserId == currentUserId);
+
+                // If we are not the owner, are we a contributor?
+                if (tabInDb == null)
+                {
+                    tabInDb = (from tab in _context.Tabs
+                               join album in _context.Albums on tab.AlbumId equals album.Id
+                               join project in _context.Projects on album.ProjectId equals project.Id
+                               join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
+                               where contributor.UserId == currentUserId && tab.Id == id
+                               select tab).FirstOrDefault();
+
+                    if (tabInDb == null)
+                    {
+                        return NotFound();
+                    }
+                }
+
+                var tabVersionsInDb = _context.TabVersions
+                        .Include(v => v.TabFile)
+                        .Include(v => v.User)
+                        .Where(v => v.TabId == id)
+                        .OrderBy(v => v.Version)
+                        .ToList();
+
+                var albumInDb = _context.Tabs.Include(t => t.Album).SingleOrDefault(t => t.Id == id).Album;
+
+                if (tabVersionsInDb == null || tabInDb == null || albumInDb == null)
+                {
+                    return NotFound();
+                }
+
+                // Load Tab Versions into view model to be able to send over whether the current user is the owner of the tab
+                List<TabVersionViewModel> tabVersions = new List<TabVersionViewModel>();
+
+                foreach (var tabVersion in tabVersionsInDb)
+                {
+                    var tabVersionViewModel = new TabVersionViewModel()
+                    {
+                        TabVersion = tabVersion,
+                        IsOwner = tabInDb.UserId == currentUserId || tabVersion.UserId == currentUserId
+                    };
+
+                    tabVersions.Add(tabVersionViewModel);
+                }
+
+                var viewModel = new TabVersionIndexViewModel()
+                {
+                    TabVersions = tabVersions,
+                    TabName = tabInDb.Name,
+                    TabId = id,
+                    AlbumId = albumInDb.Id
+                };
+
+                return PartialView("_TabVersionList", viewModel);
             }
             catch
             {

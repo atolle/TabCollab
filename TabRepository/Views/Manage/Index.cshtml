@@ -1,9 +1,9 @@
 ﻿@model ManageViewModel
 @{
-    ViewData["Title"] = "Manage your account";
+    ViewData["Title"] = "Account";
 }
 
-<div id="page" style="height: 100%;">
+<div id="page">
     <div class="manage-wrapper">
         <div class="col-md-4">
             <div class="panel panel-default panel-profile">
@@ -25,7 +25,7 @@
         <p></p>
         @if (Model.HasPassword)
         {
-            <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default">Change Password</a>
+            <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default" style="margin-left: 15px">Change Password</a>
         }
         else
         {
@@ -51,9 +51,6 @@
 
             var form = e.target;
             var formData = new FormData(form);
-
-            // Show spinner on save button
-            //$($(document.activeElement)[0]).html('<div class="loader"></div>');
 
             var submitButtonHtml = submitButton.html();
             // Show spinner on submit button and disable it

@@ -9,14 +9,22 @@ using TabRepository.Models;
 using TabRepository.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
+using System.Threading;
+using Microsoft.IdentityModel.Protocols;
 
 namespace TabRepository
 {
     public class Startup
     {
+        private IHostingEnvironment _env;
+
         public Startup(IHostingEnvironment env)
         {
-            var builder = new ConfigurationBuilder();
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
 
             if (env.IsDevelopment())
             {
@@ -24,6 +32,8 @@ namespace TabRepository
             }
 
             Configuration = builder.Build();
+
+            _env = env;
         }
 
         public Startup(IConfiguration configuration)
@@ -39,11 +49,14 @@ namespace TabRepository
             services.AddMvc();
 
             // Add framework services.
-            //services.AddDbContext<ApplicationDbContext>(options =>
-            //    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(Configuration.GetConnectionString("Postgres")));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            //services.AddDbContext<ApplicationDbContext>(options =>
+            //    options.UseSqlServer(Configuration.GetConnectionString("Azure")));
+
+            //services.AddDbContext<ApplicationDbContext>(options =>
+            //    options.UseNpgsql(Configuration.GetConnectionString("Postgres")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>(config =>
             {
@@ -57,7 +70,7 @@ namespace TabRepository
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
-
+           
             services.AddAuthentication().AddGoogle(googleOptions =>
             {
                 googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
@@ -67,7 +80,7 @@ namespace TabRepository
             services.AddHttpsRedirection(options =>
             {
                 options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-                options.HttpsPort = 5001;
+                options.HttpsPort = 443;
             });
 
             services.Configure<AuthMessageSenderOptions>(Configuration);

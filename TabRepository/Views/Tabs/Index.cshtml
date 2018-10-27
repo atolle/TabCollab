@@ -1,11 +1,11 @@
 ﻿@{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Tabs";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div id="page">
     <div class="buttons-container">
-        <a id="new-tab-button" data-toggle="tooltip" title="Add new tab" class="white-icon pull-left" href="@Url.Action("GetProjectSelectionPartialView", "Projects")"><i class="fa fa-plus fa-2x"></i></a>
+        <a id="new-tab-button" data-toggle="tooltip" title="Add new tab" class="white-icon pull-left add-button" href="@Url.Action("GetProjectSelectionPartialView", "Projects")"><i class="fa fa-plus fa-3x"></i></a>
     </div>
 
     <div class="list-loader"></div>
@@ -222,7 +222,7 @@ $(document).ready(function () {
         var formData = new FormData(form);
 
         // Show spinner on save button
-        $($(document.activeElement)[0]).html('<div class="loader"></div>');
+        $('.button-save').html('<div class="loader"></div>');
 
         $.ajax({
             url: form.action,

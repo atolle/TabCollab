@@ -12,7 +12,7 @@
                     <p class="m-b">Project: @album.ProjectName<br />Owner: @album.Owner</p>
                     <div class="tabs-container">
                         <div class="show-items-icon-container">
-                            <i class="fa fa-chevron-down show-buttons-icon"></i>
+                            <i class="fa fa-lg fa-chevron-down show-buttons-icon"></i>
                         </div>
                         <div class="tab-list @(album.IsOwner ? "tab-list-sort" : "")">
                         @foreach (var tab in album.Tabs)
@@ -37,7 +37,7 @@
                         }
                         </div>
                         <div class="hide-items-icon-container">
-                            <i class="fa fa-chevron-up hide-buttons-icon"></i>
+                            <i class="fa fa-lg fa-chevron-up hide-buttons-icon"></i>
                         </div>
                     </div>
                 </div>

@@ -266,3 +266,4 @@ __pycache__/
 Thumbs.db
 ehthumbs.db
 ehthumbs_vista.db
+*.pubxml

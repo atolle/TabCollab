@@ -64,8 +64,9 @@ body {
     display: flex;
 }
 
-.navbar-fixed-top .navbar-collapse, .navbar-fixed-bottom .navbar-collapse {
-    overflow-y: scroll;
+.navbar-collapse {
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
 }
 
 .search-results {

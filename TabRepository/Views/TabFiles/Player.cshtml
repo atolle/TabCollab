@@ -210,7 +210,14 @@
             });
         });
 
+        // Collapse navbar on play/pause/stop
+        $('#playPause, #stop').on('click', function () {
+            var navbarToggle = $('.navbar-toggle');
 
+            if (navbarToggle.is(":visible")) {
+                navbarToggle.click();
+            }
+        });
     </script>
 
 }

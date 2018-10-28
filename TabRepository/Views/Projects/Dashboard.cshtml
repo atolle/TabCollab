@@ -429,8 +429,8 @@
 
             if (nodeId.substring(0, 3) == 'tab') {
                 nodeId = nodeId.substring(4);
-
-                //var $tabversions-table-container = $('#tabversions-table-container'),
+                parentNodeId = data.instance.get_node(data.node.parent).id.substring(6);
+                
                 var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
 
                 $.get(url, function (data) {
@@ -438,8 +438,16 @@
                     // Call onResize to resize the user images
                     onResize(false);
                 });
-                $('#new-tab-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab</button>');
+                $('#new-project-button').empty().append('<button class="btn btn-primary dashboard-button">New Project</button>');                
                 $('#new-album-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Album</button>');
+
+                // Only allow edit if we're the owner
+                if ($(selectedTree)[0].className.includes('ownerTree')) {
+                    $('#new-tab-button-container').empty().append('<button id="edit-tab-button" class="btn btn-primary dashboard-button" data-url="/Tabs/GetTabFormPartialView/?albumId=' + parentNodeId + '&tabId=' + nodeId + '">Edit Tab</button>');
+                }
+                else {
+                    $('#new-tab-button-container').empty().append('<button id="new-tab-button" class="btn btn-primary dashboard-button" disabled>New Tab</button>');
+                }
 
                 var actionLink = '@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = -1 }, new { @class = "btn btn-primary dashboard-button", id = "new-tabversion-button" })'
                 actionLink = actionLink.replace('-1', nodeId);
@@ -447,11 +455,20 @@
             }
             else if (nodeId.substring(0, 5) == 'album') {
                 nodeId = nodeId.substring(6);
+                parentNodeId = data.instance.get_node(data.node.parent).id.substring(8);
                 var actionLink = '@Html.ActionLink("New Tab", "New", "Tabs", new { id = -1 }, new { @class = "btn btn-primary dashboard-button", id = "new-tab-button" })'
                 actionLink = actionLink.replace('-1', nodeId);
-                $('#new-tab-button-container').empty().append(actionLink);
-                $('#new-album-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Album</button>');
+                $('#new-project-button').empty().append('<button class="btn btn-primary dashboard-button">New Project</button>');
+                $('#new-tab-button-container').empty().append(actionLink);            
                 $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>');
+
+                // Only allow edit if we're the owner
+                if ($(selectedTree)[0].className.includes('ownerTree')) {
+                    $('#new-album-button-container').empty().append('<button id="edit-album-button" class="btn btn-primary dashboard-button" data-url="/Albums/GetAlbumFormPartialView/?projectId=' + parentNodeId + '&albumId=' + nodeId + '">Edit Album</button>');
+                }
+                else {
+                    $('#new-album-button-container').empty().append('<button id="edit-album-button" class="btn btn-primary dashboard-button" disabled>New Album</button>');
+                }    
 
                 var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
@@ -463,10 +480,18 @@
             else if (nodeId.substring(0, 7) == 'project') {
                 nodeId = nodeId.substring(8);
                 var actionLink = '@Html.ActionLink("New Album", "New", "Albums", new { id = -1 }, new { @class = "btn btn-primary dashboard-button", id = "new-album-button" })'
-                actionLink = actionLink.replace('-1', nodeId);
+                actionLink = actionLink.replace('-1', nodeId);                
                 $('#new-album-button-container').empty().append(actionLink);
                 $('#new-tab-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab</button>');
                 $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>');
+
+                // Only allow edit if we're the owner
+                if ($(selectedTree)[0].className.includes('ownerTree')) {
+                    $('#new-project-button').empty().append('<button id="edit-project-button" class="btn btn-primary dashboard-button" data-url="/Projects/GetProjectFormPartialView/' + nodeId + '">Edit Project</button>');
+                }
+                else {
+                    $('#new-project-button').empty().append('<button class="btn btn-primary dashboard-button">New Project</button>');
+                }
 
                 var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
@@ -550,11 +575,45 @@
             }
         });
 
+        // Show modal for edit tab
+        $("#dashboard").on("click", "#edit-tab-button", function (e, data) {
+            e.preventDefault();
+
+            var url = $(this).data('url');
+
+            $.get(url, function (data) {
+                $('#tab-form-container').html(data);
+
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($("#tab-form"));
+
+                currentModal = $('#tab-form-modal');
+                currentModal.modal('show');
+            });
+        });
+
         // Show modal for new project
         $("#dashboard").on("click", "#new-project-button", function (e, data) {
             e.preventDefault();
 
             var url = $('#project-form-modal').data('url');
+
+            $.get(url, function (data) {
+                $('#project-form-container').html(data);
+
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($("#project-form"));
+
+                currentModal = $('#project-form-modal');
+                currentModal.modal('show');
+            });
+        });
+
+        // Show modal for edit project
+        $("#dashboard").on("click", "#edit-project-button", function (e, data) {
+            e.preventDefault();
+
+            var url = $(this).data('url');
 
             $.get(url, function (data) {
                 $('#project-form-container').html(data);
@@ -589,6 +648,23 @@
                     currentModal.modal('show');
                 });
             }
+        });
+
+        // Show modal for edit album
+        $("#dashboard").on("click", "#edit-album-button", function (e, data) {
+            e.preventDefault();
+
+            var url = $(this).data('url');
+
+            $.get(url, function (data) {
+                $('#album-form-container').html(data);
+
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($("#album-form"));
+
+                currentModal = $('#album-form-modal');
+                currentModal.modal('show');
+            });
         });
 
         // Show modal for new tab version
@@ -744,17 +820,25 @@
                         onResize(false);
                     });
 
-                    // Create new tab node and select it - expand and deselect project node
-                    var currentNode = $(selectedTree).jstree().get_selected(true)[0];
-                    $(selectedTree).jstree().open_node(currentNode.id, false, false);                    
-                    if ($(selectedTree)[0].className.includes('ownerTree')) {
-                        $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
+                    var tabNode = $('#tab-' + response.id);
+
+                    // Check to see if node already exists so we know whether to add a new node or edit an existing one
+                    if (!tabNode.length) {
+                        // Create new tab node and select it - expand and deselect project node
+                        var currentNode = $(selectedTree).jstree().get_selected(true)[0];
+                        $(selectedTree).jstree().open_node(currentNode.id, false, false);
+                        if ($(selectedTree)[0].className.includes('ownerTree')) {
+                            $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
+                        }
+                        else {
+                            $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "contributor" }, text: response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
+                        }
+                        $(selectedTree).jstree().deselect_node(currentNode.id, false, false);
+                        $(selectedTree).jstree().select_node("tab-" + response.id, false, false);
                     }
                     else {
-                        $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "contributor" }, text: response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
+                        $(".jstree").jstree('rename_node', tabNode, response.name);
                     }
-                    $(selectedTree).jstree().deselect_node(currentNode.id, false, false);
-                    $(selectedTree).jstree().select_node("tab-" + response.id, false, false);
                 }
                 else if (form.id === "tabversion-form") {
                     var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
@@ -776,16 +860,24 @@
                         onResize(false);
                     });
 
-                    var currentNode = $(selectedTree).jstree().get_selected(true)[0];
-                    $(selectedTree).jstree().open_node(currentNode.id, false, false);
-                    if ($(selectedTree)[0].className.includes('ownerTree')) {
-                        $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);                        
+                    var albumNode = $('#album-' + response.id);  
+
+                    // Check to see if node already exists so we know whether to add a new node or edit an existing one
+                    if (!albumNode.length) {
+                        var currentNode = $(selectedTree).jstree().get_selected(true)[0];
+                        $(selectedTree).jstree().open_node(currentNode.id, false, false);
+                        if ($(selectedTree)[0].className.includes('ownerTree')) {
+                            $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);
+                        }
+                        else {
+                            $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "contributor" }, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);
+                        }
+                        $(selectedTree).jstree().deselect_node(currentNode.id, false, false);
+                        $(selectedTree).jstree().select_node("album-" + response.id, false, false);
                     }
                     else {
-                        $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "contributor" }, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);                       
-                    }                    
-                    $(selectedTree).jstree().deselect_node(currentNode.id, false, false);
-                    $(selectedTree).jstree().select_node("album-" + response.id, false, false);
+                        $(".jstree").jstree('rename_node', albumNode, response.name);
+                    }
                 }
                 // This will handle new project
                 else if (form.id === "project-form") {
@@ -794,12 +886,21 @@
                     $.get(url, function (data) {
                         $('#tabversions-table-container').empty().append(data);
                     });
-                    var currentNode = $('.ownerTree').jstree().get_selected(true)[0];
-                    if (currentNode != null) {
-                        $('.ownerTree').jstree().deselect_node(currentNode.id, false, false);
+
+                    var projectNode = $('#project-' + response.id);                        
+
+                    // Check to see if node already exists so we know whether to add a new node or edit an existing one
+                    if (!projectNode.length) {
+                        var currentNode = $('.ownerTree').jstree().get_selected(true)[0];
+                        if (currentNode != null) {
+                            $('.ownerTree').jstree().deselect_node(currentNode.id, false, false);
+                        }
+                        $('.ownerTree').jstree().create_node("#", { id: "project-" + response.id, text: response.name }, "last", false, false);
+                        $('.ownerTree').jstree().select_node("project-" + response.id, false, false);
                     }
-                    $('.ownerTree').jstree().create_node("#", { id: "project-" + response.id, text: response.name }, "last", false, false);
-                    $('.ownerTree').jstree().select_node("project-" + response.id, false, false);
+                    else {
+                        $(".jstree").jstree('rename_node', projectNode, response.name);
+                    }
                 }
             })
             .fail(function (error) {

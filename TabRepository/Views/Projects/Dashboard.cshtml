@@ -563,15 +563,7 @@
 
                 url = url + "?albumId=" + nodeId;
 
-                $.get(url, function (data) {
-                    $('#tab-form-container').html(data);
-
-                    // Client side validation for dynamic modal injection
-                    $.validator.unobtrusive.parse($("#tab-form"));
-
-                    currentModal = $('#tab-form-modal');
-                    currentModal.modal('show');
-                });
+                showFileUploadModal(url, 'tab-form');
             }
         });
 
@@ -683,29 +675,29 @@
                     if (!result.hasLatest) {
                         bootbox.confirm("You have not yet downloaded the latest version for this tab. Make sure to download latest to prevent overwriting previous changes.<br /><br /> Do you wish to proceed?", function (result) {
                             if (result) {
-                                showTabVersionModal(url);
+                                showFileUploadModal(url, 'tabversion-form');
                             }
                         });
                     }
                     else {
-                        showTabVersionModal(url);
+                        showFileUploadModal(url, 'tabversion-form');
                     }
                 })
             }
         });
 
-        function showTabVersionModal(url) {
+        function showFileUploadModal(url, formId) {
             $.get(url, function (data) {
-                $('#tabversion-form-container').html(data);
+                $('#' + formId + '-container').html(data);
 
-                $('#tabversion-form')
+                $('#' + formId)
                     .removeData("validator") /* added by the raw jquery.validate plugin */
                     .removeData("unobtrusiveValidation");  /* added by the jquery unobtrusive plugin*/
 
                 // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#tabversion-form"));
+                $.validator.unobtrusive.parse($('#' + formId));
 
-                currentModal = $('#tabversion-form-modal');
+                currentModal = $('#' + formId + '-modal');
                 currentModal.modal('show');
 
                 // Bind onchange event for the file field so that we can check its size

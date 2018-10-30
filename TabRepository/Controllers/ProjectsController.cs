@@ -72,6 +72,12 @@ namespace TabRepository.Controllers
 
                         if (viewModel.Image != null)
                         {
+                            // Limit file size to 1 MB
+                            if (viewModel.Image.Length > 1000000)
+                            {
+                                return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
+                            }
+
                             project.ImageFileName = viewModel.Image.FileName;
                             string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + project.Id.ToString());
                             project.ImageFilePath = imageFilePath;
@@ -120,6 +126,12 @@ namespace TabRepository.Controllers
 
                         if (viewModel.Image != null)
                         {
+                            // Limit file size to 1 MB
+                            if (viewModel.Image.Length > 1000000)
+                            {
+                                return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
+                            }
+
                             projectInDb.ImageFileName = viewModel.Image.FileName;
                             string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + projectInDb.Id.ToString());
                             projectInDb.ImageFilePath = imageFilePath;

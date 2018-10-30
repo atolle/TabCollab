@@ -135,6 +135,12 @@ namespace TabRepository.Controllers
                     // Save profile image if it was added
                     if (model.Image != null)
                     {
+                        // Limit file size to 1 MB
+                        if (model.Image.Length > 1000000)
+                        {
+                            return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
+                        }
+
                         string currentUserId = user.Id;
 
                         var userInDb = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
@@ -252,6 +258,12 @@ namespace TabRepository.Controllers
                     // Save profile image if it was added
                     if (model.Image != null)
                     {
+                        // Limit file size to 1 MB
+                        if (model.Image.Length > 1000000)
+                        {
+                            return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
+                        }
+
                         string currentUserId = user.Id;
 
                         var userInDb = _context.Users.SingleOrDefault(u => u.Id == currentUserId);

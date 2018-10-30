@@ -93,10 +93,10 @@ namespace TabRepository.Controllers
 
                         if (viewModel.FileData.Length > 0)
                         {
-                            // Limit file size to 500 KB
-                            if (viewModel.FileData.Length > 500000)
+                            // Limit file size to 1 MB
+                            if (viewModel.FileData.Length > 1000000)
                             {
-                                return StatusCode(StatusCodes.Status500InternalServerError, "File size must be less than 500 KB.");
+                                return StatusCode(StatusCodes.Status500InternalServerError, "File size limit is 1 MB");
                             }
                             using (var fileStream = viewModel.FileData.OpenReadStream())
                             using (var ms = new MemoryStream())

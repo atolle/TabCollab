@@ -345,6 +345,12 @@ namespace TabRepository.Controllers
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
 
+            // Limit file size to 1 MB
+            if (viewModel.Image.Length > 1000000)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
+            }
+
             string currentUserId = User.GetUserId();
 
             var user = _context.Users.SingleOrDefault(u => u.Id == currentUserId);

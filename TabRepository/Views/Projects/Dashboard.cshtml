@@ -704,10 +704,10 @@
                 var fileData = document.getElementById("FileData");
 
                 fileData.onchange = function () {
-                    // If it's larger than 500 KB, tell user and disable save button
-                    if (this.files[0].size > 500000) {
+                    // If it's larger than 1 MB, tell user and disable save button
+                    if (this.files[0].size > 1000000) {
                         if (!$(".file-validation").length) {
-                            $(".validation-summary-valid ul").append("<li class='file-validation'>File size must be less than 500 KB.</li>");
+                            $(".validation-summary-valid ul").append("<li class='file-validation'>File size limit is 1 MB</li>");
                         }
                         $(".button-save")[0].classList.add("disabled");
                     }

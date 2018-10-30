@@ -73,6 +73,32 @@
     $(document).ready(function () {
         onResize();
 
+        $(document).on("change", "#Image", function (e, data) {
+            // Make sure the image size is less than 1MB
+            if (this.files.length) {
+                if (this.files[0].size > 1000000) {
+                    if (!$(".file-validation").length) {
+                        // Append it to the validation-summary-*, in case this is a summary after a failed submit to the server
+                        $(".validation-summary-valid ul").append("<li class='file-validation'>Image size limit is 1 MB.</li>");
+                        $(".validation-summary-errors ul").append("<li class='file-validation'>Image size limit is 1 MB.</li>");
+                    }
+                    $('.button-submit-wide')[0].classList.add("disabled");
+                }
+                else {
+                    if ($(".file-validation").length) {
+                        $(".file-validation").remove();
+                    }
+                    $('.button-submit-wide')[0].classList.remove("disabled");
+                }
+            }
+            else {
+                if ($(".file-validation").length) {
+                    $(".file-validation").remove();
+                }
+                $('.button-submit-wide')[0].classList.remove("disabled");
+            }
+        });
+
         $(document).on("submit", function (e, data) {
             // Show spinner on reset button
             $('.button-submit-wide').html('<div class="loader"></div>');

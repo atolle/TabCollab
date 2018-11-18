@@ -107,7 +107,7 @@ $(document).on('click', '.notifications-btn', function (e) {
 
 $(document.body).click(function (e) {
     if (notificationCount > 0) {        
-        if (e.target != $('.notifications-btn')[0] && !$(e.target).hasClass('.notification-delete-btn') && !$(e.target).hasClass('.notification-delete-all-btn')) {
+        if (e.target != $('.notifications-btn')[0] && !$(e.target).hasClass('notification-delete-btn') && !$(e.target).hasClass('.notification-delete-all-btn')) {
             $('.notifications').hide();
         }
         if ($('.notifications').is(':hidden')) {

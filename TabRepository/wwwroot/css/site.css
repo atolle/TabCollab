@@ -69,6 +69,14 @@ body {
     overflow-x: hidden !important;
 }
 
+.top-nav {
+    margin-bottom: 0px;
+}
+
+.bottom-nav {
+    margin-top: 0px;
+}
+
 .search-results {
     position: absolute;
     /*This is relative to the search-form in the navbar*/

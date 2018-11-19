@@ -2,22 +2,25 @@
     ViewBag.Title = "Projects";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div id="page">
-    <div class="buttons-container">
-        <a id="new-project-button" data-toggle="tooltip" title="Add new project" class="white-icon pull-left add-button" href="@Url.Action("GetProjectFormPartialView", "Projects")"><i class="fa fa-plus fa-3x"></i></a>        
-    </div>
 
-    <div class="list-loader"></div>
-
-    <div id="project-list-wrapper"></div>
-
-    <div id='project-form-modal' class='modal fade' align="center">
-        <div id='project-form-container'>
+<div class="container">
+    <div id="page">
+        <div class="buttons-container">
+            <a id="new-project-button" data-toggle="tooltip" title="Add new project" class="white-icon pull-left add-button" href="@Url.Action("GetProjectFormPartialView", "Projects")"><i class="fa fa-plus fa-3x"></i></a>
         </div>
-    </div>
 
-    <div id='album-form-modal' class='modal fade' align="center">
-        <div id='album-form-container'>
+        <div class="list-loader"></div>
+
+        <div id="project-list-wrapper"></div>
+
+        <div id='project-form-modal' class='modal fade' align="center">
+            <div id='project-form-container'>
+            </div>
+        </div>
+
+        <div id='album-form-modal' class='modal fade' align="center">
+            <div id='album-form-container'>
+            </div>
         </div>
     </div>
 </div>

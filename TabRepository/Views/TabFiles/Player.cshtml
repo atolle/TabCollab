@@ -47,8 +47,10 @@
 <link href="~/css/player.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.min.css" integrity="sha256-6b+gYy3DG/roKdQiHqp1FJYFQkaZdM6ohUpGyFyUAGk=" crossorigin="anonymous" />
 
-<div id="alphaTab" class="alphaTab" data-file="@Url.Action("Download", "TabFiles", new { ViewBag.Id })" data-tracks="0"
-     data-player="@Url.Content("~/misc/default.sf2")" data-player-offset="[-10,-70]"></div>
+<div class="container">
+    <div id="alphaTab" class="alphaTab" data-file="@Url.Action("Download", "TabFiles", new { ViewBag.Id })" data-tracks="0"
+         data-player="@Url.Content("~/misc/default.sf2")" data-player-offset="[-10,-70]"></div>
+</div>
 
 @section scripts
     {

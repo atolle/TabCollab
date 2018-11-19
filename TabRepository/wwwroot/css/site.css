@@ -9,6 +9,20 @@ body {
     color: white;
 }
 
+footer {
+    margin-top: 25px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.dashboard-container {
+    height: 100%;
+    margin-right: auto;
+    margin-left: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
 #page {
     min-height: 100%;
 }
@@ -16,8 +30,6 @@ body {
 /* Wrapping element */
 /* Set some basic padding to keep content from hitting the edges */
 .body-content {
-    padding-left: 15px;
-    padding-right: 15px;
     height: 100%;
 }
 
@@ -101,6 +113,14 @@ body {
 .search-results li {
     height: 40px;
     padding: 10px 15px;
+}
+
+#banner {
+    width: 100%;
+}
+
+#banner > img {
+    max-width: 100%;
 }
 
 .panel {
@@ -430,18 +450,108 @@ body {
 
 .feature-row {
     margin-top: 20px;
-    display: flex;
+    margin-left: 15px;
+    margin-right: 15px;
 }
 
 .feature-column {
-    border: solid;
-    border-color: black;
     padding: 10px;
-    background-color: rgb(24, 24, 24);
+    background-color: black;
+}
+
+.feature-column-title {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.feature-column-text {
+    text-align: center;
+    margin-left: 10%;
+    margin-right: 10%;
+    font-size: 12px;
+}
+
+.feature-column-title-border {
+    border: 1px white solid;
+    padding: 10px;
 }
 
 @media (max-width: 800px) {
     .feature-row {
         display: inline;
     }
+}
+
+.white-divider {
+    background-color: white !important;
+    color: white !important;
+    border: solid 1px white !important;
+    height: 3px !important;
+    width: 20%;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.green-divider {
+    background-color: rgb(134,192,144) !important;
+    color: rgb(134,192,144) !important;
+    border: thin 1px rgb(134,192,144) !important;
+    height: 1px !important;
+    width: 100%;
+}
+
+.green-divider-top {
+    margin-top: 10px;
+    margin-bottom: 0px;
+}
+
+.green-divider-bottom {
+    margin-top: 0px;
+    margin-bottom: 10px;
+}
+
+.green-vertical-top {
+    border-left: 1px solid rgb(134,192,144);
+    height: 40px;
+}
+
+.green-vertical-bottom {
+    border-right: 1px solid rgb(134,192,144);
+    height: 40px;
+}
+
+.banner-text {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+}
+
+.banner-text-top-wrapper {
+    position: absolute;
+    /*bottom: 75%;*/
+    bottom: 320px;
+    width: 550px;
+    text-align: left;
+    right: 0;
+    background-color: rgb(134,192,144);
+    margin-right: 40px;
+}
+
+.banner-text-bottom-wrapper {
+    position: absolute;
+    /*bottom: 58%;*/
+    bottom: 250px;
+    width: 300px;
+    text-align: left;
+    right: 0;
+    background-color: rgb(134,192,144);
+    margin-right: 290px;
+}
+
+.banner-white-divider {
+    position: absolute;
+    /*bottom: 45%;*/
+    bottom: 200px;
+    right: 0;
+    margin-right: 320px;
 }

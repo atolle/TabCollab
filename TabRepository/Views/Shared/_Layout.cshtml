@@ -42,12 +42,9 @@
             </div>
         </div>
     </nav>
-    <div class="container body-content">
+    <div class="body-content">
         @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - TabCollab</p>
-        </footer>
+        <footer hidden>Copyright &copy; @DateTime.Now.Year - TabCollab</footer>
     </div>
     <environment names="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>

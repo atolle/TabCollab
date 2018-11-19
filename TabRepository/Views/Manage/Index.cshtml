@@ -3,36 +3,39 @@
     ViewData["Title"] = "Account";
 }
 
-<div id="page">
-    <div class="manage-wrapper">
-        <div class="col-md-4">
-            <div class="panel panel-default panel-profile">
-                <div id="profile-image" class="panel-heading" style="background-image: url('@Model.ImageFilePath');"></div>
-                <div class="panel-body text-center">
-                    <h3>@Model.Username</h3>
+<div class="container">
+    <div id="page">
+        <div class="manage-wrapper">
+            <div class="col-md-4">
+                <div class="panel panel-default panel-profile">
+                    <div id="profile-image" class="panel-heading" style="background-image: url('@Model.ImageFilePath');"></div>
+                    <div class="panel-body text-center">
+                        <h3>@Model.Username</h3>
+                    </div>
                 </div>
+                <form id="project-form" asp-controller="Manage" asp-action="SaveProfileImage" data-ajax="true" data-ajax-method="POST">
+                    @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Image)
+                        @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default" })
+                        @Html.ValidationMessageFor(m => m.Image)
+                    </div>
+                    <button type="submit" class="btn btn-primary button-save disabled" form="project-form"> Save</button>
+                </form>
             </div>
-            <form id="project-form" asp-controller="Manage" asp-action="SaveProfileImage" data-ajax="true" data-ajax-method="POST">
-                @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
-                <div class="form-group">
-                    @Html.LabelFor(m => m.Image)
-                    @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default" })
-                    @Html.ValidationMessageFor(m => m.Image)
-                </div>
-                <button type="submit" class="btn btn-primary button-save disabled" form="project-form"> Save</button>
-            </form>
+            <p></p>
+            @if (Model.HasPassword)
+            {
+                <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default" style="margin-left: 15px">Change Password</a>
+            }
+            else
+            {
+                <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default">Create Password</a>
+            }
         </div>
-        <p></p>
-        @if (Model.HasPassword)
-        {
-            <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default" style="margin-left: 15px">Change Password</a>
-        }
-        else
-        {
-            <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default">Create Password</a>
-        }
     </div>
 </div>
+
 @section scripts
     {
     <script>

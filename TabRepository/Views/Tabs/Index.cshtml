@@ -3,22 +3,24 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div id="page">
-    <div class="buttons-container">
-        <a id="new-tab-button" data-toggle="tooltip" title="Add new tab" class="white-icon pull-left add-button" href="@Url.Action("GetProjectSelectionPartialView", "Projects")"><i class="fa fa-plus fa-3x"></i></a>
-    </div>
-
-    <div class="list-loader"></div>
-
-    <div id="tab-list-wrapper"></div>
-
-    <div id='tab-form-modal' class='modal fade' align="center">
-        <div id='tab-form-container'>
+<div class="container">
+    <div id="page">
+        <div class="buttons-container">
+            <a id="new-tab-button" data-toggle="tooltip" title="Add new tab" class="white-icon pull-left add-button" href="@Url.Action("GetProjectSelectionPartialView", "Projects")"><i class="fa fa-plus fa-3x"></i></a>
         </div>
-    </div>
 
-    <div id='tabversion-form-modal' class='modal fade' align="center">
-        <div id='tabversion-form-container'>
+        <div class="list-loader"></div>
+
+        <div id="tab-list-wrapper"></div>
+
+        <div id='tab-form-modal' class='modal fade' align="center">
+            <div id='tab-form-container'>
+            </div>
+        </div>
+
+        <div id='tabversion-form-modal' class='modal fade' align="center">
+            <div id='tabversion-form-container'>
+            </div>
         </div>
     </div>
 </div>

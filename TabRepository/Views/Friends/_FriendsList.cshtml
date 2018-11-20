@@ -5,9 +5,9 @@
     @foreach (var user in Model)
     {
         <div class="col-md-4" align="center">
-            <div class="panel panel-default panel-profile">
-                <div class="panel-heading" style="background-image: url('@user.ImageFilePath');"></div>
-                <div class="panel-body text-center">
+            <div class="card card-profile">
+                <div class="card-header" style="background-image: url('@user.ImageFilePath');"></div>
+                <div class="card-body text-center">
                     <h3>@user.Username</h3>
                     <p class="m-b">@user.FirstName @user.LastName</p>
                     <div>

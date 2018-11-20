@@ -1,0 +1,50 @@
+%!Adobe-FontList 1.16
+%Locale:0x409
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:MinionPro-Regular
+FamilyName:Minion Pro
+StyleName:Regular
+FullName:Minion Pro
+MenuName:Minion Pro
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:C:\Users\A.Derrick\Desktop\Tab\TabCollab_website Folder\Document fonts\MinionPro-Regular.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+FileLength:218640
+FileModTime:1432861536
+WeightClass:400
+WidthClass:5
+AngleClass:0
+DesignSize:110
+NameArray:0,Mac,4,Minion Pro
+NameArray:0,Win,1,Minion Pro
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Quantify
+FamilyName:Quantify
+StyleName:Regular
+FullName:Quantify
+MenuName:Quantify
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:C:\Users\A.Derrick\Desktop\Tab\TabCollab_website Folder\Document fonts\Quantify.ttf
+DataFormat:sfntData
+FileLength:65568
+FileModTime:1530371455
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,18,Quantify
+NameArray:0,Mac,4,Quantify
+NameArray:0,Win,1,Quantify
+NameArray:0,Win,16,Quantify
+%EndFont
+

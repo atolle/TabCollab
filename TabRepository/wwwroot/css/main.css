@@ -24,6 +24,8 @@
 #tabversions-table-container {
     display: flex;
     flex: 1 1 auto;
+    margin-top: 23px;
+    overflow: auto;
 }
 
 #tab-button-container {
@@ -86,11 +88,6 @@
 td {
     word-wrap: break-word;
     max-width: 1px;
-}
-
-#tabversions-table-container {
-    margin-top: 19px;
-    overflow: auto;
 }
 
 #dashboard {

@@ -7,56 +7,53 @@
     <title>@(ViewData["Title"] != null ? ViewData["Title"].ToString() + " - TabCollab" : "TabCollab")</title>
 
     <environment names="Development">
-        <link rel="stylesheet" href="~/lib/bootswatch/cyborg/bootstrap.css" />
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/css/site.css" />
         <link rel="stylesheet" href="~/css/font-awesome-4.7.0/css/font-awesome.min.css">
     </environment>
     <environment names="Staging,Production">
-        <link rel="stylesheet" href="~/lib/bootswatch/cyborg/bootstrap.css" />
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/css/site.css" />
         <link rel="stylesheet" href="~/css/font-awesome-4.7.0/css/font-awesome.min.css">
     </environment>
     @Html.Raw(JavaScriptSnippet.FullScript)
 </head>
 <body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-fixed-top">
         <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">TabCollab</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav top-nav">
-                    <li><a asp-area="" asp-controller="Projects" asp-action="Dashboard">Dashboard</a></li>
-                    <li><a asp-area="" asp-controller="Projects" asp-action="Index">Projects</a></li>
-                    <li><a asp-area="" asp-controller="Albums" asp-action="Index">Albums</a></li>
-                    <li><a asp-area="" asp-controller="Tabs" asp-action="Index">Tabs</a></li>
-                    <li><a asp-area="" asp-controller="Friends" asp-action="Index">Friends</a></li>
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">TabCollab</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Projects" asp-action="Dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Projects" asp-action="Index">Projects</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Albums" asp-action="Index">Albums</a></liclass="nav-item">
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Tabs" asp-action="Index">Tabs</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Friends" asp-action="Index">Friends</a></liclass="nav-item">
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
     <div class="body-content">
         @RenderBody()
         <footer hidden>Copyright &copy; @DateTime.Now.Year - TabCollab</footer>
     </div>
     <environment names="Development">
-        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/popper.js/dist/umd/popper.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/lib/bootbox.js/bootbox.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
     </environment>
     <environment names="Staging,Production">
-        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/popper.js/dist/umd/popper.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/lib/bootbox.js/bootbox.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
     </environment>
     @RenderSection("Scripts", required: false)
 </body>

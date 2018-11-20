@@ -10,7 +10,7 @@
 <div class="dashboard-container">
     <div id="dashboard">
         <div class="buttons-container" style="display: none;">
-            <div class="col-xs-6" style="padding-left: 0px">
+            <div class="col-6" style="padding-left: 0px">
                 <div id="project-button-container" class="btn-group">
                     <button id="new-project-button" class="btn btn-primary dashboard-button">New Project</button>
                 </div>
@@ -18,7 +18,7 @@
                     <button class="btn btn-primary dashboard-button" disabled>New Album</button>
                 </div>
             </div>
-            <div class="col-xs-6" style="padding-right: 0px">
+            <div class="col-6" style="padding-right: 0px">
                 <div id="tab-button-container" class="pull-right btn-group">
                     <button class="btn btn-primary dashboard-button" disabled>New Tab</button>
                 </div>
@@ -116,9 +116,9 @@
             @foreach (var project in Model)
             {
                 <div class="col-md-4" align="center">
-                    <div class="panel panel-default panel-profile">
-                        <div class="panel-heading" style="background-image: url('@project.ImageFilePath');"></div>
-                        <div class="panel-body text-center">
+                    <div class="card card-profile">
+                        <div class="card-header" style="background-image: url('@project.ImageFilePath');"></div>
+                        <div class="card-body text-center">
                             <h3>@project.Name</h3>
                             <p></p>
                             <div class="albums-container">
@@ -129,9 +129,9 @@
                                     @foreach (var album in project.Albums)
                                     {
                                         <div id="@album.Id" class="item-container">
-                                            <div class="panel panel-default panel-profile" style="border: white; border-style: solid;">
-                                                <div class="panel-heading" style="background-image: url('@album.ImageFilePath');"></div>
-                                                <div class="panel-body text-center">
+                                            <div class="card card-profile" style="border: white; border-style: solid;">
+                                                <div class="card-header" style="background-image: url('@album.ImageFilePath');"></div>
+                                                <div class="card-body text-center">
                                                     <h5>@album.Name</h5>
                                                 </div>
                                                 <div class="tabs-container">
@@ -144,7 +144,7 @@
                                                         {
                                                             <div id="@tab.Id" class="item-container">
                                                                 <div class="row tab-panel-row">
-                                                                    <div class="panel panel-default tab-panel">
+                                                                    <div class="card tab-panel">
                                                                         <h6>@tab.Name</h6>
                                                                         <div data-tab-id="@tab.Id" class="show-items-icon-container show-tabversions">
                                                                             <i class="fa fa-chevron-down show-buttons-icon"></i>

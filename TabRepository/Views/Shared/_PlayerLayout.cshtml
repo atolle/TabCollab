@@ -5,58 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@(ViewData["Title"] != null ? ViewData["Title"].ToString() + " - TabCollab" : "TabCollab")</title>
     <environment names="Development">
-        <link rel="stylesheet" href="~/lib/bootswatch/cyborg/bootstrap.css" />
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/css/site.css" />
         <link rel="stylesheet" href="~/css/font-awesome-4.7.0/css/font-awesome.min.css">
     </environment>
     <environment names="Staging,Production">
-        <link rel="stylesheet" href="~/lib/bootswatch/cyborg/bootstrap.css" />
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/css/site.css" />
         <link rel="stylesheet" href="~/css/font-awesome-4.7.0/css/font-awesome.min.css">
     </environment>    
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">TabCollab</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav top-nav">
-                    <li><a asp-area="" asp-controller="Projects" asp-action="Dashboard">Dashboard</a></li>
-                    <li><a asp-area="" asp-controller="Projects" asp-action="Index">Projects</a></li>
-                    <li><a asp-area="" asp-controller="Albums" asp-action="Index">Albums</a></li>
-                    <li><a asp-area="" asp-controller="" asp-action="">Friends</a></li>
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">TabCollab</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Projects" asp-action="Dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Projects" asp-action="Index">Projects</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Albums" asp-action="Index">Albums</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Tabs" asp-action="Index">Tabs</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Friends" asp-action="Index">Friends</a></li>
                 </ul>
-                @await Html.PartialAsync("_PlayerLoginPartial")
                 <ul class="nav navbar-nav navbar-right bottom-nav">
                     <!-- Loading indicator for soundfont -->
                     @*<li id="soundFontProgressMenuItem">
-                        <p class="navbar-text">SoundFont</p>
-                        <div class="progress">
-                            <div class="progress-bar" id="soundFontProgress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-                                0%
-                            </div>
-                        </div>
-                    </li>*@
+            <p class="navbar-text">SoundFont</p>
+            <div class="progress">
+                <div class="progress-bar" id="soundFontProgress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                    0%
+                </div>
+            </div>
+        </li>*@
+                    <li class="nav-item"><a id="playPause" class="nav-link" disabled="disabled"><i class="fa fa-play fa-lg"></i></a></li>
+                    <li class="nav-item"><a id="stop" class="nav-link" disabled="disabled"><i class="fa fa-stop fa-lg"></i></a></li>
                     <!--Print Button-->
-                    <li>
-                        <a href="#" id="print">Print</a>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="print">Print</a>
                     </li>
                     <!-- Track Selector -->
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="currentTrack">
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="currentTrack">
                             Tracks
                         </a>
                         <ul class="dropdown-menu" id="trackList"></ul>
                     </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Speed: <span id="playbackSpeed">100%</span> <span class="caret"></span></a>
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Speed: <span id="playbackSpeed">100%</span> <span class="caret"></span></a>
                         <ul class="dropdown-menu" id="playbackSpeedSelector">
                             <li><a href="#" data-value="0.25">25%</a></li>
                             <li><a href="#" data-value="0.5">50%</a></li>
@@ -70,18 +68,17 @@
                             <li><a href="#" data-value="1.5">150%</a></li>
                             <li><a href="#" data-value="2">200%</a></li>
                         </ul>
-                    </li>
-                    <li><button id="playPause" disabled="disabled" class="btn btn-link navbar-btn glyphicon glyphicon-play"></button></li>
-                    <li><button id="stop" disabled="disabled" class="btn btn-link navbar-btn glyphicon glyphicon-stop"></button></li>
+                    </li>                    
                     <!-- Buttons for changing the layout -->
                     @*<li class="active"><a href="#" id="page" data-layout="page" data-scrollmode="vertical">Page</a></li>
-                    <li><a href="#" id="horizontalBarwise" data-layout="horizontal" data-scrollmode="horizontal-bar">Horizontal (Barwise)</a></li>
-                    <li><a href="#" id="horizontalOffscreen" data-layout="horizontal" data-scrollmode="horizontal-offscreen">Horizontal (Offscreen)</a></li>*@
+        <li><a href="#" id="horizontalBarwise" data-layout="horizontal" data-scrollmode="horizontal-bar">Horizontal (Barwise)</a></li>
+        <li><a href="#" id="horizontalOffscreen" data-layout="horizontal" data-scrollmode="horizontal-offscreen">Horizontal (Offscreen)</a></li>*@
                 </ul>
+                @await Html.PartialAsync("_PlayerLoginPartial")
             </div>
         </div>
-    </div>
-    <div class="container body-content">
+    </nav>
+    <div class="body-content">
         @RenderBody()
         <hr />
         <footer>
@@ -89,19 +86,21 @@
         </footer>
     </div>
     <environment names="Development">
-        <script src="~/lib/jquery/dist/jquery.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/popper.js/dist/umd/popper.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/lib/bootbox.js/bootbox.js"></script>
         <script src="~/lib/modernizr/src/Modernizr.js"></script>
     </environment>
     <environment names="Staging,Production">
-        <script src="~/lib/jquery/dist/jquery.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/popper.js/dist/umd/popper.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/lib/bootbox.js/bootbox.js"></script>
         <script src="~/lib/modernizr/src/Modernizr.js"></script>
-    </environment>    
+    </environment>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

@@ -3,7 +3,7 @@
 }
 
 #treeTableContainer {
-    height: 90%;
+    height: 85%;
     display: flex;
     margin: auto;
 }
@@ -24,8 +24,9 @@
 #tabversions-table-container {
     display: flex;
     flex: 1 1 auto;
-    margin-top: 23px;
-    overflow: auto;
+    margin-top: 27px;
+    overflow-x: hidden;
+    height: 90%;
 }
 
 #tab-button-container {
@@ -51,28 +52,17 @@
     overflow: hidden;
 }
 
-.treeWrapperTop {
+.treeWrapperMy, .treeWrapperCon {
     flex: 0 0 auto;
-    height: 45%;
+    height: 90%;
     border: 1px solid silver;
     width: 100%;
     overflow: auto;
     background-color: rgb(24, 24, 24);
 }
-
-.treeWrapperBottom {
-    flex: 1 1 auto;
-    height: 55%;
-    border: 1px solid silver;
-    width: 100%;
-    overflow: auto;
-    background-color: rgb(24, 24, 24);
-}
-
 .treeLabel {
     background-color: transparent;
     display: inline;
-    border-radius: 0px 10px 0px 0px;
 }
 
 .jstree-default .jstree-clicked {

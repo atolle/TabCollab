@@ -77,6 +77,99 @@ footer {
     }
 }
 
+@media (max-width: 1220px) {
+    .banner-text-top-wrapper {
+        bottom: 250px !important;
+    }
+    .banner-text-bottom-wrapper {
+        bottom: 180px !important;
+    }
+    .banner-white-divider {
+        bottom: 130px!important;
+    }
+}
+
+@media (max-width: 1030px) {
+    .banner-text-top-wrapper {
+        bottom: 200px !important;
+        width: 330px !important;
+    }
+
+    .banner-text-bottom-wrapper {
+        bottom: 130px !important;
+        width: 198px !important;
+        margin-right: 172px !important;
+    }
+
+    .banner-white-divider {
+        bottom: 80px !important;
+        margin-right: 189px !important;
+        width: 179px !important;
+    }
+}
+
+@media (max-width: 880px) {
+    .banner-text-top-wrapper {
+        bottom: 150px !important;
+    }
+
+    .banner-text-bottom-wrapper {
+        bottom: 80px !important;
+    }
+
+    .banner-white-divider {
+        bottom: 30px !important;
+    }
+}
+
+@media (max-width: 690px) {
+    .banner-text-top-wrapper {
+        bottom: 210px !important;
+        margin-right: 151px !important;
+        width: 426px !important;
+        background-color: transparent !important;
+    }
+
+    .banner-text-bottom-wrapper {
+        bottom: 157px !important;
+        width: 276px !important;
+        margin-right: 301px !important;
+        background-color: transparent !important;
+    }
+
+    .banner-white-divider {
+        display: none !important;
+    }
+    .banner-text {
+        color: rgb(134,192,144) !important;
+        text-shadow: 1px 1px 2px black !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .banner-text-top-wrapper {
+        bottom: 168px !important;
+        margin-right: 50px !important;
+    }
+
+    .banner-text-bottom-wrapper {
+        bottom: 115px !important;
+        margin-right: 200px !important;
+    }
+}
+
+@media (max-width: 495px) {
+    .banner-text-top-wrapper {
+        bottom: 125px !important;
+        margin-right: -75px !important;
+    }
+
+    .banner-text-bottom-wrapper {
+        bottom: 92px !important;
+        margin-right: 75px !important;
+    }
+}
+
 .navbar-form .input-group {
     position: relative;
     display: flex;
@@ -89,6 +182,11 @@ footer {
 
 .nav-link:hover {
     cursor: pointer;
+}
+
+.navbar {
+    margin-left: 15px;
+    margin-right: 15px;
 }
 
 .top-nav {
@@ -552,7 +650,6 @@ footer {
 
 .banner-text-top-wrapper {
     position: absolute;
-    /*bottom: 75%;*/
     bottom: 320px;
     width: 550px;
     text-align: left;
@@ -563,7 +660,6 @@ footer {
 
 .banner-text-bottom-wrapper {
     position: absolute;
-    /*bottom: 58%;*/
     bottom: 250px;
     width: 300px;
     text-align: left;
@@ -574,7 +670,6 @@ footer {
 
 .banner-white-divider {
     position: absolute;
-    /*bottom: 45%;*/
     bottom: 200px;
     right: 0;
     margin-right: 320px;

@@ -3,7 +3,7 @@
 }
 
 <div id="banner" style="position: relative">
-    <img src="~/images/banner_cropped.png" />
+    <img id="banner-img" src="~/images/banner_cropped.png" />
     <div class="banner-text-top-wrapper"><h3 class="banner-text">CREATE YOUR MUSIC</h3></div>
     <div class="banner-text-bottom-wrapper"><h3 class="banner-text">COMMUNITY.</h3></div>
     <hr class="white-divider banner-white-divider" />
@@ -45,7 +45,34 @@
     {
     <script>
         $(document).ready(function () {
+            $('#navbar-logo').attr('src', '/images/TabCollab_vertical_white.png');
+            $('#navbar-logo').attr('height', '108');
+            $('.navbar').css('min-height', '150px');
             $('footer').show();
+            onResize();
+
+            function onResize() {
+                width = $(window).outerWidth();
+
+                if (width > 690) {
+                    $('#banner-img').attr('src', '/images/banner_cropped.png');
+                    $('.banner-text-top-wrapper').html('<h3 class="banner-text">CREATE YOUR MUSIC</h3>');
+                    $('.banner-text-bottom-wrapper').html('<h3 class="banner-text">COMMUNITY.</h3>');
+                }
+                if (width <= 690) {
+                    $('#banner-img').attr('src', '/images/banner_cropped_phone.png');
+                    $('.banner-text-top-wrapper').html('<h1 class="banner-text">CREATE YOUR MUSIC</h1>');
+                    $('.banner-text-bottom-wrapper').html('<h1 class="banner-text">COMMUNITY.</h1>');
+                }
+                if (width <= 495) {
+                    $('#banner-img').attr('src', '/images/banner_cropped_phone.png');
+                    $('.banner-text-top-wrapper').html('<h2 class="banner-text">CREATE YOUR MUSIC</h2>');
+                    $('.banner-text-bottom-wrapper').html('<h2 class="banner-text">COMMUNITY.</h2>');
+                }
+            }
+            window.addEventListener("resize", onResize);
         });
+
+
     </script>
 }

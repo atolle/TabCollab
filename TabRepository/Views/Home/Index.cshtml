@@ -47,12 +47,22 @@
         $(document).ready(function () {
             $('#navbar-logo').attr('src', '/images/TabCollab_vertical_white.png');
             $('#navbar-logo').attr('height', '108');
-            $('.navbar').css('min-height', '150px');
+            $('.nav-item').addClass('large-nav-item');
+            $('#search-form').addClass('large-nav-item');
             $('footer').show();
             onResize();
 
             function onResize() {
                 width = $(window).outerWidth();
+
+                if (width < 1200) {
+                    $('.nav-item').removeClass('large-nav-item');
+                    $('#search-form').removeClass('large-nav-item');
+                }
+                else {
+                    $('.nav-item').addClass('large-nav-item');
+                    $('#search-form').addClass('large-nav-item');
+                }
 
                 if (width > 690) {
                     $('#banner-img').attr('src', '/images/banner_cropped.png');
@@ -72,7 +82,5 @@
             }
             window.addEventListener("resize", onResize);
         });
-
-
     </script>
 }

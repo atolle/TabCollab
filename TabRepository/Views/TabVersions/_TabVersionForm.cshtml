@@ -3,6 +3,7 @@
 <div class="modal-dialog text-left">
     <!-- Modal content-->
     <div class="modal-content">
+        <div class="modal-header">
             @if (Model.Id == 0)
             {
                 <h4 class="modal-title">New tab version for @Model.TabName</h4>
@@ -25,13 +26,13 @@
                 </div>
                 @if (Model.Id == 0)
                 {
-                <div class="form-group">
                     <div class="form-group">
-                        <label for="FileData">Tab File</label>
-                        <input class="btn btn-default form-input" data-val="true" data-val-required="The tab file is required." id="FileData" name="FileData" type="file">
-                        <span class="field-validation-valid" data-valmsg-for="FileData" data-valmsg-replace="true"></span>
+                        <div class="form-group">
+                            <label for="FileData">Tab File</label>
+                            <input class="btn btn-default form-input" data-val="true" data-val-required="The tab file is required." id="FileData" name="FileData" type="file">
+                            <span class="field-validation-valid" data-valmsg-for="FileData" data-valmsg-replace="true"></span>
+                        </div>
                     </div>
-                </div>
                 }
                 else
                 {

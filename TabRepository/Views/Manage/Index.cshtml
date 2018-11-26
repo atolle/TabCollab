@@ -37,57 +37,61 @@
 </div>
 
 @section scripts
-    {
+{
     <script>
-        var submitButton = $('.button-save');
+        $(document).ready(function () {
+            $('footer').show();
 
-        $("#Image").on("change", function (e, data) {
-            // Make sure the image size is less than 1MB
-            if (this.files[0].size > 1000000) {
-                if (!$(".file-validation").length) {
-                    $(".validation-summary-valid ul").append("<li class='file-validation'>Image size limit is 1 MB.</li>");
+            var submitButton = $('.button-save');
+
+            $("#Image").on("change", function (e, data) {
+                // Make sure the image size is less than 1MB
+                if (this.files[0].size > 1000000) {
+                    if (!$(".file-validation").length) {
+                        $(".validation-summary-valid ul").append("<li class='file-validation'>Image size limit is 1 MB.</li>");
+                    }
                 }
-            }
-            else {
-                if ($(".file-validation").length) {
-                    $(".file-validation").remove();
+                else {
+                    if ($(".file-validation").length) {
+                        $(".file-validation").remove();
+                    }
+                    submitButton[0].classList.remove("disabled");
                 }
-                submitButton[0].classList.remove("disabled");
-            }
-        });
+            });
 
-        $("#page").on("submit", function (e, data) {
-            e.preventDefault();
+            $("#page").on("submit", function (e, data) {
+                e.preventDefault();
 
-            if (submitButton[0].classList.contains("disabled")) {
-                return;
-            }
+                if (submitButton[0].classList.contains("disabled")) {
+                    return;
+                }
 
-            var form = e.target;
-            var formData = new FormData(form);
+                var form = e.target;
+                var formData = new FormData(form);
 
-            var submitButtonHtml = submitButton.html();
-            // Show spinner on submit button and disable it
-            submitButton.html('<div class="loader"></div>');
+                var submitButtonHtml = submitButton.html();
+                // Show spinner on submit button and disable it
+                submitButton.html('<div class="loader"></div>');
 
-            $.ajax({
-                url: form.action,
-                type: 'POST',
-                data: formData,
-                cache: false,
-                contentType: false,
-                processData: false
-            })
-                .then(function (response) {
-                    submitButton.html(submitButtonHtml);
-                    $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
-                    form.reset();
-                    submitButton[0].classList.add("disabled");
+                $.ajax({
+                    url: form.action,
+                    type: 'POST',
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false
                 })
-                .fail(function (error) {
-                    bootbox.alert("Unable to save profile image. Error: " + error.statusText);
-                    submitButton.html(submitButtonHtml);
-                })
+                    .then(function (response) {
+                        submitButton.html(submitButtonHtml);
+                        $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
+                        form.reset();
+                        submitButton[0].classList.add("disabled");
+                    })
+                    .fail(function (error) {
+                        bootbox.alert("Unable to save profile image. Error: " + error.statusText);
+                        submitButton.html(submitButtonHtml);
+                    })
+            });
         });
     </script>
 }

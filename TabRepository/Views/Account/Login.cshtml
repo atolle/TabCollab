@@ -90,13 +90,17 @@
 @section Scripts {
 @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 <script>
-    $(document).on("submit", function (e, data) {
-        if (e.target.id == 'login') {
-            $('#login-button').html('<div class="loader"></div>');
-        }
-        else if (e.target.id == 'google-login') {
-            $('#google-button').html('<div class="loader"></div>');
-        }
+    $(document).ready(function () {
+        $('footer').show();
+
+        $(document).on("submit", function (e, data) {
+            if (e.target.id == 'login') {
+                $('#login-button').html('<div class="loader"></div>');
+            }
+            else if (e.target.id == 'google-login') {
+                $('#google-button').html('<div class="loader"></div>');
+            }
+        });
     });
 </script>
 }

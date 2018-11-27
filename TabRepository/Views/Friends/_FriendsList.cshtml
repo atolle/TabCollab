@@ -1,10 +1,9 @@
 ﻿@model IEnumerable<TabRepository.ViewModels.FriendViewModel>
 
 <div class="row list-row">
-    @{ int i = 1; }
     @foreach (var user in Model)
     {
-        <div class="col-md-4" align="center">
+        <div class="col" align="center">
             <div class="card card-profile">
                 <div class="card-header" style="background-image: url('@user.ImageFilePath');"></div>
                 <div class="card-body text-center">
@@ -21,7 +20,7 @@
                             {
                                 if (@user.Direction == Direction.To)
                                 {
-                                    <a class="btn btn-default pull-left disabled">Friend Request Sent</a>
+                                    <a class="btn btn-default pull-left disabled">Request Sent</a>
                                     <a id="cancel-request-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("CancelRequest", "Friends")">Cancel Request</a>
                                 }
                                 else
@@ -40,10 +39,5 @@
                 </div>
             </div>
         </div>
-        if (i % 3 == 0)
-        {
-            <div class="clearfix"></div>
-        }
-        i++;
     }
 </div>

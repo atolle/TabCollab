@@ -244,6 +244,7 @@ footer {
 
 .card {
     max-width: 350px;
+    min-width: 280px;
     background-color: #222222;
 }
 
@@ -825,4 +826,104 @@ footer {
     padding: 6px 12px;
     border: 1px solid #ccc;
     border-top: none;
+}
+
+#treeTableContainer {
+    height: 85%;
+    display: flex;
+    margin: auto;
+}
+
+.jstree {
+    flex: 0;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+#splitter {
+    width: 10px;
+    cursor: col-resize;
+    min-width: 10px;
+}
+
+#tabversions-table-container {
+    display: flex;
+    flex: 1 1 auto;
+    margin-top: 27px;
+    overflow-x: hidden;
+    height: 90%;
+}
+
+#tab-button-container {
+    margin-left: 12px;
+}
+
+#new-project-button, #edit-project-button {
+    margin-right: 10px;
+}
+
+.splitter-horizontal {
+    flex: 0 0 auto;
+    height: 10px;
+    cursor: row-resize;
+}
+
+.treeWrapperContainer {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 20%;
+    overflow: hidden;
+}
+
+.treeWrapperMy, .treeWrapperCon {
+    flex: 0 0 auto;
+    height: 90%;
+    border: 1px solid silver;
+    width: 100%;
+    overflow: auto;
+    background-color: rgb(24, 24, 24);
+}
+
+.treeLabel {
+    background-color: transparent;
+    display: inline;
+}
+
+.jstree-default .jstree-clicked {
+    color: black;
+    background-color: lightgrey;
+}
+
+.jstree-anchor:hover {
+    color: black;
+    background-color: lightgrey;
+}
+
+td {
+    word-wrap: break-word;
+    max-width: 1px;
+}
+
+#dashboard {
+    height: 100%;
+}
+
+.table-header {
+    word-wrap: break-word;
+}
+
+.tabversions-table {
+    table-layout: fixed;
+    margin-bottom: 0px;
+}
+
+.dashboard-button {
+    margin-bottom: 10px;
+}
+
+.projects-container {
+    padding-top: 15px;
 }

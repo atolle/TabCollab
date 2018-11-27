@@ -1,10 +1,9 @@
 ﻿@model IEnumerable<TabRepository.ViewModels.AlbumIndexViewModel>
 
 <div class="row list-row">
-    @{ int i = 1; }
     @foreach (var album in Model)
     {
-        <div class="col-md-4" align="center">
+        <div class="col" align="center">
             <div class="card card-profile">
                 <div class="card-header" style="background-image: url('@album.ImageFilePath');"></div>
                 <div class="card-body text-center">
@@ -55,11 +54,6 @@
                 </div>
             </div>
         </div>
-        @if (i % 3 == 0)
-        {
-            <div class="clearfix"></div>
-        }
-        i++;
     }
 
 </div>

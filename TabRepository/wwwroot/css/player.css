@@ -129,10 +129,11 @@ body > .alphaTab:not(.horizontal) {
 
 #trackList .title {
     cursor: pointer;
+    color: rgba(255, 255, 255, 0.5);
 }
 
 #trackList .title:hover {
-    color: #426d9d;
+    color: white;
 }
 
 #trackList .btn-group {
@@ -142,4 +143,8 @@ body > .alphaTab:not(.horizontal) {
     -moz-transform: scale(0.5, 0.5);
     -webkit-transform: scale(0.5, 0.5);
     transform: scale(0.5, 0.5);
+}
+
+.checked {
+    background-color: #282828 !important;
 }

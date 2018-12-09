@@ -196,6 +196,15 @@ footer {
     margin-top: 0px;
 }
 
+.nav-dropdown {
+    background-color: black;
+}
+
+.navbar-collapse.collapse.show {
+    max-height: 280px;
+    overflow-y: auto;
+}
+
 #search-form {
     position: relative;
 }

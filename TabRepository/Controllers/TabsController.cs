@@ -141,6 +141,33 @@ namespace TabRepository.Controllers
                         _context.TabFiles.Add(tabFile);
                         _context.SaveChanges();
 
+                        var userTabVersionInDb = _context
+                            .UserTabVersions
+                            .Where(v => v.UserId == currentUserId && v.TabId == tabVersion.TabId)
+                            .FirstOrDefault();
+
+                        if (userTabVersionInDb != null)
+                        {
+                            if (tabVersion.Version > userTabVersionInDb.Version)
+                            {
+                                userTabVersionInDb.Version = tabVersion.Version;
+                                _context.UserTabVersions.Update(userTabVersionInDb);
+                                _context.SaveChanges();
+                            }
+                        }
+                        else
+                        {
+                            UserTabVersion userTabVersion = new UserTabVersion
+                            {
+                                UserId = currentUserId,
+                                TabId = tabVersion.TabId,
+                                Version = tabVersion.Version
+                            };
+
+                            _context.UserTabVersions.Add(userTabVersion);
+                            _context.SaveChanges();
+                        }
+
                         NotificationsController.AddNotification(_context, NotificationType.TabAdded, null, tab.Album.ProjectId, currentUsername, currentUserId, tab.Name, tab.Album.Name);
 
                         transaction.Commit();

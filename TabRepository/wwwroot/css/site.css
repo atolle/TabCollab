@@ -754,6 +754,10 @@ footer {
     max-width: 100%;
 }
 
+#FileData {
+    max-width: 100%;
+}
+
 .btn-default {
     color: #ffffff !important;
     background-color: #424242 !important;

@@ -161,12 +161,14 @@ footer {
 @media (max-width: 495px) {
     .banner-text-top-wrapper {
         bottom: 125px !important;
-        margin-right: -75px !important;
+        right: unset !important;
+        width: 330px !important;
     }
 
     .banner-text-bottom-wrapper {
         bottom: 92px !important;
-        margin-right: 75px !important;
+        right: unset !important;
+        width: 330px !important;
     }
 }
 

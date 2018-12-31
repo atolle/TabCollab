@@ -367,7 +367,7 @@ footer {
     margin: auto;
     position: center;
     border: 3px solid #f3f3f3; /* Light grey */
-    border-top: 3px solid rgb(66,66,66); /* Dark grey */
+    border-top: 3px solid rgb(134, 192, 144); /* Green */
     border-radius: 50%;
     width: 2em;
     height: 2em;
@@ -378,7 +378,7 @@ footer {
 .list-loader {
     margin: 100px auto auto auto;
     border: 8px solid #f3f3f3; /* Light grey */
-    border-top: 8px solid rgb(66,66,66); /* Dark grey */
+    border-top: 8px solid rgb(134, 192, 144); /* Green */
     border-radius: 50%;
     width: 120px;
     height: 120px;
@@ -769,6 +769,22 @@ footer {
     max-width: 100%;
 }
 
+.btn {
+    border-radius: unset !important;
+}
+
+.btn-primary {
+    color: #ffffff !important;
+    background-color: rgb(134, 192, 144) !important;
+    border-color: rgb(134, 192, 144) !important;
+}
+
+.btn-primary:hover {
+    color: #ffffff !important;
+    background-color: rgb(114, 182, 125) !important;
+    border-color: rgb(114, 182, 125) !important;
+}
+
 .btn-default {
     color: #ffffff !important;
     background-color: #424242 !important;
@@ -909,12 +925,12 @@ footer {
 
 .jstree-default .jstree-clicked {
     color: black;
-    background-color: lightgrey;
+    background-color: rgb(93, 93, 93) !important;
 }
 
 .jstree-anchor:hover {
     color: black;
-    background-color: lightgrey;
+    background-color: darkgrey !important;
 }
 
 td {

@@ -21,6 +21,10 @@ footer {
     text-align: center;
 }
 
+.container-fluid {
+    min-height: 100%;
+}
+
 .dashboard-container {
     height: 100%;
     margin-right: auto;

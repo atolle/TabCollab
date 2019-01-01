@@ -248,69 +248,6 @@ namespace TabRepository.Controllers
             return _context.Users.FirstOrDefault(u => u.Id == currentUserId);
         }
 
-        public ActionResult Dashboard()
-        {
-            string currentUserId = User.GetUserId();
-
-            List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
-
-            try
-            {
-                // Find projects for which user is owner
-                var projects = _context.Projects
-                    .Include(p => p.Albums)
-                    .ThenInclude(a => a.Tabs)
-                    .Include(u => u.User)
-                    .Where(p => p.UserId == currentUserId)
-                    .OrderBy(p => p.Name)
-                    .ToList();
-
-                // Find projects for which user is contributor
-                var contributorProjects = _context.ProjectContributors                    
-                    .Where(c => c.UserId == currentUserId)
-                    .Select(c => c.Project)
-                    .OrderBy(p => p.Name)
-                    .Include(p => p.Albums)
-                    .ThenInclude(a => a.Tabs)
-                    .Include(u => u.User).ToList();
-
-                projects = projects.Union(contributorProjects).ToList();
-
-                foreach (var project in projects)
-                {
-                    project.Albums = project.Albums.OrderBy(a => a.Order).ToList();
-                    ProjectIndexViewModel vm = new ProjectIndexViewModel()
-                    {
-                        Id = project.Id,
-                        UserId = project.UserId,
-                        Name = project.Name,
-                        Owner = project.User.UserName,
-                        ImageFileName = project.ImageFileName,
-                        ImageFilePath = project.ImageFilePath,
-                        DateCreated = project.DateCreated,
-                        DateModified = project.DateModified,
-                        User = project.User,
-                        Albums = project.Albums,
-                        IsOwner = project.UserId == currentUserId
-                    };
-                    foreach (var album in vm.Albums)
-                    {
-                        album.Tabs = album.Tabs.OrderBy(t => t.Order).ToList();
-                    }
-
-                    // Add projects to project view model
-                    viewModel.Add(vm);
-                }
-
-                return View(viewModel);
-            }
-            catch (Exception e)
-            {
-                return NotFound();
-            }
-
-        }
-
         [HttpGet]
         public ActionResult GetProjectFormPartialView(int id)
         {

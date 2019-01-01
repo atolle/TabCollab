@@ -203,16 +203,79 @@ namespace TabRepository.Controllers
             }                       
         }
 
-        // GET: Tabs
-        public ActionResult Index(int id)
+        public ActionResult Index()
         {
-            // Return a list of all Tabs belonging to the current user for current Project (id)
             string currentUserId = User.GetUserId();
 
-            var viewModel = new TabIndexViewModel();
+            List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
 
-            return View(viewModel);
+            try
+            {
+                // Find projects for which user is owner
+                var projects = _context.Projects
+                    .Include(p => p.Albums)
+                    .ThenInclude(a => a.Tabs)
+                    .Include(u => u.User)
+                    .Where(p => p.UserId == currentUserId)
+                    .OrderBy(p => p.Name)
+                    .ToList();
+
+                // Find projects for which user is contributor
+                var contributorProjects = _context.ProjectContributors
+                    .Where(c => c.UserId == currentUserId)
+                    .Select(c => c.Project)
+                    .OrderBy(p => p.Name)
+                    .Include(p => p.Albums)
+                    .ThenInclude(a => a.Tabs)
+                    .Include(u => u.User).ToList();
+
+                projects = projects.Union(contributorProjects).ToList();
+
+                foreach (var project in projects)
+                {
+                    project.Albums = project.Albums.OrderBy(a => a.Order).ToList();
+                    ProjectIndexViewModel vm = new ProjectIndexViewModel()
+                    {
+                        Id = project.Id,
+                        UserId = project.UserId,
+                        Name = project.Name,
+                        Owner = project.User.UserName,
+                        ImageFileName = project.ImageFileName,
+                        ImageFilePath = project.ImageFilePath,
+                        DateCreated = project.DateCreated,
+                        DateModified = project.DateModified,
+                        User = project.User,
+                        Albums = project.Albums,
+                        IsOwner = project.UserId == currentUserId
+                    };
+                    foreach (var album in vm.Albums)
+                    {
+                        album.Tabs = album.Tabs.OrderBy(t => t.Order).ToList();
+                    }
+
+                    // Add projects to project view model
+                    viewModel.Add(vm);
+                }
+
+                return View(viewModel);
+            }
+            catch (Exception e)
+            {
+                return NotFound();
+            }
+
         }
+
+        // GET: Tabs
+        //public ActionResult Index(int id)
+        //{
+        //    // Return a list of all Tabs belonging to the current user for current Project (id)
+        //    string currentUserId = User.GetUserId();
+
+        //    var viewModel = new TabIndexViewModel();
+
+        //    return View(viewModel);
+        //}
 
         public ActionResult Delete(int id)
         {

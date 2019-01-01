@@ -1,24 +1,204 @@
-﻿@{
+﻿@model IEnumerable<TabRepository.ViewModels.ProjectIndexViewModel>
+@{
     ViewBag.Title = "Tabs";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container-fluid">
-    <div id="page">
-        <div class="buttons-container">
-            <a id="new-tab-button" data-toggle="tooltip" title="Add new tab" class="white-icon pull-left add-button" href="@Url.Action("GetProjectSelectionPartialView", "Projects")"><i class="fa fa-plus fa-3x"></i></a>
+<link href="~/css/jstreestyle.css" rel="stylesheet" />
+
+<div class="dashboard-container">
+    <div id="dashboard">
+        <div class="buttons-container" style="display: none;">
+            <div class="col-6" style="padding-left: 0px">
+                <div id="project-button-container" class="btn-group">
+                    <button id="new-project-button" class="btn btn-primary dashboard-button">New Project</button>
+                </div>
+                <div id="album-button-container" class="btn-group">
+                    <button class="btn btn-primary dashboard-button" disabled>New Album</button>
+                </div>
+            </div>
+            <div class="col-6" style="padding-right: 0px">
+                <div id="tab-button-container" class="pull-right btn-group">
+                    <button class="btn btn-primary dashboard-button" disabled>New Tab</button>
+                </div>
+                <div id="new-tabversion-button-container" class="pull-right btn-group">
+                    <button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>
+                </div>
+            </div>
+        </div>
+        <div id="treeTableContainer" style="display: none;">
+            <div class="treeWrapperContainer">
+                <div class="tab">
+                    <button id="my-projects" class="tablinks active">My Projects</button>
+                    <button id="contributor-projects" class="tablinks">Contributor Projects</button>
+                </div>
+                <div class="treeWrapperMy">
+                    <div class="jstree ownerTree" jstree-type="owner">
+                        @foreach (var project in Model)
+                        {
+                            @if (project.IsOwner)
+                            {
+                                <ul>
+                                    <li id="project-@project.Id" jstree-type="owner">
+                                        @project.Name
+                                        @foreach (var album in project.Albums)
+                                        {
+                                            <ul>
+                                                <li id="album-@album.Id" jstree-type="owner" data-jstree='{"icon":"/images/cd(16x12).png"}'>
+                                                    @album.Name
+                                                    @foreach (var tab in album.Tabs)
+                                                    {
+                                                        <ul>
+                                                            <li id="tab-@tab.Id" jstree-type="owner" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>@tab.Name</li>
+                                                        </ul>
+                                                    }
+                                                </li>
+                                            </ul>
+                                        }
+                                    </li>
+                                </ul>
+                            }
+                        }
+                    </div>
+                </div>
+                <div class="treeWrapperCon" style="display: none;">
+                    <div class="jstree contributorTree" jstree-type="contributor">
+                        @foreach (var project in Model)
+                        {
+                            @if (!project.IsOwner)
+                            {
+                                <ul>
+                                    <li id="project-@project.Id" jstree-type="contributor">
+                                        @project.Name
+                                        @foreach (var album in project.Albums)
+                                        {
+                                            <ul>
+                                                <li id="album-@album.Id" jstree-type="contributor" data-jstree='{"icon":"/images/cd(16x12).png"}'>
+                                                    @album.Name
+                                                    @foreach (var tab in album.Tabs)
+                                                    {
+                                                        <ul>
+                                                            <li id="tab-@tab.Id" jstree-type="contributor" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>@tab.Name</li>
+                                                        </ul>
+                                                    }
+                                                </li>
+                                            </ul>
+                                        }
+                                    </li>
+                                </ul>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div id="splitter"></div>
+            <div id="tabversions-table-container">
+                <table class="table table-striped table-dark table-hover tabversions-table">
+                    <thead>
+                        <tr>
+                            <th class="user-image-col" width="5%"></th>
+                            <th class="lg-device-col" width="30%"><div class="table-header">Description</div></th>
+                            <th class="lg-device-col" width="15%"><div class="table-header">Contributor</div></th>
+                            <th class="lg-device-col" width="20%"><div class="table-header">Date Added</div></th>
+                            <th width="10%"><div class="table-header version-header">Ver</div></th>
+                            <th width="20%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="list-loader"></div>
+        <div class="projects-container row list-row" style="display: none;">
+            @{ int i = 1; }
+            @foreach (var project in Model)
+            {
+                <div class="col-md-4" align="center">
+                    <div class="card card-profile">
+                        <div class="card-header" style="background-image: url('@project.ImageFilePath');"></div>
+                        <div class="card-body text-center">
+                            <h3>@project.Name</h3>
+                            <p></p>
+                            <div class="albums-container">
+                                <div class="show-items-icon-container">
+                                    <i class="fa fa-chevron-down fa-lg show-buttons-icon"></i>
+                                </div>
+                                <div class="album-list">
+                                    @foreach (var album in project.Albums)
+                                    {
+                                        <div id="@album.Id" class="item-container">
+                                            <div class="card card-profile" style="border: solid 1px grey;">
+                                                <div class="card-header album-header" style="background-image: url('@album.ImageFilePath');"></div>
+                                                <div class="card-body text-center">
+                                                    <h5>@album.Name</h5>
+                                                </div>
+                                                <div class="tabs-container">
+                                                    <div class="show-items-icon-container">
+                                                        <i class="fa fa-chevron-down show-buttons-icon"></i>
+                                                    </div>
+                                                    <p></p>
+                                                    <div class="tab-list">
+                                                        @foreach (var tab in album.Tabs)
+                                                        {
+                                                            <div id="@tab.Id" class="item-container">
+                                                                <div class="row tab-panel-row">
+                                                                    <div class="card tab-panel">
+                                                                        <h6>@tab.Name</h6>
+                                                                        <div data-tab-id="@tab.Id" class="show-items-icon-container show-tabversions">
+                                                                            <i class="fa fa-chevron-down show-buttons-icon"></i>
+                                                                        </div>
+                                                                        <div class="tabversions-container"></div>
+                                                                        <div class="hide-items-icon-container hide-tabversions">
+                                                                            <i class="fa fa-chevron-up hide-buttons-icon"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <div class="hide-items-icon-container">
+                                                        <i class="fa fa-chevron-up hide-buttons-icon"></i>
+                                                    </div>
+                                                    <p></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="hide-items-icon-container">
+                                    <i class="fa fa-chevron-up fa-lg hide-buttons-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @if (i % 3 == 0)
+                {
+                    <div class="clearfix"></div>
+                }
+                i++;
+            }
+
         </div>
 
-        <div class="list-loader"></div>
-
-        <div id="tab-list-wrapper"></div>
-
-        <div id='tab-form-modal' class='modal fade' align="center">
+        <div id='tab-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetTabFormPartialView", "Tabs")'>
             <div id='tab-form-container'>
             </div>
         </div>
 
-        <div id='tabversion-form-modal' class='modal fade' align="center">
+        <div id='project-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetProjectFormPartialView", "Projects")'>
+            <div id='project-form-container'>
+            </div>
+        </div>
+
+        <div id='album-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetAlbumFormPartialView", "Albums")'>
+            <div id='album-form-container'>
+            </div>
+        </div>
+
+        <div id='tabversion-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetTabVersionFormPartialView", "TabVersions")'>
             <div id='tabversion-form-container'>
             </div>
         </div>
@@ -27,259 +207,809 @@
 
 @section scripts
     {
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
-            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
-            crossorigin="anonymous"></script>
+    <script src="~/js/jstree.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>    
-    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+    <script src="~/lib/jquery-resizable/dist/jquery-resizable.min.js"></script>
 
     <script>
-$(document).ready(function () {
-    repopulateTabList()
-        .then(function (result) {
-            $('.list-loader').remove();
-            $('hr').show();
+        var original_parent;
+
+        $(document).ready(function () {
             $('footer').show();
-            $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
-        })
-        .catch(function (error) {
-            bootbox.alert("Unable to load tabs. Error: " + error.statusText);
-        });
 
-    // Deleting an album
-    $("#page").on("click", "#delete-tab-button", function (e, data) {
-        e.preventDefault();
-        var href = this.href;
+            $('.list-loader').hide();
 
-        bootbox.confirm("Are you sure you wish to delete this tab? This cannot be undone.", function (result) {
-            if (result) {
-                $.ajax({
-                    url: href,
-                    type: 'DELETE',
+            onResize(true);
+
+            $(function () {
+                $(".jstree").jstree({
+                    "core": {
+                        "check_callback": function (operation, node, node_parent, node_position, more) {
+                            if (operation == 'move_node') {
+                                if (node_parent.id == '#') {
+                                    return false;
+                                }
+                                // Don't allow nodes to be moved between trees
+                                else if ((node.li_attr['jstree-type'].includes('owner') && node_parent.li_attr['jstree-type'].includes('contributor')) || (node.li_attr['jstree-type'].includes('contributor') && node_parent.li_attr['jstree-type'].includes('owner'))) {
+                                    return false;
+                                }
+                                else {
+                                    // Only allow albums to be moved beneath projects
+                                    if (node.id.includes('album') && !node_parent.id.includes('project')) {
+                                        return false;
+                                    }
+                                    // Only allow tabs to be moved beneath albums
+                                    else if (node.id.includes('tab') && !node_parent.id.includes('album')) {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
+                        }
+                    },
+                    "dnd": {
+                        "is_draggable": function (node) {
+                            // Don't allow users to move projects or any node in the contributor tree
+                            if (node[0].id.includes('project') || node[0].li_attr['jstree-type'].includes('contributor')) {
+                                return false;
+                            }
+                            else {
+                                var ownerTree = $('.ownerTree').jstree(true);
+                                original_parent = ownerTree.get_node(node[0].parent);
+                                return true;
+                            }
+                        }
+                    },
+                    "plugins": ["dnd"]
+                });
+            })
+
+            // Event that fires when user drops a jstree node after dragging
+            $(document).on('dnd_stop.vakata', function (e, data) {
+                var ownerTree = $('.ownerTree').jstree(true);
+                var node = ownerTree.get_node(data.data.nodes[0]);
+                var node_parent = ownerTree.get_node(node.parent);
+
+                if (node_parent.id == '#') {
+                    return false;
+                }
+                // Don't allow nodes to be moved between trees
+                else if ((node.li_attr['jstree-type'].includes('owner') && node_parent.li_attr['jstree-type'].includes('contributor')) || (node.li_attr['jstree-type'].includes('contributor') && node_parent.li_attr['jstree-type'].includes('owner'))) {
+                    return false;
+                }
+                else {
+                    // Only allow albums to be moved beneath projects
+                    if (node.id.includes('album') && !node_parent.id.includes('project')) {
+                        return false;
+                    }
+                    // Only allow tabs to be moved beneath albums
+                    else if (node.id.includes('tab') && !node_parent.id.includes('album')) {
+                        return false;
+                    }
+                }
+
+                if (node.id.includes('tab')) {
+                    var orderArray = node_parent.children.map(function (c) { return c.substring(4) });
+
+                    var data = { tabId: node.id.substring(4), albumId: node_parent.id.substring(6) };
+
+                    $.ajax({
+                        data: data,
+                        type: 'POST',
+                        dataType: 'json',
+                        traditional: 'true',
+                        url: '@Url.Action("MoveTab", "Tabs")'
+                    })
+                    .then(function (response) {
+                        // Reorder tabs in under destination album
+                        data = { tabIds: orderArray };
+
+                        $.ajax({
+                            data: data,
+                            type: 'POST',
+                            dataType: 'json',
+                            traditional: 'true',
+                            url: '@Url.Action("ReorderTabs", "Tabs")'
+                        })
+                    })
+                    .then(function (response) {
+                        // Reorder tabs in under previous album function (c) { return c.substring(4) }
+                        orderArray = original_parent.children.map(function (c) { return c.substring(4) });
+
+                        data = { tabIds: orderArray };
+
+                        $.ajax({
+                            data: data,
+                            type: 'POST',
+                            dataType: 'json',
+                            traditional: 'true',
+                            url: '@Url.Action("ReorderTabs", "Tabs")'
+                        })
+                    })
+                    .fail(function (error) {
+                        bootbox.alert("Unable to move tab. Error code: " + error);
+                    });
+                }
+                else if (node.id.includes('album')) {
+                    var orderArray = node_parent.children.map(function (c) { return c.substring(6) });
+
+                    var data = { albumId: node.id.substring(6), projectId: node_parent.id.substring(8) };
+
+                    $.ajax({
+                        data: data,
+                        type: 'POST',
+                        dataType: 'json',
+                        traditional: 'true',
+                        url: '@Url.Action("MoveAlbum", "Albums")'
+                    })
+                    .then(function (response) {
+                        // Reorder albums in under destination project
+                        data = { albumIds: orderArray };
+
+                        $.ajax({
+                            data: data,
+                            type: 'POST',
+                            dataType: 'json',
+                            traditional: 'true',
+                            url: '@Url.Action("ReorderAlbums", "Albums")'
+                        })
+                    })
+                    .then(function (response) {
+                        // Reorder albums in under previous project
+                        orderArray = original_parent.children.map(function (c) { return c.substring(6) });
+
+                        data = { albumIds: orderArray };
+
+                        $.ajax({
+                            data: data,
+                            type: 'POST',
+                            dataType: 'json',
+                            traditional: 'true',
+                            url: '@Url.Action("ReorderAlbums", "Albums")'
+                        })
+                    })
+                    .fail(function (error) {
+                        bootbox.alert("Unable to move album. Error code: " + error);
+                    });
+                }
+            });
+
+            // Horizontal resizing of treeviews and table
+            $(".treeWrapperContainer").resizable({
+                handleSelector: "#splitter",
+                resizeHeight: false,
+                onDrag: function (e, $el, newWidth, newHeight, opt) {
+                    if ($(document).width() < 650) {
+                        // limit box size
+                        if (newWidth > 200) {
+                            newWidth = 200;
+                        }
+                    }
+                    else {
+                        // limit box size
+                        if (newWidth > 500) {
+                            newWidth = 500;
+                        }
+                    }
+
+                    $el.width(newWidth);
+
+                    // Call onResize to resize the user images
+                    onResize(false);
+
+                    // explicitly return **false** if you don't want
+                    // auto-height computation to occur
+                    return false;
+                }
+            });
+
+        var currentModal, selectedTree;
+
+        // Selecting a node
+        // When a node is selected determine if it is a tab or project and display the corresponding table
+        // Tab: Tab versions table, Project: Empty table
+        $(".jstree").on("select_node.jstree", function (e, data) {
+            if ($(this).hasClass('ownerTree')) {
+                $('.contributorTree').jstree("deselect_all");
+            }
+            else {
+                $('.ownerTree').jstree("deselect_all");
+            }
+
+            selectedTree = $(this);
+
+            // This syntax is needed to get nodeId in "tab 1" format instead of ["tab 1"] format
+            var nodeId = $(this).jstree().get_selected(true)[0].id;
+
+            if (nodeId.substring(0, 3) == 'tab') {
+                nodeId = nodeId.substring(4);
+                parentNodeId = data.instance.get_node(data.node.parent).id.substring(6);
+
+                var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
+
+                $.get(url, function (data) {
+                    $('#tabversions-table-container').empty().append(data);
+                    // Call onResize to resize the user images
+                    onResize(false);
+                });
+                $('#project-button-container').empty().append('<button id="new-project-button" class="btn btn-primary dashboard-button">New Project</button>');
+                $('#album-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Album</button>');
+
+                // Only allow edit if we're the owner
+                if ($(selectedTree)[0].className.includes('ownerTree')) {
+                    $('#tab-button-container').empty().append('<button id="edit-tab-button" class="btn btn-primary dashboard-button" data-url="/Tabs/GetTabFormPartialView/?albumId=' + parentNodeId + '&tabId=' + nodeId + '">Edit Tab</button>');
+                }
+                else {
+                    $('#tab-button-container').empty().append('<button id="new-tab-button" class="btn btn-primary dashboard-button" disabled>New Tab</button>');
+                }
+
+                var actionLink = '@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = -1 }, new { @class = "btn btn-primary dashboard-button", id = "new-tabversion-button" })'
+                actionLink = actionLink.replace('-1', nodeId);
+                $('#new-tabversion-button-container').empty().append(actionLink);
+            }
+            else if (nodeId.substring(0, 5) == 'album') {
+                nodeId = nodeId.substring(6);
+                parentNodeId = data.instance.get_node(data.node.parent).id.substring(8);
+                var actionLink = '@Html.ActionLink("New Tab", "New", "Tabs", new { id = -1 }, new { @class = "btn btn-primary dashboard-button", id = "new-tab-button" })'
+                actionLink = actionLink.replace('-1', nodeId);
+                $('#project-button-container').empty().append('<button id="new-project-button" class="btn btn-primary dashboard-button">New Project</button>');
+                $('#tab-button-container').empty().append(actionLink);
+                $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>');
+
+                // Only allow edit if we're the owner
+                if ($(selectedTree)[0].className.includes('ownerTree')) {
+                    $('#album-button-container').empty().append('<button id="edit-album-button" class="btn btn-primary dashboard-button" data-url="/Albums/GetAlbumFormPartialView/?projectId=' + parentNodeId + '&albumId=' + nodeId + '">Edit Album</button>');
+                }
+                else {
+                    $('#album-button-container').empty().append('<button id="edit-album-button" class="btn btn-primary dashboard-button" disabled>New Album</button>');
+                }
+
+                var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
+
+                $.get(url, function (data) {
+                    $('#tabversions-table-container').empty().append(data);
+                    onResize(false);
                 })
-                .then(function (response) {
-                    repopulateTabList();
-                })
-                .fail(function (error) {
-                    bootbox.alert("Unable to delete tab. Error: " + error.statusText);
+            }
+            else if (nodeId.substring(0, 7) == 'project') {
+                nodeId = nodeId.substring(8);
+                var actionLink = '@Html.ActionLink("New Album", "New", "Albums", new { id = -1 }, new { @class = "btn btn-primary dashboard-button", id = "new-album-button" })'
+                actionLink = actionLink.replace('-1', nodeId);
+                $('#album-button-container').empty().append(actionLink);
+                $('#tab-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab</button>');
+                $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>');
+
+                // Only allow edit if we're the owner
+                if ($(selectedTree)[0].className.includes('ownerTree')) {
+                    $('#project-button-container').empty().append('<button id="edit-project-button" class="btn btn-primary dashboard-button" data-url="/Projects/GetProjectFormPartialView/' + nodeId + '">Edit Project</button>');
+                }
+                else {
+                    $('#project-button-container').empty().append('<button id="new-project-button" class="btn btn-primary dashboard-button">New Project</button>');
+                }
+
+                var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
+
+                $.get(url, function (data) {
+                    $('#tabversions-table-container').empty().append(data);
+                    onResize(false);
                 })
             }
         });
-    });
 
-    // Show modal for new project
-    $("#page").on("click", "#new-tab-button", function (e, data) {
-        e.preventDefault();
+        // Deleting a tab version
+        $("#dashboard").on("click", "#delete-tabversion-button", function (e, data) {
+            e.preventDefault();
+            var href = this.href;
+            var tabVersionId = $(this).attr('data-tabversion-id');
 
-        var href = this.href;
+            bootbox.confirm("Are you sure you wish to delete this tab version? This cannot be undone.", function (result) {
+                if (result) {
+                    $.post(href, function (response) {
+                        if (!response.success) {
+                            bootbox.alert("Unable to delete.");
+                        }
+                        else {
+                            if ($('#treeTableContainer').is(':visible')) {
+                                var nodeId = $(selectedTree).jstree().get_selected(true)[0].id;
+                                // Update tab versions table
+                                if (nodeId.substring(0, 3) == 'tab') {
+                                    nodeId = nodeId.substring(4);
 
-        $.ajax({
-            url: href,
-            type: 'GET',
-        })
-        .then(function (data) {
-            $('#tab-form-container').html(data);
+                                    //var $tabversions-table-container = $('#tabversions-table-container'),
+                                    var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
+                                    $.get(url, function (data) {
+                                        $('#tabversions-table-container').empty().append(data);
 
-            // Client side validation for dynamic modal injection
-            $.validator.unobtrusive.parse($("#tab-form"));
+                                        // Call onResize to resize the user images
+                                        onResize(false);
+                                    });
+                                }
+                                else if (nodeId.substring(0, 7) == 'project') {
+                                    nodeId = nodeId.substring(8);
+                                    var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
+                                    $.get(url, function (data) {
+                                        $('#tabversions-table-container').empty().append(data);
 
-            currentModal = $('#tab-form-modal');
-            currentModal.modal('show');
-        })
-        .fail(function (error) {
-            bootbox.alert("Unable to show tab form. Error: " + error.statusText);
-        })
-    });
-
-    // Show modal for edit album
-    $("#page").on("click", "#edit-tab-button", function (e, data) {
-        e.preventDefault();
-
-        var href = this.href + "/?albumId=" + $(this).attr("data-album-id") + "&tabId=" + $(this).attr("data-tab-id");
-
-        $.ajax({
-            url: href,
-            type: 'GET',
-        })
-        .then(function (data) {
-            $('#tab-form-container').html(data);
-            // Client side validation for dynamic modal injection
-            $.validator.unobtrusive.parse($("#tab-form"));
-
-            currentModal = $('#tab-form-modal');
-            currentModal.modal('show');
-
-        })
-        .fail(function (error) {
-            bootbox.alert("Unable to show tab form. Error: " + error.statusText);
-        })
-    });
-
-    // Show modal for new tab
-    $("#page").on("click", "#new-tabversion-button", function (e, data) {
-        e.preventDefault();
-
-        var href = this.href + "/?tabId=" + $(this).attr("data-tab-id");
-
-        $.ajax({
-            url: href,
-            type: 'GET',
-        })
-            .then(function (data) {
-                $('#tabversion-form-container').html(data);
-                // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#tabversion-form"));
-
-                currentModal = $('#tabversion-form-modal');
-                currentModal.modal('show');
-
-            })
-            .fail(function (error) {
-                bootbox.alert("Unable to show tab form. Error: " + error.statusText);
-            })
-    });
-
-    $("#page").on("click", ".show-items-icon-container", function (e, data) {
-        $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
-
-        var that = this;
-
-        $(this).hide();
-        $(this).siblings('.tab-list').children('.item-container').show(200);
-        // Wait until the expansion animation is complete to show the buttons
-        setTimeout(function () {
-            $(that).siblings('.tab-list').children('.item-container').children().css("visibility", "visible");
-        }, 200)
-        $(this).siblings('.hide-items-icon-container').show();
-    });
-
-    $("#page").on("click", ".hide-items-icon-container", function (e, data) {
-        $(this).hide();
-        $(this).siblings('.tab-list').children('.item-container').children().css("visibility", "hidden");
-        $(this).siblings('.tab-list').children('.item-container').hide(200);
-        $(this).siblings('.show-items-icon-container').show();
-    });
-
-    $("#page").on("click", ".project-selection-panel", function (e, data) {
-        e.preventDefault();
-
-        var that = this;
-
-        // Give modal time to close
-        setTimeout(function () {
-            var href = "@Url.Action("GetAlbumSelectionPartialView", "Albums")" + "/?projectId=" + $(that).attr("data-project-id");
-
-            $.ajax({
-                url: href,
-                type: 'GET',
-            })
-                .then(function (data) {
-                    $('#tab-form-container').html(data);
-                    // Client side validation for dynamic modal injection
-                    $.validator.unobtrusive.parse($("#tab-form"));
-
-                    currentModal = $('#tab-form-modal');
-                    currentModal.modal('show');
-
-                })
-                .fail(function (error) {
-                    bootbox.alert("Unable to show tab form. Error: " + error.statusText);
-                })
-        }, 500)
-    });
-
-    $("#page").on("click", ".album-selection-panel", function (e, data) {
-        e.preventDefault();
-
-        var that = this;
-
-        // Give modal time to close
-        setTimeout(function () {
-            var href = "@Url.Action("GetTabFormPartialView", "Tabs")" + "/?albumId=" + $(that).attr("data-album-id");
-
-            $.ajax({
-                url: href,
-                type: 'GET',
-            })
-                .then(function (data) {
-                    $('#tab-form-container').html(data);
-                    // Client side validation for dynamic modal injection
-                    $.validator.unobtrusive.parse($("#tab-form"));
-
-                    currentModal = $('#tab-form-modal');
-                    currentModal.modal('show');
-
-                })
-                .fail(function (error) {
-                    bootbox.alert("Unable to show tab form. Error: " + error.statusText);
-                })
-        }, 500)
-    });
-
-    $("#page").on("submit", function (e, data) {
-        e.preventDefault();
-
-        var form = e.target;
-        var formData = new FormData(form);
-
-        // Show spinner on save button
-        $('.button-save').html('<div class="loader"></div>');
-
-        $.ajax({
-            url: form.action,
-            type: 'POST',
-            data: formData,
-            cache: false,
-            contentType: false,
-            processData: false
-        })
-        .then(function (response) {
-            currentModal.modal('hide');
-            // Call GetTabListPartialView to repopulate the tab list
-            repopulateTabList();
-        })
-        .fail(function (error) {
-            currentModal.modal('hide');
-            bootbox.alert("Unable to save. Error: " + error.statusText);
-
-        })
-    });
-
-    function repopulateTabList() {
-        return new Promise((resolve, reject) => {
-            var url = '@Url.Action("GetTabListPartialView", "Tabs", null)';
-
-            $.get(url, function (data) {
-                $('#tab-list-wrapper').empty().append(data);
-            })
-            .then(function (result) {
-                // Add sortable functionality to all owned tabs
-                $(".tab-list-sort").each(function () {
-                    var that = this;
-                    $(this).sortable({
-                        containment: $(that).parent(),
-                        placeholder: "placeholder",
-                        cursor: "pointer",
-                        update: function (event, ui) {
-                            var data = { tabIds: $(this).sortable('toArray') };
-
-                            // POST to server using $.post or $.ajax
-                            $.ajax({
-                                data: data,
-                                type: 'POST',
-                                dataType: 'json',
-                                traditional: 'true',
-                                url: '@Url.Action("ReorderTabs", "Tabs")'
-                            });
+                                        // Call onResize to resize the user images
+                                        onResize(false);
+                                    })
+                                }
+                            }
+                            else {
+                                // Remove the deleted version
+                                $("#tabversion-" + tabVersionId).remove();
+                            }
                         }
                     });
-                })
+                }
             })
-            .then(resolve)
-            .fail(reject)
-        })
-    }
-});
+        });
+
+        // Show modal for new tab
+        $("#dashboard").on("click", "#new-tab-button", function (e, data) {
+            e.preventDefault();
+
+            var url = $('#tab-form-modal').data('url');
+
+            var nodeId = $(selectedTree).jstree().get_selected(true)[0].id;
+            if (nodeId.substring(0, 5) == 'album') {
+                nodeId = nodeId.substring(6);
+
+                url = url + "?albumId=" + nodeId;
+
+                showFileUploadModal(url, 'tab-form');
+            }
+        });
+
+        // Show modal for edit tab
+        $("#dashboard").on("click", "#edit-tab-button", function (e, data) {
+            e.preventDefault();
+
+            var url = $(this).data('url');
+
+            $.get(url, function (data) {
+                $('#tab-form-container').html(data);
+
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($("#tab-form"));
+
+                currentModal = $('#tab-form-modal');
+                currentModal.modal('show');
+            });
+        });
+
+        // Show modal for new project
+        $("#dashboard").on("click", "#new-project-button", function (e, data) {
+            e.preventDefault();
+
+            var url = $('#project-form-modal').data('url');
+
+            $.get(url, function (data) {
+                $('#project-form-container').html(data);
+
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($("#project-form"));
+
+                currentModal = $('#project-form-modal');
+                currentModal.modal('show');
+            });
+        });
+
+        // Show modal for edit project
+        $("#dashboard").on("click", "#edit-project-button", function (e, data) {
+            e.preventDefault();
+
+            var url = $(this).data('url');
+
+            $.get(url, function (data) {
+                $('#project-form-container').html(data);
+
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($("#project-form"));
+
+                currentModal = $('#project-form-modal');
+                currentModal.modal('show');
+            });
+        });
+
+        // Show modal for new album
+        $("#dashboard").on("click", "#new-album-button", function (e, data) {
+            e.preventDefault();
+
+            var url = $('#album-form-modal').data('url');
+
+            var nodeId = $(selectedTree).jstree().get_selected(true)[0].id;
+            if (nodeId.substring(0, 7) == 'project') {
+                nodeId = nodeId.substring(8);
+
+                url = url + "?projectId=" + nodeId;
+
+                $.get(url, function (data) {
+                    $('#album-form-container').html(data);
+
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($("#album-form"));
+
+                    currentModal = $('#album-form-modal');
+                    currentModal.modal('show');
+                });
+            }
+        });
+
+        // Show modal for edit album
+        $("#dashboard").on("click", "#edit-album-button", function (e, data) {
+            e.preventDefault();
+
+            var url = $(this).data('url');
+
+            $.get(url, function (data) {
+                $('#album-form-container').html(data);
+
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($("#album-form"));
+
+                currentModal = $('#album-form-modal');
+                currentModal.modal('show');
+            });
+        });
+
+        // Show modal for new tab version
+        $("#dashboard").on("click", "#new-tabversion-button", function (e, data) {
+            e.preventDefault();
+
+            var url = $('#tabversion-form-modal').data('url');
+
+            var nodeId = $(selectedTree).jstree().get_selected(true)[0].id;
+            if (nodeId.substring(0, 3) == 'tab') {
+                nodeId = nodeId.substring(4);
+
+                url = url + "?tabId=" + nodeId;
+
+                $.get("@Url.Action("CheckLatestTabVersion", "TabVersions")" + "?tabId=" + nodeId, function (result) {
+                    if (!result.hasLatest) {
+                        bootbox.confirm("You have not yet downloaded the latest version for this tab. Make sure to download latest to prevent overwriting previous changes.<br /><br /> Do you wish to proceed?", function (result) {
+                            if (result) {
+                                showFileUploadModal(url, 'tabversion-form');
+                            }
+                        });
+                    }
+                    else {
+                        showFileUploadModal(url, 'tabversion-form');
+                    }
+                })
+            }
+        });
+
+        function showFileUploadModal(url, formId) {
+            $.get(url, function (data) {
+                $('#' + formId + '-container').html(data);
+
+                $('#' + formId)
+                    .removeData("validator") /* added by the raw jquery.validate plugin */
+                    .removeData("unobtrusiveValidation");  /* added by the jquery unobtrusive plugin*/
+
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($('#' + formId));
+
+                currentModal = $('#' + formId + '-modal');
+                currentModal.modal('show');
+
+                // Bind onchange event for the file field so that we can check its size
+                var fileData = document.getElementById("FileData");
+
+                fileData.onchange = function () {
+                    // If it's larger than 1 MB, tell user and disable save button
+                    if (this.files[0].size > 1000000) {
+                        if (!$(".file-validation").length) {
+                            $(".validation-summary-valid ul").append("<li class='file-validation'>File size limit is 1 MB</li>");
+                        }
+                        $(".button-save")[0].classList.add("disabled");
+                    }
+                    else {
+                        if ($(".file-validation").length) {
+                            $(".file-validation").remove();
+                        }
+                        $(".button-save")[0].classList.remove("disabled");
+                    }
+                };
+            });
+        }
+
+        // Show modal for edit album
+        $("#dashboard").on("click", "#edit-tabversion-button", function (e, data) {
+            e.preventDefault();
+
+            var href = this.href + "?tabId=" + $(this).attr("data-tab-id") + "&tabVersionId=" + $(this).attr("data-tabversion-id");
+
+            $.ajax({
+                url: href,
+                type: 'GET',
+            })
+                .then(function (data) {
+                    $('#tabversion-form-container').html(data);
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($("#tabversion-form"));
+
+                    currentModal = $('#tabversion-form-modal');
+                    currentModal.modal('show');
+
+                })
+                .fail(function (error) {
+                    bootbox.alert("Unable to show album form. Error: " + error.statusText);
+                })
+        });
+
+        $(document).on("change", "#contributors-list", function (e, data) {
+            e.preventDefault();
+
+            var selected = $(this).find('option:selected'),
+                contributorCount = getContributorCount(),
+                username = $(this).val(),
+                name = selected.text();
+
+            // Create button for contributor and remove from list
+            $("#contributors-panels").append("<input type='hidden' class='form-control contributor' name='' value='" + username + "'>");
+            $("#contributors-panels").append("<button data-username='" + username + "' data-text='" + name + "' class='contributor-btn btn btn-default'><div class='contributor-text'>" + name + "</div><i class='fa fa-times' style='padding-left: 7px; padding-top: 2px;' /></button>");
+            selected.remove();
+            $("#contributors-list option[value=default]").prop("selected", true);
+        });
+
+        $(document).on("click", ".contributor-btn", function (e, data) {
+            e.preventDefault();
+
+            var username = $(this).attr("data-username"),
+                text = $(this).attr("data-text");
+
+            // Add contributor back to dropdown list and remove the button
+            $("#contributors-list").append("<option value='" + username + "'>" + text + "</option>");
+            $(this).remove();
+            $("input[value=" + username + "]").remove();
+        });
+
+        $("#dashboard").on("submit", function (e, data) {
+            e.preventDefault();
+
+            if ($('.button-save')[0].classList.contains("disabled")) {
+                return;
+            }
+
+            // Loop through all contributors to add index for model binding
+            $('.contributor').each(function (index) {
+                $(this).attr('name', 'Contributors[' + index + '].Username');
+            });
+
+            var form = e.target;
+            var formData = new FormData(form);
+
+            // Show spinner on save button
+            $('.button-save').html('<div class="loader"></div>');
+
+            $.ajax({
+                url: form.action,
+                type: 'POST',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false
+            })
+            .then(function (response) {
+                currentModal.modal('hide');
+                // Here we're replacing the tabversion table, which include tab id
+                // Then we're using that tab id to identify the jstree node
+                if (form.id === "tab-form") {
+                    var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
+
+                    $.get(url, function (data) {
+                        $('#tabversions-table-container').empty().append(data);
+
+                        // Call onResize to resize the user images
+                        onResize(false);
+                    });
+
+                    var tabNode = $('#tab-' + response.id);
+
+                    // Check to see if node already exists so we know whether to add a new node or edit an existing one
+                    if (!tabNode.length) {
+                        // Create new tab node and select it - expand and deselect project node
+                        var currentNode = $(selectedTree).jstree().get_selected(true)[0];
+                        $(selectedTree).jstree().open_node(currentNode.id, false, false);
+                        if ($(selectedTree)[0].className.includes('ownerTree')) {
+                            $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
+                        }
+                        else {
+                            $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "contributor" }, text: response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
+                        }
+                        $(selectedTree).jstree().deselect_node(currentNode.id, false, false);
+                        $(selectedTree).jstree().select_node("tab-" + response.id, false, false);
+                    }
+                    else {
+                        $(".jstree").jstree('rename_node', tabNode, response.name);
+                    }
+                }
+                else if (form.id === "tabversion-form") {
+                    var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
+
+                    $.get(url, function (data) {
+                        $('#tabversions-table-container').empty().append(data);
+
+                        // Call onResize to resize the user images
+                        onResize(false);
+                    });
+                }
+                else if (form.id === "album-form") {
+                    var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)?id=' + response.id;
+
+                    $.get(url, function (data) {
+                        $('#tabversions-table-container').empty().append(data);
+
+                        // Call onResize to resize the user images
+                        onResize(false);
+                    });
+
+                    var albumNode = $('#album-' + response.id);
+
+                    // Check to see if node already exists so we know whether to add a new node or edit an existing one
+                    if (!albumNode.length) {
+                        var currentNode = $(selectedTree).jstree().get_selected(true)[0];
+                        $(selectedTree).jstree().open_node(currentNode.id, false, false);
+                        if ($(selectedTree)[0].className.includes('ownerTree')) {
+                            $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);
+                        }
+                        else {
+                            $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "contributor" }, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);
+                        }
+                        $(selectedTree).jstree().deselect_node(currentNode.id, false, false);
+                        $(selectedTree).jstree().select_node("album-" + response.id, false, false);
+                    }
+                    else {
+                        $(".jstree").jstree('rename_node', albumNode, response.name);
+                    }
+                }
+                // This will handle new project
+                else if (form.id === "project-form") {
+                    var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
+
+                    $.get(url, function (data) {
+                        $('#tabversions-table-container').empty().append(data);
+                    });
+
+                    var projectNode = $('#project-' + response.id);
+
+                    // Check to see if node already exists so we know whether to add a new node or edit an existing one
+                    if (!projectNode.length) {
+                        var currentNode = $('.ownerTree').jstree().get_selected(true)[0];
+                        if (currentNode != null) {
+                            $('.ownerTree').jstree().deselect_node(currentNode.id, false, false);
+                        }
+                        $('.ownerTree').jstree().create_node("#", { id: "project-" + response.id, text: response.name }, "last", false, false);
+                        $('.ownerTree').jstree().select_node("project-" + response.id, false, false);
+                    }
+                    else {
+                        $(".jstree").jstree('rename_node', projectNode, response.name);
+                    }
+                }
+            })
+            .fail(function (error) {
+                currentModal.modal('hide');
+                bootbox.alert("Unable to save.<br /><br />Error: " + error.responseText);
+            });
+        });
+
+        function getContributorCount() {
+            return $('.contributor-btn').length;
+        }
+
+        // Make sure the treeview/table height is set properly on resize
+        function onResize(setTreeWidth) {
+            var dashboardHeight = $('#dashboard').outerHeight();
+            var buttonContainerHeight = $('.buttons-container').outerHeight();
+            var treeTableContainerHeight = ((dashboardHeight - buttonContainerHeight) / dashboardHeight) * 100;
+            var tabVersionTableWidth = $('.tabversions-table').width();
+
+            if (tabVersionTableWidth < 883) {
+                $('.user-image-col').hide();
+            }
+            else {
+                $('.user-image-col').show();
+            }
+
+            if ($(window).width() < 760) {
+                $('.lg-device-col').hide();
+            }
+            else {
+                $('.lg-device-col').show();
+            }
+
+            if ($(window).width() <= 425) {
+                $('.buttons-container').hide();
+                $('#treeTableContainer').hide();
+                $('.projects-container').show();
+            }
+            else {
+                $('.buttons-container').show();
+                $('#treeTableContainer').show();
+                $('.projects-container').hide();
+            }
+
+            if (setTreeWidth) {
+                if ($(window).width() < 760) {
+                    $('.treeWrapperContainer').css('width', '50%');
+                }
+                else {
+                    $('.treeWrapperContainer').css('width', '20%');
+                }
+            }
+
+            $('.tabversion-user-image').css('height', $('.tabversion-user-image').css('width'));
+        };
+        window.addEventListener("resize", function () {
+            onResize(true);
+        });
+
+        $("#dashboard").on("click", ".show-items-icon-container", function (e, data) {
+            // Only show tooltips on non-touchscreens
+            if (!('ontouchstart' in window)) {
+                $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+            }
+
+            var that = this;
+
+            $(this).hide();
+            $(this).siblings('.album-list').children('.item-container').show(200);
+            $(this).siblings('.tab-list').children('.item-container').show(200);
+            // Wait until the expansion animation is complete to show the buttons
+            setTimeout(function () {
+                $(that).siblings('.album-list').children('.item-container').children().css("visibility", "visible");
+                $(that).siblings('.tab-list').children('.item-container').children().css("visibility", "visible");
+            }, 200)
+            $(this).siblings('.hide-items-icon-container').show();
+        });
+
+        $("#dashboard").on("click", ".hide-items-icon-container", function (e, data) {
+            $(this).hide();
+            $(this).siblings('.album-list').children('.item-container').children().css("visibility", "hidden");
+            $(this).siblings('.album-list').children('.item-container').hide(200);
+            $(this).siblings('.tab-list').children('.item-container').children().css("visibility", "hidden");
+            $(this).siblings('.tab-list').children('.item-container').hide(200);
+            $(this).siblings('.show-items-icon-container').show();
+        });
+
+        $("#dashboard").on("click", ".show-tabversions", function (e, data) {
+            var that = this;
+            $(this).hide();
+            $(this).siblings('.tabversions-container').empty().append('<div class="loader"></div>')
+            $(this).siblings('.tabversions-container').show();
+            var url = '@Url.Action("GetTabVersionsList", "TabVersions")?id=' + $(that).attr('data-tab-id');
+            $.get(url, function (data) {
+                $(that).siblings('.tabversions-container').hide();
+                $(that).siblings('.tabversions-container').empty().append(data);
+                $(that).siblings('.tabversions-container').show(200);
+            });
+            $(this).siblings('.hide-tabversions').show();
+        });
+
+        $("#dashboard").on("click", ".hide-tabversions", function (e, data) {
+            $(this).hide();
+            $(this).siblings('.tabversions-container').hide(200);
+            $(this).siblings('.tabversions-container').empty();
+            $(this).siblings('.show-tabversions').show();
+        });
+
+        $("#dashboard").on("click", "#my-projects", function (e, data) {
+            $('#my-projects').addClass('active');
+            $('#contributor-projects').removeClass('active');
+            $('.treeWrapperMy').show();
+            $('.treeWrapperCon').hide();
+        });
+
+        $("#dashboard").on("click", "#contributor-projects", function (e, data) {
+            $('#contributor-projects').addClass('active');
+            $('#my-projects').removeClass('active');
+            $('.treeWrapperCon').show();
+            $('.treeWrapperMy').hide();
+        });
+    });
     </script>
 }
+

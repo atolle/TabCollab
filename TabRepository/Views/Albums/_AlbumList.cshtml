@@ -1,29 +1,40 @@
 @model IEnumerable<TabRepository.ViewModels.AlbumIndexViewModel>
 
-<div class="row list-row">
-    @foreach (var album in Model)
-    {
-        <div class="col" align="center">
-            <div class="card card-profile">
-                <div class="card-header" style="background-image: url('@album.ImageFilePath');"></div>
-                <div class="card-body text-center">
-                    <h3>@album.Name</h3>
-                    <p class="m-b">Project: @album.ProjectName<br />Owner: @album.Owner</p>
-                    @if (album.IsOwner)
-                    {
-                        <div class="show-items-icon-container">
-                            <i class="fa fa-lg fa-chevron-down"></i>
-                        </div>
-                        <div class="item-container">
-                            <a id="edit-album-button" style="visibility: hidden;" data-toggle="tooltip" title="Edit album" class="pull-left list-icon white-icon" data-project-id="@album.ProjectId" data-album-id="@album.Id" href="@Url.Action("GetAlbumFormPartialView", "Albums")"><i class="fa fa-pencil fa-lg" /></a>
-                            <a id="delete-album-button" style="visibility: hidden;" data-toggle="tooltip" title="Delete album" class="pull-right list-icon white-icon" href="@Url.Action("Delete", "Albums", new { id = album.Id })"><i class="fa fa-times fa-lg" /></a>
-                        </div>
-                        <div class="hide-items-icon-container">
-                            <i class="fa fa-lg fa-chevron-up"></i>
-                        </div>
-                    }
+@if (Model.Count() > 0)
+{
+    <div class="row list-row">
+        @foreach (var album in Model)
+        {
+            <div class="col" align="center">
+                <div class="card card-profile">
+                    <div class="card-header" style="background-image: url('@album.ImageFilePath');"></div>
+                    <div class="card-body text-center">
+                        <h3>@album.Name</h3>
+                        <p class="m-b">Project: @album.ProjectName<br />Owner: @album.Owner</p>
+                        @if (album.IsOwner)
+                        {
+                            <div class="show-items-icon-container">
+                                <i class="fa fa-lg fa-chevron-down"></i>
+                            </div>
+                            <div class="item-container">
+                                <a id="edit-album-button" style="visibility: hidden;" data-toggle="tooltip" title="Edit album" class="pull-left list-icon white-icon" data-project-id="@album.ProjectId" data-album-id="@album.Id" href="@Url.Action("GetAlbumFormPartialView", "Albums")"><i class="fa fa-pencil fa-lg" /></a>
+                                <a id="delete-album-button" style="visibility: hidden;" data-toggle="tooltip" title="Delete album" class="pull-right list-icon white-icon" href="@Url.Action("Delete", "Albums", new { id = album.Id })"><i class="fa fa-times fa-lg" /></a>
+                            </div>
+                            <div class="hide-items-icon-container">
+                                <i class="fa fa-lg fa-chevron-up"></i>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
+        }
+    </div>
+}
+else
+{
+    <div class="center-form-outer-container" align="center">
+        <div class="center-form-inner-container">
+            <h2 style="color: grey">You don't have any albums. Create one!</h2>
         </div>
-    }
-</div>
+    </div>
+}

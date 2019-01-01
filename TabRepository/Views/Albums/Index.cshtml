@@ -37,7 +37,10 @@ $(document).ready(function () {
             bootbox.alert("Unable to load albums. Error: " + error.statusText);
         });
 
-    $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" }); 
+    // Only show tooltips on non-touchscreens
+    if (!('ontouchstart' in window)) {
+        $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" }); 
+    }
 
     // Deleting an album
     $("#page").on("click", "#delete-album-button", function (e, data) {
@@ -109,7 +112,10 @@ $(document).ready(function () {
     });
 
     $("#page").on("click", ".show-items-icon-container", function (e, data) {
-        $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+        // Only show tooltips on non-touchscreens
+        if (!('ontouchstart' in window)) {
+            $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+        }
 
         var that = this;
 

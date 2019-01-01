@@ -41,7 +41,7 @@
                     dataType: 'json'
                 })
                 .then(function (data) {
-                    $(that).html("Friend Request Sent");
+                    $(that).html("Request Sent");
                     $(that).toggleClass('btn-primary btn-default disabled pull-left');
                     $(that).parent().append('<a id="cancel-request-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/CancelRequest">Cancel Request</a>');
                 })

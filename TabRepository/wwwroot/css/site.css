@@ -471,7 +471,7 @@ footer {
 }
 
 .tabversion-panel {
-    background-color: #040303;
+    background-color: rgb(24,24,24);
     border-color: #666666;
 }
 
@@ -949,6 +949,10 @@ td {
 .tabversions-table {
     table-layout: fixed;
     margin-bottom: 0px;
+}
+
+.table-dark {
+    background-color: rgb(24,24,24) !important;
 }
 
 .dashboard-button {

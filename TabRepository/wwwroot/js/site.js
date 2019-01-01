@@ -106,7 +106,7 @@ $(document).on('click', '.notifications-btn', function (e) {
 });
 
 $(document.body).click(function (e) {
-    if (notificationCount > 0) {        
+    if (notificationCount > 0) {
         if (e.target != $('.notifications-btn')[0] && !$(e.target).hasClass('notification-delete-btn') && !$(e.target).hasClass('.notification-delete-all-btn')) {
             $('.notifications').hide();
         }
@@ -130,12 +130,12 @@ $(document).on('click', '.notification-delete-btn', function (e) {
         data: notificationId,
         dataType: 'json'
     })
-    .then(function () {        
-        GetNotificationPanel();
-    })
-    .fail(function (error) {
+        .then(function () {
+            GetNotificationPanel();
+        })
+        .fail(function (error) {
 
-    })
+        })
 });
 
 $(document).on('click', '.notification-delete-all-btn', function (e) {
@@ -145,10 +145,10 @@ $(document).on('click', '.notification-delete-all-btn', function (e) {
         url: '/Notifications/DeleteAllNotificationsForUser',
         type: 'POST'
     })
-    .then(function () {
-        GetNotificationPanel();
-    })
-    .fail(function (error) {
+        .then(function () {
+            GetNotificationPanel();
+        })
+        .fail(function (error) {
 
-    })
+        })
 });

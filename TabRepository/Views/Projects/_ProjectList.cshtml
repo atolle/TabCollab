@@ -18,7 +18,7 @@
                             </div>
                             <div class="item-container">
                                 <a id="edit-project-button" style="visibility: hidden;" data-toggle="tooltip" title="Edit project" class="list-icon pull-left white-icon" href="@Url.Action("GetProjectFormPartialView", "Projects", new { id = project.Id })"><i class="fa fa-pencil fa-lg" /></a>
-                                <a id="delete-project-button" style="visibility: hidden;" data-toggle="tooltip" title="Delete project" class="list-icon pull-right white-icon" href="@Url.Action("Delete", "Projects", new { id = project.Id })"><i class="fa fa-times fa-lg" /></a>
+                                <a id="delete-project-button" style="visibility: hidden;" data-toggle="tooltip" title="Delete project" class="list-icon pull-right white-icon" data-name="@project.Name" href="@Url.Action("Delete", "Projects", new { id = project.Id })"><i class="fa fa-times fa-lg" /></a>
                             </div>
                             <div class="hide-items-icon-container">
                                 <i class="fa fa-lg fa-chevron-up hide-buttons-icon"></i>

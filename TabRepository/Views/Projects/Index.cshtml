@@ -52,22 +52,34 @@ $(document).ready(function () {
     $("#page").on("click", "#delete-project-button", function (e, data) {
         e.preventDefault();
 
-        var href = this.href;
+        var href = this.href,
+            that = this;
 
-        bootbox.confirm("Are you sure you wish to delete this project? This cannot be undone.", function (result) {
-            if (result) {
+        bootbox.prompt("Confirm Delete", function (result) {
+            if (result == $(that).attr("data-name")) {
                 $.ajax({
-                    url: href,
                     type: 'DELETE',
+                    dataType: 'json',
+                    traditional: 'true',
+                    url: href
                 })
-                    .then(function (response) {
+                .then(function (response) {
+                    if (!response.success) {
+                        bootbox.alert("Unable to delete.");
+                    }
+                    else {
                         repopulateProjectList();
-                    })
-                    .fail(function (error) {
-                        bootbox.alert("Unable to delete project. Error: " + error.statusText);
-                    })
+                    }
+                })
+            }
+            else if (result != null) {
+                bootbox.alert("Name did not match.");
             }
         });
+
+        // CSS change to make the title display properly and add prompt text
+        $('.modal-header').css('display', 'unset')
+        $('.bootbox-body').prepend("<p>Are you sure you wish to delete this project? This cannot be undone.<br />Confirm by typing the project's name below:</p>") 
     });
 
     // Show modal for new project

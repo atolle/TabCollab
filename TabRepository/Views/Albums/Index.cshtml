@@ -45,22 +45,35 @@ $(document).ready(function () {
     // Deleting an album
     $("#page").on("click", "#delete-album-button", function (e, data) {
         e.preventDefault();
-        var href = this.href;
 
-        bootbox.confirm("Are you sure you wish to delete this album? This cannot be undone.", function (result) {
-            if (result) {
+        var href = this.href,
+            that = this;
+
+        bootbox.prompt("Confirm Delete", function (result) {
+            if (result == $(that).attr("data-name")) {
                 $.ajax({
-                    url: href,
                     type: 'DELETE',
+                    dataType: 'json',
+                    traditional: 'true',
+                    url: href
                 })
                 .then(function (response) {
-                    repopulateAlbumList();
-                })
-                .fail(function (error) {
-                    bootbox.alert("Unable to delete album. Error: " + error.statusText);
+                    if (!response.success) {
+                        bootbox.alert("Unable to delete.");
+                    }
+                    else {
+                        repopulateAlbumList();
+                    }
                 })
             }
+            else if (result != null) {
+                bootbox.alert("Name did not match.");
+            }
         });
+
+        // CSS change to make the title display properly and add prompt text
+        $('.modal-header').css('display', 'unset')
+        $('.bootbox-body').prepend("<p>Are you sure you wish to delete this album? This cannot be undone.<br />Confirm by typing the albums's name below:</p>") 
     });
 
     // Show modal for new project

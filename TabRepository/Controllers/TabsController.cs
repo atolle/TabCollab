@@ -277,31 +277,36 @@ namespace TabRepository.Controllers
         //    return View(viewModel);
         //}
 
+        [HttpDelete]
         public ActionResult Delete(int id)
         {
-            using (var transaction = _context.Database.BeginTransaction())
+            try
             {
-                // Verify user has access to current Tab (id)
-                string currentUserId = User.GetUserId();
-                string currentUsername = User.GetUsername();
+                using (var transaction = _context.Database.BeginTransaction())
+                {
+                    // Verify user has access to current Tab (id)
+                    string currentUserId = User.GetUserId();
+                    string currentUsername = User.GetUsername();
 
-                var tabInDb = _context.Tabs.SingleOrDefault(t => t.Id == id && t.UserId == currentUserId);
+                    var tabInDb = _context.Tabs.Include(t => t.Album).SingleOrDefault(t => t.Id == id && t.UserId == currentUserId);
 
-                if (tabInDb == null)
-                    return NotFound();
+                    if (tabInDb == null)
+                        return NotFound();
 
-                // Get Project Id to return to view
-                int projectId = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId).AlbumId;
+                    _context.Tabs.Remove(tabInDb);
+                    _context.SaveChanges();
 
-                _context.Tabs.Remove(tabInDb);
-                _context.SaveChanges();
+                    NotificationsController.AddNotification(_context, NotificationType.TabDeleted, null, tabInDb.Album.ProjectId, currentUsername, currentUserId, tabInDb.Name, tabInDb.Album.Name);
 
-                NotificationsController.AddNotification(_context, NotificationType.TabDeleted, null, tabInDb.Album.ProjectId, currentUsername, currentUserId, tabInDb.Name, tabInDb.Album.Name);
+                    transaction.Commit();
+                }
 
-                transaction.Commit();
+                return Json(new { success = true });
             }
-
-            return RedirectToAction("Main", "Projects"); 
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
         }
 
         public ApplicationUser GetCurrentUser()

@@ -39,17 +39,17 @@
                             @if (project.IsOwner)
                             {
                                 <ul>
-                                    <li id="project-@project.Id" jstree-type="owner">
+                                    <li id="project-@project.Id" jstree-type="owner" href="@Url.Action("Delete", "Projects", new { id = project.Id })">
                                         @project.Name
                                         @foreach (var album in project.Albums)
                                         {
                                             <ul>
-                                                <li id="album-@album.Id" jstree-type="owner" data-jstree='{"icon":"/images/cd(16x12).png"}'>
+                                                <li id="album-@album.Id" jstree-type="owner" data-jstree='{"icon":"/images/cd(16x12).png"}' href="@Url.Action("Delete", "Albums", new { id = album.Id })">
                                                     @album.Name
                                                     @foreach (var tab in album.Tabs)
                                                     {
                                                         <ul>
-                                                            <li id="tab-@tab.Id" jstree-type="owner" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>@tab.Name</li>
+                                                            <li id="tab-@tab.Id" jstree-type="owner" data-jstree='{"icon":"/images/eighthnote(16x23).png"}' href="@Url.Action("Delete", "Tabs", new { id = tab.Id })">@tab.Name</li>
                                                         </ul>
                                                     }
                                                 </li>
@@ -261,9 +261,68 @@
                             }
                         }
                     },
-                    "plugins": ["dnd"]
+                    "contextmenu": {
+                        items: customMenu
+                    },
+                    "plugins": ["dnd", "contextmenu"]
                 });
             })
+
+            function customMenu(node) {
+                var thatNode = node;
+                // The default set of all items
+                var items = {
+                    deleteItem: { // The "delete" menu item
+                        label: "Delete",
+                        action: function () {
+                            var nodeType = thatNode.id.substr(0, thatNode.id.indexOf('-'));
+                            var href = thatNode.li_attr.href;
+                            bootbox.prompt("Confirm Delete", function (result) {
+                                if (result == thatNode.text.trim()) {
+                                    $.ajax({
+                                        type: 'DELETE',
+                                        dataType: 'json',
+                                        traditional: 'true',
+                                        url: href
+                                    })
+                                    .then(function (response) {
+                                        if (!response.success) {
+                                            bootbox.alert("Unable to delete.");
+                                        }
+                                        else {
+                                            // Delete the node from the tree
+                                            $('.ownerTree').jstree(true).delete_node(thatNode);
+
+                                            // Get an empty tab version table
+                                            var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
+
+                                            $.get(url, function (data) {
+                                                $('#tabversions-table-container').empty().append(data);
+                                                onResize(false);
+                                            })
+                                        }
+                                    })
+                                }
+                                else if (result != null) {
+                                    bootbox.alert("Name did not match.");
+
+                                }
+                            })
+
+                            // CSS change to make the title display properly and add prompt text
+                            $('.modal-header').css('display', 'unset')
+                            $('.bootbox-body').prepend("<p>Are you sure you wish to delete this " + nodeType + "? This cannot be undone.<br />Confirm by typing the " + nodeType + "'s name below:</p>") 
+                         }
+                    }
+                };
+
+                // Don't allow contributor nodes to be deleted
+                if (node.li_attr['jstree-type'].includes('contributor')) {
+                    delete items.deleteItem;
+                }
+
+                return items;
+            }
 
             // Event that fires when user drops a jstree node after dragging
             $(document).on('dnd_stop.vakata', function (e, data) {

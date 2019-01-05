@@ -211,6 +211,11 @@ footer {
     overflow-y: auto;
 }
 
+.navbar-collapse.collapsing {
+    max-height: 280px;
+    overflow-y: auto;
+}
+
 #search-form {
     position: relative;
 }
@@ -261,6 +266,12 @@ footer {
     max-width: 350px;
     min-width: 290px;
     background-color: #222222;
+    border: solid 1px grey;
+}
+
+.album-panel, .tab-panel, .tabversion-panel {
+    max-width: 100% !important;
+    min-width: unset !important;
 }
 
 .card-profile-img {
@@ -274,7 +285,7 @@ footer {
 
 .card-header {
     padding: 10px 15px;
-    border-bottom: 1px solid transparent;
+    border-bottom: solid 1px grey;
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
     height: 300px !important;
@@ -431,14 +442,13 @@ footer {
     height: 100%;
 }
 
-.show-items-icon-container {
-    cursor: pointer; 
+.show-buttons-icon, .hide-buttons-icon {
+    cursor: pointer;
 }
 
 .hide-items-icon-container {
     margin-top: 10px;
     display: none;
-    cursor: pointer;
 }
 
 .contributor-btn {
@@ -476,7 +486,6 @@ footer {
 
 .tabversion-panel {
     background-color: rgb(24,24,24);
-    border-color: #666666;
 }
 
 .white-icon {

@@ -129,8 +129,8 @@
                                     @foreach (var album in project.Albums)
                                     {
                                         <div id="@album.Id" class="item-container">
-                                            <div class="card card-profile" style="border: solid 1px grey;">
-                                                <div class="card-header album-header" style="background-image: url('@album.ImageFilePath');"></div>
+                                            <div class="card album-panel card-profile">
+                                                <div class="card-header" style="background-image: url('@album.ImageFilePath');"></div>
                                                 <div class="card-body text-center">
                                                     <h5>@album.Name</h5>
                                                 </div>
@@ -955,6 +955,18 @@
             });
         });
 
+        $("#dashboard").on("click", ".show-buttons-icon", function (e, data) {
+            $('html,body').animate({
+                scrollTop: $(this).parent().parent().offset().top
+            }, 750);
+        });
+
+        $("#dashboard").on("click", ".hide-buttons-icon", function (e, data) {
+            $('html,body').animate({
+                scrollTop: $(this).closest('.card').offset().top
+            }, 500);
+        });
+
         function getContributorCount() {
             return $('.contributor-btn').length;
         }
@@ -1006,32 +1018,35 @@
             onResize(true);
         });
 
-        $("#dashboard").on("click", ".show-items-icon-container", function (e, data) {
+        $("#dashboard").on("click", ".show-buttons-icon", function (e, data) {
             // Only show tooltips on non-touchscreens
             if (!('ontouchstart' in window)) {
                 $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
             }
 
-            var that = this;
+            var parent = $(this).parent();
 
-            $(this).hide();
-            $(this).siblings('.album-list').children('.item-container').show(200);
-            $(this).siblings('.tab-list').children('.item-container').show(200);
+            $(parent).hide();
+            $(parent).siblings('.album-list').children('.item-container').show(200);
+            $(parent).siblings('.tab-list').children('.item-container').show(200);
             // Wait until the expansion animation is complete to show the buttons
             setTimeout(function () {
-                $(that).siblings('.album-list').children('.item-container').children().css("visibility", "visible");
-                $(that).siblings('.tab-list').children('.item-container').children().css("visibility", "visible");
+                $(parent).siblings('.album-list').children('.item-container').children().css("visibility", "visible");
+                $(parent).siblings('.tab-list').children('.item-container').children().css("visibility", "visible");
             }, 200)
-            $(this).siblings('.hide-items-icon-container').show();
+            $(parent).siblings('.hide-items-icon-container').show();
         });
 
-        $("#dashboard").on("click", ".hide-items-icon-container", function (e, data) {
-            $(this).hide();
-            $(this).siblings('.album-list').children('.item-container').children().css("visibility", "hidden");
-            $(this).siblings('.album-list').children('.item-container').hide(200);
-            $(this).siblings('.tab-list').children('.item-container').children().css("visibility", "hidden");
-            $(this).siblings('.tab-list').children('.item-container').hide(200);
-            $(this).siblings('.show-items-icon-container').show();
+        $("#dashboard").on("click", ".hide-buttons-icon", function (e, data) {
+
+            var parent = $(this).parent();
+
+            $(parent).hide();
+            $(parent).siblings('.album-list').children('.item-container').children().css("visibility", "hidden");
+            $(parent).siblings('.album-list').children('.item-container').hide(200);
+            $(parent).siblings('.tab-list').children('.item-container').children().css("visibility", "hidden");
+            $(parent).siblings('.tab-list').children('.item-container').hide(200);
+            $(parent).siblings('.show-items-icon-container').show();
         });
 
         $("#dashboard").on("click", ".show-tabversions", function (e, data) {

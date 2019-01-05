@@ -130,28 +130,31 @@ $(document).ready(function () {
             })
     });
 
-    $("#page").on("click", ".show-items-icon-container", function (e, data) {
+    $("#page").on("click", ".show-buttons-icon", function (e, data) {
         // Only show tooltips on non-touchscreens
         if (!('ontouchstart' in window)) {
             $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
         }
 
-        var that = this;
+        var parent = $(this).parent();
 
-        $(this).hide();
-        $(this).siblings('.item-container').show(200);
+        $(parent).hide();
+        $(parent).siblings('.item-container').show(200);
         // Wait until the expansion animation is complete to show the buttons
         setTimeout(function () {
-            $(that).siblings('.item-container').children().css("visibility", "visible");
+            $(parent).siblings('.item-container').children().css("visibility", "visible");
         }, 200)
-        $(this).siblings('.hide-items-icon-container').show();
+        $(parent).siblings('.hide-items-icon-container').show();
     });
 
-    $("#page").on("click", ".hide-items-icon-container", function (e, data) {
-        $(this).hide();
-        $(this).siblings('.item-container').children().css("visibility", "hidden");
-        $(this).siblings('.item-container').hide(200);
-        $(this).siblings('.show-items-icon-container').show();
+    $("#page").on("click", ".hide-buttons-icon", function (e, data) {
+
+        var parent = $(this).parent();
+
+        $(parent).hide();
+        $(parent).siblings('.item-container').children().css("visibility", "hidden");
+        $(parent).siblings('.item-container').hide(200);
+        $(parent).siblings('.show-items-icon-container').show();
     });
 
     $(document).on("change", "#contributors-list", function (e, data) {

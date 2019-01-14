@@ -3,6 +3,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TabRepository.Models.AccountViewModels
 {
+    public enum AccountType
+    {
+        Free,
+        Subscription
+    }
     public class RegisterViewModel
     {
         [Required]
@@ -39,5 +44,9 @@ namespace TabRepository.Models.AccountViewModels
         public string ImageFileName { get; set; }
 
         public IFormFile Image { get; set; }
+
+        [Required]
+        [Display(Name = "Account Type")]
+        public AccountType AccountType { get; set; }
     }
 }

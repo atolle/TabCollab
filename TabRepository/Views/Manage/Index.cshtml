@@ -6,32 +6,51 @@
 <div class="container">
     <div id="page">
         <div class="manage-wrapper">
-            <div class="col-md-4">
-                <div class="card card-profile">
-                    <div id="profile-image" class="card-header" style="background-image: url('@Model.ImageFilePath');"></div>
-                    <div class="card-body text-center">
-                        <h3>@Model.Username</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div style="margin-bottom: 10px;">
+                        <div class="card card-profile">
+                            <div id="profile-image" class="card-header" style="background-image: url('@Model.ImageFilePath');"></div>
+                            <div class="card-body text-center">
+                                <h3>@Model.Username</h3>
+                            </div>
+                        </div>
+                        <form id="project-form" asp-controller="Manage" asp-action="SaveProfileImage" data-ajax="true" data-ajax-method="POST">
+                            @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Image)
+                                @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default", @style = "display: block" })
+                                @Html.ValidationMessageFor(m => m.Image)
+                            </div>
+                            <button type="submit" class="btn btn-primary button-save disabled" form="project-form"> Save</button>
+                        </form>
                     </div>
                 </div>
-                <form id="project-form" asp-controller="Manage" asp-action="SaveProfileImage" data-ajax="true" data-ajax-method="POST">
-                    @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.Image)
-                        @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default" })
-                        @Html.ValidationMessageFor(m => m.Image)
-                    </div>
-                    <button type="submit" class="btn btn-primary button-save disabled" form="project-form"> Save</button>
-                </form>
+                <div class="col-md-6">
+                    @if (Model.SubsriptionExpiration == null)
+                    {
+                        <h3>Free Account</h3>
+                        <h5>Total Tab Versions: @Model.TabVersionCount</h5>
+                        <h5>@(100 - Model.TabVersionCount) tab versions remaining</h5>
+                        <a asp-controller="Manage" asp-action="AddSubscription" class="btn btn-default">Upgrade Account</a>
+                    }
+                    else
+                    {
+                        <h3>Subscription Account</h3>
+                        <h5>Subscription Expiration: @Model.SubsriptionExpiration.Value.ToString("MM/dd/yyyy")</h5>
+                        <h5>@(((int)(Model.SubsriptionExpiration - DateTime.Now).Value.TotalDays).ToString()) days left</h5>
+                        <a asp-controller="Manage" asp-action="RenewSubscription" class="btn btn-default">Renew Subscription</a>
+                    }
+                    @if (Model.HasPassword)
+                    {
+                        <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default">Change Password</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default">Create Password</a>
+                    }
+                </div>
             </div>
-            <p></p>
-            @if (Model.HasPassword)
-            {
-                <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default" style="margin-left: 15px">Change Password</a>
-            }
-            else
-            {
-                <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default">Create Password</a>
-            }
         </div>
     </div>
 </div>

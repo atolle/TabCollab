@@ -21,6 +21,8 @@ namespace TabRepository.Models
 
         public string ImageFilePath { get; set; }
 
+        public DateTime? SubscriptionExpiration { get; set; }
+
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             var authenticationType = "Put authentication type Here";

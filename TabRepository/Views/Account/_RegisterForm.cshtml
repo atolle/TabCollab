@@ -8,6 +8,14 @@
             <div asp-validation-summary="All"></div>
             <div class="form-group">
                 <div class="form-label">
+                    <label asp-for="AccountType"></label><br />
+                    <input type="radio" id="free" asp-for="AccountType" value="0" /> Free<br />
+                    <input type="radio" id="subscription" asp-for="AccountType" value="1" /> Subscription
+                </div>
+                <span asp-validation-for="AccountType"></span>
+            </div>
+            <div class="form-group">
+                <div class="form-label">
                     <label asp-for="Username"></label>
                 </div>
                 <input asp-for="Username" class="form-control form-input" />

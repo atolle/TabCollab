@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using TabRepository.Helpers;
 using TabRepository.Data;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 
 namespace TabRepository.Controllers
 {
@@ -55,6 +56,8 @@ namespace TabRepository.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(ManageMessageId? message = null)
         {
+            string currentUserId = User.GetUserId();
+
             ViewData["StatusMessage"] =
                 message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
                 : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
@@ -69,6 +72,15 @@ namespace TabRepository.Controllers
             {
                 return View("Error");
             }
+
+            // Get a count of total tab versions that this user owns (i.e. their projects)
+            var tabVersionCount = _context.TabVersions.Include(u => u.User)
+                .Include(v => v.Tab)
+                .Include(v => v.Tab.Album)
+                .Include(v => v.Tab.Album.Project)
+                .Where(v => v.Tab.Album.Project.UserId == currentUserId)
+                .Count();
+
             var model = new ManageViewModel
             {
                 HasPassword = await _userManager.HasPasswordAsync(user),
@@ -80,7 +92,9 @@ namespace TabRepository.Controllers
                 Firstname = user.FirstName,
                 Lastname = user.LastName,
                 ImageFileName = user.ImageFileName,
-                ImageFilePath = user.ImageFilePath
+                ImageFilePath = user.ImageFilePath,
+                SubsriptionExpiration = user.SubscriptionExpiration,
+                TabVersionCount = tabVersionCount
             };
             return View(model);
         }

@@ -30,5 +30,9 @@ namespace TabRepository.Models.ManageViewModels
         public string Firstname { get; set; }
 
         public string Lastname { get; set; }
+
+        public DateTime? SubsriptionExpiration { get; set; }
+
+        public int TabVersionCount { get; set; }
     }
 }

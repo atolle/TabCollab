@@ -214,6 +214,34 @@
 
     <script>
         var original_parent;
+            allowNewTabs = @Json.Serialize(@Model.Select(m => m.AllowNewTabs).FirstOrDefault());
+
+        if (!allowNewTabs) {
+            if (@Json.Serialize(@Model.Select(m => m.SubscriptionExpiration).FirstOrDefault()) != null && @Json.Serialize(@Model.Select(m => m.SubscriptionExpired).FirstOrDefault())) {
+                // Show information regarding subscription account expiration
+                bootbox.dialog({
+                    message: "Subscription TabCollab Account<br /><br />Your TabCollab subscription has expired. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To renew your subscription, go the the Account page.",
+                    buttons: {
+                        confirm: {
+                            label: 'Close',
+                            className: 'btn-default'
+                        },
+                    }
+                });
+            }
+            else {
+                // Show information regarding free account tab overrage
+                bootbox.dialog({
+                    message: "Free TabCollab Account<br /><br />You've exceeded the 50 allowed free tab versions that come with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.",
+                    buttons: {
+                        confirm: {
+                            label: 'Close',
+                            className: 'btn-default'
+                        },
+                    }
+                });
+            }
+        }
 
         $(document).ready(function () {
             $('footer').show();
@@ -311,7 +339,7 @@
 
                             // CSS change to make the title display properly and add prompt text
                             $('.modal-header').css('display', 'unset')
-                            $('.bootbox-body').prepend("<p>Are you sure you wish to delete this " + nodeType + "? This cannot be undone.<br />Confirm by typing the " + nodeType + "'s name below:</p>") 
+                            $('.bootbox-body').prepend("<p>Are you sure you wish to delete this " + nodeType + "? This cannot be undone.<br />Confirm by typing the " + nodeType + "'s name below:</p>")
                          }
                     }
                 };
@@ -503,9 +531,14 @@
                     $('#tab-button-container').empty().append('<button id="new-tab-button" class="btn btn-primary dashboard-button" disabled>New Tab</button>');
                 }
 
-                var actionLink = '@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = -1 }, new { @class = "btn btn-primary dashboard-button", id = "new-tabversion-button" })'
-                actionLink = actionLink.replace('-1', nodeId);
-                $('#new-tabversion-button-container').empty().append(actionLink);
+                if ($(selectedTree)[0].className.includes('ownerTree') && !allowNewTabs) {
+                    $('#new-tabversion-button-container').empty().append('<button id="new-tab-version-button" class="btn btn-primary dashboard-button" disabled>New Tab Version</button>');
+                }
+                else {
+                    var actionLink = '@Html.ActionLink("New Tab Version", "New", "TabVersions", new { id = -1 }, new { @class = "btn btn-primary dashboard-button", id = "new-tabversion-button" })'
+                    actionLink = actionLink.replace('-1', nodeId);
+                    $('#new-tabversion-button-container').empty().append(actionLink);
+                }
             }
             else if (nodeId.substring(0, 5) == 'album') {
                 nodeId = nodeId.substring(6);
@@ -513,8 +546,14 @@
                 var actionLink = '@Html.ActionLink("New Tab", "New", "Tabs", new { id = -1 }, new { @class = "btn btn-primary dashboard-button", id = "new-tab-button" })'
                 actionLink = actionLink.replace('-1', nodeId);
                 $('#project-button-container').empty().append('<button id="new-project-button" class="btn btn-primary dashboard-button">New Project</button>');
-                $('#tab-button-container').empty().append(actionLink);
                 $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>');
+
+                if ($(selectedTree)[0].className.includes('ownerTree') && !allowNewTabs) {
+                    $('#new-tab-button-container').empty().append('<button id="new-tab-button" class="btn btn-primary dashboard-button" disabled>New Tab</button>');
+                }
+                else {
+                    $('#tab-button-container').empty().append(actionLink);
+                }
 
                 // Only allow edit if we're the owner
                 if ($(selectedTree)[0].className.includes('ownerTree')) {

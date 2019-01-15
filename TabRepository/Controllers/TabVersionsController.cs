@@ -65,6 +65,7 @@ namespace TabRepository.Controllers
 
                     if (viewModel.Id == 0)  // We are creating a new Tab
                     {
+                        // TODO - Prevent users from saving if their account is expired and they've exceeded 50 tabs
                         using (var transaction = _context.Database.BeginTransaction())
                         {
                             // Verify user has access to this tab

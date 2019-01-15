@@ -61,6 +61,7 @@ namespace TabRepository.Controllers
 
                 if (viewModel.Id == 0)  // We are creating a new Tab
                 {
+                    // TODO - Prevent users from saving if their account is expired and they've exceeded 50 tabs
                     using (var transaction = _context.Database.BeginTransaction())
                     {
                         // Verify current user has access to this project
@@ -231,6 +232,24 @@ namespace TabRepository.Controllers
 
                 projects = projects.Union(contributorProjects).ToList();
 
+                var subscriptionExpiration = _context.Users
+                    .Where(u => u.Id == currentUserId)
+                    .Select(u => u.SubscriptionExpiration)
+                    .FirstOrDefault();
+
+                var tabVersionCount = 0;
+
+                if (subscriptionExpiration == null || (int)(subscriptionExpiration - DateTime.Now).Value.TotalDays < 0)
+                {
+                    // Get a count of total tab versions that this user owns (i.e. their projects)
+                    tabVersionCount = _context.TabVersions.Include(u => u.User)
+                        .Include(v => v.Tab)
+                        .Include(v => v.Tab.Album)
+                        .Include(v => v.Tab.Album.Project)
+                        .Where(v => v.Tab.Album.Project.UserId == currentUserId)
+                        .Count();
+                }
+
                 foreach (var project in projects)
                 {
                     project.Albums = project.Albums.OrderBy(a => a.Order).ToList();
@@ -246,7 +265,10 @@ namespace TabRepository.Controllers
                         DateModified = project.DateModified,
                         User = project.User,
                         Albums = project.Albums,
-                        IsOwner = project.UserId == currentUserId
+                        IsOwner = project.UserId == currentUserId,
+                        AllowNewTabs = tabVersionCount >= 50 ? false : true,
+                        SubscriptionExpired = subscriptionExpiration == null ? true : ((int)(subscriptionExpiration - DateTime.Now).Value.TotalDays <= 0 ? true : false),
+                        SubscriptionExpiration = subscriptionExpiration
                     };
                     foreach (var album in vm.Albums)
                     {

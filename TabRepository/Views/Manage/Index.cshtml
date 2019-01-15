@@ -31,14 +31,34 @@
                     {
                         <h3>Free Account</h3>
                         <h5>Total Tab Versions: @Model.TabVersionCount</h5>
-                        <h5>@(100 - Model.TabVersionCount) tab versions remaining</h5>
+                        int tabsRemaining = 50 - Model.TabVersionCount;
+                        string color = "inherit";
+                        if (tabsRemaining < 10)
+                        {
+                            color = "yellow";
+                        }
+                        if (tabsRemaining == 0)
+                        {
+                            color = "red";
+                        }
+                        <h5 style="color: @color;">@(tabsRemaining) tab versions remaining</h5>
                         <a asp-controller="Manage" asp-action="AddSubscription" class="btn btn-default">Upgrade Account</a>
                     }
                     else
                     {
                         <h3>Subscription Account</h3>
                         <h5>Subscription Expiration: @Model.SubsriptionExpiration.Value.ToString("MM/dd/yyyy")</h5>
-                        <h5>@(((int)(Model.SubsriptionExpiration - DateTime.Now).Value.TotalDays).ToString()) days left</h5>
+                        int daysLeft = ((int)(Model.SubsriptionExpiration - DateTime.Now).Value.TotalDays);
+                        @if (daysLeft > 0)
+                        {
+                            string color = daysLeft < 30 ? "yellow" : "inherit";
+                            <h5 style="color: @color;">@(daysLeft.ToString()) days left</h5>
+                        }
+                        else
+                        {
+                            <h5 style="color: red;">Subscription expired</h5>
+                        }
+
                         <a asp-controller="Manage" asp-action="RenewSubscription" class="btn btn-default">Renew Subscription</a>
                     }
                     @if (Model.HasPassword)

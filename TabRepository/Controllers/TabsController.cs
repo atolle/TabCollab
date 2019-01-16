@@ -113,6 +113,40 @@ namespace TabRepository.Controllers
                             {
                                 return NotFound();
                             }
+                            else
+                            {
+                                // Make sure the owner's account is not expired 
+                                string otherUserId = albumInDb.UserId;
+                                var subscriptionExpiration = _context.Users
+                                    .Where(u => u.Id == otherUserId)
+                                    .Select(u => u.SubscriptionExpiration)
+                                    .FirstOrDefault();
+
+                                var tabVersionCount = 0;
+
+                                if (subscriptionExpiration == null || (int)(subscriptionExpiration - DateTime.Now).Value.TotalDays < 0)
+                                {
+                                    // Get a count of total tab versions that this user owns (i.e. their projects)
+                                    tabVersionCount = _context.TabVersions.Include(u => u.User)
+                                        .Include(v => v.Tab)
+                                        .Include(v => v.Tab.Album)
+                                        .Include(v => v.Tab.Album.Project)
+                                        .Where(v => v.Tab.Album.Project.UserId == otherUserId)
+                                        .Count();
+
+                                    if (tabVersionCount >= 50)
+                                    {
+                                        if (subscriptionExpiration == null)
+                                        {
+                                            return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />The owner has met the 50 allowed free tab versions that are included with the free TabCollab account.");
+                                        }
+                                        else
+                                        {
+                                            return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />The owner's TabCollab subscription has expired.");
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         int order = 0;

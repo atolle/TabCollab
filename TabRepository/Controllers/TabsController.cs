@@ -61,11 +61,44 @@ namespace TabRepository.Controllers
 
                 if (viewModel.Id == 0)  // We are creating a new Tab
                 {
-                    // TODO - Prevent users from saving if their account is expired and they've exceeded 50 tabs
                     using (var transaction = _context.Database.BeginTransaction())
                     {
                         // Verify current user has access to this project
                         var albumInDb = _context.Albums.Include(a => a.Tabs).SingleOrDefault(p => p.Id == viewModel.AlbumId && p.UserId == currentUserId);
+
+                        // If we own this album we need to make sure we have an active subscription or less than 50 tabs
+                        if (albumInDb != null)
+                        {
+                            var subscriptionExpiration = _context.Users
+                                .Where(u => u.Id == currentUserId)
+                                .Select(u => u.SubscriptionExpiration)
+                                .FirstOrDefault();
+
+                            var tabVersionCount = 0;
+
+                            if (subscriptionExpiration == null || (int)(subscriptionExpiration - DateTime.Now).Value.TotalDays < 0)
+                            {
+                                // Get a count of total tab versions that this user owns (i.e. their projects)
+                                tabVersionCount = _context.TabVersions.Include(u => u.User)
+                                    .Include(v => v.Tab)
+                                    .Include(v => v.Tab.Album)
+                                    .Include(v => v.Tab.Album.Project)
+                                    .Where(v => v.Tab.Album.Project.UserId == currentUserId)
+                                    .Count();
+
+                                if (tabVersionCount >= 50)
+                                {
+                                    if (subscriptionExpiration == null)
+                                    {
+                                        return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />You have met the 50 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.");
+                                    }                                    
+                                    else
+                                    {
+                                        return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />Your TabCollab subscription has expired. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To renew your subscription, go the the Account page.");
+                                    }
+                                }
+                            }
+                        }
 
                         // If there is not project matching this project Id and this user Id, check to see if this user is a contributor
                         if (albumInDb == null)

@@ -93,6 +93,7 @@
             </div>
             <div id="splitter"></div>
             <div id="tabversions-table-container">
+                <div class="list-loader tab-loader" style="display: none;"></div>
                 <table class="table table-striped table-dark table-hover tabversions-table">
                     <thead>
                         <tr>
@@ -214,36 +215,38 @@
 
     <script>
         var original_parent;
-            allowNewTabs = @Json.Serialize(@Model.Select(m => m.AllowNewTabs).FirstOrDefault());
-
-        if (!allowNewTabs) {
-            if (@Json.Serialize(@Model.Select(m => m.SubscriptionExpiration).FirstOrDefault()) != null && @Json.Serialize(@Model.Select(m => m.SubscriptionExpired).FirstOrDefault())) {
-                // Show information regarding subscription account expiration
-                bootbox.dialog({
-                    message: "Subscription TabCollab Account<br /><br />Your TabCollab subscription has expired. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To renew your subscription, go the the Account page.",
-                    buttons: {
-                        confirm: {
-                            label: 'Close',
-                            className: 'btn-default'
-                        },
-                    }
-                });
-            }
-            else {
-                // Show information regarding free account tab overrage
-                bootbox.dialog({
-                    message: "Free TabCollab Account<br /><br />You have met the 50 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.",
-                    buttons: {
-                        confirm: {
-                            label: 'Close',
-                            className: 'btn-default'
-                        },
-                    }
-                });
-            }
-        }
 
         $(document).ready(function () {
+            var allowNewTabs = @Json.Serialize(@Model.Select(m => m.AllowNewTabs).FirstOrDefault()),
+                tabLoader = "<div class='list-loader tab-loader' style='display: none;'></div>";
+
+            if (!allowNewTabs) {
+                if (@Json.Serialize(@Model.Select(m => m.SubscriptionExpiration).FirstOrDefault()) != null && @Json.Serialize(@Model.Select(m => m.SubscriptionExpired).FirstOrDefault())) {
+                    // Show information regarding subscription account expiration
+                    bootbox.dialog({
+                        message: "Subscription TabCollab Account<br /><br />Your TabCollab subscription has expired. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To renew your subscription, go the the Account page.",
+                        buttons: {
+                            confirm: {
+                                label: 'Close',
+                                className: 'btn-default'
+                            },
+                        }
+                    });
+                }
+                else {
+                    // Show information regarding free account tab overrage
+                    bootbox.dialog({
+                        message: "Free TabCollab Account<br /><br />You have met the 50 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.",
+                        buttons: {
+                            confirm: {
+                                label: 'Close',
+                                className: 'btn-default'
+                            },
+                        }
+                    });
+                }
+            }
+
             $('footer').show();
 
             $('.list-loader').hide();
@@ -510,13 +513,15 @@
             var nodeId = $(this).jstree().get_selected(true)[0].id;
 
             if (nodeId.substring(0, 3) == 'tab') {
+                $('.tabversions-table').hide();
+                $('.tab-loader').show();
                 nodeId = nodeId.substring(4);
                 parentNodeId = data.instance.get_node(data.node.parent).id.substring(6);
 
                 var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
 
                 $.get(url, function (data) {
-                    $('#tabversions-table-container').empty().append(data);
+                    $('#tabversions-table-container').empty().append(tabLoader + data);
                     // Call onResize to resize the user images
                     onResize(false);
                 });
@@ -566,7 +571,7 @@
                 var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
                 $.get(url, function (data) {
-                    $('#tabversions-table-container').empty().append(data);
+                    $('#tabversions-table-container').empty().append(tabLoader + data);
                     onResize(false);
                 })
             }
@@ -589,7 +594,7 @@
                 var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
                 $.get(url, function (data) {
-                    $('#tabversions-table-container').empty().append(data);
+                    $('#tabversions-table-container').empty().append(tabLoader + data);
                     onResize(false);
                 })
             }

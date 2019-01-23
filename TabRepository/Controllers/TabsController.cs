@@ -355,17 +355,6 @@ namespace TabRepository.Controllers
 
         }
 
-        // GET: Tabs
-        //public ActionResult Index(int id)
-        //{
-        //    // Return a list of all Tabs belonging to the current user for current Project (id)
-        //    string currentUserId = User.GetUserId();
-
-        //    var viewModel = new TabIndexViewModel();
-
-        //    return View(viewModel);
-        //}
-
         [HttpDelete]
         public ActionResult Delete(int id)
         {
@@ -623,101 +612,4 @@ namespace TabRepository.Controllers
             }
         }
     }
-
-
-
-        //[HttpGet]
-        //public ActionResult GetTabListPartialView(int albumId)
-        //{
-        //    string currentUserId = User.GetUserId();
-        //    List<TabIndexViewModel> viewModel = new List<TabIndexViewModel>();
-
-        //    if (albumId == 0)
-        //    {
-        //        try
-        //        {
-        //            // Return a list of all tabs belonging to the current user
-        //            var tabs = _context.Tabs.Include(u => u.User)
-        //                .Include(a => a.Album)
-        //                .Where(a => a.UserId == currentUserId)
-        //                .OrderBy(a => a.Name)
-        //                .ToList();
-
-        //            // Return a list of all tabs for which the current user is a contributor
-        //            var contributorTabs = (from tab in _context.Tabs
-        //                                   join album in _context.Albums on tab.AlbumId equals album.Id
-        //                                   join contributor in _context.ProjectContributors on album.ProjectId equals contributor.ProjectId
-        //                                   where contributor.UserId == currentUserId
-        //                                   select tab).Include(u => u.User).Include(a => a.Album).ToList();
-
-        //            tabs = tabs.Union(contributorTabs).ToList();
-
-        //            foreach (var tab in tabs)
-        //            {
-        //                var elem = new TabIndexViewModel()
-        //                {
-        //                    Id = tab.Id,
-        //                    UserId = tab.UserId,
-        //                    Name = tab.Name,
-        //                    AlbumId = tab.Album.Id,
-        //                    AlbumName = tab.Album.Name,
-        //                    DateCreated = tab.DateCreated,
-        //                    DateModified = tab.DateModified,
-        //                    User = tab.User,
-        //                    TabVersions = tab.TabVersions,
-        //                    IsOwner = tab.UserId == currentUserId
-        //                };
-
-        //                // Add tabs to tab view model
-        //                viewModel.Add(elem);
-        //            }
-
-        //            return PartialView("_TabList", viewModel);
-        //        }
-        //        catch
-        //        {
-        //            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-        //        }
-
-        //    }
-        //    else
-        //    {
-        //        try
-        //        {
-        //            // Return a list of all Projects belonging to the current user
-        //            var tabs = _context.Tabs.Include(u => u.User)
-        //                .Include(a => a.Album)
-        //                .Where(a => a.UserId == currentUserId && a.AlbumId == albumId)
-        //                .OrderBy(a => a.Name)
-        //                .ToList();
-
-        //            foreach (var tab in tabs)
-        //            {
-        //                var elem = new TabIndexViewModel()
-        //                {
-        //                    Id = tab.Id,
-        //                    UserId = tab.UserId,
-        //                    Name = tab.Name,
-        //                    AlbumId = tab.Album.Id,
-        //                    AlbumName = tab.Album.Name,
-        //                    DateCreated = tab.DateCreated,
-        //                    DateModified = tab.DateModified,
-        //                    User = tab.User,
-        //                    TabVersions = tab.TabVersions
-        //                };
-
-        //                // Add projects to project view model
-        //                viewModel.Add(elem);
-        //            }
-
-        //            return PartialView("_TabList", viewModel);
-        //        }
-        //        catch
-        //        {
-        //            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-        //        }
-
-        //    }
-        //}
-    //}
 }

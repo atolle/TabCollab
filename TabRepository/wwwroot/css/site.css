@@ -554,6 +554,8 @@ footer {
     transform: translate(-50%, 26px); /* This is a shorthand of translateX(-50%) and translateY(30%) */
     max-width: 400px;
     z-index: 1;
+    max-height: 400px;
+    overflow-y: scroll;
 }
 
 .notifications-btn:hover {
@@ -975,4 +977,34 @@ td {
 
 .validation-summary-errors {
     text-align: left;
+}
+
+.faq-num {
+    background: linear-gradient(to right, rgb(134, 192, 144), rgb(134, 192, 144));
+    color: #FFFFFF;
+    display: inline-table;
+    font-size: 130%;
+    font-weight: 600;
+    left: -1.6em;
+    line-height: 1.9em;
+    text-align: center;
+    top: -0.4em;
+    width: 1.9em;
+    height: 1.9em;
+    border-radius: 50%;
+}
+
+.faq-header {
+    display: inline;
+}
+
+.faq-num-col {
+    text-align: center;
+    transform: translateY(15%);
+}
+
+.faq-row {
+    margin-bottom: 20px;
+    margin-left: auto;
+    margin-right: auto;
 }

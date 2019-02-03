@@ -9,66 +9,189 @@
             <h2>Register</h2>
             <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" id="register-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal form-center">
                 <h4>Create your account</h4>
-                <div asp-validation-summary="All"></div>
-                <div class="form-group">
-                    <div class="form-label">
-                        <label asp-for="AccountType"></label><br />
-                        <input type="radio" id="free" asp-for="AccountType" value="0" /> Free<br />
-                        <input type="radio" id="subscription" asp-for="AccountType" value="1" /> Subscription
+                <div class="row register-row">
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="form-label">
+                                <label asp-for="AccountType"></label><br />
+                                <div class="row">
+                                    <div class="col">
+                                        <div id="free-btn" class="btn btn-outline-primary" style="width: 100%">Free</div>
+                                    </div>
+                                    <div class="col">
+                                        <div id="subscription-btn" class="btn btn-outline-primary" style="width: 100%">Subscription</div>
+                                    </div>
+                                </div>
+                                <input type="radio" id="free-radio" asp-for="AccountType" value="0" style="display: none" />
+                                <input type="radio" id="subscription-radio" asp-for="AccountType" value="1" style="display: none" />
+                            </div>
+                            <span asp-validation-for="AccountType" style="color: red"></span>
+                        </div>
                     </div>
-                    <span asp-validation-for="AccountType"></span>
                 </div>
-                <div class="form-group">
-                    <div class="form-label">
-                        <label asp-for="Username"></label>
+                <div class="row register-row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-label">
+                                <label asp-for="Username"></label>
+                            </div>
+                            <input asp-for="Username" class="form-control form-input" />
+                            <span asp-validation-for="Username" style="color: red"></span>
+                        </div>
                     </div>
-                    <input asp-for="Username" class="form-control form-input" />
-                    <span asp-validation-for="Username"></span>
-                </div>
-                <div class="form-group">
-                    <div class="form-label">
-                        <label asp-for="FirstName"></label>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-label">
+                                <label asp-for="FirstName"></label>
+                            </div>
+                            <input asp-for="FirstName" class="form-control form-input" />
+                            <span asp-validation-for="FirstName" style="color: red"></span>
+                        </div>
                     </div>
-                    <input asp-for="FirstName" class="form-control form-input" />
-                    <span asp-validation-for="FirstName"></span>
                 </div>
-                <div class="form-group">
-                    <div class="form-label">
-                        <label asp-for="LastName"></label>
+                <div class="row register-row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-label">
+                                <label asp-for="LastName"></label>
+                            </div>
+                            <input asp-for="LastName" class="form-control form-input" />
+                            <span asp-validation-for="LastName" style="color: red"></span>
+                        </div>
                     </div>
-                    <input asp-for="LastName" class="form-control form-input" />
-                    <span asp-validation-for="LastName"></span>
-                </div>
-                <div class="form-group">
-                    <div class="form-label">
-                        <label asp-for="Email"></label>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-label">
+                                <label asp-for="Email"></label>
+                            </div>
+                            <input asp-for="Email" class="form-control form-input" />
+                            <span asp-validation-for="Email" style="color: red"></span>
+                        </div>
                     </div>
-                    <input asp-for="Email" class="form-control form-input" />
-                    <span asp-validation-for="Email"></span>
                 </div>
-                <div class="form-group">
-                    <div class="form-label">
-                        <label asp-for="Password"></label>
+                <div class="row register-row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-label">
+                                <label asp-for="Password"></label>
+                            </div>
+                            <input asp-for="Password" class="form-control form-input" />
+                            <span asp-validation-for="Password" style="color: red"></span>
+                        </div>
                     </div>
-                    <input asp-for="Password" class="form-control form-input" />
-                    <span asp-validation-for="Password"></span>
-                </div>
-                <div class="form-group">
-                    <div class="form-label">
-                        <label asp-for="ConfirmPassword"></label>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-label">
+                                <label asp-for="ConfirmPassword"></label>
+                            </div>
+                            <input asp-for="ConfirmPassword" class="form-control form-input" />
+                            <span asp-validation-for="ConfirmPassword" style="color: red"></span>
+                        </div>
                     </div>
-                    <input asp-for="ConfirmPassword" class="form-control form-input" />
-                    <span asp-validation-for="ConfirmPassword"></span>
                 </div>
-                <div class="form-group">
-                    <div class="form-label">
-                        @Html.LabelFor(m => m.Image, "Profile Image")
+                <div class="row register-row">
+                    <div class="col-md-6">
+                        <div class="form-group" style="text-align: left">
+                            <div class="form-label">
+                                @Html.LabelFor(m => m.Image, "Profile Image")
+                            </div>
+                            @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default form-input" })
+                            @Html.ValidationMessageFor(m => m.Image)
+                        </div>
                     </div>
-                    @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default form-input" })
-                    @Html.ValidationMessageFor(m => m.Image)
+                    <div class="col-md-6">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-default button-submit-wide">Register</button>
+                <div id="payment" style="display:none;">
+                    <div class="row register-row">
+                        <div class="col-md-6">
+                            <div class="form-group owner">
+                                <div class="form-label">
+                                    <label asp-for="CardName"></label>
+                                </div>
+                                <input asp-for="CardName" class="form-control form-input" />
+                                <span asp-validation-for="CardName" style="color: red"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="form-label">
+                                    <label asp-for="CVV"></label>
+                                </div>
+                                <input asp-for="CVV" class="form-control form-input" />
+                                <span asp-validation-for="CVV" style="color: red"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row register-row">
+                        <div class="col-md-6">
+                            <div class="form-group owner">
+                                <div class="form-label">
+                                    <label asp-for="CardNumber"></label>
+                                </div>
+                                <input asp-for="CardNumber" class="form-control form-input" />
+                                <span asp-validation-for="CardNumber" style="color: red"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="form-label">
+                                    <label>Expiration Date</label>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <select asp-for="Month" class="form-control">
+                                            <option value="01">January</option>
+                                            <option value="02">February </option>
+                                            <option value="03">March</option>
+                                            <option value="04">April</option>
+                                            <option value="05">May</option>
+                                            <option value="06">June</option>
+                                            <option value="07">July</option>
+                                            <option value="08">August</option>
+                                            <option value="09">September</option>
+                                            <option value="10">October</option>
+                                            <option value="11">November</option>
+                                            <option value="12">December</option>
+                                        </select>
+                                    </div>
+                                    <div class="col">
+                                        <select asp-for="Year" class="form-control">
+                                            <option value="16"> 2019</option>
+                                            <option value="17"> 2020</option>
+                                            <option value="18"> 2021</option>
+                                            <option value="19"> 2022</option>
+                                            <option value="20"> 2023</option>
+                                            <option value="21"> 2024</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" id="credit_cards">
+                        <img class="credit-card" src="~/images/visa.png" id="visa">
+                        <img class="credit-card" src="~/images/mastercard.png" id="mastercard">
+                        <img class="credit-card" src="~/images/amex.png" id="amex">
+                        <img class="credit-card" src="~/images/discover.png" id="discover">
+                    </div>
+                </div>
+                <div class="row register-row">
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="form-check">
+                                <label for="AgreeToTerms"><input type="checkbox" data-val="true" data-val-required="The I agree to the Terms of Service and Privacy Policy field is required." id="AgreeToTerms" name="AgreeToTerms" value="true"> I agree to the Terms of Service and Privacy Policy</label>
+                            </div>
+                            <span asp-validation-for="AgreeToTerms" style="color: red"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row register-row">
+                    <div class="col">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-default button-submit-wide">Register</button>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -77,15 +200,23 @@
 
 @section Scripts {
 @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+<script src="~/lib/jquery.payment/lib/jquery.payment.min.js"></script>
 <script>
     $(document).ready(function () {
         onResize();
         $('footer').show();
 
         // Show information regarding free account
-        $(document).on("click", "#free", function (e, data) {
+        $(document).on("click", "#free-btn", function (e, data) {
+            if (!$(this).hasClass('checked')) {
+                $(this).addClass('checked');
+                $('#subscription-btn').removeClass('checked');
+                $('#free-radio').prop("checked", true);
+                $('#subscription-radio').prop("checked", false);
+            }
+            $('#payment').hide();
             bootbox.dialog({
-                message: "Free TabCollab Account<br /><br />With the free TabCollab account, you get 50 free tab version uploads for your own projects and unlimited uploads to the projects of other musicians.<br /><br />This means that tab version uploads by other musicians to your projects count towards your 50 tab version limit. Once you reach 50 tab versions, you can still view your tab versions in a read-only fashion, and continue to contribute to the projects of other musicians. You can find your current tab version count in the Account page after you finish registering.<br /><br />HOWEVER, for $50/year (less than $5/month) you can sign up for a subscription account and get UNLIMITED tab version uploads.",
+                message: "Free TabCollab Account<br /><br />With the free TabCollab account, you get 50 free tab version uploads for your own projects and unlimited uploads to the projects of other musicians.<br /><br />HOWEVER, for $50/year (less than $5/month) you can sign up for a subscription account and get UNLIMITED tab version uploads.",
                 buttons: {
                     confirm: {
                         label: 'Close',
@@ -96,7 +227,14 @@
         });
 
         // Show information regarding subscription account
-        $(document).on("click", "#subscription", function (e, data) {
+        $(document).on("click", "#subscription-btn", function (e, data) {
+            if (!$(this).hasClass('checked')) {
+                $(this).addClass('checked');
+                $('#free-btn').removeClass('checked');
+                $('#subscription-radio').prop("checked", true);
+                $('#free-radio').prop("checked", false);
+            }
+            $('#payment').show();
             bootbox.dialog({
                 message: "Subscription TabCollab Account<br /><br />With the subscription-based TabCollab account, you get UNLIMITED tab version uploads for your projects, as well as unlimited uploads to the projects of other musicians.<br /><br />We do not store you credit card information, so you will need to manually renew your subscription each year. We'll send you a reminder.<br /><br />$50/year (less than $5/month)",
                 buttons: {
@@ -131,6 +269,39 @@
                     $(".file-validation").remove();
                 }
                 $('.button-submit-wide')[0].classList.remove("disabled");
+            }
+        });
+
+        // Check card type
+        $('#CardNumber').keyup(function () {
+            var $amex = $('#amex'),
+                $visa = $('#visa'),
+                $mastercard = $('#mastercard'),
+                $discover = $('#discover'),
+                $cardNumber = $(this);
+
+            $amex.removeClass('transparent');
+            $visa.removeClass('transparent');
+            $mastercard.removeClass('transparent');
+            $discover.removeClass('transparent');
+
+            if ($.payment.cardType($cardNumber.val()) == 'visa') {
+                $mastercard.addClass('transparent');
+                $amex.addClass('transparent');
+                $discover.addClass('transparent');
+            } else if ($.payment.cardType($cardNumber.val()) == 'amex') {
+                $mastercard.addClass('transparent');
+                $visa.addClass('transparent');
+                $discover.addClass('transparent');
+            } else if ($.payment.cardType($cardNumber.val()) == 'mastercard') {
+                $amex.addClass('transparent');
+                $visa.addClass('transparent');
+                $discover.addClass('transparent');
+            }
+            else if ($.payment.cardType($cardNumber.val()) == 'discover') {
+                $amex.addClass('transparent');
+                $visa.addClass('transparent');
+                $mastercard.addClass('transparent');
             }
         });
 

@@ -1008,3 +1008,37 @@ td {
     margin-left: auto;
     margin-right: auto;
 }
+
+#register-form {
+    max-width: 550px !important;
+}
+
+.register-row {
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+
+.credit-card {
+    width: 50px;
+}
+
+.btn-outline-primary {
+    color: rgb(134, 192, 144) !important;
+    border-color: rgb(134, 192, 144) !important;
+}
+
+.btn-outline-primary:hover {
+    color: #ffffff !important;
+    background-color: rgb(134, 192, 144) !important;
+    border-color: rgb(134, 192, 144) !important;
+}
+
+.btn-outline-primary.checked {
+    color: #ffffff !important;
+    background-color: rgb(134, 192, 144) !important;
+    border-color: rgb(134, 192, 144) !important;
+}
+
+.transparent {
+    opacity: 0.2;
+}

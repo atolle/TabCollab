@@ -47,25 +47,7 @@ namespace TabRepository.Models.AccountViewModels
 
         [Required]
         [Display(Name = "Account Type")]
-        public AccountType AccountType { get; set; }
-
-        [Required]
-        [Display(Name = "Card Holder")]
-        public string CardName { get; set; }
-
-        [Required]
-        [CreditCard]
-        [Display(Name = "Card Number")]
-        public string CardNumber { get; set; }
-
-        [Required]
-        public int CVV { get; set; }
-
-        [Required]
-        public string Month { get; set; }
-
-        [Required]
-        public int Year { get; set; }
+        public AccountType? AccountType { get; set; }
 
         [Required]
         [Display(Name = "I agree to the Terms of Service and Privacy Policy")]

@@ -15,6 +15,10 @@ using TabRepository.Data;
 using TabRepository.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using System.Globalization;
+using System;
+using TabRepository.ViewModels;
+using Microsoft.Extensions.Configuration;
 
 namespace TabRepository.Controllers
 {
@@ -30,6 +34,7 @@ namespace TabRepository.Controllers
         private ApplicationDbContext _context;
         private FileUploader _fileUploader;
         private readonly IHostingEnvironment _appEnvironment;
+        private IConfiguration _configuration;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -38,7 +43,8 @@ namespace TabRepository.Controllers
             ISmsSender smsSender,
             ILoggerFactory loggerFactory,
             ApplicationDbContext context,
-            IHostingEnvironment appEnvironment)
+            IHostingEnvironment appEnvironment,
+            IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -48,6 +54,7 @@ namespace TabRepository.Controllers
             _context = context;
             _appEnvironment = appEnvironment;
             _fileUploader = new FileUploader(context, appEnvironment);
+            _configuration = configuration;
         }
 
         //
@@ -112,6 +119,75 @@ namespace TabRepository.Controllers
         }
 
         //
+        // GET: /Account/RenewSubscription
+        [HttpGet]
+        public IActionResult RenewSubscription()
+        {
+            return View("CreditCard");
+        }
+
+        //
+        // GET: /Account/AddSubscription
+        [HttpGet]
+        public IActionResult AddSubscription()
+        {
+            return View("CreditCard");
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public IActionResult ProcessCreditCard(CreditCardFormViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
+
+                CreditCardTransaction creditCardTransaction = CreditCardProcessor.ChargeCreditCard(model.CardNumber, model.Month + model.Year, _configuration);
+                string partialView;
+
+                if (!creditCardTransaction.Success)
+                {
+                    // Payment failed for some reason, if this is coming from the registration screen then we'll have a UserId in the model
+                    partialView = model.UserId == null ? "_PaymentFail" : "_RegisterConfirmationPaymentFail";
+                }
+                else
+                {
+                    // Successful payment, so update their account type and subscription expiration
+                    var userInDb = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
+
+                    userInDb.AccountType = AccountType.Subscription;
+
+                    if (!userInDb.SubscriptionExpiration.HasValue)
+                    {
+                        userInDb.SubscriptionExpiration = DateTime.Now.AddYears(1).AddDays(1);
+                    }
+                    else
+                    {
+                        if (userInDb.SubscriptionExpiration < DateTime.Now)
+                        {
+                            userInDb.SubscriptionExpiration = DateTime.Now.AddYears(1).AddDays(1);
+                        }
+                        else
+                        {
+                            userInDb.SubscriptionExpiration = userInDb.SubscriptionExpiration.Value.AddYears(1).AddDays(1);
+                        }
+                    }
+
+                    _context.SaveChanges();
+
+                    // If this is coming from the registration screen then we'll have a UserId in the model
+                    partialView = model.UserId == null ? "_PaymentConfirmation" : "_RegisterConfirmation";
+                }
+
+                return PartialView(partialView);
+            }
+
+            // If we got this far, something failed, redisplay form
+            return PartialView("_CreditCardForm", model);
+        }
+
+        //
         // POST: /Account/Register
         [HttpPost]
         [AllowAnonymous]
@@ -121,36 +197,45 @@ namespace TabRepository.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
+                // Default to Free account type and change if we get a successful credit card charge
                 var user = new ApplicationUser
                 {
                     UserName = model.Username,
                     Email = model.Email,
                     FirstName = model.FirstName,
                     LastName = model.LastName,
-                    Bio = ""
+                    Bio = "",
+                    AccountType = AccountType.Free,
+                    SubscriptionExpiration = null
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    string partialView = "_RegisterConfirmation";
+
+                    if (model.AccountType == AccountType.Subscription)
+                    {
+                        partialView = "_CreditCardForm";
+                        ViewBag.UserId = user.Id;
+                    }
+
                     // Save profile image if it was added
                     if (model.Image != null)
                     {
                         // Limit file size to 1 MB
-                        if (model.Image.Length > 1000000)
+                        if (model.Image.Length <= 1000000)
                         {
-                            return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
+                            string currentUserId = user.Id;
+
+                            var userInDb = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
+
+                            string imageFilePath = await _fileUploader.UploadFileToFileSystem(model.Image, currentUserId, "Profile");
+
+                            userInDb.ImageFileName = model.Image.FileName;
+                            userInDb.ImageFilePath = imageFilePath;
+
+                            _context.SaveChanges();
                         }
-
-                        string currentUserId = user.Id;
-
-                        var userInDb = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
-
-                        string imageFilePath = await _fileUploader.UploadFileToFileSystem(model.Image, currentUserId, "Profile");
-
-                        userInDb.ImageFileName = model.Image.FileName;
-                        userInDb.ImageFilePath = imageFilePath;
-
-                        _context.SaveChanges();
                     }
 
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=532713
@@ -161,7 +246,7 @@ namespace TabRepository.Controllers
                         $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
                     
                     _logger.LogInformation(3, "User created a new account with password.");
-                    return PartialView("_RegisterConfirmation");
+                    return PartialView(partialView);
                 }
                 AddErrors(result);
             }

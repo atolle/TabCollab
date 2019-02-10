@@ -532,10 +532,6 @@ footer {
     height: 75px;
 }
 
-.manage-wrapper {
-    margin-top: 40px;
-}
-
 .form-input {
     /*max-width: 280px;*/
 }
@@ -593,8 +589,23 @@ footer {
     margin-bottom: 10px;
 }
 
-#register-container {
+.flex-container-col {
     min-height: 100%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.flex-container-row {
+    min-height: 100%;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
 }
 
 #change-password-container {
@@ -1010,10 +1021,16 @@ td {
 }
 
 #register-form {
-    max-width: 550px !important;
+    flex-grow: 1;
+    max-width: 600px;
 }
 
-.register-row {
+#payment-form {
+    flex-grow: 1;
+    max-width: 600px;
+}
+
+.form-row {
     margin-right: auto !important;
     margin-left: auto !important;
 }
@@ -1041,4 +1058,8 @@ td {
 
 .transparent {
     opacity: 0.2;
+}
+
+#profilepic-form {
+    text-align: left;
 }

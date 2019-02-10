@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using TabRepository.Models.AccountViewModels;
 
 namespace TabRepository.Models
 {
@@ -22,6 +23,8 @@ namespace TabRepository.Models
         public string ImageFilePath { get; set; }
 
         public DateTime? SubscriptionExpiration { get; set; }
+
+        public AccountType AccountType { get; set; }
 
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {

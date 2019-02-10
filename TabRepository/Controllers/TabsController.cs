@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using TabRepository.Data;
 using TabRepository.Models;
+using TabRepository.Models.AccountViewModels;
 using TabRepository.ViewModels;
 
 namespace TabRepository.Controllers
@@ -299,14 +300,15 @@ namespace TabRepository.Controllers
 
                 projects = projects.Union(contributorProjects).ToList();
 
-                var subscriptionExpiration = _context.Users
+                var userInDb = _context.Users
                     .Where(u => u.Id == currentUserId)
-                    .Select(u => u.SubscriptionExpiration)
                     .FirstOrDefault();
 
                 var tabVersionCount = 0;
-
-                if (subscriptionExpiration == null || (int)(subscriptionExpiration - DateTime.Now).Value.TotalDays < 0)
+                bool allowNewTabs = true;
+                
+                // If the account type is free OR the subscription is expired, check the tab version count
+                if (userInDb.AccountType == AccountType.Free || (userInDb.AccountType == AccountType.Subscription && (int)(userInDb.SubscriptionExpiration - DateTime.Now).Value.TotalDays < 0))
                 {
                     // Get a count of total tab versions that this user owns (i.e. their projects)
                     tabVersionCount = _context.TabVersions.Include(u => u.User)
@@ -315,6 +317,11 @@ namespace TabRepository.Controllers
                         .Include(v => v.Tab.Album.Project)
                         .Where(v => v.Tab.Album.Project.UserId == currentUserId)
                         .Count();
+
+                    if (tabVersionCount >= 50)
+                    {
+                        allowNewTabs = false;
+                    }
                 }
 
                 foreach (var project in projects)
@@ -333,9 +340,9 @@ namespace TabRepository.Controllers
                         User = project.User,
                         Albums = project.Albums,
                         IsOwner = project.UserId == currentUserId,
-                        AllowNewTabs = tabVersionCount >= 50 ? false : true,
-                        SubscriptionExpired = subscriptionExpiration == null ? true : ((int)(subscriptionExpiration - DateTime.Now).Value.TotalDays <= 0 ? true : false),
-                        SubscriptionExpiration = subscriptionExpiration
+                        AllowNewTabs = allowNewTabs,
+                        SubscriptionExpired = userInDb.SubscriptionExpiration == null ? true : ((int)(userInDb.SubscriptionExpiration - DateTime.Now).Value.TotalDays <= 0 ? true : false),
+                        SubscriptionExpiration = userInDb.SubscriptionExpiration
                     };
                     foreach (var album in vm.Albums)
                     {

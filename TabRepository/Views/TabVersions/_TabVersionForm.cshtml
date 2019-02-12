@@ -17,12 +17,11 @@
             </button>
         </div>
         <div class="modal-body">
-            <form id="tabversion-form" asp-controller="TabVersions" asp-action="Save" data-ajax="true" data-ajax-method="POST" enctype="multipart/form-data">
-                @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
+            <form id="tabversion-form" asp-controller="TabVersions" asp-action="Save" data-ajax="true" data-ajax-method="POST" enctype="multipart/form-data">                
                 <div class="form-group">
                     @Html.LabelFor(t => t.Description)
                     @Html.TextAreaFor(t => t.Description, new { @class = "form-control form-input" })
-                    @Html.ValidationMessageFor(t => t.Description)
+                    <span asp-validation-for="Description" style="color: red"></span>
                 </div>
                 @if (Model.Id == 0)
                 {

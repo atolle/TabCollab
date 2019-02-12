@@ -11,7 +11,7 @@ namespace TabRepository.Helpers
 {
     public static class CreditCardProcessor
     {
-        public static CreditCardTransaction ChargeCreditCard(string cardNumber, string expirationDate, IConfiguration configuration)
+        public static CreditCardTransaction ChargeCreditCard(string cardNumber, string expirationDate, string zip, IConfiguration configuration)
         {
             try
             {
@@ -31,14 +31,20 @@ namespace TabRepository.Helpers
                     expirationDate = expirationDate
                 };
 
+                var billingAddress = new customerAddressType
+                {
+                    zip = zip
+                };
+
                 //standard api call to retrieve response
                 var paymentType = new paymentType { Item = creditCard };
 
                 var transactionRequest = new transactionRequestType
                 {
                     transactionType = transactionTypeEnum.authCaptureTransaction.ToString(),   // charge the card
-                    amount = 10.00m,
-                    payment = paymentType
+                    amount = 49.99m,
+                    payment = paymentType,
+                    billTo = billingAddress
                 };
 
                 var request = new createTransactionRequest { transactionRequest = transactionRequest };
@@ -59,6 +65,8 @@ namespace TabRepository.Helpers
                         creditCardTransaction.Success = true;
                         creditCardTransaction.AuthCode = response.transactionResponse.authCode;
                         creditCardTransaction.TransactionID = response.transactionResponse.transId;
+                        creditCardTransaction.TransactionCode = response.transactionResponse.messages[0].code;
+                        creditCardTransaction.TransactionDescription = response.transactionResponse.messages[0].description;
                         return creditCardTransaction;
                     }
                     else
@@ -132,6 +140,30 @@ namespace TabRepository.Helpers
             }
         }
 
+        public string TransactionCode
+        {
+            get
+            {
+                return _transactionCode;
+            }
+            set
+            {
+                _transactionCode = value;
+            }
+        }
+
+        public string TransactionDescription
+        {
+            get
+            {
+                return _transactionDescription;
+            }
+            set
+            {
+                _transactionDescription = value;
+            }
+        }
+
         public string TransactionErrorCode
         {
             get
@@ -183,6 +215,8 @@ namespace TabRepository.Helpers
         private bool _success = false;
         private string _authCode = "";
         private string _transactionID = "";
+        private string _transactionCode = "";
+        private string _transactionDescription = "";
         private string _transactionErrorCode = "";
         private string _transactionErrorMessage = "";
         private string _errorCode = "";

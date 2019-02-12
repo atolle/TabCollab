@@ -8,22 +8,21 @@
 
 <p>ALBUM NAME: @Model.AlbumName</p>
 
-<form id="tab-form" asp-controller="Tabs" asp-action="Save" data-ajax="true" data-ajax-method="POST" enctype="multipart/form-data">
-    @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
+<form id="tab-form" asp-controller="Tabs" asp-action="Save" data-ajax="true" data-ajax-method="POST" enctype="multipart/form-data">    
     <div class="form-group">
         @Html.LabelFor(t => t.Name)
         @Html.TextBoxFor(t => t.Name, new { @class = "form-control" })
-        @Html.ValidationMessageFor(t => t.Name)
+        <span asp-validation-for="Name" style="color: red"></span>
     </div>
     <div class="form-group">
         @Html.LabelFor(t => t.Description)
         @Html.TextBoxFor(t => t.Description, new { @class = "form-control" })
-        @Html.ValidationMessageFor(t => t.Description)
+        <span asp-validation-for="Description" style="color: red"></span>
     </div>
     <div class="form-group">
         @Html.LabelFor(t => t.FileData)
         @Html.TextBoxFor(t => t.FileData, new { type = "file", @class = "btn btn-default" })
-        @Html.ValidationMessageFor(t => t.FileData)
+        <span asp-validation-for="FileData" style="color: red"></span>
     </div>
     @Html.HiddenFor(t => t.AlbumId)
     @Html.AntiForgeryToken()

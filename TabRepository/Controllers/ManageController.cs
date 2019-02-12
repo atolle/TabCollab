@@ -94,7 +94,8 @@ namespace TabRepository.Controllers
                 ImageFileName = user.ImageFileName,
                 ImageFilePath = user.ImageFilePath,
                 SubsriptionExpiration = user.SubscriptionExpiration,
-                TabVersionCount = tabVersionCount
+                TabVersionCount = tabVersionCount,
+                Email = user.Email
             };
             return View(model);
         }
@@ -348,6 +349,41 @@ namespace TabRepository.Controllers
             return Challenge(properties, provider);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(ManageViewModel viewModel)
+        {
+            if (!ModelState.IsValid)    // If not valid, set the view model to current customer
+            {                           // initialize membershiptypes and pass it back to same view
+                // Need to return JSON failure to form
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+
+            string currentUserId = User.GetUserId();
+
+            var user = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
+
+            // Limit file size to 1 MB
+            if (viewModel.Image != null)
+            {
+                if (viewModel.Image.Length > 1000000)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
+                }
+
+                string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, currentUserId, "Profile");
+                user.ImageFileName = viewModel.Image.FileName;
+                user.ImageFilePath = imageFilePath;
+            }
+
+            user.FirstName = viewModel.Firstname;
+            user.LastName = viewModel.Lastname;
+            user.Email = viewModel.Email;
+
+            _context.SaveChanges();
+
+            return new JsonResult(new { user.FirstName, user.LastName, user.Email, user.ImageFilePath });
+        }
         // POST: Projects
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -3,81 +3,114 @@
     ViewData["Title"] = "Account";
 }
 
-<div class="flex-container-col">
-    <div class="row" style="width: 75%">
-        <div class="col-md-6">
-            <div style="margin-bottom: 10px;">
-                <div class="card card-profile">
-                    <div id="profile-image" class="card-header" style="background-image: url('@Model.ImageFilePath');"></div>
-                    <div class="card-body text-center">
-                        <h3>@Model.Username</h3>
-                    </div>
+<div id="page" class="flex-container-col" style="align-items: unset;">
+    <div class="row row-no-margin">
+        <div class="col" align="center">
+            <div class="row">
+                <div class="col">
+                    @if (Model.SubsriptionExpiration == null)
+                    {
+                        <h3>Free Account</h3>
+                        <h5>Total Tab Versions: @Model.TabVersionCount</h5>
+                        int tabsRemaining = 50 - Model.TabVersionCount;
+                        string color = "inherit";
+                        if (tabsRemaining <= 10)
+                        {
+                            color = "yellow";
+                        }
+                        if (tabsRemaining <= 0)
+                        {
+                            color = "red";
+                        }
+                        <h5 style="color: @color;">@(tabsRemaining) tab versions remaining</h5>
+                        <a asp-controller="Account" asp-action="AddSubscription" class="btn btn-default dashboard-button">Upgrade Account</a>
+                    }
+                    else
+                    {
+                        <h3>Subscription Account</h3>
+                        <h5>Subscription Expiration: @Model.SubsriptionExpiration.Value.ToString("MM/dd/yyyy")</h5>
+                        int daysLeft = ((int)(Model.SubsriptionExpiration - DateTime.Now).Value.TotalDays);
+                        @if (daysLeft >= 0)
+                        {
+                            string color = daysLeft <= 30 ? "yellow" : "inherit";
+                            <h5 style="color: @color;">@(daysLeft.ToString()) days left</h5>
+                        }
+                        else
+                        {
+                            <h5 style="color: red;">Subscription expired</h5>
+                        }
+
+                        <a asp-controller="Account" asp-action="RenewSubscription" class="btn btn-default dashboard-button">Renew Subscription</a>
+                    }
+                    @if (Model.HasPassword)
+                    {
+                        <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default dashboard-button">Change Password</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default dashboard-button">Create Password</a>
+                    }
                 </div>
-                <form id="profilepic-form" asp-controller="Manage" asp-action="SaveProfileImage" data-ajax="true" data-ajax-method="POST">
-                    @Html.ValidationSummary() <!--Prints list of validation errors at top of form-->
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.Image)
-                        @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default", @style = "display: block" })
-                        @Html.ValidationMessageFor(m => m.Image)
-                    </div>
-                    <button type="submit" class="btn btn-primary button-save disabled" form="profilepic-form"> Save</button>
-                </form>
             </div>
         </div>
-        <div class="col-md-6">
-            @if (Model.SubsriptionExpiration == null)
-            {
-                <h3>Free Account</h3>
-                <h5>Total Tab Versions: @Model.TabVersionCount</h5>
-                int tabsRemaining = 50 - Model.TabVersionCount;
-                string color = "inherit";
-                if (tabsRemaining <= 10)
-                {
-                    color = "yellow";
-                }
-                if (tabsRemaining <= 0)
-                {
-                    color = "red";
-                }
-                <h5 style="color: @color;">@(tabsRemaining) tab versions remaining</h5>
-                <a asp-controller="Account" asp-action="AddSubscription" class="btn btn-default">Upgrade Account</a>
-            }
-            else
-            {
-                <h3>Subscription Account</h3>
-                <h5>Subscription Expiration: @Model.SubsriptionExpiration.Value.ToString("MM/dd/yyyy")</h5>
-                int daysLeft = ((int)(Model.SubsriptionExpiration - DateTime.Now).Value.TotalDays);
-                @if (daysLeft >= 0)
-                {
-                    string color = daysLeft <= 30 ? "yellow" : "inherit";
-                    <h5 style="color: @color;">@(daysLeft.ToString()) days left</h5>
-                }
-                else
-                {
-                    <h5 style="color: red;">Subscription expired</h5>
-                }
-
-                <a asp-controller="Account" asp-action="RenewSubscription" class="btn btn-default">Renew Subscription</a>
-            }
-            @if (Model.HasPassword)
-            {
-                <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default">Change Password</a>
-            }
-            else
-            {
-                <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default">Create Password</a>
-            }
+        <div class="col" align="center">
+            <div class="card card-profile" style="margin-bottom: 10px;">
+                <div id="profile-image" class="card-header" style="background-image: url('@Model.ImageFilePath');"></div>
+                <div class="card-body text-center">
+                    <h3>@Model.Username</h3>
+                </div>
+            </div>
+        </div>
+        <div id="profile-form-container" class="col" align="center">
+            <form id="profile-form" asp-controller="Manage" asp-action="UpdateProfile" data-ajax="true" data-ajax-method="POST" class="card" style="background-color: unset; border: unset;">
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="Firstname"></label>
+                    </div>
+                    <input asp-for="Firstname" class="form-control form-input" disabled />
+                    <span asp-validation-for="Firstname" style="color: red"></span>
+                </div>
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="Lastname"></label>
+                    </div>
+                    <input asp-for="Lastname" class="form-control form-input" disabled />
+                    <span asp-validation-for="Lastname" style="color: red"></span>
+                </div>
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="Email"></label>
+                    </div>
+                    <input asp-for="Email" class="form-control form-input" disabled />
+                    <span asp-validation-for="Email" style="color: red"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Image"></label>
+                    <input asp-for="Image" type="file" style="display: block;" class="btn btn-default" disabled />
+                    <span asp-validation-for="Image" style="color: red"></span>
+                </div>
+                <div>
+                    <a id="edit-account-button" data-toggle="tooltip" title="Edit account" class="list-icon float-left white-icon"><i class="fa fa-pencil fa-lg"></i></a>
+                    <button id="save-account-button" type="submit" class="btn btn-primary float-right button-save" form="profile-form" disabled> Save</button>
+                </div>
+                @Html.AntiForgeryToken();
+            </form>
         </div>
     </div>
 </div>
 
 @section scripts
-{
+    {
     <script>
         $(document).ready(function () {
             $('footer').show();
 
-            var submitButton = $('.button-save');
+            // Only show tooltips on non-touchscreens
+            if (!('ontouchstart' in window)) {
+                $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+            }
+
+            var submitButton = $('#save-account-button')
 
             $("#Image").on("change", function (e, data) {
                 // Make sure the image size is less than 1MB
@@ -89,15 +122,25 @@
                 else {
                     if ($(".file-validation").length) {
                         $(".file-validation").remove();
-                    }
-                    submitButton[0].classList.remove("disabled");
+                    }                    
                 }
             });
 
-            $('.flex-container').on("submit", function (e, data) {
+            // Show modal for new project
+            $("#page").on("click", "#edit-account-button", function (e, data) {
                 e.preventDefault();
 
-                if (submitButton[0].classList.contains("disabled")) {
+                $('#Firstname').prop('disabled', false);
+                $('#Lastname').prop('disabled', false);
+                $('#Email').prop('disabled', false);
+                $('#Image').prop('disabled', false);
+                submitButton.prop('disabled', false);
+            });
+
+            $("#page").on("submit", function (e, data) {
+                e.preventDefault();
+
+                if (submitButton.prop('disabled')) {
                     return;
                 }
 
@@ -118,12 +161,22 @@
                 })
                 .then(function (response) {
                     submitButton.html(submitButtonHtml);
-                    $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
+
                     form.reset();
-                    submitButton[0].classList.add("disabled");
+
+                    // Re-disable all of our fields
+                    submitButton.prop("disabled", true);
+                    $('#Firstname').prop('disabled', true);
+                    $('#Firstname').val(response.firstName);
+                    $('#Lastname').prop('disabled', true);
+                    $('#Lastname').val(response.lastName);
+                    $('#Email').prop('disabled', true);
+                    $('#Email').val(response.email);
+                    $('#Image').prop('disabled', true);
+                    $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
                 })
                 .fail(function (error) {
-                    bootbox.alert("Unable to save profile image. Error: " + error.statusText);
+                    bootbox.alert("Unable to update account information.<br /><br />Error: " + error.statusText);
                     submitButton.html(submitButtonHtml);
                 })
             });

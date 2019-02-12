@@ -143,7 +143,7 @@ namespace TabRepository.Controllers
             {
                 string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
 
-                CreditCardTransaction creditCardTransaction = CreditCardProcessor.ChargeCreditCard(model.CardNumber, model.Month + model.Year, _configuration);
+                CreditCardTransaction creditCardTransaction = CreditCardProcessor.ChargeCreditCard(model.CardNumber, model.Month + model.Year, model.Zip, _configuration);
                 string partialView;
 
                 if (!creditCardTransaction.Success)

@@ -3,10 +3,10 @@
 
 <form asp-controller="Account" asp-action="ProcessCreditCard" asp-route-returnurl="@ViewData["ReturnUrl"]" id="payment-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal">
     <h2>Subscription Payment</h2>
-    <h4>Total to be charged: $50.00</h4>
+    <h4>Total to be charged: $49.99</h4>
     <div id="payment">
         @Html.Hidden("UserId", ViewData["UserId"])
-        <div class="row form-row">
+        <div class="row row-no-margin">
             <div class="col-md-6">
                 <div class="form-group owner">
                     <div class="form-label">
@@ -17,17 +17,6 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="form-group">
-                    <div class="form-label">
-                        <label asp-for="CVV"></label>
-                    </div>
-                    <input asp-for="CVV" class="form-control form-input" />
-                    <span asp-validation-for="CVV" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="row form-row">
-            <div class="col-md-6">
                 <div class="form-group owner">
                     <div class="form-label">
                         <label asp-for="CardNumber"></label>
@@ -36,6 +25,28 @@
                     <span asp-validation-for="CardNumber" style="color: red"></span>
                 </div>
             </div>
+        </div>
+        <div class="row row-no-margin">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="CVV"></label>
+                    </div>
+                    <input asp-for="CVV" class="form-control form-input" />
+                    <span asp-validation-for="CVV" style="color: red"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="Zip"></label>
+                    </div>
+                    <input asp-for="Zip" class="form-control form-input" />
+                    <span asp-validation-for="Zip" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row row-no-margin">
             <div class="col-md-6">
                 <div class="form-group">
                     <div class="form-label">
@@ -71,20 +82,23 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="form-group" id="credit_cards">
-            <img class="credit-card" src="~/images/visa.png" id="visa">
-            <img class="credit-card" src="~/images/mastercard.png" id="mastercard">
-            <img class="credit-card" src="~/images/amex.png" id="amex">
-            <img class="credit-card" src="~/images/discover.png" id="discover">
+            <div class="col-md-6 credit-cards-container">
+                <div class="form-group" id="credit-cards">
+                    <img class="credit-card" src="~/images/visa.png" id="visa">
+                    <img class="credit-card" src="~/images/mastercard.png" id="mastercard">
+                    <img class="credit-card" src="~/images/amex.png" id="amex">
+                    <img class="credit-card" src="~/images/discover.png" id="discover">
+                </div>
+            </div>
         </div>
         <p>* We <strong>do not</strong> store your credit card information *</p>
     </div>
-    <div class="row form-row">
+    <div class="row row-no-margin">
         <div class="col">
             <div class="form-group">
                 <button type="submit" class="btn btn-default button-submit-wide">Pay</button>
             </div>
         </div>
     </div>
+    @Html.AntiForgeryToken()
 </form>

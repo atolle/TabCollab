@@ -10,16 +10,17 @@ namespace TabRepository.ViewModels
     {
         public string UserId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Card Holder is required")]
         [Display(Name = "Card Holder")]
         public string CardName { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Card Number is required")]
         [CreditCard]
         [Display(Name = "Card Number")]
+        
         public string CardNumber { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "CVV is required")]
         public int CVV { get; set; }
 
         [Required]
@@ -27,5 +28,8 @@ namespace TabRepository.ViewModels
 
         [Required]
         public int Year { get; set; }
+
+        [Required(ErrorMessage = "Zipcode is required")]
+        public string Zip { get; set; }
     }
 }

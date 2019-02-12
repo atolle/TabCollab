@@ -785,7 +785,7 @@ footer {
 }
 
 #Image {
-    max-width: 100%;
+    width: 100%;
 }
 
 #FileData {
@@ -1030,13 +1030,15 @@ td {
     max-width: 600px;
 }
 
-.form-row {
-    margin-right: auto !important;
-    margin-left: auto !important;
+.row-no-margin {
+    margin-right: unset;
+    margin-left: unset;
 }
 
 .credit-card {
     width: 50px;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 .btn-outline-primary {
@@ -1060,6 +1062,21 @@ td {
     opacity: 0.2;
 }
 
-#profilepic-form {
+#profile-form {
     text-align: left;
+}
+
+.credit-cards-container {
+    display: flex;
+}
+
+#credit-cards {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.white-icon {
+    cursor: pointer;
 }

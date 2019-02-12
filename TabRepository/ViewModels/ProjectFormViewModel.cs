@@ -10,7 +10,7 @@ namespace TabRepository.ViewModels
     {
         public int? Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Project Name is required")]
         [Display(Name = "Project Name")]
         [StringLength(255)]
         public string Name { get; set; }

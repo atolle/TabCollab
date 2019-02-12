@@ -11,7 +11,7 @@ namespace TabRepository.ViewModels
 
         public string UserId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Album Name is required")]
         [Display(Name = "Album Name")]
         [StringLength(255)]
         public string Name { get; set; }

@@ -1,0 +1,45 @@
+﻿{
+  "name": "TabCollab",
+  "short_name": "TabCollab",
+  "display": "standalone",
+  "start_url": "/",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/images/TabCollab_icon_white_blackcircle_16.png",
+      "type": "image/png",
+      "sizes": "16x16"
+    },
+    {
+      "src": "/images/TabCollab_icon_white_blackcircle_24.png",
+      "type": "image/png",
+      "sizes": "24x24"
+    },
+    {
+      "src": "/images/TabCollab_icon_white_blackcircle_32.png",
+      "type": "image/png",
+      "sizes": "32x32"
+    },
+    {
+      "src": "/images/TabCollab_icon_white_blackcircle_64.png",
+      "type": "image/png",
+      "sizes": "64x64"
+    },
+    {
+      "src": "/images/TabCollab_icon_white_blackcircle_128.png",
+      "type": "image/png",
+      "sizes": "128x128"
+    },
+    {
+      "src": "/images/TabCollab_icon_white_blackcircle_256.png",
+      "type": "image/png",
+      "sizes": "256x256"
+    },
+    {
+      "src": "/images/TabCollab_icon_white_blackcircle_512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}  

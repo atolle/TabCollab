@@ -19,6 +19,9 @@ using System.Globalization;
 using System;
 using TabRepository.ViewModels;
 using Microsoft.Extensions.Configuration;
+using System.Net.Http;
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace TabRepository.Controllers
 {
@@ -109,6 +112,46 @@ namespace TabRepository.Controllers
         }
 
         //
+        // GET: /Account/SubscriptionConfirmation
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> SubscriptionConfirmation(string token)
+        {
+            try
+            {
+                var billingAgreement = _context.PayPalBillingAgreements.Where(a => a.Token == token).FirstOrDefault();
+
+                if (billingAgreement == null)
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+                string requestToken = await PayPalProcessor.GetPayPalToken(_configuration);
+                var agreementJson = await PayPalProcessor.ExecuteBillingAgreement(billingAgreement.RequestToken, token, billingAgreement.ExecuteURL);
+                var jObject = JObject.Parse(agreementJson);
+
+                billingAgreement.Id = (string)jObject["id"];
+                billingAgreement.Description = (string)jObject["description"];
+                billingAgreement.Json = agreementJson;
+                billingAgreement.State = (string)jObject["state"];
+
+                return View();
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        //
+        // GET: /Account/SubscriptionCancel
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult SubscriptionCancel(string returnUrl = null)
+        {
+            return View();
+        }
+
+        //
         // GET: /Account/Register
         [HttpGet]
         [AllowAnonymous]
@@ -132,6 +175,90 @@ namespace TabRepository.Controllers
         public IActionResult AddSubscription()
         {
             return View("CreditCard");
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ProcessPayPal(PayPalFormViewModel model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
+
+                    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+                    string token = await PayPalProcessor.GetPayPalToken(_configuration);
+
+                    var planInDb = _context.PayPalBillingPlans.Where(p => p.Name == "TabCollab Subscription Plan").FirstOrDefault();
+
+                    // We don't have a subscription plan yet, so create it
+                    if (planInDb == null)
+                    {
+                        var planJson = await PayPalProcessor.CreateBillingPlan(token);
+                        var planObject = JObject.Parse(planJson);
+                        PayPalBillingPlan plan = new PayPalBillingPlan
+                        {
+                            Id = (string)planObject["id"],
+                            Name = (string)planObject["name"],
+                            Description = (string)planObject["description"],
+                            Json = planJson,
+                            State = (string)planObject["state"]
+                        };
+
+                        _context.PayPalBillingPlans.Add(plan);
+                        _context.SaveChanges();
+
+                        planInDb = plan;
+                    }
+
+                    if (planInDb.State != "ACTIVE")
+                    {
+                        // Attempt to activate the plan
+                        if (!await PayPalProcessor.ActivateBillingPlan(token, planInDb.Id))
+                        {
+                            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                        }
+                        else
+                        {
+                            planInDb.State = "ACTIVE";
+                            _context.SaveChanges();
+                        }
+                    }
+
+                    // Create the billing agreem
+                    var agreementJson = await PayPalProcessor.CreateBillingAgreement(token, planInDb.Id);
+
+                    var agreementObject = JObject.Parse(agreementJson);
+
+                    // Extract the token from the href because PayPal does not yet support custom fields in the return_url
+                    // We will use this as a lookup once the user executes the billing agreement from PayPal
+                    string href = (string)agreementObject["links"][0]["href"];
+                    string agreementToken = href.Substring(href.IndexOf("token=") + "token=".Length);
+
+                    PayPalBillingAgreement billingAgreement = new PayPalBillingAgreement
+                    {
+                        Token = agreementToken,
+                        UserId = currentUserId,
+                        ExecuteURL = (string)agreementObject["links"][1]["href"],
+                        RequestToken = token,
+                        PlanId = (string)agreementObject["plan"]["id"]
+                };
+
+                    _context.PayPalBillingAgreements.Add(billingAgreement);
+                    _context.SaveChanges();
+
+                    return Redirect(href);
+                }
+
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception e)
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
         }
 
         [HttpPost]
@@ -215,7 +342,7 @@ namespace TabRepository.Controllers
 
                     if (model.AccountType == AccountType.Subscription)
                     {
-                        partialView = "_CreditCardForm";
+                        partialView = "_RegisterConfirmationPayPalForm";
                         ViewBag.UserId = user.Id;
                     }
 

@@ -1,0 +1,72 @@
+﻿@using TabRepository.ViewModels
+@model PayPalFormViewModel
+
+@{
+    ViewData["Title"] = "Subscription Payment";
+}
+
+<div class="flex-container-row">
+    <form asp-controller="Account" asp-action="ProcessPayPal" asp-route-returnurl="@ViewData["ReturnUrl"]" id="payment-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal">
+        <h2>Subscription Payment</h2>
+        <h4>Total to be charged: $49.99</h4>
+        <div id="payment">
+            @Html.Hidden("UserId", ViewData["UserId"])
+        </div>
+        <div class="row row-no-margin">
+            <div class="col">
+                <div class="form-group">
+                    <button type="submit" class="btn btn-default button-submit-wide">Subscribe via PayPal</button>
+                </div>
+            </div>
+        </div>
+        @Html.AntiForgeryToken()
+    </form>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        $(document).ready(function () {
+            $('footer').show();
+
+            $(document).on("submit", function (e, data) {
+                // Show spinner on reset button
+                $('.button-submit-wide').html('<div class="loader"></div>');
+
+                e.preventDefault();
+
+                var form = e.target;
+                var formData = new FormData(form);
+
+                $.ajax({
+                    url: form.action,
+                    type: 'POST',
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                })
+                    .then(function (data) {
+                        $('.button-submit-wide').html('Subscribe via PayPal');
+                        $('.flex-container-row').html(data);
+                        $.validator.unobtrusive.parse($("#payment-form"));
+                    })
+                    .fail(function (error) {
+                        bootbox.dialog({
+                            message: "An error occurred while submitting the form.<br /><br />Error: " + error.statusText,
+                            buttons: {
+                                confirm: {
+                                    label: 'Close',
+                                    className: 'btn-default'
+                                },
+                            }
+                        });
+                    });
+            });
+
+            $(document).on('hidden.bs.modal', function () {
+                $('.button-submit-wide').html('Subscribe via PayPal');
+            });
+        });
+    </script>
+}

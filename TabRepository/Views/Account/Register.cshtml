@@ -7,6 +7,7 @@
     <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" id="register-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal">
         <h2>Register</h2>
         <h4>Create your account</h4>
+        <div asp-validation-summary="All"></div>
         <div class="row row-no-margin">
             <div class="col">
                 <div class="form-group" style="margin-bottom: 0px;">
@@ -135,8 +136,6 @@
                 $('#subscription-btn').removeClass('checked');
                 $('#free-radio').click();
                 $('#free-radio').click();
-                //$('#free-radio').prop("checked", true);
-                //$('#subscription-radio').prop("checked", false);
             }
             bootbox.dialog({
                 message: "Free TabCollab Account<br /><br />With the free TabCollab account, you get 50 free tab version uploads for your own projects and unlimited uploads to the projects of other musicians.<br /><br />HOWEVER, for $49.99/year (less than $5/month) you can sign up for a subscription account and get UNLIMITED tab version uploads.",
@@ -156,8 +155,6 @@
                 $('#free-btn').removeClass('checked');
                 $('#subscription-radio').click();
                 $('#subscription-radio').click();
-                //$('#subscription-radio').prop("checked", true);
-                //$('#free-radio').prop("checked", false);
             }
             $('#payment').show();
             bootbox.dialog({
@@ -197,16 +194,7 @@
             }
         });
 
-        $("#AgreeToTerms").change(function () {
-            if (this.checked) {
-                $('.button-submit-wide').removeClass('disabled');
-            }
-            else {
-                $('.button-submit-wide').addClass('disabled');
-            }
-        });
-
-        $('.button-submit-wide').on('click', function (e) {
+        $(document).on("click", ".button-submit-wide", function (e) {
             if ($(this).hasClass('disabled')) {
                 e.preventDefault();
 
@@ -224,47 +212,58 @@
             }
         });
 
-        function bindCardNumberKeyUp() {
-            // Check card type
-            $('#CardNumber').keyup(function () {
-                var $amex = $('#amex'),
-                    $visa = $('#visa'),
-                    $mastercard = $('#mastercard'),
-                    $discover = $('#discover'),
-                    $cardNumber = $(this);
+        // Check card type
+        $(document).on("keyup", "#CardNumber", function () {
+            var $amex = $('#amex'),
+                $visa = $('#visa'),
+                $mastercard = $('#mastercard'),
+                $discover = $('#discover'),
+                $cardNumber = $(this);
 
-                $amex.removeClass('transparent');
-                $visa.removeClass('transparent');
-                $mastercard.removeClass('transparent');
-                $discover.removeClass('transparent');
+            $amex.removeClass('transparent');
+            $visa.removeClass('transparent');
+            $mastercard.removeClass('transparent');
+            $discover.removeClass('transparent');
 
-                if ($.payment.cardType($cardNumber.val()) == 'visa') {
-                    $mastercard.addClass('transparent');
-                    $amex.addClass('transparent');
-                    $discover.addClass('transparent');
-                } else if ($.payment.cardType($cardNumber.val()) == 'amex') {
-                    $mastercard.addClass('transparent');
-                    $visa.addClass('transparent');
-                    $discover.addClass('transparent');
-                } else if ($.payment.cardType($cardNumber.val()) == 'mastercard') {
-                    $amex.addClass('transparent');
-                    $visa.addClass('transparent');
-                    $discover.addClass('transparent');
-                }
-                else if ($.payment.cardType($cardNumber.val()) == 'discover') {
-                    $amex.addClass('transparent');
-                    $visa.addClass('transparent');
-                    $mastercard.addClass('transparent');
-                }
-            });
-        }
+            if ($.payment.cardType($cardNumber.val()) == 'visa') {
+                $mastercard.addClass('transparent');
+                $amex.addClass('transparent');
+                $discover.addClass('transparent');
+            } else if ($.payment.cardType($cardNumber.val()) == 'amex') {
+                $mastercard.addClass('transparent');
+                $visa.addClass('transparent');
+                $discover.addClass('transparent');
+            } else if ($.payment.cardType($cardNumber.val()) == 'mastercard') {
+                $amex.addClass('transparent');
+                $visa.addClass('transparent');
+                $discover.addClass('transparent');
+            }
+            else if ($.payment.cardType($cardNumber.val()) == 'discover') {
+                $amex.addClass('transparent');
+                $visa.addClass('transparent');
+                $mastercard.addClass('transparent');
+            }
+        });
 
+        $(document).on("change", "#AgreeToTerms", function () {
+            if (this.checked) {
+                $('.button-submit-wide').removeClass('disabled');
+            }
+            else {
+                $('.button-submit-wide').addClass('disabled');
+            }
+        });
 
-        $(document).on("submit", function (e, data) {
-            // Show spinner on reset button
+        $(document).on("submit", "#paypal-form", function (e, data) {
+            $('.btn-subscribe').html('<div class="loader"></div>');            
+        });
+
+        $(document).on("submit", "#register-form", function (e, data) {
             $('.button-submit-wide').html('<div class="loader"></div>');
 
             e.preventDefault();
+
+            $('#register-form').valid();
 
             var form = e.target;
             var formData = new FormData(form);
@@ -281,7 +280,18 @@
                     $('.button-submit-wide').html('Register');
                     $('.flex-container-row').html(data);
                     $.validator.unobtrusive.parse($("#register-form"));
-                    bindCardNumberKeyUp();
+
+                    // Set the selected button if a register form was returned
+                    if (document.getElementById('free-radio')) {
+                        if (document.getElementById('free-radio').checked) {
+                            $('#free-btn').addClass('checked');
+                            $('#subscription-btn').removeClass('checked');
+                        }
+                        else {
+                            $('#subscription-btn').addClass('checked');
+                            $('#free-btn').removeClass('checked');
+                        }
+                    }
                 })
                 .fail(function (error) {
                     bootbox.dialog({

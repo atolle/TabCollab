@@ -1099,3 +1099,19 @@ td {
     height: 30px;
     border-bottom: none;
 }
+
+.btn-subscribe {
+    color: #ffffff !important;
+    background-color: rgb(255, 196, 57) !important;
+    border-color: rgb(255, 196, 57) !important;
+    width: 310px;
+    height: 41px;
+}
+
+.btn-subscribe:hover {
+    opacity: 0.8;
+}
+
+.btn-paypal-img {
+    width: 280px;
+}

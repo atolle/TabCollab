@@ -37,6 +37,11 @@ namespace TabRepository.Data
                 .WithOne(t => t.Tab)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.Entity<PayPalBillingPlan>()
+                .HasMany(p => p.BillingAgreements)
+                .WithOne(a => a.Plan)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Tab Versions Table
             // TabVersion and TabFile is a 1:1 relationship so TabFile's PK is also a FK pointing to
             // TabVersion's PK
@@ -88,6 +93,8 @@ namespace TabRepository.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<NotificationUser> NotificationUsers { get; set; }
         public DbSet<UserTabVersion> UserTabVersions { get; set; }
+        public DbSet<PayPalBillingPlan> PayPalBillingPlans { get; set; }
+        public DbSet<PayPalBillingAgreement> PayPalBillingAgreements { get; set; }
 
         public ApplicationDbContext()
             : base()

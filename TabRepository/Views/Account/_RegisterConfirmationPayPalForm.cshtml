@@ -1,0 +1,22 @@
+﻿@using TabRepository.ViewModels
+@model PayPalFormViewModel
+
+<div class="confirmation-message">
+    <h2>Registration Successful</h2>
+    <div>
+        <p>
+            You have successfully registered! We have sent you a registration confirmation email. Please confirm your account before logging in.
+        </p>
+    </div>
+    <form asp-controller="Account" asp-action="ProcessPayPal" asp-route-returnurl="@ViewData["ReturnUrl"]" id="paypal-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal">
+        @Html.Hidden("UserId", ViewData["UserId"])
+        <div class="row row-no-margin">
+            <div class="col">
+                <div class="form-group">
+                    <button type="submit" class="btn btn-subscribe"><img class="btn-paypal-img" src="~/images/paypallogosubscribe.png" /></button>
+                </div>
+            </div>
+        </div>
+        @Html.AntiForgeryToken()
+    </form>
+</div>

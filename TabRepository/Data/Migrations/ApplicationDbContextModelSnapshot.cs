@@ -309,6 +309,8 @@ namespace TabRepository.Migrations
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("BillingAgreementId");
+
                     b.Property<string>("Description");
 
                     b.Property<string>("ExecuteURL");

@@ -23,7 +23,11 @@
                             color = "red";
                         }
                         <h5 style="color: @color;">@(tabsRemaining) tab versions remaining</h5>
-                        <a asp-controller="Account" asp-action="AddSubscription" class="btn btn-default dashboard-button">Upgrade Account</a>
+
+                        <form asp-controller="Account" asp-action="ProcessPayPal" asp-route-returnurl="@ViewData[" ReturnUrl"]" id="paypal-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal">
+                            <button type="submit" class="btn btn-subscribe"><img class="btn-paypal-img" src="~/images/paypallogosubscribe.png" /></button>
+                            @Html.AntiForgeryToken()
+                        </form>
                     }
                     else
                     {
@@ -39,11 +43,6 @@
                         {
                             <h5 style="color: red;">Subscription expired</h5>
                         }
-
-                        <form asp-controller="Account" asp-action="ProcessPayPal" asp-route-returnurl="@ViewData[" ReturnUrl"]" id="payment-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal">
-                            <button type="submit" class="btn btn-subscribe"><img class="btn-paypal-img" src="~/images/paypallogosubscribe.png" /></button>
-                            @Html.AntiForgeryToken()
-                        </form>
                     }
                     @if (Model.HasPassword)
                     {
@@ -140,49 +139,53 @@
                 submitButton.prop('disabled', false);
             });
 
-            //$("#page").on("submit", function (e, data) {
-            //    e.preventDefault();
+            $(document).on("submit", "#paypal-form", function (e, data) {
+                $('.btn-subscribe').html('<div class="loader"></div>');
+            });
 
-            //    if (submitButton.prop('disabled')) {
-            //        return;
-            //    }
+            $(document).on("submit", "#profile-form", function (e, data) {
+                e.preventDefault();
 
-            //    var form = e.target;
-            //    var formData = new FormData(form);
+                if (submitButton.prop('disabled')) {
+                    return;
+                }
 
-            //    var submitButtonHtml = submitButton.html();
-            //    // Show spinner on submit button and disable it
-            //    submitButton.html('<div class="loader"></div>');
+                var form = e.target;
+                var formData = new FormData(form);
 
-            //    $.ajax({
-            //        url: form.action,
-            //        type: 'POST',
-            //        data: formData,
-            //        cache: false,
-            //        contentType: false,
-            //        processData: false
-            //    })
-            //    .then(function (response) {
-            //        submitButton.html(submitButtonHtml);
+                var submitButtonHtml = submitButton.html();
+                // Show spinner on submit button and disable it
+                submitButton.html('<div class="loader"></div>');
 
-            //        form.reset();
+                $.ajax({
+                    url: form.action,
+                    type: 'POST',
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                })
+                .then(function (response) {
+                    submitButton.html(submitButtonHtml);
 
-            //        // Re-disable all of our fields
-            //        submitButton.prop("disabled", true);
-            //        $('#Firstname').prop('disabled', true);
-            //        $('#Firstname').val(response.firstName);
-            //        $('#Lastname').prop('disabled', true);
-            //        $('#Lastname').val(response.lastName);
-            //        $('#Email').prop('disabled', true);
-            //        $('#Email').val(response.email);
-            //        $('#Image').prop('disabled', true);
-            //        $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
-            //    })
-            //    .fail(function (error) {
-            //        bootbox.alert("Unable to update account information.<br /><br />Error: " + error.statusText);
-            //        submitButton.html(submitButtonHtml);
-            //    })
-            //});
+                    form.reset();
+
+                    // Re-disable all of our fields
+                    submitButton.prop("disabled", true);
+                    $('#Firstname').prop('disabled', true);
+                    $('#Firstname').val(response.firstName);
+                    $('#Lastname').prop('disabled', true);
+                    $('#Lastname').val(response.lastName);
+                    $('#Email').prop('disabled', true);
+                    $('#Email').val(response.email);
+                    $('#Image').prop('disabled', true);
+                    $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
+                })
+                .fail(function (error) {
+                    bootbox.alert("Unable to update account information.<br /><br />Error: " + error.statusText);
+                    submitButton.html(submitButtonHtml);
+                })
+            });
         });
     </script>
 }

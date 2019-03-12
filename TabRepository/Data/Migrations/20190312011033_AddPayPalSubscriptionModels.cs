@@ -28,6 +28,7 @@ namespace TabRepository.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    BillingAgreementId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ExecuteURL = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Json = table.Column<string>(type: "nvarchar(max)", nullable: true),

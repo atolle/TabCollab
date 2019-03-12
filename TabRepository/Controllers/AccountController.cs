@@ -129,14 +129,38 @@ namespace TabRepository.Controllers
                 var agreementJson = await PayPalProcessor.ExecuteBillingAgreement(billingAgreement.RequestToken, token, billingAgreement.ExecuteURL);
                 var jObject = JObject.Parse(agreementJson);
 
-                billingAgreement.Id = (string)jObject["id"];
+                billingAgreement.BillingAgreementId = (string)jObject["id"];
                 billingAgreement.Description = (string)jObject["description"];
                 billingAgreement.Json = agreementJson;
                 billingAgreement.State = (string)jObject["state"];
 
+                // User confirmed their subscription, so update their account type and subscription expiration
+                var userInDb = _context.Users.SingleOrDefault(u => u.Id == billingAgreement.UserId);
+
+                userInDb.AccountType = AccountType.Subscription;
+
+                // Set their subscription expiration
+                if (!userInDb.SubscriptionExpiration.HasValue)
+                {
+                    userInDb.SubscriptionExpiration = DateTime.Now.AddYears(1).AddDays(1);
+                }
+                else
+                {
+                    if (userInDb.SubscriptionExpiration < DateTime.Now)
+                    {
+                        userInDb.SubscriptionExpiration = DateTime.Now.AddYears(1).AddDays(1);
+                    }
+                    else
+                    {
+                        userInDb.SubscriptionExpiration = userInDb.SubscriptionExpiration.Value.AddYears(1).AddDays(1);
+                    }
+                }
+
+                _context.SaveChanges();
+
                 return View();
             }
-            catch
+            catch (Exception e)
             {
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }

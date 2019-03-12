@@ -21,6 +21,10 @@ namespace TabRepository.Models
 
         public string RequestToken { get; set; }
 
+        // This is stored separately from the Id because we won't have the BillingAgreementId until the
+        // BillingAgreement is executed by the user. It's created first, then executed.
+        public string BillingAgreementId { get; set; }
+
         public string PlanId { get; set; }
 
         public string UserId { get; set; }

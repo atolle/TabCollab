@@ -1036,6 +1036,10 @@ td {
     max-width: 600px;
 }
 
+#paypal-form {
+    margin-bottom: 10px;
+}
+
 .row-no-margin {
     margin-right: unset;
     margin-left: unset;

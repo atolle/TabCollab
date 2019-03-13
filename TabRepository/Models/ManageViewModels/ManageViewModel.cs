@@ -36,5 +36,7 @@ namespace TabRepository.Models.ManageViewModels
         public int TabVersionCount { get; set; }
 
         public string Email { get; set; }
+
+        public bool HasActiveAgreement { get; set; }
     }
 }

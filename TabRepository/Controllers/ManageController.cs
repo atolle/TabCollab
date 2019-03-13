@@ -56,48 +56,67 @@ namespace TabRepository.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(ManageMessageId? message = null)
         {
-            string currentUserId = User.GetUserId();
+            try
+            {
+                string currentUserId = User.GetUserId();
 
-            ViewData["StatusMessage"] =
-                message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
-                : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
-                : message == ManageMessageId.SetTwoFactorSuccess ? "Your two-factor authentication provider has been set."
-                : message == ManageMessageId.Error ? "An error has occurred."
-                : message == ManageMessageId.AddPhoneSuccess ? "Your phone number was added."
-                : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
-                : "";
+                ViewData["StatusMessage"] =
+                    message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
+                    : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
+                    : message == ManageMessageId.SetTwoFactorSuccess ? "Your two-factor authentication provider has been set."
+                    : message == ManageMessageId.Error ? "An error has occurred."
+                    : message == ManageMessageId.AddPhoneSuccess ? "Your phone number was added."
+                    : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
+                    : "";
 
-            var user = await GetCurrentUserAsync();
-            if (user == null)
+                var user = await GetCurrentUserAsync();
+                if (user == null)
+                {
+                    return View("Error");
+                }
+
+                // Get a count of total tab versions that this user owns (i.e. their projects)
+                var tabVersionCount = _context.TabVersions.Include(u => u.User)
+                    .Include(v => v.Tab)
+                    .Include(v => v.Tab.Album)
+                    .Include(v => v.Tab.Album.Project)
+                    .Where(v => v.Tab.Album.Project.UserId == currentUserId)
+                    .Count();
+
+                var billingAgreements = _context.PayPalBillingAgreements.Where(a => a.UserId == user.Id).ToList();
+                bool hasActiveAgreement = false;
+
+                foreach (PayPalBillingAgreement agreement in billingAgreements)
+                {
+                    if (agreement.State.ToLower() == "active")
+                    {
+                        hasActiveAgreement = true;
+                    }
+                }
+
+                var model = new ManageViewModel
+                {
+                    HasPassword = await _userManager.HasPasswordAsync(user),
+                    PhoneNumber = await _userManager.GetPhoneNumberAsync(user),
+                    TwoFactor = await _userManager.GetTwoFactorEnabledAsync(user),
+                    Logins = await _userManager.GetLoginsAsync(user),
+                    BrowserRemembered = await _signInManager.IsTwoFactorClientRememberedAsync(user),
+                    Username = user.UserName,
+                    Firstname = user.FirstName,
+                    Lastname = user.LastName,
+                    ImageFileName = user.ImageFileName,
+                    ImageFilePath = user.ImageFilePath,
+                    SubsriptionExpiration = user.SubscriptionExpiration,
+                    TabVersionCount = tabVersionCount,
+                    Email = user.Email,
+                    HasActiveAgreement = hasActiveAgreement
+                };
+                return View(model);
+            }
+            catch (Exception e)
             {
                 return View("Error");
             }
-
-            // Get a count of total tab versions that this user owns (i.e. their projects)
-            var tabVersionCount = _context.TabVersions.Include(u => u.User)
-                .Include(v => v.Tab)
-                .Include(v => v.Tab.Album)
-                .Include(v => v.Tab.Album.Project)
-                .Where(v => v.Tab.Album.Project.UserId == currentUserId)
-                .Count();
-
-            var model = new ManageViewModel
-            {
-                HasPassword = await _userManager.HasPasswordAsync(user),
-                PhoneNumber = await _userManager.GetPhoneNumberAsync(user),
-                TwoFactor = await _userManager.GetTwoFactorEnabledAsync(user),
-                Logins = await _userManager.GetLoginsAsync(user),
-                BrowserRemembered = await _signInManager.IsTwoFactorClientRememberedAsync(user),
-                Username = user.UserName,
-                Firstname = user.FirstName,
-                Lastname = user.LastName,
-                ImageFileName = user.ImageFileName,
-                ImageFilePath = user.ImageFilePath,
-                SubsriptionExpiration = user.SubscriptionExpiration,
-                TabVersionCount = tabVersionCount,
-                Email = user.Email
-            };
-            return View(model);
         }
 
         //

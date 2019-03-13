@@ -38,7 +38,7 @@ namespace TabRepository.Helpers
             }
         }
 
-        public static async Task<string> CreateBillingPlan(string token)
+        public static async Task<string> CreateBillingPlan(IConfiguration configuration, string token)
         {
             using (var httpClient = new HttpClient())
             {
@@ -46,33 +46,33 @@ namespace TabRepository.Helpers
                 {
                     request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + token);
 
-                    request.Content = new StringContent(@"
-                        {  
+                    request.Content = new StringContent(String.Format(@"
+                        {{  
                             ""name"": ""TabCollab Subscription Plan"",
                             ""description"": ""Standard TabCollab Subscription Plan."",
                             ""type"": ""INFINITE"",
                             ""payment_definitions"": [
-                                {
+                                {{
                                     ""name"": ""Standard TabCollab Paymet"",
                                     ""type"": ""REGULAR"",
                                     ""frequency"": ""YEAR"",
                                     ""frequency_interval"": ""1"",
                                     ""amount"":
-                                    {
+                                    {{
                                         ""value"": ""50"",
                                         ""currency"": ""USD""
-                                    },
+                                    }},
                                     ""cycles"": ""0""
-                                }],
+                                }}],
                             ""merchant_preferences"":
-                            {
-                                ""return_url"": ""https://localhost:5001/Account/SubscriptionConfirmation"",
-                                ""cancel_url"": ""https://localhost:5001/Account/SubscriptionCancel"",
+                            {{
+                                ""return_url"": ""{0}/Account/SubscriptionConfirmation"",
+                                ""cancel_url"": ""{0}/Account/SubscriptionCancel"",
                                 ""auto_bill_amount"": ""YES"",
                                 ""initial_fail_amount_action"": ""CANCEL"",
                                 ""max_fail_attempts"": ""0""
-                            }
-                        }", Encoding.UTF8, "application/json");
+                            }}
+                        }}", configuration["PayPal:SandboxURL"]), Encoding.UTF8, "application/json");
 
                     var response = await httpClient.SendAsync(request);
                     var contents = await response.Content.ReadAsStringAsync();
@@ -134,7 +134,7 @@ namespace TabRepository.Helpers
                             {{
                                 ""payment_method"": ""paypal""
                             }}
-                        }}", DateTime.UtcNow.ToString("s") + "Z", planId), Encoding.UTF8, "application/json");
+                        }}", DateTime.UtcNow.AddDays(1).ToString("s") + "Z", planId), Encoding.UTF8, "application/json");
 
                     var response = await httpClient.SendAsync(request);
                     var contents = await response.Content.ReadAsStringAsync();
@@ -158,6 +158,32 @@ namespace TabRepository.Helpers
                     var contents = await response.Content.ReadAsStringAsync();
 
                     return contents;
+                }
+            }
+        }
+
+        public static async Task<bool> CancelBillingAgreement(string requestToken, string agreementId)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.sandbox.paypal.com/v1/payments/billing-agreements/" + agreementId + "/cancel"))
+                {
+                    // Set Content-Type header
+                    request.Content = new StringContent(@"
+                        {  
+                            ""note"": ""Canceling TabCollab subscription.""
+                        }", Encoding.UTF8, "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + requestToken);
+
+                    var response = await httpClient.SendAsync(request);
+
+                    // 204 indicates success per PayPal API
+                    if (response.StatusCode != HttpStatusCode.NoContent)
+                    {
+                        return false;
+                    }
+
+                    return true;
                 }
             }
         }

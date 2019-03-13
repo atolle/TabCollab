@@ -126,7 +126,7 @@ namespace TabRepository.Controllers
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
                 string requestToken = await PayPalProcessor.GetPayPalToken(_configuration);
-                var agreementJson = await PayPalProcessor.ExecuteBillingAgreement(billingAgreement.RequestToken, token, billingAgreement.ExecuteURL);
+                var agreementJson = await PayPalProcessor.ExecuteBillingAgreement(requestToken, token, billingAgreement.ExecuteURL);
                 var jObject = JObject.Parse(agreementJson);
 
                 billingAgreement.BillingAgreementId = (string)jObject["id"];
@@ -137,28 +137,41 @@ namespace TabRepository.Controllers
                 // User confirmed their subscription, so update their account type and subscription expiration
                 var userInDb = _context.Users.SingleOrDefault(u => u.Id == billingAgreement.UserId);
 
-                userInDb.AccountType = AccountType.Subscription;
-
-                // Set their subscription expiration
-                if (!userInDb.SubscriptionExpiration.HasValue)
+                if (userInDb == null)
                 {
-                    userInDb.SubscriptionExpiration = DateTime.Now.AddYears(1).AddDays(1);
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
-                else
+
+                if (billingAgreement.State.ToLower() == "active")
                 {
-                    if (userInDb.SubscriptionExpiration < DateTime.Now)
+                    userInDb.AccountType = AccountType.Subscription;
+
+                    // Set their subscription expiration
+                    if (!userInDb.SubscriptionExpiration.HasValue)
                     {
                         userInDb.SubscriptionExpiration = DateTime.Now.AddYears(1).AddDays(1);
                     }
                     else
                     {
-                        userInDb.SubscriptionExpiration = userInDb.SubscriptionExpiration.Value.AddYears(1).AddDays(1);
+                        if (userInDb.SubscriptionExpiration < DateTime.Now)
+                        {
+                            userInDb.SubscriptionExpiration = DateTime.Now.AddYears(1).AddDays(1);
+                        }
+                        else
+                        {
+                            userInDb.SubscriptionExpiration = userInDb.SubscriptionExpiration.Value.AddYears(1).AddDays(1);
+                        }
                     }
+
+                    _context.SaveChanges();
+
+                    return View();
+                }
+                else
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
 
-                _context.SaveChanges();
-
-                return View();
             }
             catch (Exception e)
             {
@@ -168,11 +181,58 @@ namespace TabRepository.Controllers
 
         //
         // GET: /Account/SubscriptionCancel
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult SubscriptionCancel(string returnUrl = null)
+        [HttpPost]
+        public async Task<IActionResult> SubscriptionCancel(string returnUrl = null)
         {
-            return View();
+            try
+            {
+                string currentUserId = User.GetUserId();
+
+                var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+                var billingAgreements = _context.PayPalBillingAgreements.Where(a => a.UserId == currentUserId).ToList();
+
+                if (billingAgreements == null)
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+
+                PayPalBillingAgreement billingAgreement = null;
+
+                // If we have multiple agreements (unlikely), cancel the first active one we find
+                foreach (PayPalBillingAgreement agreement in billingAgreements)
+                {
+                    if (agreement.State.ToLower() == "active")
+                    {
+                        billingAgreement = agreement;
+                    }
+                }
+
+                if (billingAgreement == null)
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+
+                string requestToken = await PayPalProcessor.GetPayPalToken(_configuration);
+                var canceledAgreement = await PayPalProcessor.CancelBillingAgreement(requestToken, billingAgreement.BillingAgreementId);
+
+                if (canceledAgreement)
+                {
+                    billingAgreement.State = "Canceled";
+
+                    _context.SaveChanges();
+
+                    return Json(new { success = true });
+                }
+                else
+                {
+                    return Json(new { success = false });
+                }
+            }
+            catch (Exception e)
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
         }
 
         //
@@ -221,7 +281,7 @@ namespace TabRepository.Controllers
                     // We don't have a subscription plan yet, so create it
                     if (planInDb == null)
                     {
-                        var planJson = await PayPalProcessor.CreateBillingPlan(token);
+                        var planJson = await PayPalProcessor.CreateBillingPlan(_configuration, token);
                         var planObject = JObject.Parse(planJson);
                         PayPalBillingPlan plan = new PayPalBillingPlan
                         {
@@ -238,7 +298,7 @@ namespace TabRepository.Controllers
                         planInDb = plan;
                     }
 
-                    if (planInDb.State != "ACTIVE")
+                    if (planInDb.State.ToLower() != "active")
                     {
                         // Attempt to activate the plan
                         if (!await PayPalProcessor.ActivateBillingPlan(token, planInDb.Id))
@@ -247,7 +307,7 @@ namespace TabRepository.Controllers
                         }
                         else
                         {
-                            planInDb.State = "ACTIVE";
+                            planInDb.State = "Active";
                             _context.SaveChanges();
                         }
                     }

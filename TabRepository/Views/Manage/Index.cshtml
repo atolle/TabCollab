@@ -43,6 +43,18 @@
                         {
                             <h5 style="color: red;">Subscription expired</h5>
                         }
+
+                        if (Model.HasActiveAgreement)
+                        {
+                            <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-danger dashboard-button">Cancel Subscription</a>
+                        }
+                        else if (daysLeft <= 0)
+                        {
+                            <form asp-controller="Account" asp-action="ProcessPayPal" asp-route-returnurl="@ViewData[" ReturnUrl"]" id="paypal-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal">
+                                <button type="submit" class="btn btn-subscribe"><img class="btn-paypal-img" src="~/images/paypallogosubscribe.png" /></button>
+                                @Html.AntiForgeryToken()
+                            </form>
+                        }
                     }
                     @if (Model.HasPassword)
                     {
@@ -128,7 +140,7 @@
                 }
             });
 
-            // Show modal for new project
+            // Enable account fields for edit
             $("#page").on("click", "#edit-account-button", function (e, data) {
                 e.preventDefault();
 
@@ -137,6 +149,42 @@
                 $('#Email').prop('disabled', false);
                 $('#Image').prop('disabled', false);
                 submitButton.prop('disabled', false);
+            });
+
+            $(document).on("click", "#btn-cancel-subscription", function (e, data) {
+                e.preventDefault();
+
+                var href = this.href,
+                    that = this;
+
+                bootbox.prompt("Confirm Subscription Cancellation", function (result) {
+                    if (result != null) {
+                        if (result.toLowerCase() == 'yes') {
+                            $.ajax({
+                                type: 'POST',
+                                dataType: 'json',
+                                traditional: 'true',
+                                url: href
+                            })
+                            .then(function (response) {
+                                if (!response.success) {
+                                    bootbox.alert("Subscription cancellation failed. Please contact TabCollab support at support@tabcollab.com.");
+                                }
+                                else {
+                                    bootbox.alert("Your subscription has been canceled.");
+                                    $('#btn-cancel-subscription').remove();
+                                }
+                            })
+                        }
+                        else {
+                            bootbox.alert("Subscription not canceled.");
+                        }
+                    }
+                });
+
+                // CSS change to make the title display properly and add prompt text
+                $('.modal-header').css('display', 'unset');
+                $('.bootbox-body').prepend('<p>Are you sure you wish to cancel your subscription?<br />Confirm by typing "yes" below:</p>');
             });
 
             $(document).on("submit", "#paypal-form", function (e, data) {

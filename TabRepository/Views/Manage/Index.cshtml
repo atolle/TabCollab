@@ -44,16 +44,13 @@
                             <h5 style="color: red;">Subscription expired</h5>
                         }
 
-                        if (Model.HasActiveAgreement)
+                        if (Model.HasActiveSubscription)
                         {
-                            <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-danger dashboard-button">Cancel Subscription</a>
+                            <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-danger dashboard-button">Cancel Auto-Renew</a>
                         }
-                        else if (daysLeft <= 0)
+                        else if (Model.HasCancelledSubscription)
                         {
-                            <form asp-controller="Account" asp-action="ProcessPayPal" asp-route-returnurl="@ViewData[" ReturnUrl"]" id="paypal-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal">
-                                <button type="submit" class="btn btn-subscribe"><img class="btn-paypal-img" src="~/images/paypallogosubscribe.png" /></button>
-                                @Html.AntiForgeryToken()
-                            </form>
+                            <a asp-controller="Account" asp-action="SubscriptionReactivate" id="btn-reactivate-subscription" class="btn btn-default dashboard-button">Reactivate Subscription Auto-Renew</a>
                         }
                     }
                     @if (Model.HasPassword)
@@ -157,7 +154,7 @@
                 var href = this.href,
                     that = this;
 
-                bootbox.prompt("Confirm Subscription Cancellation", function (result) {
+                bootbox.prompt("Confirm Cancel Subscription Auto-Renew", function (result) {
                     if (result != null) {
                         if (result.toLowerCase() == 'yes') {
                             $.ajax({
@@ -168,10 +165,10 @@
                             })
                             .then(function (response) {
                                 if (!response.success) {
-                                    bootbox.alert("Subscription cancellation failed. Please contact TabCollab support at support@tabcollab.com.");
+                                    bootbox.alert("Subscription auto-renew cancellation failed. Please contact TabCollab support at support@tabcollab.com.");
                                 }
                                 else {
-                                    bootbox.alert("Your subscription has been canceled.");
+                                    bootbox.alert("Subscription auto-renew has been canceled.");
                                     $('#btn-cancel-subscription').remove();
                                 }
                             })
@@ -184,11 +181,48 @@
 
                 // CSS change to make the title display properly and add prompt text
                 $('.modal-header').css('display', 'unset');
-                $('.bootbox-body').prepend('<p>Are you sure you wish to cancel your subscription?<br />Confirm by typing "yes" below:</p>');
+                $('.bootbox-body').prepend('<p>Are you sure you wish to cancel your subscription auto-renew?<br />Confirm by typing "yes" below:</p>');
+            });
+
+            $(document).on("click", "#btn-reactivate-subscription", function (e, data) {
+                e.preventDefault();
+
+                var href = this.href,
+                    that = this;
+
+                bootbox.prompt("Confirm Reactivate Subscription Auto-Renew", function (result) {
+                    if (result != null) {
+                        if (result.toLowerCase() == 'yes') {
+                            $.ajax({
+                                type: 'POST',
+                                dataType: 'json',
+                                traditional: 'true',
+                                url: href
+                            })
+                                .then(function (response) {
+                                    if (!response.success) {
+                                        bootbox.alert("Subscription reactivation failed. Please contact TabCollab support at support@tabcollab.com.");
+                                    }
+                                    else {
+                                        bootbox.alert("Subscription has been reactivated.");
+                                        $('#btn-reactivate-subscription').remove();
+                                    }
+                                })
+                        }
+                        else {
+                            bootbox.alert("Subscription not reactivated.");
+                        }
+                    }
+                });
+
+                // CSS change to make the title display properly and add prompt text
+                $('.modal-header').css('display', 'unset');
+                $('.bootbox-body').prepend('<p>Are you sure you wish to reactivate your subscription auto-renew?<br />Confirm by typing "yes" below:</p>');
             });
 
             $(document).on("submit", "#paypal-form", function (e, data) {
                 $('.btn-subscribe').html('<div class="loader"></div>');
+                $('.btn-subscribe').prop('disabled', true);
             });
 
             $(document).on("submit", "#profile-form", function (e, data) {

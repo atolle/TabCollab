@@ -17,8 +17,8 @@
                                 <i class="fa fa-lg fa-chevron-down show-buttons-icon"></i>
                             </div>
                             <div class="item-container">
-                                <a id="edit-project-button" style="visibility: hidden;" data-toggle="tooltip" title="Edit project" class="list-icon pull-left white-icon" href="@Url.Action("GetProjectFormPartialView", "Projects", new { id = project.Id })"><i class="fa fa-pencil fa-lg" /></a>
-                                <a id="delete-project-button" style="visibility: hidden;" data-toggle="tooltip" title="Delete project" class="list-icon pull-right white-icon" data-name="@project.Name" href="@Url.Action("Delete", "Projects", new { id = project.Id })"><i class="fa fa-times fa-lg" /></a>
+                                <a id="edit-project-button" style="visibility: hidden;" data-toggle="tooltip" title="Edit Project" class="list-icon pull-left white-icon" href="@Url.Action("GetProjectFormPartialView", "Projects", new { id = project.Id })"><i class="fa fa-pencil fa-lg" /></a>
+                                <a id="delete-project-button" style="visibility: hidden;" data-toggle="tooltip" title="Delete Project" class="list-icon pull-right white-icon" data-name="@project.Name" href="@Url.Action("Delete", "Projects", new { id = project.Id })"><i class="fa fa-times fa-lg" /></a>
                             </div>
                             <div class="hide-items-icon-container">
                                 <i class="fa fa-lg fa-chevron-up hide-buttons-icon"></i>
@@ -32,8 +32,8 @@
 }
 else
 {
-    <div class="center-form-outer-container" align="center">
-        <div class="center-form-inner-container">
+    <div class="flex-container-row">
+        <div class="flex-container-col">
             <h2 style="color: grey">You don't have any projects. Create one!</h2>
         </div>
     </div>

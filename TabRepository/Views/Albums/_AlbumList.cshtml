@@ -17,8 +17,8 @@
                                 <i class="fa fa-lg fa-chevron-down show-buttons-icon"></i>
                             </div>
                             <div class="item-container">
-                                <a id="edit-album-button" style="visibility: hidden;" data-toggle="tooltip" title="Edit album" class="pull-left list-icon white-icon" data-project-id="@album.ProjectId" data-album-id="@album.Id" href="@Url.Action("GetAlbumFormPartialView", "Albums")"><i class="fa fa-pencil fa-lg" /></a>
-                                <a id="delete-album-button" style="visibility: hidden;" data-toggle="tooltip" title="Delete album" class="pull-right list-icon white-icon" data-name="@album.Name" href="@Url.Action("Delete", "Albums", new { id = album.Id })"><i class="fa fa-times fa-lg" /></a>
+                                <a id="edit-album-button" style="visibility: hidden;" data-toggle="tooltip" title="Edit Album" class="pull-left list-icon white-icon" data-project-id="@album.ProjectId" data-album-id="@album.Id" href="@Url.Action("GetAlbumFormPartialView", "Albums")"><i class="fa fa-pencil fa-lg" /></a>
+                                <a id="delete-album-button" style="visibility: hidden;" data-toggle="tooltip" title="Delete Album" class="pull-right list-icon white-icon" data-name="@album.Name" href="@Url.Action("Delete", "Albums", new { id = album.Id })"><i class="fa fa-times fa-lg" /></a>
                             </div>
                             <div class="hide-items-icon-container">
                                 <i class="fa fa-lg fa-chevron-up hide-buttons-icon"></i>
@@ -32,8 +32,8 @@
 }
 else
 {
-    <div class="center-form-outer-container" align="center">
-        <div class="center-form-inner-container">
+    <div class="flex-container-row">
+        <div class="flex-container-col">
             <h2 style="color: grey">You don't have any albums. Create one!</h2>
         </div>
     </div>

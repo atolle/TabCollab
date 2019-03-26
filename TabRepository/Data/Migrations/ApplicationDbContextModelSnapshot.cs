@@ -333,7 +333,7 @@ namespace TabRepository.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PayPalBillingAgreements");
+                    b.ToTable("PayPalBillingAgreement");
                 });
 
             modelBuilder.Entity("TabRepository.Models.PayPalBillingPlan", b =>
@@ -351,7 +351,73 @@ namespace TabRepository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PayPalBillingPlans");
+                    b.ToTable("PayPalBillingPlan");
+                });
+
+            modelBuilder.Entity("TabRepository.Models.PayPalPlan", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Description");
+
+                    b.Property<string>("Json");
+
+                    b.Property<string>("Name");
+
+                    b.Property<string>("ProductId");
+
+                    b.Property<string>("Status");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("PayPalPlans");
+                });
+
+            modelBuilder.Entity("TabRepository.Models.PayPalProduct", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Description");
+
+                    b.Property<string>("Json");
+
+                    b.Property<string>("Name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PayPalProducts");
+                });
+
+            modelBuilder.Entity("TabRepository.Models.PayPalSubscription", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Description");
+
+                    b.Property<string>("Json");
+
+                    b.Property<string>("Name");
+
+                    b.Property<string>("PlanId");
+
+                    b.Property<string>("Status");
+
+                    b.Property<string>("SubscriptionToken");
+
+                    b.Property<string>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlanId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PayPalSubscriptions");
                 });
 
             modelBuilder.Entity("TabRepository.Models.Project", b =>
@@ -595,6 +661,24 @@ namespace TabRepository.Migrations
                         .WithMany("BillingAgreements")
                         .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TabRepository.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("TabRepository.Models.PayPalPlan", b =>
+                {
+                    b.HasOne("TabRepository.Models.PayPalProduct", "Product")
+                        .WithMany("Plans")
+                        .HasForeignKey("ProductId");
+                });
+
+            modelBuilder.Entity("TabRepository.Models.PayPalSubscription", b =>
+                {
+                    b.HasOne("TabRepository.Models.PayPalPlan", "Plan")
+                        .WithMany()
+                        .HasForeignKey("PlanId");
 
                     b.HasOne("TabRepository.Models.ApplicationUser", "User")
                         .WithMany()

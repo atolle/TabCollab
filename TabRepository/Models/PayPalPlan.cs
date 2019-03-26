@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 
 namespace TabRepository.Models
 {
-    // This class is deprecated as it is meant for PayPal's old Subscription plan API
-    public class PayPalBillingPlan
+    public class PayPalPlan
     {
         public string Id { get; set; }
 
@@ -16,8 +15,10 @@ namespace TabRepository.Models
 
         public string Json { get; set; }
 
-        public string State { get; set; }
+        public string Status { get; set; }
 
-        public virtual ICollection<PayPalBillingAgreement> BillingAgreements { get; set; }
+        public string ProductId { get; set; }
+
+        public virtual PayPalProduct Product { get; set; }
     }
 }

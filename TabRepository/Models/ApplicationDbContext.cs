@@ -93,8 +93,9 @@ namespace TabRepository.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<NotificationUser> NotificationUsers { get; set; }
         public DbSet<UserTabVersion> UserTabVersions { get; set; }
-        public DbSet<PayPalBillingPlan> PayPalBillingPlans { get; set; }
-        public DbSet<PayPalBillingAgreement> PayPalBillingAgreements { get; set; }
+        public DbSet<PayPalProduct> PayPalProducts { get; set; }
+        public DbSet<PayPalPlan> PayPalPlans{ get; set; }
+        public DbSet<PayPalSubscription> PayPalSubscriptions { get; set; }
 
         public ApplicationDbContext()
             : base()

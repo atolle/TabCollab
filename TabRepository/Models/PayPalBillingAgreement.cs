@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace TabRepository.Models
 {
+    // This class is deprecated as it is meant for PayPal's old Subscription plan API
     public class PayPalBillingAgreement
     {
         public string Token { get; set; }

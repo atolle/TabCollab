@@ -119,30 +119,28 @@ namespace TabRepository.Controllers
         {
             try
             {
-                var billingAgreement = _context.PayPalBillingAgreements.Where(a => a.Token == token).FirstOrDefault();
+                var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.SubscriptionToken == token).FirstOrDefault();
 
-                if (billingAgreement == null)
+                if (subscriptionInDb == null)
                 {
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
-                string requestToken = await PayPalProcessor.GetPayPalToken(_configuration);
-                var agreementJson = await PayPalProcessor.ExecuteBillingAgreement(requestToken, token, billingAgreement.ExecuteURL);
-                var jObject = JObject.Parse(agreementJson);
 
-                billingAgreement.BillingAgreementId = (string)jObject["id"];
-                billingAgreement.Description = (string)jObject["description"];
-                billingAgreement.Json = agreementJson;
-                billingAgreement.State = (string)jObject["state"];
+                string requestToken = await PayPalProcessor.GetPayPalToken(_configuration);
+                var subscriptionJson = await PayPalProcessor.GetSubscription(requestToken, subscriptionInDb.Id);
+                var subscriptionObject = JObject.Parse(subscriptionJson);
+
+                subscriptionInDb.Status = (string)subscriptionObject["status"];
 
                 // User confirmed their subscription, so update their account type and subscription expiration
-                var userInDb = _context.Users.SingleOrDefault(u => u.Id == billingAgreement.UserId);
+                var userInDb = _context.Users.SingleOrDefault(u => u.Id == subscriptionInDb.UserId);
 
                 if (userInDb == null)
                 {
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
 
-                if (billingAgreement.State.ToLower() == "active")
+                if (subscriptionInDb.Status.ToLower() == "active")
                 {
                     userInDb.AccountType = AccountType.Subscription;
 
@@ -182,7 +180,7 @@ namespace TabRepository.Controllers
         //
         // GET: /Account/SubscriptionCancel
         [HttpPost]
-        public async Task<IActionResult> SubscriptionCancel(string returnUrl = null)
+        public async Task<IActionResult> SubscriptionCancel()
         {
             try
             {
@@ -190,35 +188,67 @@ namespace TabRepository.Controllers
 
                 var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-                var billingAgreements = _context.PayPalBillingAgreements.Where(a => a.UserId == currentUserId).ToList();
+                var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.UserId == currentUserId).FirstOrDefault();
 
-                if (billingAgreements == null)
+                if (subscriptionInDb == null)
                 {
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                }
+                }              
 
-                PayPalBillingAgreement billingAgreement = null;
+                string requestToken = await PayPalProcessor.GetPayPalToken(_configuration);
+                var canceledSubscription = await PayPalProcessor.CancelSubscription(requestToken, subscriptionInDb.Id);
 
-                // If we have multiple agreements (unlikely), cancel the first active one we find
-                foreach (PayPalBillingAgreement agreement in billingAgreements)
+                if (canceledSubscription)
                 {
-                    if (agreement.State.ToLower() == "active")
-                    {
-                        billingAgreement = agreement;
-                    }
-                }
+                    // Get the subscription so we can get the new state
+                    var subscriptionJson = await PayPalProcessor.GetSubscription(requestToken, subscriptionInDb.Id);
+                    var subscriptionObject = JObject.Parse(subscriptionJson);
 
-                if (billingAgreement == null)
+                    subscriptionInDb.Status = (string)subscriptionObject["status"];
+
+                    _context.SaveChanges();
+
+                    return Json(new { success = true });
+                }
+                else
+                {
+                    return Json(new { success = false });
+                }
+            }
+            catch (Exception e)
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        //
+        // GET: /Account/SubscriptionCancel
+        [HttpPost]
+        public async Task<IActionResult> SubscriptionReactivate()
+        {
+            try
+            {
+                string currentUserId = User.GetUserId();
+
+                var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+                var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.UserId == currentUserId).FirstOrDefault();
+
+                if (subscriptionInDb == null)
                 {
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
 
                 string requestToken = await PayPalProcessor.GetPayPalToken(_configuration);
-                var canceledAgreement = await PayPalProcessor.CancelBillingAgreement(requestToken, billingAgreement.BillingAgreementId);
+                var activatedSubscription = await PayPalProcessor.ActivateSubscription(requestToken, subscriptionInDb.Id);
 
-                if (canceledAgreement)
+                if (activatedSubscription)
                 {
-                    billingAgreement.State = "Canceled";
+                    // Get the subscription so we can get the new state
+                    var subscriptionJson = await PayPalProcessor.GetSubscription(requestToken, subscriptionInDb.Id);
+                    var subscriptionObject = JObject.Parse(subscriptionJson);
+
+                    subscriptionInDb.Status = (string)subscriptionObject["status"];
 
                     _context.SaveChanges();
 
@@ -275,66 +305,83 @@ namespace TabRepository.Controllers
                     var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
                     string token = await PayPalProcessor.GetPayPalToken(_configuration);
+                    
+                    var productInDb = _context.PayPalProducts.Where(p => p.Name == "TabCollab Subscription").FirstOrDefault();
 
-                    var planInDb = _context.PayPalBillingPlans.Where(p => p.Name == "TabCollab Subscription Plan").FirstOrDefault();
+                    // Make sure we have a product
+                    if (productInDb == null)
+                    {
+                        var productJson = await PayPalProcessor.CreateProduct(_configuration, token);
 
-                    // We don't have a subscription plan yet, so create it
+                        var productObject = JObject.Parse(productJson);
+
+                        PayPalProduct product = new PayPalProduct
+                        {
+                            Id = (string)productObject["id"],
+                            Name = (string)productObject["name"],
+                            Description = (string)productObject["description"],
+                            Json = productJson
+                        };
+
+                        _context.PayPalProducts.Add(product);
+                        _context.SaveChanges();
+
+                        productInDb = product;
+                    }
+
+                    var planInDb = _context.PayPalPlans.Where(p => p.ProductId == productInDb.Id).FirstOrDefault();
+
+                    // Make sure we have a plan
                     if (planInDb == null)
                     {
-                        var planJson = await PayPalProcessor.CreateBillingPlan(_configuration, token);
+                        var planJson = await PayPalProcessor.CreatePlan(_configuration, token, productInDb.Id);
+
                         var planObject = JObject.Parse(planJson);
-                        PayPalBillingPlan plan = new PayPalBillingPlan
+
+                        PayPalPlan plan = new PayPalPlan
                         {
                             Id = (string)planObject["id"],
                             Name = (string)planObject["name"],
                             Description = (string)planObject["description"],
                             Json = planJson,
-                            State = (string)planObject["state"]
+                            ProductId = (string)planObject["product_id"],
+                            Status = (string)planObject["status"]
                         };
 
-                        _context.PayPalBillingPlans.Add(plan);
+                        _context.PayPalPlans.Add(plan);
                         _context.SaveChanges();
 
                         planInDb = plan;
                     }
 
-                    if (planInDb.State.ToLower() != "active")
+                    var subscriptionInDb = _context.PayPalSubscriptions.Where(s => s.UserId == currentUserId).FirstOrDefault();
+
+                    if (subscriptionInDb == null)
                     {
-                        // Attempt to activate the plan
-                        if (!await PayPalProcessor.ActivateBillingPlan(token, planInDb.Id))
+                        var subscriptionJson = await PayPalProcessor.CreatePlan(_configuration, token, productInDb.Id);
+
+                        var subscriptionObject = JObject.Parse(subscriptionJson);
+
+                        string href = (string)subscriptionObject["links"][0]["href"];
+                        string subscriptionToken = href.Substring(href.IndexOf("ba_token=") + "ba_token=".Length);
+
+                        PayPalSubscription subscription = new PayPalSubscription
                         {
-                            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                        }
-                        else
-                        {
-                            planInDb.State = "Active";
-                            _context.SaveChanges();
-                        }
+                            Id = (string)subscriptionObject["id"],
+                            Name = (string)subscriptionObject["name"],
+                            Description = (string)subscriptionObject["description"],
+                            Json = subscriptionJson,
+                            PlanId = (string)subscriptionObject["plan_id"],
+                            Status = (string)subscriptionObject["status"],
+                            UserId = currentUserId,
+                            SubscriptionToken = subscriptionToken
+                        };
+
+                        _context.PayPalSubscriptions.Add(subscription);
+                        _context.SaveChanges();
+
+                        return Redirect(href);
                     }
-
-                    // Create the billing agreem
-                    var agreementJson = await PayPalProcessor.CreateBillingAgreement(token, planInDb.Id);
-
-                    var agreementObject = JObject.Parse(agreementJson);
-
-                    // Extract the token from the href because PayPal does not yet support custom fields in the return_url
-                    // We will use this as a lookup once the user executes the billing agreement from PayPal
-                    string href = (string)agreementObject["links"][0]["href"];
-                    string agreementToken = href.Substring(href.IndexOf("token=") + "token=".Length);
-
-                    PayPalBillingAgreement billingAgreement = new PayPalBillingAgreement
-                    {
-                        Token = agreementToken,
-                        UserId = currentUserId,
-                        ExecuteURL = (string)agreementObject["links"][1]["href"],
-                        RequestToken = token,
-                        PlanId = (string)agreementObject["plan"]["id"]
-                };
-
-                    _context.PayPalBillingAgreements.Add(billingAgreement);
-                    _context.SaveChanges();
-
-                    return Redirect(href);
                 }
 
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);

@@ -115,11 +115,11 @@ namespace TabRepository.Controllers
         // GET: /Account/SubscriptionConfirmation
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> SubscriptionConfirmation(string token)
+        public async Task<IActionResult> SubscriptionConfirmation(string subscription_id)
         {
             try
             {
-                var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.SubscriptionToken == token).FirstOrDefault();
+                var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.Id == subscription_id).FirstOrDefault();
 
                 if (subscriptionInDb == null)
                 {
@@ -219,6 +219,13 @@ namespace TabRepository.Controllers
             {
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
+        }
+
+        [HttpGet]
+        [ActionName("SubscriptionCancel")]
+        public IActionResult SubscriptionCancelGet()
+        {
+            return View("SubscriptionCancel");
         }
 
         //
@@ -345,7 +352,8 @@ namespace TabRepository.Controllers
                             Description = (string)planObject["description"],
                             Json = planJson,
                             ProductId = (string)planObject["product_id"],
-                            Status = (string)planObject["status"]
+                            Status = (string)planObject["status"],
+                            Product = productInDb
                         };
 
                         _context.PayPalPlans.Add(plan);
@@ -358,7 +366,7 @@ namespace TabRepository.Controllers
 
                     if (subscriptionInDb == null)
                     {
-                        var subscriptionJson = await PayPalProcessor.CreatePlan(_configuration, token, productInDb.Id);
+                        var subscriptionJson = await PayPalProcessor.CreateSubscription(_configuration, token, planInDb.Id, userInDb);
 
                         var subscriptionObject = JObject.Parse(subscriptionJson);
 
@@ -368,17 +376,26 @@ namespace TabRepository.Controllers
                         PayPalSubscription subscription = new PayPalSubscription
                         {
                             Id = (string)subscriptionObject["id"],
-                            Name = (string)subscriptionObject["name"],
                             Description = (string)subscriptionObject["description"],
                             Json = subscriptionJson,
                             PlanId = (string)subscriptionObject["plan_id"],
+                            Plan = planInDb,
                             Status = (string)subscriptionObject["status"],
+                            User = userInDb,
                             UserId = currentUserId,
                             SubscriptionToken = subscriptionToken
                         };
 
                         _context.PayPalSubscriptions.Add(subscription);
                         _context.SaveChanges();
+
+                        return Redirect(href);
+                    }
+                    else if (subscriptionInDb.Status == "APPROVAL_PENDING")
+                    {
+                        var subscriptionObject = JObject.Parse(subscriptionInDb.Json);
+
+                        string href = (string)subscriptionObject["links"][0]["href"];                        
 
                         return Redirect(href);
                     }

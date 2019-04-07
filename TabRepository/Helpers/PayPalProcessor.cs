@@ -56,7 +56,7 @@ namespace TabRepository.Helpers
                 using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.sandbox.paypal.com/v1/catalogs/products"))
                 {
                     request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + token);
-                    request.Headers.Add("PayPal-Request-Id", PayPalProcessor.GetIdempotencyKey());                    
+                    request.Headers.TryAddWithoutValidation("PayPal-Request-Id", PayPalProcessor.GetIdempotencyKey());                    
 
                     request.Content = new StringContent(String.Format(@"
                         {{
@@ -86,11 +86,11 @@ namespace TabRepository.Helpers
                     request.Headers.TryAddWithoutValidation("Prefer", "return=representation");
                     request.Headers.TryAddWithoutValidation("PayPal-Request-Id", PayPalProcessor.GetIdempotencyKey());
 
-                    request.Content = new StringContent(@"
+                    request.Content = new StringContent(String.Format(@"
                         {{
                             ""product_id"": ""{0}"",
-                            ""name"": ""Create a flat Plan (Idempotent)"",
-                            ""description"": ""Basic plan with fixed and trial definitions"",
+                            ""name"": ""TabCollab Subscription Plan"",
+                            ""description"": ""TabCollab yearly subscription plan"",
                             ""status"": ""ACTIVE"",
                             ""billing_cycles"": [
                             {{
@@ -99,8 +99,8 @@ namespace TabRepository.Helpers
                                     ""interval_count"": 1
                                 }},
                                 ""tenure_type"": ""REGULAR"",
-                                ""sequence"": 2,
-                                ""total_cycles"": 12,
+                                ""sequence"": 1,
+                                ""total_cycles"": 998,
                                 ""pricing_scheme"": {{
                                     ""fixed_price"": {{
                                     ""value"": ""49.99"",
@@ -112,7 +112,7 @@ namespace TabRepository.Helpers
                             ""payment_preferences"": {{
                                 ""payment_failure_threshold"": 3
                             }}
-                        }}", Encoding.UTF8, "application/json");
+                        }}", productId), Encoding.UTF8, "application/json");
 
                     var response = await httpClient.SendAsync(request);
                     var contents = await response.Content.ReadAsStringAsync();
@@ -141,19 +141,19 @@ namespace TabRepository.Helpers
                                     ""given_name"": ""{2}"",
                                     ""surname"": ""{3}""
                                 }},
-                                ""email_address"": ""{4}"",
+                                ""email_address"": ""{4}""
                             }},
                             ""auto_renewal"": true,
                             ""application_context"": {{
                                 ""brand_name"": ""{5}"",
                                 ""locale"": ""en-US"",
-                                ""user_action"": ""SUBSCRIBE"",
+                                ""user_action"": ""SUBSCRIBE_NOW"",
                                 ""payment_method"": {{
                                     ""payer_selected"": ""PAYPAL"",
                                     ""payee_preferred"": ""IMMEDIATE_PAYMENT_REQUIRED""
                                 }},
                                 ""return_url"": ""{6}/Account/SubscriptionConfirmation"",
-                                ""cancel_url"": ""{6}/Account/SubscriptionCancel"",
+                                ""cancel_url"": ""{6}/Account/SubscriptionCancel""
                             }}
                         }}", 
                         planId, 

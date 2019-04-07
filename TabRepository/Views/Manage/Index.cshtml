@@ -24,10 +24,12 @@
                         }
                         <h5 style="color: @color;">@(tabsRemaining) tab versions remaining</h5>
 
-                        <form asp-controller="Account" asp-action="ProcessPayPal" asp-route-returnurl="@ViewData[" ReturnUrl"]" id="paypal-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal">
-                            <button type="submit" class="btn btn-subscribe"><img class="btn-paypal-img" src="~/images/paypallogosubscribe.png" /></button>
-                            @Html.AntiForgeryToken()
-                        </form>
+                        <div class="subscription-btn-container">
+                            <form asp-controller="Account" asp-action="ProcessPayPal" asp-route-returnurl="@ViewData[" ReturnUrl"]" id="paypal-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal">
+                                <button type="submit" class="btn btn-subscribe"><img class="btn-paypal-img" src="~/images/paypallogosubscribe.png" /></button>
+                                @Html.AntiForgeryToken()
+                            </form>
+                        </div>
                     }
                     else
                     {
@@ -46,11 +48,15 @@
 
                         if (Model.HasActiveSubscription)
                         {
-                            <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-danger dashboard-button">Cancel Auto-Renew</a>
+                            <div class="subscription-btn-container">
+                                <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-danger dashboard-button">Cancel Auto-Renew</a>
+                            </div>                            
                         }
                         else if (Model.HasCancelledSubscription)
                         {
-                            <a asp-controller="Account" asp-action="SubscriptionReactivate" id="btn-reactivate-subscription" class="btn btn-default dashboard-button">Reactivate Subscription Auto-Renew</a>
+                            <div class="subscription-btn-container">
+                                <a asp-controller="Account" asp-action="SubscriptionReactivate" id="btn-reactivate-subscription" class="btn btn-default dashboard-button">Reactivate Subscription Auto-Renew</a>
+                            </div>
                         }
                     }
                     @if (Model.HasPassword)
@@ -170,6 +176,7 @@
                                 else {
                                     bootbox.alert("Subscription auto-renew has been canceled.");
                                     $('#btn-cancel-subscription').remove();
+                                    $('.subscription-btn-container').html('<a id="btn-reactivate-subscription" class="btn btn-default dashboard-button" href="/Account/SubscriptionReactivate">Reactivate Subscription Auto-Renew</a>');
                                 }
                             })
                         }
@@ -206,6 +213,7 @@
                                     else {
                                         bootbox.alert("Subscription has been reactivated.");
                                         $('#btn-reactivate-subscription').remove();
+                                        $('.subscription-btn-container').html('<a id="btn-cancel-subscription" class="btn btn-danger dashboard-button" href="/Account/SubscriptionCancel">Cancel Auto-Renew</a>');
                                     }
                                 })
                         }

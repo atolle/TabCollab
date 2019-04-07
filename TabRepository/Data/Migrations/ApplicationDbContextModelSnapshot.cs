@@ -401,8 +401,6 @@ namespace TabRepository.Migrations
 
                     b.Property<string>("Json");
 
-                    b.Property<string>("Name");
-
                     b.Property<string>("PlanId");
 
                     b.Property<string>("Status");

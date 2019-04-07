@@ -13,7 +13,7 @@ using TabRepository.Models.AccountViewModels;
 namespace TabRepository.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20190326004049_AddPayPalSubscriptionModels")]
+    [Migration("20190403013822_AddPayPalSubscriptionModels")]
     partial class AddPayPalSubscriptionModels
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -401,8 +401,6 @@ namespace TabRepository.Migrations
                     b.Property<string>("Description");
 
                     b.Property<string>("Json");
-
-                    b.Property<string>("Name");
 
                     b.Property<string>("PlanId");
 

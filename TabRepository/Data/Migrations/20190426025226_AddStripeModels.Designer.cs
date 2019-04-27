@@ -13,8 +13,8 @@ using TabRepository.Models.AccountViewModels;
 namespace TabRepository.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20190403013822_AddPayPalSubscriptionModels")]
-    partial class AddPayPalSubscriptionModels
+    [Migration("20190426025226_AddStripeModels")]
+    partial class AddStripeModels
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -181,6 +181,8 @@ namespace TabRepository.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
 
+                    b.Property<string>("CustomerId");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256);
 
@@ -305,120 +307,6 @@ namespace TabRepository.Migrations
                     b.ToTable("NotificationUsers");
                 });
 
-            modelBuilder.Entity("TabRepository.Models.PayPalBillingAgreement", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("BillingAgreementId");
-
-                    b.Property<string>("Description");
-
-                    b.Property<string>("ExecuteURL");
-
-                    b.Property<string>("Json");
-
-                    b.Property<string>("PlanId");
-
-                    b.Property<string>("RequestToken");
-
-                    b.Property<string>("State");
-
-                    b.Property<string>("Token");
-
-                    b.Property<string>("UserId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlanId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PayPalBillingAgreement");
-                });
-
-            modelBuilder.Entity("TabRepository.Models.PayPalBillingPlan", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Description");
-
-                    b.Property<string>("Json");
-
-                    b.Property<string>("Name");
-
-                    b.Property<string>("State");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PayPalBillingPlan");
-                });
-
-            modelBuilder.Entity("TabRepository.Models.PayPalPlan", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Description");
-
-                    b.Property<string>("Json");
-
-                    b.Property<string>("Name");
-
-                    b.Property<string>("ProductId");
-
-                    b.Property<string>("Status");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("PayPalPlans");
-                });
-
-            modelBuilder.Entity("TabRepository.Models.PayPalProduct", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Description");
-
-                    b.Property<string>("Json");
-
-                    b.Property<string>("Name");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PayPalProducts");
-                });
-
-            modelBuilder.Entity("TabRepository.Models.PayPalSubscription", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Description");
-
-                    b.Property<string>("Json");
-
-                    b.Property<string>("PlanId");
-
-                    b.Property<string>("Status");
-
-                    b.Property<string>("SubscriptionToken");
-
-                    b.Property<string>("UserId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlanId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PayPalSubscriptions");
-                });
-
             modelBuilder.Entity("TabRepository.Models.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -458,6 +346,72 @@ namespace TabRepository.Migrations
                     b.HasAlternateKey("ProjectId", "UserId");
 
                     b.ToTable("ProjectContributors");
+                });
+
+            modelBuilder.Entity("TabRepository.Models.StripeCustomer", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("SubscriptionId");
+
+                    b.Property<string>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
+
+                    b.ToTable("StripeCustomers");
+                });
+
+            modelBuilder.Entity("TabRepository.Models.StripePlan", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Nickname");
+
+                    b.Property<string>("ProductId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("StripePlans");
+                });
+
+            modelBuilder.Entity("TabRepository.Models.StripeProduct", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StripeProducts");
+                });
+
+            modelBuilder.Entity("TabRepository.Models.StripeSubscription", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("CustomerId");
+
+                    b.Property<string>("PlanId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId")
+                        .IsUnique()
+                        .HasFilter("[CustomerId] IS NOT NULL");
+
+                    b.HasIndex("PlanId");
+
+                    b.ToTable("StripeSubscriptions");
                 });
 
             modelBuilder.Entity("TabRepository.Models.Tab", b =>
@@ -654,36 +608,6 @@ namespace TabRepository.Migrations
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("TabRepository.Models.PayPalBillingAgreement", b =>
-                {
-                    b.HasOne("TabRepository.Models.PayPalBillingPlan", "Plan")
-                        .WithMany("BillingAgreements")
-                        .HasForeignKey("PlanId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("TabRepository.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("TabRepository.Models.PayPalPlan", b =>
-                {
-                    b.HasOne("TabRepository.Models.PayPalProduct", "Product")
-                        .WithMany("Plans")
-                        .HasForeignKey("ProductId");
-                });
-
-            modelBuilder.Entity("TabRepository.Models.PayPalSubscription", b =>
-                {
-                    b.HasOne("TabRepository.Models.PayPalPlan", "Plan")
-                        .WithMany()
-                        .HasForeignKey("PlanId");
-
-                    b.HasOne("TabRepository.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-                });
-
             modelBuilder.Entity("TabRepository.Models.Project", b =>
                 {
                     b.HasOne("TabRepository.Models.ApplicationUser", "User")
@@ -702,6 +626,35 @@ namespace TabRepository.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("TabRepository.Models.StripeCustomer", b =>
+                {
+                    b.HasOne("TabRepository.Models.ApplicationUser", "User")
+                        .WithOne("Customer")
+                        .HasForeignKey("TabRepository.Models.StripeCustomer", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TabRepository.Models.StripePlan", b =>
+                {
+                    b.HasOne("TabRepository.Models.StripeProduct", "Product")
+                        .WithMany("Plans")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TabRepository.Models.StripeSubscription", b =>
+                {
+                    b.HasOne("TabRepository.Models.StripeCustomer", "Customer")
+                        .WithOne("Subscription")
+                        .HasForeignKey("TabRepository.Models.StripeSubscription", "CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TabRepository.Models.StripePlan", "Plan")
+                        .WithMany("Subscriptions")
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("TabRepository.Models.Tab", b =>

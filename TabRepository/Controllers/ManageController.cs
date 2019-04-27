@@ -83,21 +83,13 @@ namespace TabRepository.Controllers
                     .Where(v => v.Tab.Album.Project.UserId == currentUserId)
                     .Count();
 
-                var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.UserId == user.Id).FirstOrDefault();
+               // var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.UserId == user.Id && a.Status.ToLower() == "active").FirstOrDefault();
                 bool hasActiveSubscription = false;
-                bool hasCancelledSubscription = false;
 
-                if (subscriptionInDb != null)
-                {
-                    if (subscriptionInDb.Status.ToLower() == "active")
-                    {
-                        hasActiveSubscription = true;
-                    }
-                    else if (subscriptionInDb.Status.ToLower() == "cancelled")
-                    {
-                        hasCancelledSubscription = true;
-                    }
-                }
+                //if (subscriptionInDb != null)
+                //{
+                //    hasActiveSubscription = true;
+                //}
 
                 var model = new ManageViewModel
                 {
@@ -114,8 +106,7 @@ namespace TabRepository.Controllers
                     SubsriptionExpiration = user.SubscriptionExpiration,
                     TabVersionCount = tabVersionCount,
                     Email = user.Email,
-                    HasActiveSubscription = hasActiveSubscription,
-                    HasCancelledSubscription = hasCancelledSubscription
+                    HasActiveSubscription = hasActiveSubscription
                 };
                 return View(model);
             }

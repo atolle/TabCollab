@@ -113,113 +113,113 @@ namespace TabRepository.Controllers
 
         //
         // GET: /Account/SubscriptionConfirmation
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> SubscriptionConfirmation(string subscription_id)
-        {
-            try
-            {
-                var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.Id == subscription_id).FirstOrDefault();
+        //[HttpGet]
+        //[AllowAnonymous]
+        //public async Task<IActionResult> SubscriptionConfirmation(string subscription_id)
+        //{
+        //    try
+        //    {
+        //        var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.Id == subscription_id).FirstOrDefault();
 
-                if (subscriptionInDb == null)
-                {
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                }
+        //        if (subscriptionInDb == null)
+        //        {
+        //            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        //        }
 
-                string requestToken = await PayPalProcessor.GetPayPalToken(_configuration);
-                var subscriptionJson = await PayPalProcessor.GetSubscription(requestToken, subscriptionInDb.Id);
-                var subscriptionObject = JObject.Parse(subscriptionJson);
+        //        string requestToken = await PayPalProcessor.GetPayPalToken(_configuration);
+        //        var subscriptionJson = await PayPalProcessor.GetSubscription(requestToken, subscriptionInDb.Id);
+        //        var subscriptionObject = JObject.Parse(subscriptionJson);
 
-                subscriptionInDb.Status = (string)subscriptionObject["status"];
+        //        subscriptionInDb.Status = (string)subscriptionObject["status"];
 
-                // User confirmed their subscription, so update their account type and subscription expiration
-                var userInDb = _context.Users.SingleOrDefault(u => u.Id == subscriptionInDb.UserId);
+        //        // User confirmed their subscription, so update their account type and subscription expiration
+        //        var userInDb = _context.Users.SingleOrDefault(u => u.Id == subscriptionInDb.UserId);
 
-                if (userInDb == null)
-                {
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                }
+        //        if (userInDb == null)
+        //        {
+        //            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        //        }
 
-                if (subscriptionInDb.Status.ToLower() == "active")
-                {
-                    userInDb.AccountType = AccountType.Subscription;
+        //        if (subscriptionInDb.Status.ToLower() == "active")
+        //        {
+        //            userInDb.AccountType = AccountType.Subscription;
 
-                    // Set their subscription expiration
-                    if (!userInDb.SubscriptionExpiration.HasValue)
-                    {
-                        userInDb.SubscriptionExpiration = DateTime.Now.AddYears(1).AddDays(1);
-                    }
-                    else
-                    {
-                        if (userInDb.SubscriptionExpiration < DateTime.Now)
-                        {
-                            userInDb.SubscriptionExpiration = DateTime.Now.AddYears(1).AddDays(1);
-                        }
-                        else
-                        {
-                            userInDb.SubscriptionExpiration = userInDb.SubscriptionExpiration.Value.AddYears(1).AddDays(1);
-                        }
-                    }
+        //            // Set their subscription expiration
+        //            if (!userInDb.SubscriptionExpiration.HasValue)
+        //            {
+        //                userInDb.SubscriptionExpiration = DateTime.Now.AddYears(1).AddDays(1);
+        //            }
+        //            else
+        //            {
+        //                if (userInDb.SubscriptionExpiration < DateTime.Now)
+        //                {
+        //                    userInDb.SubscriptionExpiration = DateTime.Now.AddYears(1).AddDays(1);
+        //                }
+        //                else
+        //                {
+        //                    userInDb.SubscriptionExpiration = userInDb.SubscriptionExpiration.Value.AddYears(1).AddDays(1);
+        //                }
+        //            }
 
-                    _context.SaveChanges();
+        //            _context.SaveChanges();
 
-                    return View();
-                }
-                else
-                {
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                }
+        //            return View();
+        //        }
+        //        else
+        //        {
+        //            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        //        }
 
-            }
-            catch (Exception e)
-            {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
-        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        //    }
+        //}
 
         //
         // GET: /Account/SubscriptionCancel
-        [HttpPost]
-        public async Task<IActionResult> SubscriptionCancel()
-        {
-            try
-            {
-                string currentUserId = User.GetUserId();
+        //[HttpPost]
+        //public async Task<IActionResult> SubscriptionCancel()
+        //{
+        //    try
+        //    {
+        //        string currentUserId = User.GetUserId();
 
-                var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+        //        var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-                var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.UserId == currentUserId).FirstOrDefault();
+        //        var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.UserId == currentUserId).FirstOrDefault();
 
-                if (subscriptionInDb == null)
-                {
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                }              
+        //        if (subscriptionInDb == null)
+        //        {
+        //            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        //        }              
 
-                string requestToken = await PayPalProcessor.GetPayPalToken(_configuration);
-                var canceledSubscription = await PayPalProcessor.CancelSubscription(requestToken, subscriptionInDb.Id);
+        //        string requestToken = await PayPalProcessor.GetPayPalToken(_configuration);
+        //        var canceledSubscription = await PayPalProcessor.CancelSubscription(requestToken, subscriptionInDb.Id);
 
-                if (canceledSubscription)
-                {
-                    // Get the subscription so we can get the new state
-                    var subscriptionJson = await PayPalProcessor.GetSubscription(requestToken, subscriptionInDb.Id);
-                    var subscriptionObject = JObject.Parse(subscriptionJson);
+        //        if (canceledSubscription)
+        //        {
+        //            // Get the subscription so we can get the new state
+        //            var subscriptionJson = await PayPalProcessor.GetSubscription(requestToken, subscriptionInDb.Id);
+        //            var subscriptionObject = JObject.Parse(subscriptionJson);
 
-                    subscriptionInDb.Status = (string)subscriptionObject["status"];
+        //            subscriptionInDb.Status = (string)subscriptionObject["status"];
 
-                    _context.SaveChanges();
+        //            _context.SaveChanges();
 
-                    return Json(new { success = true });
-                }
-                else
-                {
-                    return Json(new { success = false });
-                }
-            }
-            catch (Exception e)
-            {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
-        }
+        //            return Json(new { success = true });
+        //        }
+        //        else
+        //        {
+        //            return Json(new { success = false });
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        //    }
+        //}
 
         [HttpGet]
         [ActionName("SubscriptionCancel")]
@@ -230,47 +230,47 @@ namespace TabRepository.Controllers
 
         //
         // GET: /Account/SubscriptionCancel
-        [HttpPost]
-        public async Task<IActionResult> SubscriptionReactivate()
-        {
-            try
-            {
-                string currentUserId = User.GetUserId();
+        //[HttpPost]
+        //public async Task<IActionResult> SubscriptionReactivate()
+        //{
+        //    try
+        //    {
+        //        string currentUserId = User.GetUserId();
 
-                var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+        //        var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-                var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.UserId == currentUserId).FirstOrDefault();
+        //        var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.UserId == currentUserId).FirstOrDefault();
 
-                if (subscriptionInDb == null)
-                {
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                }
+        //        if (subscriptionInDb == null)
+        //        {
+        //            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        //        }
 
-                string requestToken = await PayPalProcessor.GetPayPalToken(_configuration);
-                var activatedSubscription = await PayPalProcessor.ActivateSubscription(requestToken, subscriptionInDb.Id);
+        //        string requestToken = await PayPalProcessor.GetPayPalToken(_configuration);
+        //        var activatedSubscription = await PayPalProcessor.ActivateSubscription(requestToken, subscriptionInDb.Id);
 
-                if (activatedSubscription)
-                {
-                    // Get the subscription so we can get the new state
-                    var subscriptionJson = await PayPalProcessor.GetSubscription(requestToken, subscriptionInDb.Id);
-                    var subscriptionObject = JObject.Parse(subscriptionJson);
+        //        if (activatedSubscription)
+        //        {
+        //            // Get the subscription so we can get the new state
+        //            var subscriptionJson = await PayPalProcessor.GetSubscription(requestToken, subscriptionInDb.Id);
+        //            var subscriptionObject = JObject.Parse(subscriptionJson);
 
-                    subscriptionInDb.Status = (string)subscriptionObject["status"];
+        //            subscriptionInDb.Status = (string)subscriptionObject["status"];
 
-                    _context.SaveChanges();
+        //            _context.SaveChanges();
 
-                    return Json(new { success = true });
-                }
-                else
-                {
-                    return Json(new { success = false });
-                }
-            }
-            catch (Exception e)
-            {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
-        }
+        //            return Json(new { success = true });
+        //        }
+        //        else
+        //        {
+        //            return Json(new { success = false });
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        //    }
+        //}
 
         //
         // GET: /Account/Register
@@ -301,113 +301,245 @@ namespace TabRepository.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ProcessPayPal(PayPalFormViewModel model)
+        public async Task<IActionResult> ProcessStripe(CreditCardFormViewModel model)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
+                //    JObject subscriptionObject;
+                //    string href;
+                //    string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
 
-                    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+                //    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-                    string token = await PayPalProcessor.GetPayPalToken(_configuration);
-                    
-                    var productInDb = _context.PayPalProducts.Where(p => p.Name == "TabCollab Subscription").FirstOrDefault();
+                //    string token = await PayPalProcessor.GetPayPalToken(_configuration);
 
-                    // Make sure we have a product
-                    if (productInDb == null)
-                    {
-                        var productJson = await PayPalProcessor.CreateProduct(_configuration, token);
+                //    var productInDb = _context.PayPalProducts.Where(p => p.Name == "TabCollab Subscription").FirstOrDefault();
 
-                        var productObject = JObject.Parse(productJson);
+                //    // Make sure we have a product
+                //    if (productInDb == null)
+                //    {
+                //        var productJson = await PayPalProcessor.CreateProduct(_configuration, token);
 
-                        PayPalProduct product = new PayPalProduct
-                        {
-                            Id = (string)productObject["id"],
-                            Name = (string)productObject["name"],
-                            Description = (string)productObject["description"],
-                            Json = productJson
-                        };
+                //        var productObject = JObject.Parse(productJson);
 
-                        _context.PayPalProducts.Add(product);
-                        _context.SaveChanges();
+                //        PayPalProduct product = new PayPalProduct
+                //        {
+                //            Id = (string)productObject["id"],
+                //            Name = (string)productObject["name"],
+                //            Description = (string)productObject["description"],
+                //            Json = productJson
+                //        };
 
-                        productInDb = product;
-                    }
+                //        _context.PayPalProducts.Add(product);
+                //        _context.SaveChanges();
 
-                    var planInDb = _context.PayPalPlans.Where(p => p.ProductId == productInDb.Id).FirstOrDefault();
+                //        productInDb = product;
+                //    }
 
-                    // Make sure we have a plan
-                    if (planInDb == null)
-                    {
-                        var planJson = await PayPalProcessor.CreatePlan(_configuration, token, productInDb.Id);
+                //    var planInDb = _context.PayPalPlans.Where(p => p.ProductId == productInDb.Id).FirstOrDefault();
 
-                        var planObject = JObject.Parse(planJson);
+                //    // Make sure we have a plan
+                //    if (planInDb == null)
+                //    {
+                //        var planJson = await PayPalProcessor.CreatePlan(_configuration, token, productInDb.Id);
 
-                        PayPalPlan plan = new PayPalPlan
-                        {
-                            Id = (string)planObject["id"],
-                            Name = (string)planObject["name"],
-                            Description = (string)planObject["description"],
-                            Json = planJson,
-                            ProductId = (string)planObject["product_id"],
-                            Status = (string)planObject["status"],
-                            Product = productInDb
-                        };
+                //        var planObject = JObject.Parse(planJson);
 
-                        _context.PayPalPlans.Add(plan);
-                        _context.SaveChanges();
+                //        PayPalPlan plan = new PayPalPlan
+                //        {
+                //            Id = (string)planObject["id"],
+                //            Name = (string)planObject["name"],
+                //            Description = (string)planObject["description"],
+                //            Json = planJson,
+                //            ProductId = (string)planObject["product_id"],
+                //            Status = (string)planObject["status"],
+                //            Product = productInDb
+                //        };
 
-                        planInDb = plan;
-                    }
+                //        _context.PayPalPlans.Add(plan);
+                //        _context.SaveChanges();
 
-                    var subscriptionInDb = _context.PayPalSubscriptions.Where(s => s.UserId == currentUserId).FirstOrDefault();
+                //        planInDb = plan;
+                //    }
 
-                    if (subscriptionInDb == null)
-                    {
-                        var subscriptionJson = await PayPalProcessor.CreateSubscription(_configuration, token, planInDb.Id, userInDb);
+                //    var subscriptionsInDb = _context.PayPalSubscriptions.Where(s => s.UserId == currentUserId).ToList();
 
-                        var subscriptionObject = JObject.Parse(subscriptionJson);
+                //    // If we already have active subscriptions we shouldn't be here
+                //    if (subscriptionsInDb.Where(s => s.Status.ToLower() == "active").FirstOrDefault() != null)
+                //    {
+                //        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                //    }
 
-                        string href = (string)subscriptionObject["links"][0]["href"];
-                        string subscriptionToken = href.Substring(href.IndexOf("ba_token=") + "ba_token=".Length);
+                //    var pendingSubscriptionInDb = subscriptionsInDb.Where(s => s.Status.ToLower() == "approval_pending").FirstOrDefault();
 
-                        PayPalSubscription subscription = new PayPalSubscription
-                        {
-                            Id = (string)subscriptionObject["id"],
-                            Description = (string)subscriptionObject["description"],
-                            Json = subscriptionJson,
-                            PlanId = (string)subscriptionObject["plan_id"],
-                            Plan = planInDb,
-                            Status = (string)subscriptionObject["status"],
-                            User = userInDb,
-                            UserId = currentUserId,
-                            SubscriptionToken = subscriptionToken
-                        };
+                //    // If we have a pending subscription, activate it
+                //    if (pendingSubscriptionInDb != null)
+                //    {
+                //        subscriptionObject = JObject.Parse(pendingSubscriptionInDb.Json);
 
-                        _context.PayPalSubscriptions.Add(subscription);
-                        _context.SaveChanges();
+                //        href = (string)subscriptionObject["links"][0]["href"];
 
-                        return Redirect(href);
-                    }
-                    else if (subscriptionInDb.Status == "APPROVAL_PENDING")
-                    {
-                        var subscriptionObject = JObject.Parse(subscriptionInDb.Json);
+                //        return Redirect(href);
+                //    }
 
-                        string href = (string)subscriptionObject["links"][0]["href"];                        
+                //    // We either have no subscriptions, or they're all cancelled
+                //    var subscriptionJson = await PayPalProcessor.CreateSubscription(_configuration, token, planInDb.Id, userInDb);
 
-                        return Redirect(href);
-                    }
+                //    subscriptionObject = JObject.Parse(subscriptionJson);
+
+                //    href = (string)subscriptionObject["links"][0]["href"];
+                //    string subscriptionToken = href.Substring(href.IndexOf("ba_token=") + "ba_token=".Length);
+
+                //    PayPalSubscription subscription = new PayPalSubscription
+                //    {
+                //        Id = (string)subscriptionObject["id"],
+                //        Description = (string)subscriptionObject["description"],
+                //        Json = subscriptionJson,
+                //        PlanId = (string)subscriptionObject["plan_id"],
+                //        Plan = planInDb,
+                //        Status = (string)subscriptionObject["status"],
+                //        User = userInDb,
+                //        UserId = currentUserId,
+                //        SubscriptionToken = subscriptionToken
+                //    };
+
+                //    _context.PayPalSubscriptions.Add(subscription);
+                //    _context.SaveChanges();
+
+                //    return Redirect(href);
                 }
 
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                // If we got this far, something failed, redisplay form
+                return PartialView("_CreditCardForm", model);
             }
             catch (Exception e)
             {
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
+
+        //[HttpPost]
+        //[AllowAnonymous]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> ProcessPayPal(PayPalFormViewModel model)
+        //{
+        //    try
+        //    {
+        //        if (ModelState.IsValid)
+        //        {
+        //            JObject subscriptionObject;
+        //            string href;
+        //            string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
+
+        //            var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+        //            string token = await PayPalProcessor.GetPayPalToken(_configuration);
+
+        //            var productInDb = _context.PayPalProducts.Where(p => p.Name == "TabCollab Subscription").FirstOrDefault();
+
+        //            // Make sure we have a product
+        //            if (productInDb == null)
+        //            {
+        //                var productJson = await PayPalProcessor.CreateProduct(_configuration, token);
+
+        //                var productObject = JObject.Parse(productJson);
+
+        //                PayPalProduct product = new PayPalProduct
+        //                {
+        //                    Id = (string)productObject["id"],
+        //                    Name = (string)productObject["name"],
+        //                    Description = (string)productObject["description"],
+        //                    Json = productJson
+        //                };
+
+        //                _context.PayPalProducts.Add(product);
+        //                _context.SaveChanges();
+
+        //                productInDb = product;
+        //            }
+
+        //            var planInDb = _context.PayPalPlans.Where(p => p.ProductId == productInDb.Id).FirstOrDefault();
+
+        //            // Make sure we have a plan
+        //            if (planInDb == null)
+        //            {
+        //                var planJson = await PayPalProcessor.CreatePlan(_configuration, token, productInDb.Id);
+
+        //                var planObject = JObject.Parse(planJson);
+
+        //                PayPalPlan plan = new PayPalPlan
+        //                {
+        //                    Id = (string)planObject["id"],
+        //                    Name = (string)planObject["name"],
+        //                    Description = (string)planObject["description"],
+        //                    Json = planJson,
+        //                    ProductId = (string)planObject["product_id"],
+        //                    Status = (string)planObject["status"],
+        //                    Product = productInDb
+        //                };
+
+        //                _context.PayPalPlans.Add(plan);
+        //                _context.SaveChanges();
+
+        //                planInDb = plan;
+        //            }
+
+        //            var subscriptionsInDb = _context.PayPalSubscriptions.Where(s => s.UserId == currentUserId).ToList();
+
+        //            // If we already have active subscriptions we shouldn't be here
+        //            if (subscriptionsInDb.Where(s => s.Status.ToLower() == "active").FirstOrDefault() != null)
+        //            {
+        //                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        //            }
+
+        //            var pendingSubscriptionInDb = subscriptionsInDb.Where(s => s.Status.ToLower() == "approval_pending").FirstOrDefault();
+
+        //            // If we have a pending subscription, activate it
+        //            if (pendingSubscriptionInDb != null)
+        //            {
+        //                subscriptionObject = JObject.Parse(pendingSubscriptionInDb.Json);
+
+        //                href = (string)subscriptionObject["links"][0]["href"];
+
+        //                return Redirect(href);
+        //            }                    
+
+        //            // We either have no subscriptions, or they're all cancelled
+        //            var subscriptionJson = await PayPalProcessor.CreateSubscription(_configuration, token, planInDb.Id, userInDb);
+
+        //            subscriptionObject = JObject.Parse(subscriptionJson);
+
+        //            href = (string)subscriptionObject["links"][0]["href"];
+        //            string subscriptionToken = href.Substring(href.IndexOf("ba_token=") + "ba_token=".Length);
+
+        //            PayPalSubscription subscription = new PayPalSubscription
+        //            {
+        //                Id = (string)subscriptionObject["id"],
+        //                Description = (string)subscriptionObject["description"],
+        //                Json = subscriptionJson,
+        //                PlanId = (string)subscriptionObject["plan_id"],
+        //                Plan = planInDb,
+        //                Status = (string)subscriptionObject["status"],
+        //                User = userInDb,
+        //                UserId = currentUserId,
+        //                SubscriptionToken = subscriptionToken
+        //            };
+
+        //            _context.PayPalSubscriptions.Add(subscription);
+        //            _context.SaveChanges();
+
+        //            return Redirect(href);
+        //        }
+
+        //        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        //    }
+        //}
 
         [HttpPost]
         [AllowAnonymous]
@@ -490,7 +622,7 @@ namespace TabRepository.Controllers
 
                     if (model.AccountType == AccountType.Subscription)
                     {
-                        partialView = "_RegisterConfirmationPayPalForm";
+                        partialView = "_CreditCardForm";
                         ViewBag.UserId = user.Id;
                     }
 

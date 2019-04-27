@@ -138,7 +138,7 @@
                 $('#free-radio').click();
             }
             bootbox.dialog({
-                message: "Free TabCollab Account<br /><br />With the free TabCollab account, you get 50 free tab version uploads for your own projects and unlimited uploads to the projects of other musicians.<br /><br />HOWEVER, for $49.99/year (less than $5/month) you can sign up for a subscription account and get UNLIMITED tab version uploads.",
+                message: "<h4>Free TabCollab Account</h4><br /><h6 style='text-decoration: underline'>What You Get</h6>With the free TabCollab account, you get 50 free tab version uploads for your own projects and unlimited uploads to the projects of other musicians.<br /><br />This type of account is ideal of those who need to be able to contribute to other projects and occasionally work on personal projects.<br /><br /><h6 style='text-decoration: underline'>Price</h6>This type of account is free!<br /><br />HOWEVER, for $50.00/year (less than $5/month) you can sign up for a subscription account and get UNLIMITED tab version uploads. You can upgrade to a subscription account at any time through the Account page.",
                 buttons: {
                     confirm: {
                         label: 'Close',
@@ -156,9 +156,8 @@
                 $('#subscription-radio').click();
                 $('#subscription-radio').click();
             }
-            $('#payment').show();
             bootbox.dialog({
-                message: "Subscription TabCollab Account<br /><br />With the subscription-based TabCollab account, you get UNLIMITED tab version uploads for your projects, as well as unlimited uploads to the projects of other musicians.<br /><br />$49.99/year (less than $5/month)",
+                message: "<h4><strong>Subscription TabCollab Account</strong></h4><br /><h6 style='text-decoration: underline'>What You Get</h6>With the subscription-based TabCollab account, you get UNLIMITED tab version uploads for your projects, as well as unlimited uploads to the projects of other musicians.<br /><br />If you love working on multiple projects, or you have a project to which multiple musicians will be contributing, this is the type of account for you.<br /><br /><h6 style='text-decoration: underline'>Price</h6>$50.00/year (less than $5/month)",
                 buttons: {
                     confirm: {
                         label: 'Close',
@@ -258,12 +257,10 @@
             $('.btn-subscribe').html('<div class="loader"></div>');            
         });
 
-        $(document).on("submit", "#register-form", function (e, data) {
+        $(document).on("submit", "#register-form, #payment-form", function (e, data) {
             $('.button-submit-wide').html('<div class="loader"></div>');
 
             e.preventDefault();
-
-            $('#register-form').valid();
 
             var form = e.target;
             var formData = new FormData(form);
@@ -277,9 +274,18 @@
                 processData: false
             })
                 .then(function (data) {
-                    $('.button-submit-wide').html('Register');
                     $('.flex-container-row').html(data);
                     $.validator.unobtrusive.parse($("#register-form"));
+                    $.validator.unobtrusive.parse($("#payment-form"));
+
+                    // If the payment form exists, set the submit button text and fire the keyup to validate the credit card
+                    if ($("#payment-form").length) {
+                        $('.button-submit-wide').html('Subscribe');
+                        $('#CardNumber').keyup();
+                    }
+                    else {
+                        $('.button-submit-wide').html('Register');
+                    }
 
                     // Set the selected button if a register form was returned
                     if (document.getElementById('free-radio')) {

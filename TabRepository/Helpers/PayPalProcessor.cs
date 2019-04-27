@@ -157,7 +157,7 @@ namespace TabRepository.Helpers
                             }}
                         }}", 
                         planId, 
-                        DateTime.UtcNow.AddDays(1).ToString("s") + "Z",
+                        user.SubscriptionExpiration == null ? DateTime.UtcNow.AddDays(1).ToString("s") + "Z" : Convert.ToDateTime(user.SubscriptionExpiration).AddDays(1).ToString("s") + "Z",
                         user.FirstName,
                         user.LastName,
                         user.Email,

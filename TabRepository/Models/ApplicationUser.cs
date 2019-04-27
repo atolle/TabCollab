@@ -26,6 +26,10 @@ namespace TabRepository.Models
 
         public AccountType AccountType { get; set; }
 
+        public string CustomerId { get; set; }
+
+        public virtual StripeCustomer Customer { get; set; }
+
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             var authenticationType = "Put authentication type Here";

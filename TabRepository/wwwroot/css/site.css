@@ -452,6 +452,7 @@ footer {
     margin-right: 10px;
     margin-top: 10px;
     display: flex;
+    justify-content: space-between;
     width: 100%;
 }
 
@@ -516,10 +517,6 @@ footer {
 
 .selection-panel:hover {
     cursor: pointer;
-}
-
-.modal-dialog {
-    max-width: 325px;
 }
 
 .tab-panel-row {

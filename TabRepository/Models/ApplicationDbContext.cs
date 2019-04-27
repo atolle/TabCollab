@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TabRepository.Models;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Stripe;
 
 namespace TabRepository.Data
 {
@@ -35,11 +36,6 @@ namespace TabRepository.Data
             builder.Entity<Tab>()
                 .HasMany(t => t.TabVersions)
                 .WithOne(t => t.Tab)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<PayPalBillingPlan>()
-                .HasMany(p => p.BillingAgreements)
-                .WithOne(a => a.Plan)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Tab Versions Table
@@ -81,6 +77,29 @@ namespace TabRepository.Data
 
             builder.Entity<UserTabVersion>()
                 .HasKey(v => new { v.UserId, v.TabId });
+
+            // Stripe models
+            builder.Entity<StripeProduct>()
+                .HasMany(p => p.Plans)
+                .WithOne(p => p.Product)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<StripePlan>()
+                .HasMany(p => p.Subscriptions)
+                .WithOne(p => p.Plan)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<StripeCustomer>()
+                .HasOne(c => c.Subscription)
+                .WithOne(s => s.Customer)
+                .HasForeignKey<StripeSubscription>(c => c.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ApplicationUser>()
+                .HasOne(u => u.Customer)
+                .WithOne(c => c.User)
+                .HasForeignKey<StripeCustomer>(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<Tab> Tabs { get; set; }
@@ -93,9 +112,10 @@ namespace TabRepository.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<NotificationUser> NotificationUsers { get; set; }
         public DbSet<UserTabVersion> UserTabVersions { get; set; }
-        public DbSet<PayPalProduct> PayPalProducts { get; set; }
-        public DbSet<PayPalPlan> PayPalPlans{ get; set; }
-        public DbSet<PayPalSubscription> PayPalSubscriptions { get; set; }
+        public DbSet<StripeProduct> StripeProducts { get; set; }
+        public DbSet<StripePlan> StripePlans { get; set; }
+        public DbSet<StripeSubscription> StripeSubscriptions { get; set; }
+        public DbSet<StripeCustomer> StripeCustomers { get; set; }
 
         public ApplicationDbContext()
             : base()

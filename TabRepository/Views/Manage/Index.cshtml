@@ -25,10 +25,7 @@
                         <h5 style="color: @color;">@(tabsRemaining) tab versions remaining</h5>
 
                         <div class="subscription-btn-container">
-                            <form asp-controller="Account" asp-action="ProcessPayPal" asp-route-returnurl="@ViewData[" ReturnUrl"]" id="paypal-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal">
-                                <button type="submit" class="btn btn-subscribe"><img class="btn-paypal-img" src="~/images/paypallogosubscribe.png" /></button>
-                                @Html.AntiForgeryToken()
-                            </form>
+                            <a asp-controller="Account" asp-action="AddSubscription" class="btn btn-primary dashboard-button">Upgrade Account</a>
                         </div>
                     }
                     else
@@ -50,12 +47,12 @@
                         {
                             <div class="subscription-btn-container">
                                 <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-danger dashboard-button">Cancel Auto-Renew</a>
-                            </div>                            
+                            </div>
                         }
-                        else if (Model.HasCancelledSubscription)
+                        else
                         {
                             <div class="subscription-btn-container">
-                                <a asp-controller="Account" asp-action="SubscriptionReactivate" id="btn-reactivate-subscription" class="btn btn-default dashboard-button">Reactivate Subscription Auto-Renew</a>
+                                <a asp-controller="Account" asp-action="AddSubscription" class="btn btn-primary dashboard-button">Upgrade Account</a>
                             </div>
                         }
                     }
@@ -118,8 +115,11 @@
 
 @section scripts
     {
+    <script src="https://js.stripe.com/v3/"></script>
     <script>
         $(document).ready(function () {
+            var stripe = Stripe('pk_test_mMmjGjT6aetaMgLCCu14fWGm00wC0SGVLv');
+
             $('footer').show();
 
             // Only show tooltips on non-touchscreens
@@ -139,7 +139,7 @@
                 else {
                     if ($(".file-validation").length) {
                         $(".file-validation").remove();
-                    }                    
+                    }
                 }
             });
 
@@ -169,16 +169,16 @@
                                 traditional: 'true',
                                 url: href
                             })
-                            .then(function (response) {
-                                if (!response.success) {
-                                    bootbox.alert("Subscription auto-renew cancellation failed. Please contact TabCollab support at support@tabcollab.com.");
-                                }
-                                else {
-                                    bootbox.alert("Subscription auto-renew has been canceled.");
-                                    $('#btn-cancel-subscription').remove();
-                                    $('.subscription-btn-container').html('<a id="btn-reactivate-subscription" class="btn btn-default dashboard-button" href="/Account/SubscriptionReactivate">Reactivate Subscription Auto-Renew</a>');
-                                }
-                            })
+                                .then(function (response) {
+                                    if (!response.success) {
+                                        bootbox.alert("Subscription auto-renew cancellation failed. Please contact TabCollab support at support@tabcollab.com.");
+                                    }
+                                    else {
+                                        bootbox.alert("Subscription auto-renew has been canceled.");
+                                        $('#btn-cancel-subscription').remove();
+                                        $('.subscription-btn-container').html('<a id="btn-reactivate-subscription" class="btn btn-default dashboard-button" href="/Account/SubscriptionReactivate">Reactivate Subscription Auto-Renew</a>');
+                                    }
+                                })
                         }
                         else {
                             bootbox.alert("Subscription not canceled.");
@@ -191,46 +191,48 @@
                 $('.bootbox-body').prepend('<p>Are you sure you wish to cancel your subscription auto-renew?<br />Confirm by typing "yes" below:</p>');
             });
 
-            $(document).on("click", "#btn-reactivate-subscription", function (e, data) {
-                e.preventDefault();
+            //$(document).on("click", "#btn-reactivate-subscription", function (e, data) {
+            //    e.preventDefault();
 
-                var href = this.href,
-                    that = this;
+            //    var href = this.href,
+            //        that = this;
 
-                bootbox.prompt("Confirm Reactivate Subscription Auto-Renew", function (result) {
-                    if (result != null) {
-                        if (result.toLowerCase() == 'yes') {
-                            $.ajax({
-                                type: 'POST',
-                                dataType: 'json',
-                                traditional: 'true',
-                                url: href
-                            })
-                                .then(function (response) {
-                                    if (!response.success) {
-                                        bootbox.alert("Subscription reactivation failed. Please contact TabCollab support at support@tabcollab.com.");
-                                    }
-                                    else {
-                                        bootbox.alert("Subscription has been reactivated.");
-                                        $('#btn-reactivate-subscription').remove();
-                                        $('.subscription-btn-container').html('<a id="btn-cancel-subscription" class="btn btn-danger dashboard-button" href="/Account/SubscriptionCancel">Cancel Auto-Renew</a>');
-                                    }
-                                })
-                        }
-                        else {
-                            bootbox.alert("Subscription not reactivated.");
-                        }
-                    }
-                });
+            //    bootbox.prompt("Confirm Reactivate Subscription Auto-Renew", function (result) {
+            //        if (result != null) {
+            //            if (result.toLowerCase() == 'yes') {
+            //                $.ajax({
+            //                    type: 'POST',
+            //                    dataType: 'json',
+            //                    traditional: 'true',
+            //                    url: href
+            //                })
+            //                    .then(function (response) {
+            //                        if (!response.success) {
+            //                            bootbox.alert("Subscription reactivation failed. Please contact TabCollab support at support@tabcollab.com.");
+            //                        }
+            //                        else {
+            //                            bootbox.alert("Subscription has been reactivated.");
+            //                            $('#btn-reactivate-subscription').remove();
+            //                            $('.subscription-btn-container').html('<a id="btn-cancel-subscription" class="btn btn-danger dashboard-button" href="/Account/SubscriptionCancel">Cancel Auto-Renew</a>');
+            //                        }
+            //                    })
+            //            }
+            //            else {
+            //                bootbox.alert("Subscription not reactivated.");
+            //            }
+            //        }
+            //    });
 
-                // CSS change to make the title display properly and add prompt text
-                $('.modal-header').css('display', 'unset');
-                $('.bootbox-body').prepend('<p>Are you sure you wish to reactivate your subscription auto-renew?<br />Confirm by typing "yes" below:</p>');
-            });
+            //    // CSS change to make the title display properly and add prompt text
+            //    $('.modal-header').css('display', 'unset');
+            //    $('.bootbox-body').prepend('<p>Are you sure you wish to reactivate your subscription auto-renew?<br />Confirm by typing "yes" below:</p>');
+            //});
 
             $(document).on("submit", "#paypal-form", function (e, data) {
                 $('.btn-subscribe').html('<div class="loader"></div>');
                 $('.btn-subscribe').prop('disabled', true);
+                $('#btn-reactivate-subscription').html('<div class="loader"></div>');
+                $('#btn-reactivate-subscription').prop('disabled', true);
             });
 
             $(document).on("submit", "#profile-form", function (e, data) {
@@ -255,26 +257,26 @@
                     contentType: false,
                     processData: false
                 })
-                .then(function (response) {
-                    submitButton.html(submitButtonHtml);
+                    .then(function (response) {
+                        submitButton.html(submitButtonHtml);
 
-                    form.reset();
+                        form.reset();
 
-                    // Re-disable all of our fields
-                    submitButton.prop("disabled", true);
-                    $('#Firstname').prop('disabled', true);
-                    $('#Firstname').val(response.firstName);
-                    $('#Lastname').prop('disabled', true);
-                    $('#Lastname').val(response.lastName);
-                    $('#Email').prop('disabled', true);
-                    $('#Email').val(response.email);
-                    $('#Image').prop('disabled', true);
-                    $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
-                })
-                .fail(function (error) {
-                    bootbox.alert("Unable to update account information.<br /><br />Error: " + error.statusText);
-                    submitButton.html(submitButtonHtml);
-                })
+                        // Re-disable all of our fields
+                        submitButton.prop("disabled", true);
+                        $('#Firstname').prop('disabled', true);
+                        $('#Firstname').val(response.firstName);
+                        $('#Lastname').prop('disabled', true);
+                        $('#Lastname').val(response.lastName);
+                        $('#Email').prop('disabled', true);
+                        $('#Email').val(response.email);
+                        $('#Image').prop('disabled', true);
+                        $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
+                    })
+                    .fail(function (error) {
+                        bootbox.alert("Unable to update account information.<br /><br />Error: " + error.statusText);
+                        submitButton.html(submitButtonHtml);
+                    })
             });
         });
     </script>

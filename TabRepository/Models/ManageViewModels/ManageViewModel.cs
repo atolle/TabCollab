@@ -38,7 +38,5 @@ namespace TabRepository.Models.ManageViewModels
         public string Email { get; set; }
 
         public bool HasActiveSubscription { get; set; }
-
-        public bool HasCancelledSubscription { get; set; }
     }
 }

@@ -111,7 +111,9 @@
                 </table>
             </div>
         </div>
-        <div class="list-loader"></div>
+        <div class="flex-container-col">
+            <div class="list-loader"></div>
+        </div>
         <div class="projects-container row list-row" style="display: none;">
             @{ int i = 1; }
             @foreach (var project in Model)
@@ -253,7 +255,7 @@
 
             $('footer').show();
 
-            $('.list-loader').hide();
+            $('.flex-container-col').hide();
 
             onResize(true);
 

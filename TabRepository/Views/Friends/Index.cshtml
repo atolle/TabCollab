@@ -4,22 +4,26 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container-fluid">
+<div id="list-loader-wrapper" class="flex-container-col">
+    <div class="list-loader"></div>
+</div>
+
+<div class="container-fluid" style="display: none;">
     <div id="page">
         <p></p>
         <p></p>
-        <div class="list-loader"></div>
         <div id="friends-list-wrapper"></div>
     </div>
 </div>
 
 @section scripts
-{
+    {
     <script>
         $(document).ready(function () {
             repopulateFriendsList()
                 .then(function (result) {
-                    $('.list-loader').remove();
+                    $('#list-loader-wrapper').remove();
+                    $('.container-fluid').show();
                     $('hr').show();
                     $('footer').show();
                 })

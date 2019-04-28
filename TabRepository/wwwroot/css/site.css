@@ -22,7 +22,7 @@ footer {
 }
 
 .container-fluid {
-    min-height: 100%;
+    min-height: 100%;    
 }
 
 .dashboard-container {
@@ -388,7 +388,7 @@ footer {
 }
 
 .list-loader {
-    margin: 100px auto auto auto;
+    margin: auto auto auto auto;
     border: 8px solid #f3f3f3; /* Light grey */
     border-top: 8px solid rgb(134, 192, 144); /* Green */
     border-radius: 50%;
@@ -791,6 +791,10 @@ footer {
 
 .btn {
     border-radius: unset !important;
+}
+
+.btn.disabled {
+    pointer-events: none !important;
 }
 
 .btn-primary {

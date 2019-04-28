@@ -3,13 +3,15 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container-fluid">
+<div id="list-loader-wrapper" class="flex-container-col">
+    <div class="list-loader"></div>
+</div>
+
+<div class="container-fluid" style="display: none;">
     <div id="page">
         <div class="buttons-container">
             <a id="new-project-button" data-toggle="tooltip" title="Add New Project" class="white-icon pull-left add-button" href="@Url.Action("GetProjectFormPartialView", "Projects")"><i class="fa fa-plus fa-3x"></i></a>
         </div>
-
-        <div class="list-loader"></div>
 
         <div id="project-list-wrapper"></div>
 
@@ -26,16 +28,17 @@
 </div>
 
 @section scripts
-{
-<script src="~/js/jstree.min.js"></script>
-<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+    {
+    <script src="~/js/jstree.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
 
-<script>
+    <script>
 $(document).ready(function () {
     repopulateProjectList()
         .then(function (result) {
-            $('.list-loader').remove();
+            $('#list-loader-wrapper').remove();
+            $('.container-fluid').show();
             $('hr').show();
             $('footer').show();
         })
@@ -79,7 +82,7 @@ $(document).ready(function () {
 
         // CSS change to make the title display properly and add prompt text
         $('.modal-header').css('display', 'unset')
-        $('.bootbox-body').prepend("<p>Are you sure you wish to delete this project? This cannot be undone.<br />Confirm by typing the project's name below:</p>") 
+        $('.bootbox-body').prepend("<p>Are you sure you wish to delete this project? This cannot be undone.<br />Confirm by typing the project's name below:</p>")
     });
 
     // Show modal for new project
@@ -110,7 +113,7 @@ $(document).ready(function () {
     $("#page").on("click", "#edit-project-button", function (e, data) {
         e.preventDefault();
 
-        var href = this.href + "/?projectId=" + $(this).attr("data-project-id");  
+        var href = this.href + "/?projectId=" + $(this).attr("data-project-id");
 
         $.ajax({
             url: href,
@@ -233,7 +236,7 @@ $(document).ready(function () {
         return $('.contributor-btn').length;
     }
 });
-</script>
+    </script>
 }
 
 

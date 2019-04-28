@@ -100,7 +100,7 @@
                 </div>
                 <div class="form-group">
                     <label asp-for="Image"></label>
-                    <input asp-for="Image" type="file" style="display: block;" class="btn btn-default" disabled />
+                    <input asp-for="Image" type="file" style="display: block;" class="btn btn-default disabled" />
                     <span asp-validation-for="Image" style="color: red"></span>
                 </div>
                 <div>
@@ -150,7 +150,7 @@
                 $('#Firstname').prop('disabled', false);
                 $('#Lastname').prop('disabled', false);
                 $('#Email').prop('disabled', false);
-                $('#Image').prop('disabled', false);
+                $('#Image').removeClass('disabled');
                 submitButton.prop('disabled', false);
             });
 
@@ -270,7 +270,7 @@
                         $('#Lastname').val(response.lastName);
                         $('#Email').prop('disabled', true);
                         $('#Email').val(response.email);
-                        $('#Image').prop('disabled', true);
+                        $('#Image').addClass('disabled');
                         $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
                     })
                     .fail(function (error) {

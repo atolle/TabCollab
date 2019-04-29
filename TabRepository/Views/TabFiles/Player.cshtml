@@ -3,16 +3,19 @@
     Layout = "~/Views/Shared/_PlayerLayout.cshtml";
 }
 
-<h2></h2>
-
 <link href="~/css/player.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.min.css" integrity="sha256-6b+gYy3DG/roKdQiHqp1FJYFQkaZdM6ohUpGyFyUAGk=" crossorigin="anonymous" />
 
-<div class="container-fluid">
-    <div class="list-loader"></div>
-    <div id="alphaTab" class="alphaTab" data-file="@Url.Action("Download", "TabFiles", new { ViewBag.Id })" data-tracks="0"
-         data-player="@Url.Content("~/misc/default.sf2")" data-player-offset="[-10,-70]"></div>
+<div id="list-loader-wrapper" class="container-fluid" style="display: flex;">
+    <div class="flex-container-row">
+        <div class="flex-container-col">
+            <div class="list-loader"></div>
+        </div>
+    </div>
 </div>
+
+<div id="alphaTab" class="alphaTab" data-file="@Url.Action("Download", "TabFiles", new { ViewBag.Id })" data-tracks="0"
+     data-player="@Url.Content("~/misc/default.sf2")" data-player-offset="[-10,-70]"></div>
 
 @section scripts
     {
@@ -90,7 +93,7 @@
             e.stopPropagation();
         });
         at.on('alphaTab.loaded', function (e, score) {
-            $('.list-loader').hide();
+            $('#list-loader-wrapper').hide();
             var trackList = $('#trackList');
             trackList.empty();
 

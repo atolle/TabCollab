@@ -4,15 +4,16 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div id="list-loader-wrapper" class="flex-container-col">
-    <div class="list-loader"></div>
-</div>
-
-<div class="container-fluid" style="display: none;">
-    <div id="page">
+<div class="container-fluid list-container" style="display: flex;">
+    <div id="page" style="position: absolute;">
         <p></p>
         <p></p>
         <div id="friends-list-wrapper"></div>
+    </div>
+    <div id="list-loader-wrapper" class="flex-container-row">
+        <div class="flex-container-col">
+            <div class="list-loader"></div>
+        </div>
     </div>
 </div>
 
@@ -153,7 +154,19 @@
                     var url = '@Url.Action("GetFriendsListPartialView", "Friends", null)';
 
                     $.get(url, function (data) {
-                        $('#friends-list-wrapper').empty().append(data);
+                        // If we get back empty-list, empty out any existing projects and set CSS for proper display
+                        if (data.includes('empty-list')) {
+                            $('#friends-list-wrapper').empty();
+                            $('.list-container').append(data);
+                            $('.list-container').css('display', 'flex');
+                            $('#page').css('position', 'absolute');
+                        }
+                        else {
+                            $('#page').css('position', 'static');
+                            $('.list-container').css('display', 'block');
+                            $('.empty-list').remove();
+                            $('#friends-list-wrapper').empty().append(data);
+                        }
                     })
                     .then(resolve)
                     .fail(reject)

@@ -6,98 +6,87 @@
 }
 
 <div class="flex-container-row">
-    <form asp-controller="Account" asp-action="ProcessStripe" asp-route-returnurl="@ViewData["ReturnUrl"]" id="payment-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal">
+    <form id="payment-form" class="form-horizontal">
         <h2>Upgrade Account</h2>
-        <div id="payment">
-            @Html.Hidden("UserId", ViewData["UserId"])
-            <div class="row row-no-margin">
-                <div class="col-md-6">
-                    <div class="form-group owner">
-                        <div class="form-label">
-                            <label asp-for="CardName"></label>
-                        </div>
-                        <input asp-for="CardName" class="form-control form-input" />
-                        <span asp-validation-for="CardName" style="color: red"></span>
+        @Html.Hidden("UserId", ViewData["UserId"])
+        <div class="row row-no-margin">
+            <div class="col-md-6">
+                <div class="form-group owner">
+                    <div class="form-label">
+                        <label asp-for="CardName"></label>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group owner">
-                        <div class="form-label">
-                            <label asp-for="CardNumber"></label>
-                        </div>
-                        <input asp-for="CardNumber" class="form-control form-input" />
-                        <span asp-validation-for="CardNumber" style="color: red"></span>
-                    </div>
+                    <input asp-for="CardName" class="form-control form-input" />
+                    <span asp-validation-for="CardName" style="color: red"></span>
                 </div>
             </div>
-            <div class="row row-no-margin">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <div class="form-label">
-                            <label asp-for="CVV"></label>
-                        </div>
-                        <input asp-for="CVV" class="form-control form-input" />
-                        <span asp-validation-for="CVV" style="color: red"></span>
+            <div class="col-md-6">
+                <div class="form-group owner">
+                    <div class="form-label">
+                        <label asp-for="CardNumber"></label>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <div class="form-label">
-                            <label asp-for="Zip"></label>
-                        </div>
-                        <input asp-for="Zip" class="form-control form-input" />
-                        <span asp-validation-for="Zip" style="color: red"></span>
-                    </div>
+                    <input asp-for="CardNumber" class="form-control form-input" />
+                    <span asp-validation-for="CardNumber" style="color: red"></span>
                 </div>
             </div>
-            <div class="row row-no-margin">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <div class="form-label">
-                            <label>Expiration Date</label>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <select asp-for="Month" class="form-control">
-                                    <option value="01">January</option>
-                                    <option value="02">February </option>
-                                    <option value="03">March</option>
-                                    <option value="04">April</option>
-                                    <option value="05">May</option>
-                                    <option value="06">June</option>
-                                    <option value="07">July</option>
-                                    <option value="08">August</option>
-                                    <option value="09">September</option>
-                                    <option value="10">October</option>
-                                    <option value="11">November</option>
-                                    <option value="12">December</option>
-                                </select>
-                            </div>
-                            <div class="col">
-                                <select asp-for="Year" class="form-control">
-                                    <option value="19"> 2019</option>
-                                    <option value="20"> 2020</option>
-                                    <option value="21"> 2021</option>
-                                    <option value="22"> 2022</option>
-                                    <option value="23"> 2023</option>
-                                    <option value="24"> 2024</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 credit-cards-container">
-                    <div class="form-group" id="credit-cards">
-                        <img class="credit-card" src="~/images/visa.png" id="visa">
-                        <img class="credit-card" src="~/images/mastercard.png" id="mastercard">
-                        <img class="credit-card" src="~/images/amex.png" id="amex">
-                        <img class="credit-card" src="~/images/discover.png" id="discover">
-                    </div>
-                </div>
-            </div>
-            <p>* We <strong>do not</strong> store your credit card information *</p>
-            <p>Amount to be charged: $50.00</p>
         </div>
+        <div class="row row-no-margin">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="CVV"></label>
+                    </div>
+                    <input asp-for="CVV" class="form-control form-input" />
+                    <span asp-validation-for="CVV" style="color: red"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="form-label">
+                        <label>Expiration Date</label>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <select asp-for="Month" class="form-control">
+                                <option value="01">January</option>
+                                <option value="02">February </option>
+                                <option value="03">March</option>
+                                <option value="04">April</option>
+                                <option value="05">May</option>
+                                <option value="06">June</option>
+                                <option value="07">July</option>
+                                <option value="08">August</option>
+                                <option value="09">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <select asp-for="Year" class="form-control">
+                                <option value="19"> 2019</option>
+                                <option value="20"> 2020</option>
+                                <option value="21"> 2021</option>
+                                <option value="22"> 2022</option>
+                                <option value="23"> 2023</option>
+                                <option value="24"> 2024</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-no-margin">
+            <div class="col credit-cards-container">
+                <div class="form-group" id="credit-cards">
+                    <img class="credit-card" src="~/images/visa.png" id="visa">
+                    <img class="credit-card" src="~/images/mastercard.png" id="mastercard">
+                    <img class="credit-card" src="~/images/amex.png" id="amex">
+                    <img class="credit-card" src="~/images/discover.png" id="discover">
+                </div>
+            </div>
+        </div>
+        <p>* We <strong>do not</strong> store your credit card information *</p>
+        <p>Amount to be charged: $49.99</p>
         <div class="row row-no-margin">
             <div class="col">
                 <div class="form-group">
@@ -107,14 +96,61 @@
         </div>
         @Html.AntiForgeryToken()
     </form>
+    <form asp-controller="Account" asp-action="ProcessStripe" asp-route-returnurl="@ViewData["ReturnUrl"]" id="token-form" method="post" hidden>
+        <input asp-for="PaymentToken" hidden />
+    </form>
 </div>
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
     <script src="~/lib/jquery.payment/lib/jquery.payment.min.js"></script>
+    <script src="https://js.stripe.com/v2/"></script>
     <script>
         $(document).ready(function () {
             $('footer').show();
+
+            Stripe.setPublishableKey('pk_test_mMmjGjT6aetaMgLCCu14fWGm00wC0SGVLv');
+
+            function stripeResponseHandler(status, response) {                
+                var form = $('#payment-form');
+
+                if (response.error) { 
+                    if (response.error) {
+                        showFailureBootbox(response.error.message);
+                        enabledSubmitButton();
+
+                    }
+                } else { 
+                    // Successful Stripe token creation
+                    var token = response.id;
+
+                    form = $('#token-form')[0];
+
+                    // Insert the token into the form so it gets submitted to the server:
+                    $('#PaymentToken').val(token);
+
+                    $.ajax({
+                        url: form.action,
+                        type: 'POST',
+                        data: new FormData(form),
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    })
+                    .then(function (data) {      
+                        if (data.success == false) {
+                            showFailureBootbox(data.error);
+                            enableSubmitButton();
+                        }
+                        else {
+                            $('.flex-container-row').html(data);
+                        }
+                    })
+                    .fail(function (error) {
+                        showFailureBootbox(error.error);
+                    });
+                }
+            }
 
             // Check card type
             $(document).on("keyup", "#CardNumber", function () {
@@ -149,45 +185,44 @@
                 }
             });
 
-            $(document).on("submit", function (e, data) {
+            $(document).on("submit", "#payment-form", function (e, data) {
                 // Show spinner on reset button
                 $('.button-submit-wide').html('<div class="loader"></div>');
+                $('.button-submit-wide').addClass('disabled');
 
                 e.preventDefault();
 
                 var form = e.target;
                 var formData = new FormData(form);
 
-                $.ajax({
-                    url: form.action,
-                    type: 'POST',
-                    data: formData,
-                    cache: false,
-                    contentType: false,
-                    processData: false
-                })
-                    .then(function (data) {
-                        $('.button-submit-wide').html('Subscribe');
-                        $('.flex-container-row').html(data);
-                        $.validator.unobtrusive.parse($("#payment-form"));
-                        $('#CardNumber').keyup();
-                    })
-                    .fail(function (error) {
-                        bootbox.dialog({
-                            message: "An error occurred while submitting the form.<br /><br />Error: " + error.statusText,
-                            buttons: {
-                                confirm: {
-                                    label: 'Close',
-                                    className: 'btn-default'
-                                },
-                            }
-                        });
-                    });
+                Stripe.card.createToken({
+                    number: $('#CardNumber').val(),
+                    cvc: $('#CVV').val(),
+                    exp_month: $('#Month').val(),
+                    exp_year: $('#Year').val()
+                }, stripeResponseHandler);
             });
 
             $(document).on('hidden.bs.modal', function () {
-                $('.button-submit-wide').html('Pay');
+                enableSubmitButton();
             });
+
+            function showFailureBootbox(error) {
+                bootbox.dialog({
+                    message: "Unable to process credit card payment.<br /><br />Error: " + error,
+                    buttons: {
+                        confirm: {
+                            label: 'Close',
+                            className: 'btn-default'
+                        },
+                    }
+                });
+            }            
+
+            function enableSubmitButton() {
+                $('.button-submit-wide').removeClass('disabled');
+                $('.button-submit-wide').html('Subscribe');
+            }
         });
     </script>
 }

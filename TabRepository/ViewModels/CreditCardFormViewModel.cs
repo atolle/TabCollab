@@ -31,5 +31,8 @@ namespace TabRepository.ViewModels
 
         [Required(ErrorMessage = "Zipcode is required")]
         public string Zip { get; set; }
+
+        [Required]
+        public string PaymentToken { get; set; }
     }
 }

@@ -96,6 +96,8 @@
             else if (e.target.id == 'google-login') {
                 $('#google-button').html('<div class="loader"></div>');
             }
+            $('#login-button').addClass('disabled');
+            $('#google-button').addClass('disabled');
         });
     });
 </script>

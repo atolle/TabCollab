@@ -294,304 +294,106 @@ namespace TabRepository.Controllers
         // GET: /Account/AddSubscription
         [HttpGet]
         public IActionResult AddSubscription()
-        {
+        {        
             return View("CreditCard");
         }
 
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ProcessStripe(CreditCardFormViewModel model)
+        public IActionResult ProcessStripe(StripePaymentViewModel model)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                //    JObject subscriptionObject;
-                //    string href;
-                //    string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
+                    string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
 
-                //    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+                    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-                //    string token = await PayPalProcessor.GetPayPalToken(_configuration);
+                    var productInDb = _context.StripeProducts.Where(p => p.Name == "TabCollab").FirstOrDefault();
 
-                //    var productInDb = _context.PayPalProducts.Where(p => p.Name == "TabCollab Subscription").FirstOrDefault();
+                    // No product so we need to create one
+                    if (productInDb == null)
+                    {
+                        var product = StripeProcessor.CreateProduct(_configuration);
 
-                //    // Make sure we have a product
-                //    if (productInDb == null)
-                //    {
-                //        var productJson = await PayPalProcessor.CreateProduct(_configuration, token);
+                        productInDb = new StripeProduct
+                        {
+                            Id = product.Id,
+                            Name = product.Name
+                        };
 
-                //        var productObject = JObject.Parse(productJson);
+                        _context.StripeProducts.Add(productInDb);
+                        _context.SaveChanges();
+                    }
 
-                //        PayPalProduct product = new PayPalProduct
-                //        {
-                //            Id = (string)productObject["id"],
-                //            Name = (string)productObject["name"],
-                //            Description = (string)productObject["description"],
-                //            Json = productJson
-                //        };
+                    var planInDb = _context.StripePlans.Where(p => p.Nickname == "TabCollab Standard Subscription").FirstOrDefault();
 
-                //        _context.PayPalProducts.Add(product);
-                //        _context.SaveChanges();
+                    // No plan so we need to create one
+                    if (planInDb == null)
+                    {
+                        var plan = StripeProcessor.CreatePlan(_configuration, productInDb);
 
-                //        productInDb = product;
-                //    }
+                        planInDb = new StripePlan
+                        {
+                            Id = plan.Id,
+                            Nickname = plan.Nickname,
+                            ProductId = productInDb.Id
+                        };
 
-                //    var planInDb = _context.PayPalPlans.Where(p => p.ProductId == productInDb.Id).FirstOrDefault();
+                        _context.StripePlans.Add(planInDb);
+                        _context.SaveChanges();
+                    }
 
-                //    // Make sure we have a plan
-                //    if (planInDb == null)
-                //    {
-                //        var planJson = await PayPalProcessor.CreatePlan(_configuration, token, productInDb.Id);
+                    var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();
 
-                //        var planObject = JObject.Parse(planJson);
+                    // No customer so we need to create one
+                    if (customerInDb == null)
+                    {
+                        var customer = StripeProcessor.CreateCustomer(_configuration, userInDb, model.PaymentToken);
 
-                //        PayPalPlan plan = new PayPalPlan
-                //        {
-                //            Id = (string)planObject["id"],
-                //            Name = (string)planObject["name"],
-                //            Description = (string)planObject["description"],
-                //            Json = planJson,
-                //            ProductId = (string)planObject["product_id"],
-                //            Status = (string)planObject["status"],
-                //            Product = productInDb
-                //        };
+                        customerInDb = new StripeCustomer
+                        {
+                            Id = customer.Id,
+                            UserId = currentUserId,
+                            SubscriptionId = null
+                        };
 
-                //        _context.PayPalPlans.Add(plan);
-                //        _context.SaveChanges();
+                        _context.StripeCustomers.Add(customerInDb);
+                        _context.SaveChanges();
+                    }
 
-                //        planInDb = plan;
-                //    }
+                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.CustomerId == customerInDb.Id).FirstOrDefault();
 
-                //    var subscriptionsInDb = _context.PayPalSubscriptions.Where(s => s.UserId == currentUserId).ToList();
+                    // No customer so we need to create one
+                    if (subscriptionInDb == null)
+                    {
+                        var subscription = StripeProcessor.CreateSubscription(_configuration, planInDb, customerInDb);
 
-                //    // If we already have active subscriptions we shouldn't be here
-                //    if (subscriptionsInDb.Where(s => s.Status.ToLower() == "active").FirstOrDefault() != null)
-                //    {
-                //        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                //    }
+                        subscriptionInDb = new StripeSubscription
+                        {
+                            Id = subscription.Id,
+                            CustomerId = customerInDb.Id,
+                            PlanId = planInDb.Id
+                        };
 
-                //    var pendingSubscriptionInDb = subscriptionsInDb.Where(s => s.Status.ToLower() == "approval_pending").FirstOrDefault();
+                        customerInDb.SubscriptionId = subscription.Id;
 
-                //    // If we have a pending subscription, activate it
-                //    if (pendingSubscriptionInDb != null)
-                //    {
-                //        subscriptionObject = JObject.Parse(pendingSubscriptionInDb.Json);
+                        _context.StripeSubscriptions.Add(subscriptionInDb);
+                        _context.SaveChanges();
+                    }
 
-                //        href = (string)subscriptionObject["links"][0]["href"];
-
-                //        return Redirect(href);
-                //    }
-
-                //    // We either have no subscriptions, or they're all cancelled
-                //    var subscriptionJson = await PayPalProcessor.CreateSubscription(_configuration, token, planInDb.Id, userInDb);
-
-                //    subscriptionObject = JObject.Parse(subscriptionJson);
-
-                //    href = (string)subscriptionObject["links"][0]["href"];
-                //    string subscriptionToken = href.Substring(href.IndexOf("ba_token=") + "ba_token=".Length);
-
-                //    PayPalSubscription subscription = new PayPalSubscription
-                //    {
-                //        Id = (string)subscriptionObject["id"],
-                //        Description = (string)subscriptionObject["description"],
-                //        Json = subscriptionJson,
-                //        PlanId = (string)subscriptionObject["plan_id"],
-                //        Plan = planInDb,
-                //        Status = (string)subscriptionObject["status"],
-                //        User = userInDb,
-                //        UserId = currentUserId,
-                //        SubscriptionToken = subscriptionToken
-                //    };
-
-                //    _context.PayPalSubscriptions.Add(subscription);
-                //    _context.SaveChanges();
-
-                //    return Redirect(href);
+                    // If we got this far, something failed, redisplay form
+                    return PartialView("_SubscriptionConfirmation");
                 }
 
-                // If we got this far, something failed, redisplay form
-                return PartialView("_CreditCardForm", model);
+                return Json(new { success = false, error = "" });
             }
             catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { success = false, error = e.Message });
             }
-        }
-
-        //[HttpPost]
-        //[AllowAnonymous]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> ProcessPayPal(PayPalFormViewModel model)
-        //{
-        //    try
-        //    {
-        //        if (ModelState.IsValid)
-        //        {
-        //            JObject subscriptionObject;
-        //            string href;
-        //            string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
-
-        //            var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
-
-        //            string token = await PayPalProcessor.GetPayPalToken(_configuration);
-
-        //            var productInDb = _context.PayPalProducts.Where(p => p.Name == "TabCollab Subscription").FirstOrDefault();
-
-        //            // Make sure we have a product
-        //            if (productInDb == null)
-        //            {
-        //                var productJson = await PayPalProcessor.CreateProduct(_configuration, token);
-
-        //                var productObject = JObject.Parse(productJson);
-
-        //                PayPalProduct product = new PayPalProduct
-        //                {
-        //                    Id = (string)productObject["id"],
-        //                    Name = (string)productObject["name"],
-        //                    Description = (string)productObject["description"],
-        //                    Json = productJson
-        //                };
-
-        //                _context.PayPalProducts.Add(product);
-        //                _context.SaveChanges();
-
-        //                productInDb = product;
-        //            }
-
-        //            var planInDb = _context.PayPalPlans.Where(p => p.ProductId == productInDb.Id).FirstOrDefault();
-
-        //            // Make sure we have a plan
-        //            if (planInDb == null)
-        //            {
-        //                var planJson = await PayPalProcessor.CreatePlan(_configuration, token, productInDb.Id);
-
-        //                var planObject = JObject.Parse(planJson);
-
-        //                PayPalPlan plan = new PayPalPlan
-        //                {
-        //                    Id = (string)planObject["id"],
-        //                    Name = (string)planObject["name"],
-        //                    Description = (string)planObject["description"],
-        //                    Json = planJson,
-        //                    ProductId = (string)planObject["product_id"],
-        //                    Status = (string)planObject["status"],
-        //                    Product = productInDb
-        //                };
-
-        //                _context.PayPalPlans.Add(plan);
-        //                _context.SaveChanges();
-
-        //                planInDb = plan;
-        //            }
-
-        //            var subscriptionsInDb = _context.PayPalSubscriptions.Where(s => s.UserId == currentUserId).ToList();
-
-        //            // If we already have active subscriptions we shouldn't be here
-        //            if (subscriptionsInDb.Where(s => s.Status.ToLower() == "active").FirstOrDefault() != null)
-        //            {
-        //                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-        //            }
-
-        //            var pendingSubscriptionInDb = subscriptionsInDb.Where(s => s.Status.ToLower() == "approval_pending").FirstOrDefault();
-
-        //            // If we have a pending subscription, activate it
-        //            if (pendingSubscriptionInDb != null)
-        //            {
-        //                subscriptionObject = JObject.Parse(pendingSubscriptionInDb.Json);
-
-        //                href = (string)subscriptionObject["links"][0]["href"];
-
-        //                return Redirect(href);
-        //            }                    
-
-        //            // We either have no subscriptions, or they're all cancelled
-        //            var subscriptionJson = await PayPalProcessor.CreateSubscription(_configuration, token, planInDb.Id, userInDb);
-
-        //            subscriptionObject = JObject.Parse(subscriptionJson);
-
-        //            href = (string)subscriptionObject["links"][0]["href"];
-        //            string subscriptionToken = href.Substring(href.IndexOf("ba_token=") + "ba_token=".Length);
-
-        //            PayPalSubscription subscription = new PayPalSubscription
-        //            {
-        //                Id = (string)subscriptionObject["id"],
-        //                Description = (string)subscriptionObject["description"],
-        //                Json = subscriptionJson,
-        //                PlanId = (string)subscriptionObject["plan_id"],
-        //                Plan = planInDb,
-        //                Status = (string)subscriptionObject["status"],
-        //                User = userInDb,
-        //                UserId = currentUserId,
-        //                SubscriptionToken = subscriptionToken
-        //            };
-
-        //            _context.PayPalSubscriptions.Add(subscription);
-        //            _context.SaveChanges();
-
-        //            return Redirect(href);
-        //        }
-
-        //        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-        //    }
-        //}
-
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public IActionResult ProcessCreditCard(CreditCardFormViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
-
-                CreditCardTransaction creditCardTransaction = CreditCardProcessor.ChargeCreditCard(model.CardNumber, model.Month + model.Year, model.Zip, _configuration);
-                string partialView;
-
-                if (!creditCardTransaction.Success)
-                {
-                    // Payment failed for some reason, if this is coming from the registration screen then we'll have a UserId in the model
-                    partialView = model.UserId == null ? "_PaymentFail" : "_RegisterConfirmationPaymentFail";
-                }
-                else
-                {
-                    // Successful payment, so update their account type and subscription expiration
-                    var userInDb = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
-
-                    userInDb.AccountType = AccountType.Subscription;
-
-                    if (!userInDb.SubscriptionExpiration.HasValue)
-                    {
-                        userInDb.SubscriptionExpiration = DateTime.Now.AddYears(1).AddDays(1);
-                    }
-                    else
-                    {
-                        if (userInDb.SubscriptionExpiration < DateTime.Now)
-                        {
-                            userInDb.SubscriptionExpiration = DateTime.Now.AddYears(1).AddDays(1);
-                        }
-                        else
-                        {
-                            userInDb.SubscriptionExpiration = userInDb.SubscriptionExpiration.Value.AddYears(1).AddDays(1);
-                        }
-                    }
-
-                    _context.SaveChanges();
-
-                    // If this is coming from the registration screen then we'll have a UserId in the model
-                    partialView = model.UserId == null ? "_PaymentConfirmation" : "_RegisterConfirmation";
-                }
-
-                return PartialView(partialView);
-            }
-
-            // If we got this far, something failed, redisplay form
-            return PartialView("_CreditCardForm", model);
         }
 
         //
@@ -624,6 +426,7 @@ namespace TabRepository.Controllers
                     {
                         partialView = "_CreditCardForm";
                         ViewBag.UserId = user.Id;
+                        ViewBag.FromRegistration = true;
                     }
 
                     // Save profile image if it was added

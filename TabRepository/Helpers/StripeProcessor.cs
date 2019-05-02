@@ -10,7 +10,7 @@ namespace TabRepository.Helpers
 {
     public class StripeProcessor
     {
-        public static Product CreateProduct(IConfiguration configuration, string token)
+        public static Product CreateProduct(IConfiguration configuration)
         {
             StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
 
@@ -25,7 +25,7 @@ namespace TabRepository.Helpers
             return product;
         }
 
-        public static Plan CreatePlan(IConfiguration configuration, Product product)
+        public static Plan CreatePlan(IConfiguration configuration, StripeProduct product)
         {
             StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
 
@@ -33,9 +33,9 @@ namespace TabRepository.Helpers
             {
                 ProductId = product.Id,
                 Nickname = "TabCollab Standard Subscription",
-                Interval = "month",
+                Interval = "year",
                 Currency = "usd",
-                Amount = 50,
+                Amount = 4999,
             };
             var service = new PlanService();
             Plan plan = service.Create(options);
@@ -58,7 +58,7 @@ namespace TabRepository.Helpers
             return customer;
         }
 
-        public static Subscription CreateSubscription(IConfiguration configuration, Plan plan, Customer customer)
+        public static Subscription CreateSubscription(IConfiguration configuration, StripePlan plan, StripeCustomer customer)
         {
             StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
 

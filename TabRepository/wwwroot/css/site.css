@@ -988,7 +988,13 @@ td {
     padding-top: 15px;
 }
 
-.validation-summary-errors {
+.validation-summary-errors, .validation-summary-valid {
+    text-align: left;
+    color: red; 
+}
+
+.error-summary {
+    color: red;
     text-align: left;
 }
 

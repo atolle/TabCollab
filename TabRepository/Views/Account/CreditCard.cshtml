@@ -17,6 +17,7 @@
                     </div>
                     <input asp-for="CardName" class="form-control form-input" />
                     <span asp-validation-for="CardName" style="color: red"></span>
+                    <span id="name-error" class="validation-error" style="color: red"></span>
                 </div>
             </div>
             <div class="col-md-6">
@@ -26,6 +27,7 @@
                     </div>
                     <input asp-for="CardNumber" class="form-control form-input" />
                     <span asp-validation-for="CardNumber" style="color: red"></span>
+                    <span id="number-error" class="validation-error" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -33,10 +35,11 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <div class="form-label">
-                        <label asp-for="CVV"></label>
+                        <label asp-for="CVC"></label>
                     </div>
-                    <input asp-for="CVV" class="form-control form-input" />
-                    <span asp-validation-for="CVV" style="color: red"></span>
+                    <input asp-for="CVC" class="form-control form-input" />
+                    <span asp-validation-for="CVC" style="color: red"></span>
+                    <span id="cvc-error" class="validation-error" style="color: red"></span>
                 </div>
             </div>
             <div class="col-md-6">
@@ -72,6 +75,7 @@
                             </select>
                         </div>
                     </div>
+                    <span id="exp-error" class="validation-error" style="color: red"></span>
                 </div>
             </div>
         </div>
@@ -116,9 +120,25 @@
 
                 if (response.error) { 
                     if (response.error) {
-                        showFailureBootbox(response.error.message);
-                        enabledSubmitButton();
+                        if (response.error.param) {
+                            switch (response.error.param) {
+                                case 'cvc':
+                                    $('#cvc-error').html(response.error.message);
+                                    break;
+                                case 'number':
+                                    $('#number-error').html(response.error.message);
+                                    break;
+                                case 'exp_year':
+                                case 'exp_month':
+                                    $('#exp-error').html(response.error.message);
+                                    break;
+                            }
+                        }
+                        else {
+                            showFailureBootbox(response.error.message);
+                        }
 
+                        enableSubmitButton();
                     }
                 } else { 
                     // Successful Stripe token creation
@@ -137,13 +157,30 @@
                         contentType: false,
                         processData: false
                     })
-                    .then(function (data) {      
-                        if (data.success == false) {
-                            showFailureBootbox(data.error);
-                            enableSubmitButton();
+                    .then(function (response) {     
+                        enableSubmitButton();
+                        
+                        if (response.error) {
+                            if (response.param) {
+                                switch (response.param) {
+                                    case 'cvc':
+                                        $('#cvc-error').html(response.error);
+                                        break;
+                                    case 'number':
+                                        $('#number-error').html(response.error);
+                                        break;
+                                    case 'exp_year':
+                                    case 'exp_month':
+                                        $('#exp-error').html(response.error);
+                                        break;
+                                }
+                            }
+                            else {
+                                showFailureBootbox(response.error);
+                            }
                         }
                         else {
-                            $('.flex-container-row').html(data);
+                            $('.flex-container-row').html(response);
                         }
                     })
                     .fail(function (error) {
@@ -192,12 +229,11 @@
 
                 e.preventDefault();
 
-                var form = e.target;
-                var formData = new FormData(form);
+                $('.validation-error').html('');
 
                 Stripe.card.createToken({
                     number: $('#CardNumber').val(),
-                    cvc: $('#CVV').val(),
+                    cvc: $('#CVC').val(),
                     exp_month: $('#Month').val(),
                     exp_year: $('#Year').val()
                 }, stripeResponseHandler);

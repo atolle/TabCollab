@@ -13,8 +13,6 @@
     {
         <h2>Upgrade Account</h2>
     }
-    <div asp-validation-summary="All"></div>
-    @Html.Hidden("UserId", ViewData["UserId"])
     <div class="row row-no-margin">
         <div class="col-md-6">
             <div class="form-group owner">
@@ -23,6 +21,7 @@
                 </div>
                 <input asp-for="CardName" class="form-control form-input" />
                 <span asp-validation-for="CardName" style="color: red"></span>
+                <span id="name-error" class="validation-error" style="color: red"></span>
             </div>
         </div>
         <div class="col-md-6">
@@ -32,6 +31,7 @@
                 </div>
                 <input asp-for="CardNumber" class="form-control form-input" />
                 <span asp-validation-for="CardNumber" style="color: red"></span>
+                <span id="number-error" class="validation-error" style="color: red"></span>
             </div>
         </div>
     </div>
@@ -39,10 +39,11 @@
         <div class="col-md-6">
             <div class="form-group">
                 <div class="form-label">
-                    <label asp-for="CVV"></label>
+                    <label asp-for="CVC"></label>
                 </div>
-                <input asp-for="CVV" class="form-control form-input" />
-                <span asp-validation-for="CVV" style="color: red"></span>
+                <input asp-for="CVC" class="form-control form-input" />
+                <span asp-validation-for="CVC" style="color: red"></span>
+                <span id="cvc-error" class="validation-error" style="color: red"></span>
             </div>
         </div>
         <div class="col-md-6">
@@ -78,6 +79,7 @@
                         </select>
                     </div>
                 </div>
+                <span id="exp-error" class="validation-error" style="color: red"></span>
             </div>
         </div>
     </div>
@@ -103,5 +105,7 @@
     @Html.AntiForgeryToken()
 </form>
 <form asp-controller="Account" asp-action="ProcessStripe" asp-route-returnurl="@ViewData["ReturnUrl"]" id="token-form" method="post" hidden>
+    @Html.Hidden("UserId", ViewData["UserId"])
+    @*<input type="hidden" id="UserId" name="UserId" value=@ViewData["UserId"]>*@
     <input asp-for="PaymentToken" hidden />
 </form>

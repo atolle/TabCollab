@@ -13,7 +13,7 @@ using TabRepository.Models.AccountViewModels;
 namespace TabRepository.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20190426025226_AddStripeModels")]
+    [Migration("20190503003311_AddStripeModels")]
     partial class AddStripeModels
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -359,6 +359,10 @@ namespace TabRepository.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("SubscriptionId")
+                        .IsUnique()
+                        .HasFilter("[SubscriptionId] IS NOT NULL");
+
                     b.HasIndex("UserId")
                         .IsUnique()
                         .HasFilter("[UserId] IS NOT NULL");
@@ -404,10 +408,6 @@ namespace TabRepository.Migrations
                     b.Property<string>("PlanId");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CustomerId")
-                        .IsUnique()
-                        .HasFilter("[CustomerId] IS NOT NULL");
 
                     b.HasIndex("PlanId");
 
@@ -630,6 +630,11 @@ namespace TabRepository.Migrations
 
             modelBuilder.Entity("TabRepository.Models.StripeCustomer", b =>
                 {
+                    b.HasOne("TabRepository.Models.StripeSubscription", "Subscription")
+                        .WithOne("Customer")
+                        .HasForeignKey("TabRepository.Models.StripeCustomer", "SubscriptionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("TabRepository.Models.ApplicationUser", "User")
                         .WithOne("Customer")
                         .HasForeignKey("TabRepository.Models.StripeCustomer", "UserId")
@@ -646,11 +651,6 @@ namespace TabRepository.Migrations
 
             modelBuilder.Entity("TabRepository.Models.StripeSubscription", b =>
                 {
-                    b.HasOne("TabRepository.Models.StripeCustomer", "Customer")
-                        .WithOne("Subscription")
-                        .HasForeignKey("TabRepository.Models.StripeSubscription", "CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("TabRepository.Models.StripePlan", "Plan")
                         .WithMany("Subscriptions")
                         .HasForeignKey("PlanId")

@@ -388,11 +388,17 @@ namespace TabRepository.Controllers
                     return PartialView("_SubscriptionConfirmation");
                 }
 
-                return Json(new { success = false, error = "" });
+                var modelErrors = ModelState.Values.SelectMany(v => v.Errors.Select(b => b.ErrorMessage)).ToList();
+
+                return Json(new { error = string.Join("<br />", modelErrors) });
+            }
+            catch (Stripe.StripeException e)
+            {
+                return Json(new { param = e.StripeError.Parameter, error = e.StripeError.Message });
             }
             catch (Exception e)
             {
-                return Json(new { success = false, error = e.Message });
+                return Json(new { error = e.Message });
             }
         }
 
@@ -403,66 +409,79 @@ namespace TabRepository.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
-            ViewData["ReturnUrl"] = returnUrl;
-            if (ModelState.IsValid)
+            try
             {
-                // Default to Free account type and change if we get a successful credit card charge
-                var user = new ApplicationUser
+                ViewData["ReturnUrl"] = returnUrl;
+                if (ModelState.IsValid)
                 {
-                    UserName = model.Username,
-                    Email = model.Email,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Bio = "",
-                    AccountType = AccountType.Free,
-                    SubscriptionExpiration = null
-                };
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    string partialView = "_RegisterConfirmation";
-
-                    if (model.AccountType == AccountType.Subscription)
+                    // Default to Free account type and change if we get a successful credit card charge
+                    var user = new ApplicationUser
                     {
-                        partialView = "_CreditCardForm";
-                        ViewBag.UserId = user.Id;
-                        ViewBag.FromRegistration = true;
-                    }
-
-                    // Save profile image if it was added
-                    if (model.Image != null)
+                        UserName = model.Username,
+                        Email = model.Email,
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
+                        Bio = "",
+                        AccountType = AccountType.Free,
+                        SubscriptionExpiration = null
+                    };
+                    var result = await _userManager.CreateAsync(user, model.Password);
+                    if (result.Succeeded)
                     {
-                        // Limit file size to 1 MB
-                        if (model.Image.Length <= 1000000)
+                        string partialView = "_RegisterConfirmation";
+
+                        if (model.AccountType == AccountType.Subscription)
                         {
-                            string currentUserId = user.Id;
-
-                            var userInDb = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
-
-                            string imageFilePath = await _fileUploader.UploadFileToFileSystem(model.Image, currentUserId, "Profile");
-
-                            userInDb.ImageFileName = model.Image.FileName;
-                            userInDb.ImageFilePath = imageFilePath;
-
-                            _context.SaveChanges();
+                            partialView = "_CreditCardForm";
+                            ViewBag.UserId = user.Id;
+                            ViewBag.FromRegistration = true;
                         }
+
+                        // Save profile image if it was added
+                        if (model.Image != null)
+                        {
+                            // Limit file size to 1 MB
+                            if (model.Image.Length <= 1000000)
+                            {
+                                string currentUserId = user.Id;
+
+                                var userInDb = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
+
+                                string imageFilePath = await _fileUploader.UploadFileToFileSystem(model.Image, currentUserId, "Profile");
+
+                                userInDb.ImageFileName = model.Image.FileName;
+                                userInDb.ImageFilePath = imageFilePath;
+
+                                _context.SaveChanges();
+                            }
+                        }
+
+                        // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=532713
+                        // Send an email with this link
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        var callbackUrl = Url.Action(nameof(ConfirmEmail), "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                        await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
+                            $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+
+                        _logger.LogInformation(3, "User created a new account with password.");
+                        return PartialView(partialView);
                     }
 
-                    // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=532713
-                    // Send an email with this link
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var callbackUrl = Url.Action(nameof(ConfirmEmail), "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                    await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                        $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
-                    
-                    _logger.LogInformation(3, "User created a new account with password.");
-                    return PartialView(partialView);
-                }
-                AddErrors(result);
-            }
+                    // If we got here there were errors in user creation
+                    var errors = string.Join("<br />", result.Errors.Select(e => e.Description).ToList());
 
-            // If we got this far, something failed, redisplay form
-            return PartialView("_RegisterForm", model);
+                    return Json(new { error = errors });
+                }
+
+                // If we got here there were errors in the modelstate                
+                var modelErrors = ModelState.Values.SelectMany(v => v.Errors.Select(b => b.ErrorMessage)).ToList();
+
+                return Json(new { error = string.Join("<br />", modelErrors) });
+            }
+            catch (Exception e)
+            {
+                return Json(new { error = e.Message });
+            }
         }
 
         //

@@ -20,8 +20,8 @@ namespace TabRepository.ViewModels
         
         public string CardNumber { get; set; }
 
-        [Required(ErrorMessage = "CVV is required")]
-        public int CVV { get; set; }
+        [Required(ErrorMessage = "CVC is required")]
+        public int CVC { get; set; }
 
         [Required]
         public string Month { get; set; }

@@ -101,6 +101,8 @@ $(document).ready(function () {
                 // Client side validation for dynamic modal injection
                 $.validator.unobtrusive.parse($("#project-form"));
 
+                bindImageSizeValidation();
+
                 currentModal = $('#project-form-modal');
                 currentModal.modal('show');
 
@@ -124,6 +126,8 @@ $(document).ready(function () {
                 $('#project-form-container').html(data);
                 // Client side validation for dynamic modal injection
                 $.validator.unobtrusive.parse($("#project-form"));
+
+                bindImageSizeValidation();
 
                 currentModal = $('#project-form-modal');
                 currentModal.modal('show');
@@ -188,8 +192,32 @@ $(document).ready(function () {
         $("input[value=" + username + "]").remove();
     });
 
+    function bindImageSizeValidation() {
+        $(document).on("change", "#Image", function (e, data) {
+            // Make sure the image size is less than 1MB
+            if (this.files.length) {
+                if (this.files[0].size > 1000000) {
+                    $("#image-error").html("Image size limit is 1 MB");
+                }
+                else {
+                    $("#image-error").html("");
+                }
+            }
+            else {
+                $("#image-error").html("");
+            }
+        });
+    }
+
     $("#page").on("submit", function (e, data) {
         e.preventDefault();
+
+        // Don't submit form if the image is too large
+        if ($('#Image')[0].files.length) {
+            if ($('#Image')[0].files[0].size > 1000000) {
+                return
+            }
+        }
 
         // Loop through all contributors to add index for model binding
         $('.contributor').each(function (index) {
@@ -201,6 +229,8 @@ $(document).ready(function () {
 
         // Show spinner on save button
         $('.button-save').html('<div class="loader"></div>');
+        $('.button-save').addClass('disabled');
+        $('.validation-error').html('');
 
         $.ajax({
             url: form.action,

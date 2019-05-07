@@ -34,8 +34,10 @@
                         <label asp-for="Username"></label>
                     </div>
                     <input asp-for="Username" class="form-control form-input" />
-                    <span asp-validation-for="Username" style="color: red"></span>
-                    <span id="username-error" class="validation-error" style="color: red"></span>
+                    <div class="form-label">
+                        <span asp-validation-for="Username" style="color: red"></span>
+                        <span id="username-error" class="validation-error" style="color: red"></span>
+                    </div>
                 </div>
             </div>
             <div class="col-md-6">
@@ -44,7 +46,9 @@
                         <label asp-for="FirstName"></label>
                     </div>
                     <input asp-for="FirstName" class="form-control form-input" />
-                    <span asp-validation-for="FirstName" style="color: red"></span>
+                    <div class="form-label">
+                        <span asp-validation-for="FirstName" style="color: red"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -55,7 +59,9 @@
                         <label asp-for="LastName"></label>
                     </div>
                     <input asp-for="LastName" class="form-control form-input" />
-                    <span asp-validation-for="LastName" style="color: red"></span>
+                    <div class="form-label">
+                        <span asp-validation-for="LastName" style="color: red"></span>
+                    </div>
                 </div>
             </div>
             <div class="col-md-6">
@@ -64,8 +70,10 @@
                         <label asp-for="Email"></label>
                     </div>
                     <input asp-for="Email" class="form-control form-input" />
-                    <span asp-validation-for="Email" style="color: red"></span>
-                    <span id="email-error" class="validation-error" style="color: red"></span>
+                    <div class="form-label">
+                        <span asp-validation-for="Email" style="color: red"></span>
+                        <span id="email-error" class="validation-error" style="color: red"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -76,8 +84,10 @@
                         <label asp-for="Password"></label>
                     </div>
                     <input asp-for="Password" class="form-control form-input" />
-                    <span asp-validation-for="Password" style="color: red"></span>
-                    <span id="password-error" class="validation-error" style="color: red"></span>
+                    <div class="form-label">
+                        <span asp-validation-for="Password" style="color: red"></span>
+                        <span id="password-error" class="validation-error" style="color: red"></span>
+                    </div>
                 </div>
             </div>
             <div class="col-md-6">
@@ -86,7 +96,9 @@
                         <label asp-for="ConfirmPassword"></label>
                     </div>
                     <input asp-for="ConfirmPassword" class="form-control form-input" />
-                    <span asp-validation-for="ConfirmPassword" style="color: red"></span>
+                    <div class="form-label">
+                        <span asp-validation-for="ConfirmPassword" style="color: red"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -96,8 +108,10 @@
                     <div class="form-label">
                         @Html.LabelFor(m => m.Image, "Profile Image")
                     </div>
-                    @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default form-input" })
-                    <span id="image-error" class="validation-error" style="color: red"></span>
+                    @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default form-input file-input" })
+                    <div class="form-label">
+                        <span id="image-error" class="validation-error" style="color: red"></span>
+                    </div>
                 </div>
             </div>
             <div class="col-md-6">
@@ -307,7 +321,7 @@
             e.preventDefault();
 
             // Don't submit form if the image is too large
-            if ($('#Image').files) {
+            if ($('#Image')[0].files.length) {
                 if ($('#Image').files[0].size > 1000000) {
                     return
                 }

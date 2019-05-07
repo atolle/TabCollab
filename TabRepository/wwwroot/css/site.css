@@ -776,7 +776,7 @@ footer {
     border-top: 1px solid #282828;
 }
 
-#Image {
+.file-input {
     width: 100%;
 }
 

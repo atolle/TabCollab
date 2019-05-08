@@ -360,6 +360,8 @@ namespace TabRepository.Controllers
                             SubscriptionId = null
                         };
 
+                        userInDb.CustomerId = customer.Id;
+
                         _context.StripeCustomers.Add(customerInDb);
                         _context.SaveChanges();
                     }
@@ -379,6 +381,9 @@ namespace TabRepository.Controllers
                         };
 
                         customerInDb.SubscriptionId = subscription.Id;
+
+                        userInDb.AccountType = AccountType.Subscription;
+                        userInDb.SubscriptionExpiration = subscription.CurrentPeriodEnd;
 
                         _context.StripeSubscriptions.Add(subscriptionInDb);
                         _context.SaveChanges();

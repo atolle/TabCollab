@@ -18,11 +18,11 @@
                 </div>
             </div>
             <div class="col-6" style="padding-right: 0px">
-                <div id="tab-button-container" class="pull-right btn-group">
-                    <button class="btn btn-primary dashboard-button" disabled>New Tab</button>
-                </div>
                 <div id="new-tabversion-button-container" class="pull-right btn-group">
                     <button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>
+                </div>
+                <div id="tab-button-container" class="pull-right btn-group">
+                    <button class="btn btn-primary dashboard-button" disabled>New Tab</button>
                 </div>
             </div>
         </div>
@@ -811,26 +811,18 @@
 
                 currentModal = $('#' + formId + '-modal');
                 currentModal.modal('show');
-
-                // Bind onchange event for the file field so that we can check its size
-                var fileData = document.getElementById("FileData");
-
-                fileData.onchange = function () {
-                    // Make sure the image size is less than 1MB
-                    if (this.files.length) {
-                        if (this.files[0].size > 1000000) {
-                            $("#file-error").html("File size limit is 1 MB");
-                        }
-                        else {
-                            $("#file-error").html("");
-                        }
-                    }
-                    else {
-                        $("#file-error").html("");
-                    }
-                };
             });
         }
+
+        $(document).on("change", "#FileData", function (e, data) {
+            $(".file-error").html("");
+            // Make sure the image size is less than 1MB
+            if (this.files.length) {
+                if (this.files[0].size > 1000000) {
+                    $(".file-size-error").html("File size limit is 1 MB");
+                }
+            }
+        });
 
         // Show modal for edit album
         $("#dashboard").on("click", "#edit-tabversion-button", function (e, data) {

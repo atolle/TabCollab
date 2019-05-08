@@ -82,14 +82,15 @@ namespace TabRepository.Controllers
                     .Include(v => v.Tab.Album.Project)
                     .Where(v => v.Tab.Album.Project.UserId == currentUserId)
                     .Count();
-
-               // var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.UserId == user.Id && a.Status.ToLower() == "active").FirstOrDefault();
+               
                 bool hasActiveSubscription = false;
 
-                //if (subscriptionInDb != null)
-                //{
-                //    hasActiveSubscription = true;
-                //}
+                var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.CustomerId == user.CustomerId).FirstOrDefault();
+
+                if (subscriptionInDb != null)
+                {
+                    hasActiveSubscription = true;
+                }
 
                 var model = new ManageViewModel
                 {

@@ -31,9 +31,10 @@
                     <div class="form-label">
                         @Html.LabelFor(m => m.FileData, "Tab File")
                     </div>
-                    @Html.TextBoxFor(m => m.FileData, new { type = "file", @class = "btn btn-default form-input file-input" })
+                    <input class="btn btn-default form-input file-input" data-val="true" data-val-required="Tab file is required" id="FileData" name="FileData" type="file">
                     <div class="form-label">
-                        <span id="file-error" class="validation-error" style="color: red"></span>
+                        <span style="color: red" class="field-validation-valid file-error" data-valmsg-for="FileData" data-valmsg-replace="true"></span>
+                        <span class="validation-error file-error file-size-error" style="color: red"></span>
                     </div>
                 </div>
                 }

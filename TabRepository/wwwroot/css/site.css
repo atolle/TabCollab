@@ -911,6 +911,10 @@ footer {
     height: 90%;
 }
 
+.link {
+    color: rgb(134, 192, 144) !important;
+}
+
 #new-tabversion-button-container {
     margin-left: 12px;
 }

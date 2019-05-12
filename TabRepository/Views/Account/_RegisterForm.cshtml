@@ -117,7 +117,7 @@
         <div class="col">
             <div class="form-group">
                 <div class="form-check">
-                    <label for="AgreeToTerms"><input type="checkbox" data-val="true" data-val-required="The I agree to the Terms of Service and Privacy Policy field is required." id="AgreeToTerms" name="AgreeToTerms" value="true"> I agree to the Terms of Service and Privacy Policy</label>
+                    <label for="AgreeToTerms"><input type="checkbox" data-val="true" data-val-required="The I agree to the Terms of Service and Privacy Policy field is required." id="AgreeToTerms" name="AgreeToTerms" value="true"> I agree to the <a class="link" target="_blank" asp-area="" asp-controller="Home" asp-action="TermsOfService">Terms of Service</a> and <a class="link" target="_blank" asp-area="" asp-controller="Home" asp-action="PrivacyPolicy">Privacy Policy</a></label>
                 </div>
                 <span asp-validation-for="AgreeToTerms" style="color: red"></span>
             </div>

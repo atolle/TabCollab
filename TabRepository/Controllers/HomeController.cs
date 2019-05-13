@@ -46,5 +46,15 @@ namespace TabRepository.Controllers
         {
             return View();
         }
+
+        public IActionResult GetTermsOfService()
+        {
+            return PartialView("_TermsOfService");
+        }
+
+        public IActionResult GetPrivacyPolicy()
+        {
+            return PartialView("_PrivacyPolicy");
+        }
     }
 }

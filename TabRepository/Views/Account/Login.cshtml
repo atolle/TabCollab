@@ -39,31 +39,6 @@
             <button id="login-button" type="submit" class="btn btn-default button-submit-wide">Log in</button>
         </div>
     </form>
-    @{
-        var loginProviders = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-        if (loginProviders.Count == 0)
-        {
-            <div>
-                <p>
-                    There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkID=532715">this article</a>
-                    for details on setting up this ASP.NET application to support logging in via external services.
-                </p>
-            </div>
-        }
-        else
-        {
-            <form id="google-login" asp-controller="Account" asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal form-center">
-                <div>
-                    <p>
-                        @foreach (var provider in loginProviders)
-                        {
-                            <button id="google-button" type="submit" class="btn btn-default button-submit-wide" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">Log in with @provider.DisplayName</button>
-                        }
-                    </p>
-                </div>
-            </form>
-        }
-    }
     <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal form-center">
         <div class="form-group">
             <div class="form-label">
@@ -93,11 +68,7 @@
             if (e.target.id == 'login') {
                 $('#login-button').html('<div class="loader"></div>');
             }
-            else if (e.target.id == 'google-login') {
-                $('#google-button').html('<div class="loader"></div>');
-            }
             $('#login-button').addClass('disabled');
-            $('#google-button').addClass('disabled');
         });
     });
 </script>

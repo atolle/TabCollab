@@ -241,13 +241,24 @@ $(document).ready(function () {
             processData: false
         })
         .then(function (response) {
-            currentModal.modal('hide');
-            // Call GetProjectListPartialView to repopulate the project list
-            repopulateProjectList();
+            if (response.error) {
+                enableSubmitButton();
+                if (response.error.toLowerCase().includes('file')) {
+                    $('#image-error').html(response.error);
+                }
+                else {
+                    showFailureBootbox("saving", response.error);
+                }
+            }
+            else {
+                currentModal.modal('hide');
+                // Call GetProjectListPartialView to repopulate the project list
+                repopulateProjectList();
+            }
         })
         .fail(function (error) {
-            currentModal.modal('hide');
             bootbox.alert("Unable to save project. Error: " + error.statusText);
+            enableSubmitButton();
         })
     });
 
@@ -277,6 +288,11 @@ $(document).ready(function () {
 
     function getContributorCount() {
         return $('.contributor-btn').length;
+    }
+
+    function enableSubmitButton() {
+        $('.button-save').html('Save');
+        $('.button-save').removeClass('disabled');
     }
 });
     </script>

@@ -51,75 +51,25 @@ namespace TabRepository.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Save(TabFormViewModel viewModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
             try
             {
-                string currentUserId = User.GetUserId();
-                string currentUsername = User.GetUsername();
-
-                if (viewModel.Id == 0)  // We are creating a new Tab
+                if (ModelState.IsValid)
                 {
-                    using (var transaction = _context.Database.BeginTransaction())
+                    string currentUserId = User.GetUserId();
+                    string currentUsername = User.GetUsername();
+
+                    if (viewModel.Id == 0)  // We are creating a new Tab
                     {
-                        // Verify current user has access to this project
-                        var albumInDb = _context.Albums.Include(a => a.Tabs).SingleOrDefault(p => p.Id == viewModel.AlbumId && p.UserId == currentUserId);
-
-                        // If we own this album we need to make sure we have an active subscription or less than 50 tabs
-                        if (albumInDb != null)
+                        using (var transaction = _context.Database.BeginTransaction())
                         {
-                            var subscriptionExpiration = _context.Users
-                                .Where(u => u.Id == currentUserId)
-                                .Select(u => u.SubscriptionExpiration)
-                                .FirstOrDefault();
+                            // Verify current user has access to this project
+                            var albumInDb = _context.Albums.Include(a => a.Tabs).SingleOrDefault(p => p.Id == viewModel.AlbumId && p.UserId == currentUserId);
 
-                            var tabVersionCount = 0;
-
-                            if (subscriptionExpiration == null || (int)(subscriptionExpiration - DateTime.Now).Value.TotalDays < 0)
+                            // If we own this album we need to make sure we have an active subscription or less than 50 tabs
+                            if (albumInDb != null)
                             {
-                                // Get a count of total tab versions that this user owns (i.e. their projects)
-                                tabVersionCount = _context.TabVersions.Include(u => u.User)
-                                    .Include(v => v.Tab)
-                                    .Include(v => v.Tab.Album)
-                                    .Include(v => v.Tab.Album.Project)
-                                    .Where(v => v.Tab.Album.Project.UserId == currentUserId)
-                                    .Count();
-
-                                if (tabVersionCount >= 50)
-                                {
-                                    if (subscriptionExpiration == null)
-                                    {
-                                        return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />You have met the 50 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.");
-                                    }                                    
-                                    else
-                                    {
-                                        return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />Your TabCollab subscription has expired. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To renew your subscription, go the the Account page.");
-                                    }
-                                }
-                            }
-                        }
-
-                        // If there is not project matching this project Id and this user Id, check to see if this user is a contributor
-                        if (albumInDb == null)
-                        {
-                            albumInDb = (from album in _context.Albums
-                                         join project in _context.Projects on album.ProjectId equals project.Id
-                                         join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
-                                         where contributor.UserId == currentUserId && project.Id == album.ProjectId && album.Id == viewModel.AlbumId
-                                         select album).Include(u => u.User).Include(a => a.Tabs).FirstOrDefault();
-
-                            if (albumInDb == null)
-                            {
-                                return NotFound();
-                            }
-                            else
-                            {
-                                // Make sure the owner's account is not expired 
-                                string otherUserId = albumInDb.UserId;
                                 var subscriptionExpiration = _context.Users
-                                    .Where(u => u.Id == otherUserId)
+                                    .Where(u => u.Id == currentUserId)
                                     .Select(u => u.SubscriptionExpiration)
                                     .FirstOrDefault();
 
@@ -132,143 +82,196 @@ namespace TabRepository.Controllers
                                         .Include(v => v.Tab)
                                         .Include(v => v.Tab.Album)
                                         .Include(v => v.Tab.Album.Project)
-                                        .Where(v => v.Tab.Album.Project.UserId == otherUserId)
+                                        .Where(v => v.Tab.Album.Project.UserId == currentUserId)
                                         .Count();
 
                                     if (tabVersionCount >= 50)
                                     {
                                         if (subscriptionExpiration == null)
                                         {
-                                            return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />The owner has met the 50 allowed free tab versions that are included with the free TabCollab account.");
+                                            return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />You have met the 50 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.");
                                         }
                                         else
                                         {
-                                            return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />The owner's TabCollab subscription has expired.");
+                                            return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />Your TabCollab subscription has expired. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To renew your subscription, go the the Account page.");
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        int order = 0;
-
-                        // Order is max order + 1
-                        if (albumInDb.Tabs != null && albumInDb.Tabs.Count > 0)
-                        {
-                            order = Convert.ToInt32(albumInDb.Tabs.Max(t => t.Order)) + 1;
-                        }
-
-                        TabFile tabFile = new TabFile();
-
-                        if (viewModel.FileData.Length > 0)
-                        {
-                            // Limit file size to 1 MB
-                            if (viewModel.FileData.Length > 1000000)
+                            // If there is not project matching this project Id and this user Id, check to see if this user is a contributor
+                            if (albumInDb == null)
                             {
-                                return StatusCode(StatusCodes.Status500InternalServerError, "File size limit is 1 MB");
+                                albumInDb = (from album in _context.Albums
+                                             join project in _context.Projects on album.ProjectId equals project.Id
+                                             join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
+                                             where contributor.UserId == currentUserId && project.Id == album.ProjectId && album.Id == viewModel.AlbumId
+                                             select album).Include(u => u.User).Include(a => a.Tabs).FirstOrDefault();
+
+                                if (albumInDb == null)
+                                {
+                                    return NotFound();
+                                }
+                                else
+                                {
+                                    // Make sure the owner's account is not expired 
+                                    string otherUserId = albumInDb.UserId;
+                                    var subscriptionExpiration = _context.Users
+                                        .Where(u => u.Id == otherUserId)
+                                        .Select(u => u.SubscriptionExpiration)
+                                        .FirstOrDefault();
+
+                                    var tabVersionCount = 0;
+
+                                    if (subscriptionExpiration == null || (int)(subscriptionExpiration - DateTime.Now).Value.TotalDays < 0)
+                                    {
+                                        // Get a count of total tab versions that this user owns (i.e. their projects)
+                                        tabVersionCount = _context.TabVersions.Include(u => u.User)
+                                            .Include(v => v.Tab)
+                                            .Include(v => v.Tab.Album)
+                                            .Include(v => v.Tab.Album.Project)
+                                            .Where(v => v.Tab.Album.Project.UserId == otherUserId)
+                                            .Count();
+
+                                        if (tabVersionCount >= 50)
+                                        {
+                                            if (subscriptionExpiration == null)
+                                            {
+                                                return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />The owner has met the 50 allowed free tab versions that are included with the free TabCollab account.");
+                                            }
+                                            else
+                                            {
+                                                return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />The owner's TabCollab subscription has expired.");
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                            using (var fileStream = viewModel.FileData.OpenReadStream())
-                            using (var ms = new MemoryStream())
+
+                            int order = 0;
+
+                            // Order is max order + 1
+                            if (albumInDb.Tabs != null && albumInDb.Tabs.Count > 0)
                             {
-                                fileStream.CopyTo(ms);
-                                var fileBytes = ms.ToArray();
-                                tabFile.TabData = fileBytes;
+                                order = Convert.ToInt32(albumInDb.Tabs.Max(t => t.Order)) + 1;
                             }
 
-                            tabFile.Name = viewModel.FileData.FileName;
-                            tabFile.DateCreated = DateTime.Now;
-                        }
+                            TabFile tabFile = new TabFile();
 
-                        // Create new Tab
-                        Tab tab = new Tab()
-                        {
-                            UserId = albumInDb.UserId,
-                            Album = albumInDb,
-                            Name = viewModel.Name,
-                            Description = viewModel.Description,
-                            DateCreated = DateTime.Now,
-                            DateModified = DateTime.Now,
-                            CurrentVersion = 1,
-                            Order = order
-                        };
-
-                        // Create first Tab Version
-                        TabVersion tabVersion = new TabVersion()
-                        {
-                            Version = 1,
-                            Description = viewModel.Description,
-                            UserId = currentUserId,
-                            DateCreated = tab.DateCreated,
-                            Tab = tab,
-                            TabFile = tabFile
-                        };
-
-                        tabVersion.TabFile = tabFile;
-
-                        _context.Tabs.Add(tab);
-                        _context.TabVersions.Add(tabVersion);
-                        _context.TabFiles.Add(tabFile);
-                        _context.SaveChanges();
-
-                        var userTabVersionInDb = _context
-                            .UserTabVersions
-                            .Where(v => v.UserId == currentUserId && v.TabId == tabVersion.TabId)
-                            .FirstOrDefault();
-
-                        if (userTabVersionInDb != null)
-                        {
-                            if (tabVersion.Version > userTabVersionInDb.Version)
+                            if (viewModel.FileData.Length > 0)
                             {
-                                userTabVersionInDb.Version = tabVersion.Version;
-                                _context.UserTabVersions.Update(userTabVersionInDb);
-                                _context.SaveChanges();
+                                // Limit file size to 1 MB
+                                if (viewModel.FileData.Length > 1000000)
+                                {
+                                    return StatusCode(StatusCodes.Status500InternalServerError, "File size limit is 1 MB");
+                                }
+                                using (var fileStream = viewModel.FileData.OpenReadStream())
+                                using (var ms = new MemoryStream())
+                                {
+                                    fileStream.CopyTo(ms);
+                                    var fileBytes = ms.ToArray();
+                                    tabFile.TabData = fileBytes;
+                                }
+
+                                tabFile.Name = viewModel.FileData.FileName;
+                                tabFile.DateCreated = DateTime.Now;
                             }
-                        }
-                        else
-                        {
-                            UserTabVersion userTabVersion = new UserTabVersion
+
+                            // Create new Tab
+                            Tab tab = new Tab()
                             {
-                                UserId = currentUserId,
-                                TabId = tabVersion.TabId,
-                                Version = tabVersion.Version
+                                UserId = albumInDb.UserId,
+                                Album = albumInDb,
+                                Name = viewModel.Name,
+                                Description = viewModel.Description,
+                                DateCreated = DateTime.Now,
+                                DateModified = DateTime.Now,
+                                CurrentVersion = 1,
+                                Order = order
                             };
 
-                            _context.UserTabVersions.Add(userTabVersion);
+                            // Create first Tab Version
+                            TabVersion tabVersion = new TabVersion()
+                            {
+                                Version = 1,
+                                Description = viewModel.Description,
+                                UserId = currentUserId,
+                                DateCreated = tab.DateCreated,
+                                Tab = tab,
+                                TabFile = tabFile
+                            };
+
+                            tabVersion.TabFile = tabFile;
+
+                            _context.Tabs.Add(tab);
+                            _context.TabVersions.Add(tabVersion);
+                            _context.TabFiles.Add(tabFile);
                             _context.SaveChanges();
+
+                            var userTabVersionInDb = _context
+                                .UserTabVersions
+                                .Where(v => v.UserId == currentUserId && v.TabId == tabVersion.TabId)
+                                .FirstOrDefault();
+
+                            if (userTabVersionInDb != null)
+                            {
+                                if (tabVersion.Version > userTabVersionInDb.Version)
+                                {
+                                    userTabVersionInDb.Version = tabVersion.Version;
+                                    _context.UserTabVersions.Update(userTabVersionInDb);
+                                    _context.SaveChanges();
+                                }
+                            }
+                            else
+                            {
+                                UserTabVersion userTabVersion = new UserTabVersion
+                                {
+                                    UserId = currentUserId,
+                                    TabId = tabVersion.TabId,
+                                    Version = tabVersion.Version
+                                };
+
+                                _context.UserTabVersions.Add(userTabVersion);
+                                _context.SaveChanges();
+                            }
+
+                            NotificationsController.AddNotification(_context, NotificationType.TabAdded, null, tab.Album.ProjectId, currentUsername, currentUserId, tab.Name, tab.Album.Name);
+
+                            transaction.Commit();
+
+                            // Return tab name and id
+                            return Json(new { name = tab.Name, id = tab.Id });
+                        }
+                    }
+                    else
+                    {
+                        var tabInDb = _context.Tabs.SingleOrDefault(p => p.Id == viewModel.Id && p.UserId == currentUserId);
+
+                        // If current user does not have access to project or project does not exist
+                        if (tabInDb == null)
+                        {
+                            return NotFound();
                         }
 
-                        NotificationsController.AddNotification(_context, NotificationType.TabAdded, null, tab.Album.ProjectId, currentUsername, currentUserId, tab.Name, tab.Album.Name);
+                        tabInDb.Name = viewModel.Name;
+                        tabInDb.Description = viewModel.Description;
+                        tabInDb.DateModified = DateTime.Now;
 
-                        transaction.Commit();
+                        _context.Tabs.Update(tabInDb);
+                        _context.SaveChanges();
 
-                        // Return tab name and id
-                        return Json(new { name = tab.Name, id = tab.Id });
+                        return Json(new { name = tabInDb.Name, id = tabInDb.Id });
                     }
                 }
-                else
-                {
-                    var tabInDb = _context.Tabs.SingleOrDefault(p => p.Id == viewModel.Id && p.UserId == currentUserId);
 
-                    // If current user does not have access to project or project does not exist
-                    if (tabInDb == null)
-                    {
-                        return NotFound();
-                    }
+                // If we got here there were errors in the modelstate                
+                var modelErrors = ModelState.Values.SelectMany(v => v.Errors.Select(b => b.ErrorMessage)).ToList();
 
-                    tabInDb.Name = viewModel.Name;
-                    tabInDb.Description = viewModel.Description;
-                    tabInDb.DateModified = DateTime.Now;
-
-                    _context.Tabs.Update(tabInDb);
-                    _context.SaveChanges();
-
-                    return Json(new { name = tabInDb.Name, id = tabInDb.Id });
-                }
+                return Json(new { error = string.Join("<br />", modelErrors) });
             }
             catch (Exception e)
             {
-                // Need to return failure to form
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }                       
         }
 

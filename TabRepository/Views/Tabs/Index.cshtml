@@ -896,18 +896,18 @@
             e.preventDefault();
 
             // Don't submit form if the image is too large
-            if ($('#FileData').length) {
-                if ($('#FileData')[0].files.length) {
-                    if ($('#FileData')[0].files[0].size > 1000000) {
+            if (currentModal.find("#FileData").length) {
+                if (currentModal.find('#FileData')[0].files.length) {
+                    if (currentModal.find('#FileData')[0].files[0].size > 1000000) {
                         return
                     }
                 }
             }
 
             // Don't submit form if the image is too large
-            if ($('#Image').length) {
-                if ($('#Image')[0].files.length) {
-                    if ($('#Image')[0].files[0].size > 1000000) {
+            if (currentModal.find('#Image').length) {
+                if (currentModal.find('#Image')[0].files.length) {
+                    if (currentModal.find('#Image')[0].files[0].size > 1000000) {
                         return
                     }
                 }
@@ -935,105 +935,121 @@
                 processData: false
             })
             .then(function (response) {
-                currentModal.modal('hide');
-                // Here we're replacing the tabversion table, which include tab id
-                // Then we're using that tab id to identify the jstree node
-                if (form.id === "tab-form") {
-                    var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
+                if (response.error) {
+                    enableSubmitButton();
+                    if (response.error.toLowerCase().includes('file')) {
+                        if (currentModal.find("#image-error").length) {
+                            currentModal.find("#image-error").html(response.error);
+                        }
+                        else if (currentModal.find('#file-error').length) {
+                            currentModal.find("#file-error").html(response.error);
+                        }                        
+                    }
+                    else {
+                        showFailureBootbox("saving", response.error);
+                    }
+                }
+                else {
+                    currentModal.modal('hide');
+                    // Here we're replacing the tabversion table, which include tab id
+                    // Then we're using that tab id to identify the jstree node
+                    if (form.id === "tab-form") {
+                        var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
 
-                    $.get(url, function (data) {
-                        $('#tabversions-table-container').empty().append(data);
+                        $.get(url, function (data) {
+                            $('#tabversions-table-container').empty().append(data);
 
-                        // Call onResize to resize the user images
-                        onResize(false);
-                    });
+                            // Call onResize to resize the user images
+                            onResize(false);
+                        });
 
-                    var tabNode = $('#tab-' + response.id);
+                        var tabNode = $('#tab-' + response.id);
 
-                    // Check to see if node already exists so we know whether to add a new node or edit an existing one
-                    if (!tabNode.length) {
-                        // Create new tab node and select it - expand and deselect project node
-                        var currentNode = $(selectedTree).jstree().get_selected(true)[0];
-                        $(selectedTree).jstree().open_node(currentNode.id, false, false);
-                        if ($(selectedTree)[0].className.includes('ownerTree')) {
-                            $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
+                        // Check to see if node already exists so we know whether to add a new node or edit an existing one
+                        if (!tabNode.length) {
+                            // Create new tab node and select it - expand and deselect project node
+                            var currentNode = $(selectedTree).jstree().get_selected(true)[0];
+                            $(selectedTree).jstree().open_node(currentNode.id, false, false);
+                            if ($(selectedTree)[0].className.includes('ownerTree')) {
+                                $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
+                            }
+                            else {
+                                $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "contributor" }, text: response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
+                            }
+                            $(selectedTree).jstree().deselect_node(currentNode.id, false, false);
+                            $(selectedTree).jstree().select_node("tab-" + response.id, false, false);
                         }
                         else {
-                            $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "contributor" }, text: response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
+                            $(".jstree").jstree('rename_node', tabNode, response.name);
                         }
-                        $(selectedTree).jstree().deselect_node(currentNode.id, false, false);
-                        $(selectedTree).jstree().select_node("tab-" + response.id, false, false);
                     }
-                    else {
-                        $(".jstree").jstree('rename_node', tabNode, response.name);
+                    else if (form.id === "tabversion-form") {
+                        var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
+
+                        $.get(url, function (data) {
+                            $('#tabversions-table-container').empty().append(data);
+
+                            // Call onResize to resize the user images
+                            onResize(false);
+                        });
                     }
-                }
-                else if (form.id === "tabversion-form") {
-                    var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
+                    else if (form.id === "album-form") {
+                        var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)?id=' + response.id;
 
-                    $.get(url, function (data) {
-                        $('#tabversions-table-container').empty().append(data);
+                        $.get(url, function (data) {
+                            $('#tabversions-table-container').empty().append(data);
 
-                        // Call onResize to resize the user images
-                        onResize(false);
-                    });
-                }
-                else if (form.id === "album-form") {
-                    var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)?id=' + response.id;
+                            // Call onResize to resize the user images
+                            onResize(false);
+                        });
 
-                    $.get(url, function (data) {
-                        $('#tabversions-table-container').empty().append(data);
+                        var albumNode = $('#album-' + response.id);
 
-                        // Call onResize to resize the user images
-                        onResize(false);
-                    });
-
-                    var albumNode = $('#album-' + response.id);
-
-                    // Check to see if node already exists so we know whether to add a new node or edit an existing one
-                    if (!albumNode.length) {
-                        var currentNode = $(selectedTree).jstree().get_selected(true)[0];
-                        $(selectedTree).jstree().open_node(currentNode.id, false, false);
-                        if ($(selectedTree)[0].className.includes('ownerTree')) {
-                            $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);
+                        // Check to see if node already exists so we know whether to add a new node or edit an existing one
+                        if (!albumNode.length) {
+                            var currentNode = $(selectedTree).jstree().get_selected(true)[0];
+                            $(selectedTree).jstree().open_node(currentNode.id, false, false);
+                            if ($(selectedTree)[0].className.includes('ownerTree')) {
+                                $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);
+                            }
+                            else {
+                                $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "contributor" }, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);
+                            }
+                            $(selectedTree).jstree().deselect_node(currentNode.id, false, false);
+                            $(selectedTree).jstree().select_node("album-" + response.id, false, false);
                         }
                         else {
-                            $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "contributor" }, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);
+                            $(".jstree").jstree('rename_node', albumNode, response.name);
                         }
-                        $(selectedTree).jstree().deselect_node(currentNode.id, false, false);
-                        $(selectedTree).jstree().select_node("album-" + response.id, false, false);
                     }
-                    else {
-                        $(".jstree").jstree('rename_node', albumNode, response.name);
-                    }
-                }
-                // This will handle new project
-                else if (form.id === "project-form") {
-                    var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
+                    // This will handle new project
+                    else if (form.id === "project-form") {
+                        var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
-                    $.get(url, function (data) {
-                        $('#tabversions-table-container').empty().append(data);
-                    });
+                        $.get(url, function (data) {
+                            $('#tabversions-table-container').empty().append(data);
+                        });
 
-                    var projectNode = $('#project-' + response.id);
+                        var projectNode = $('#project-' + response.id);
 
-                    // Check to see if node already exists so we know whether to add a new node or edit an existing one
-                    if (!projectNode.length) {
-                        var currentNode = $('.ownerTree').jstree().get_selected(true)[0];
-                        if (currentNode != null) {
-                            $('.ownerTree').jstree().deselect_node(currentNode.id, false, false);
+                        // Check to see if node already exists so we know whether to add a new node or edit an existing one
+                        if (!projectNode.length) {
+                            var currentNode = $('.ownerTree').jstree().get_selected(true)[0];
+                            if (currentNode != null) {
+                                $('.ownerTree').jstree().deselect_node(currentNode.id, false, false);
+                            }
+                            $('.ownerTree').jstree().create_node("#", { id: "project-" + response.id, text: response.name }, "last", false, false);
+                            $('.ownerTree').jstree().select_node("project-" + response.id, false, false);
                         }
-                        $('.ownerTree').jstree().create_node("#", { id: "project-" + response.id, text: response.name }, "last", false, false);
-                        $('.ownerTree').jstree().select_node("project-" + response.id, false, false);
-                    }
-                    else {
-                        $(".jstree").jstree('rename_node', projectNode, response.name);
+                        else {
+                            $(".jstree").jstree('rename_node', projectNode, response.name);
+                        }
                     }
                 }
             })
             .fail(function (error) {
-                currentModal.modal('hide');
                 bootbox.alert("Unable to save.<br /><br />Error: " + error.responseText);
+                enableSubmitButton();
             });
         });
 
@@ -1165,6 +1181,11 @@
             $('.treeWrapperCon').show();
             $('.treeWrapperMy').hide();
         });
+
+        function enableSubmitButton() {
+            $('.button-save').html('Save');
+            $('.button-save').removeClass('disabled');
+        }
     });
     </script>
 }

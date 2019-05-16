@@ -22,10 +22,18 @@ namespace TabRepository.Models.AccountViewModels
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
 
-        public string ImageFilePath { get; set; }
-
-        public string ImageFileName { get; set; }
-
         public IFormFile Image { get; set; }
+
+        [FileExtensions(Extensions = "png,gif,jpeg,jpg,nofile", ErrorMessage = "Invalid file type")]
+        public string FileName
+        {
+            get
+            {
+                if (Image != null)
+                    return Image.FileName;
+                else
+                    return ".nofile";
+            }
+        }
     }
 }

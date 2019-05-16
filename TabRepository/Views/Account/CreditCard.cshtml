@@ -138,12 +138,12 @@
                                     break;
                                 case 'exp_year':
                                 case 'exp_month':
-                                    $('#exp-error').html(response.error.message);
+                                    $('#exp-error').html("processing credit card payment", response.error.message);
                                     break;
                             }
                         }
                         else {
-                            showFailureBootbox(response.error.message);
+                            showFailureBootbox("processing credit card payment", response.error.message);
                         }
 
                         enableSubmitButton();
@@ -181,10 +181,13 @@
                                     case 'exp_month':
                                         $('#exp-error').html(response.error);
                                         break;
+                                    default:
+                                        showFailureBootbox("processing credit card payment", response.error);
+                                        break;
                                 }
                             }
                             else {
-                                showFailureBootbox(response.error);
+                                showFailureBootbox("processing credit card payment", response.error);
                             }
                         }
                         else {
@@ -192,18 +195,30 @@
                         }
                     })
                     .fail(function (error) {
-                        showFailureBootbox(error.error);
+                        showFailureBootbox("processing credit card payment", error.error);
                     });
                 }
             }
 
             // Check card type
             $(document).on("keyup", "#CardNumber", function () {
+                validateCardNumber(this);
+            });
+
+            // Check card type
+            $(document).on("paste", "#CardNumber", function () {
+                var that = this;
+                setTimeout(function () {
+                    validateCardNumber(that);
+                }, 0);
+            });
+
+            function validateCardNumber(event) {
                 var $amex = $('#amex'),
                     $visa = $('#visa'),
                     $mastercard = $('#mastercard'),
                     $discover = $('#discover'),
-                    $cardNumber = $(this);
+                    $cardNumber = $(event);
 
                 $amex.removeClass('transparent');
                 $visa.removeClass('transparent');
@@ -228,7 +243,7 @@
                     $visa.addClass('transparent');
                     $mastercard.addClass('transparent');
                 }
-            });
+            }
 
             $(document).on("submit", "#payment-form", function (e, data) {
                 // Show spinner on reset button
@@ -249,19 +264,7 @@
 
             $(document).on('hidden.bs.modal', function () {
                 enableSubmitButton();
-            });
-
-            function showFailureBootbox(error) {
-                bootbox.dialog({
-                    message: "Unable to process credit card payment.<br /><br />Error: " + error,
-                    buttons: {
-                        confirm: {
-                            label: 'Close',
-                            className: 'btn-default'
-                        },
-                    }
-                });
-            }            
+            });      
 
             function enableSubmitButton() {
                 $('.button-submit-wide').removeClass('disabled');

@@ -912,12 +912,9 @@ footer {
     height: 90%;
 }
 
-#terms-btn, #privacy-btn {
-    text-decoration: underline;
-}
-
 #terms-btn:hover, #privacy-btn:hover {
     cursor: pointer;
+    text-decoration: underline;
 }
 
 .link {

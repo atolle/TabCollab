@@ -51,14 +51,9 @@ namespace TabRepository.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Save(TabVersionFormViewModel viewModel)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                // Need to return JSON failure to form
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
-            else
-            {
-                try
+                if (ModelState.IsValid)
                 {
                     string currentUserId = User.GetUserId();
                     string currentUsername = User.GetUsername();
@@ -266,7 +261,7 @@ namespace TabRepository.Controllers
                             if (tabVersionInDb == null)
                             {
                                 return NotFound();
-                            }                            
+                            }
                         }
 
                         tabVersionInDb.Description = viewModel.Description;
@@ -277,11 +272,15 @@ namespace TabRepository.Controllers
                         return Json(new { name = tabInDb.Name, id = tabInDb.Id });
                     }
                 }
-                catch
-                {
-                    // Need to return JSON failure to form
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                }
+
+                // If we got here there were errors in the modelstate                
+                var modelErrors = ModelState.Values.SelectMany(v => v.Errors.Select(b => b.ErrorMessage)).ToList();
+
+                return Json(new { error = string.Join("<br />", modelErrors) });
+            }
+            catch (Exception e)
+            {
+                return Json(new { error = e.Message });
             }
         }
 

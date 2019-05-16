@@ -26,6 +26,18 @@ namespace TabRepository.Models.ManageViewModels
 
         public IFormFile Image { get; set; }
 
+        [FileExtensions(Extensions = "png,gif,jpeg,jpg,nofile", ErrorMessage = "Invalid file type")]
+        public string FileName
+        {
+            get
+            {
+                if (Image != null)
+                    return Image.FileName;
+                else
+                    return ".nofile";
+            }
+        }
+
         public string Username { get; set; }
 
         public string Firstname { get; set; }

@@ -231,14 +231,24 @@ $(document).ready(function () {
             processData: false
         })
         .then(function (response) {
-            currentModal.modal('hide');
-            // Call GetAlbumListPartialView to repopulate the project list
-            repopulateAlbumList();
+            if (response.error) {            
+                enableSubmitButton();
+                if (response.error.toLowerCase().includes('file')) {
+                    $('#image-error').html(response.error);
+                }
+                else {
+                    showFailureBootbox("saving", response.error);
+                }
+            }
+            else {
+                currentModal.modal('hide');
+                // Call GetAlbumListPartialView to repopulate the project list
+                repopulateAlbumList();
+            }
         })
         .fail(function (error) {
-            currentModal.modal('hide');
-            bootbox.alert("Unable to show project form. Error: " + error.statusText);
-
+            bootbox.alert("Unable to save project. Error: " + error.statusText);
+            enableSubmitButton();
         })
     });
 
@@ -268,6 +278,11 @@ $(document).ready(function () {
             .then(resolve)
             .fail(reject)
         })
+    }
+
+    function enableSubmitButton() {
+        $('.button-save').html('Save');
+        $('.button-save').removeClass('disabled');
     }
 });
     </script>

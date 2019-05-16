@@ -39,11 +39,19 @@ namespace TabRepository.Models.AccountViewModels
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
 
-        public string ImageFilePath { get; set; }
-
-        public string ImageFileName { get; set; }
-
         public IFormFile Image { get; set; }
+
+        [FileExtensions(Extensions = "png,gif,jpeg,jpg,nofile", ErrorMessage = "Invalid file type")]
+        public string FileName
+        {
+            get
+            {
+                if (Image != null)
+                    return Image.FileName;
+                else
+                    return ".nofile";
+            }
+        }
 
         [Required(ErrorMessage = "Account Type is required")]
         [Display(Name = "Account Type")]

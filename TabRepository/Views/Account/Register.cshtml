@@ -231,7 +231,7 @@
                         }
                     }
                     else {
-                        showFailureBootbox(response.error.message);
+                        showFailureBootbox("registering", response.error.message);
                     }
 
                     enableSubmitButton();
@@ -272,7 +272,7 @@
                                 }
                             }
                             else {
-                                showFailureBootbox(response.error);
+                                showFailureBootbox("registering", response.error);
                             }
                         }
                         else {
@@ -280,18 +280,30 @@
                         }
                     })
                     .fail(function (error) {
-                        showFailureBootbox(error.error);
+                        showFailureBootbox("registering", error.error);
                     });
             }
         }
 
         // Check card type
         $(document).on("keyup", "#CardNumber", function () {
+            validateCardNumber(this);
+        });
+
+        // Check card type
+        $(document).on("paste", "#CardNumber", function () {            
+            var that = this;
+            setTimeout(function () {
+                validateCardNumber(that);
+            }, 0);
+        });
+
+        function validateCardNumber(event) {
             var $amex = $('#amex'),
                 $visa = $('#visa'),
                 $mastercard = $('#mastercard'),
                 $discover = $('#discover'),
-                $cardNumber = $(this);
+                $cardNumber = $(event);
 
             $amex.removeClass('transparent');
             $visa.removeClass('transparent');
@@ -316,7 +328,7 @@
                 $visa.addClass('transparent');
                 $mastercard.addClass('transparent');
             }
-        });
+        }
 
         $(document).on("change", "#AgreeToTerms", function () {
             if (this.checked) {
@@ -332,7 +344,7 @@
 
             // Don't submit form if the image is too large
             if ($('#Image')[0].files.length) {
-                if ($('#Image').files[0].size > 1000000) {
+                if ($('#Image')[0].files[0].size > 1000000) {
                     return
                 }
             }
@@ -365,8 +377,11 @@
                         else if (response.error.toLowerCase().includes('password')) {
                             $('#password-error').html(response.error);
                         }
+                        else if (response.error.toLowerCase().includes('file')) {
+                            $('#image-error').html(response.error);
+                        }
                         else {
-                            showFailureBootbox(response.error);
+                            showFailureBootbox("resgistering", response.error);
                         }
                     }
                     else {
@@ -375,7 +390,7 @@
                     }
                 })
                 .fail(function (error) {
-                    showFailureBootbox(error.statusText);
+                    showFailureBootbox("resgistering", error.statusText);
                 });
         });
 
@@ -394,18 +409,6 @@
                 exp_year: $('#Year').val()
             }, stripeResponseHandler);
         });
-
-        function showFailureBootbox(error) {
-            bootbox.dialog({
-                message: "An error occurred while registering.<br /><br />Error: " + error,
-                buttons: {
-                    confirm: {
-                        label: 'Close',
-                        className: 'btn-default'
-                    },
-                }
-            });
-        }
 
         function enableSubmitButton() {
             if ($('#payment-form').length) {

@@ -57,47 +57,80 @@ namespace TabRepository.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Save(AlbumFormViewModel viewModel)
         {
-            if (!ModelState.IsValid)    
-            {                           
-                // Need to return JSON failure to form
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
-
             try
             {
-                string currentUserId = User.GetUserId();
-                string currentUsername = User.GetUsername();
-
-                // Verify current user has access to this project
-                var projectInDb = _context.Projects.SingleOrDefault(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId);
-
-                // If there is not project matching this project Id and this user Id, check to see if this user is a contributor
-                if (projectInDb == null)
+                if (ModelState.IsValid)
                 {
-                    projectInDb = (from project in _context.Projects
-                                   join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
-                                   where contributor.UserId == currentUserId && project.Id == viewModel.ProjectId
-                                   select project).Include(u => u.User).FirstOrDefault();
+                    string currentUserId = User.GetUserId();
+                    string currentUsername = User.GetUsername();
 
+                    // Verify current user has access to this project
+                    var projectInDb = _context.Projects.SingleOrDefault(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId);
+
+                    // If there is not project matching this project Id and this user Id, check to see if this user is a contributor
                     if (projectInDb == null)
                     {
-                        return NotFound();
-                    }
-                }
+                        projectInDb = (from project in _context.Projects
+                                       join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
+                                       where contributor.UserId == currentUserId && project.Id == viewModel.ProjectId
+                                       select project).Include(u => u.User).FirstOrDefault();
 
-                if (viewModel.Id == 0)  // We are creating a new album
-                {
-                    using (var transaction = _context.Database.BeginTransaction())
-                    {
-                        Album album = new Album()
+                        if (projectInDb == null)
                         {
-                            UserId = projectInDb.UserId,
-                            Project = projectInDb,
-                            Name = viewModel.Name,
-                            Description = viewModel.Description,
-                            DateCreated = DateTime.Now,
-                            DateModified = DateTime.Now
-                        };
+                            return NotFound();
+                        }
+                    }
+
+                    if (viewModel.Id == 0)  // We are creating a new album
+                    {
+                        using (var transaction = _context.Database.BeginTransaction())
+                        {
+                            Album album = new Album()
+                            {
+                                UserId = projectInDb.UserId,
+                                Project = projectInDb,
+                                Name = viewModel.Name,
+                                Description = viewModel.Description,
+                                DateCreated = DateTime.Now,
+                                DateModified = DateTime.Now
+                            };
+
+                            if (viewModel.Image != null)
+                            {
+                                // Limit file size to 1 MB
+                                if (viewModel.Image.Length > 1000000)
+                                {
+                                    return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
+                                }
+
+                                album.ImageFileName = viewModel.Image.FileName;
+                                string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, projectInDb.UserId, "Album" + album.Id.ToString());
+                                album.ImageFilePath = imageFilePath;
+                            }
+
+                            _context.Albums.Add(album);
+                            _context.SaveChanges();
+
+                            NotificationsController.AddNotification(_context, NotificationType.AlbumAdded, null, album.ProjectId, currentUsername, currentUserId, album.Name, album.Project.Name);
+
+                            transaction.Commit();
+
+                            return Json(new { name = album.Name, id = album.Id });
+                        }
+                    }
+                    else // We're updating an album
+                    {
+                        var albumInDb = _context.Albums.SingleOrDefault(p => p.Id == viewModel.Id && p.UserId == currentUserId);
+
+                        // If current user does not have access to project or project does not exist
+                        if (albumInDb == null)
+                        {
+                            return NotFound();
+                        }
+
+                        albumInDb.Name = viewModel.Name;
+                        albumInDb.Description = viewModel.Description;
+                        albumInDb.DateModified = DateTime.Now;
 
                         if (viewModel.Image != null)
                         {
@@ -107,58 +140,26 @@ namespace TabRepository.Controllers
                                 return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
                             }
 
-                            album.ImageFileName = viewModel.Image.FileName;
-                            string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, projectInDb.UserId, "Album" + album.Id.ToString());
-                            album.ImageFilePath = imageFilePath;
+                            albumInDb.ImageFileName = viewModel.Image.FileName;
+                            string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Album" + albumInDb.Id.ToString());
+                            albumInDb.ImageFilePath = imageFilePath;
                         }
 
-                        _context.Albums.Add(album);
+                        _context.Albums.Update(albumInDb);
                         _context.SaveChanges();
 
-                        NotificationsController.AddNotification(_context, NotificationType.AlbumAdded, null, album.ProjectId, currentUsername, currentUserId, album.Name, album.Project.Name);
-
-                        transaction.Commit();
-
-                        return Json(new { name = album.Name, id = album.Id });
+                        return Json(new { name = albumInDb.Name, id = albumInDb.Id });
                     }
                 }
-                else // We're updating an album
-                {
-                    var albumInDb = _context.Albums.SingleOrDefault(p => p.Id == viewModel.Id && p.UserId == currentUserId);
 
-                    // If current user does not have access to project or project does not exist
-                    if (albumInDb == null)
-                    {
-                        return NotFound();
-                    }
+                // If we got here there were errors in the modelstate                
+                var modelErrors = ModelState.Values.SelectMany(v => v.Errors.Select(b => b.ErrorMessage)).ToList();
 
-                    albumInDb.Name = viewModel.Name;
-                    albumInDb.Description = viewModel.Description;
-                    albumInDb.DateModified = DateTime.Now;
-
-                    if (viewModel.Image != null)
-                    {
-                        // Limit file size to 1 MB
-                        if (viewModel.Image.Length > 1000000)
-                        {
-                            return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
-                        }
-
-                        albumInDb.ImageFileName = viewModel.Image.FileName;
-                        string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Album" + albumInDb.Id.ToString());
-                        albumInDb.ImageFilePath = imageFilePath;
-                    }
-
-                    _context.Albums.Update(albumInDb);
-                    _context.SaveChanges();
-
-                    return Json(new { name = albumInDb.Name, id = albumInDb.Id });
-                }
+                return Json(new { error = string.Join("<br />", modelErrors) });
             }
-            catch 
+            catch (Exception e)
             {
-                // Need to return failure to form
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }        
         }
 

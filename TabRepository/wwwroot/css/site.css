@@ -898,6 +898,11 @@ footer {
     overflow-x: auto;
 }
 
+.jstree-context {
+    background: unset !important;
+    box-shadow: unset !important;
+}
+
 #splitter {
     width: 10px;
     cursor: col-resize;

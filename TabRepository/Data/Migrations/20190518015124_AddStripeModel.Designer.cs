@@ -13,8 +13,8 @@ using TabRepository.Models.AccountViewModels;
 namespace TabRepository.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20190503003311_AddStripeModels")]
-    partial class AddStripeModels
+    [Migration("20190518015124_AddStripeModel")]
+    partial class AddStripeModel
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -406,6 +406,8 @@ namespace TabRepository.Migrations
                     b.Property<string>("CustomerId");
 
                     b.Property<string>("PlanId");
+
+                    b.Property<string>("Status");
 
                     b.HasKey("Id");
 

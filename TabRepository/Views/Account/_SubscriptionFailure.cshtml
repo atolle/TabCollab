@@ -1,0 +1,22 @@
+﻿@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<div class="flex-container-row">
+    <div class="flex-container-col">
+        <div class="confirmation-message">
+            <h2>Subscription Unsuccessful</h2>
+            <div>
+                <p>
+                    We were unable to process your subscription. Please reach out to us at support@tabcollab.com for assitance. We've signed you up for a free account in the meantime.
+                </p>
+                @if (!SignInManager.IsSignedIn(User))
+                {
+                    <p>
+                        <a asp-controller="Account" asp-action="Login">Click here to Log in</a>
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

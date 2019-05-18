@@ -13,6 +13,8 @@ namespace TabRepository.Models
 
         public string PlanId { get; set; }
 
+        public string Status { get; set; }
+
         public virtual StripeCustomer Customer { get; set; }
 
         public virtual StripePlan Plan { get; set; }

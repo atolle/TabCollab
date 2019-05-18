@@ -16,6 +16,7 @@ using TabRepository.Helpers;
 using TabRepository.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using TabRepository.Models.AccountViewModels;
 
 namespace TabRepository.Controllers
 {
@@ -85,7 +86,9 @@ namespace TabRepository.Controllers
                
                 bool hasActiveSubscription = false;
 
-                var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.CustomerId == user.CustomerId).FirstOrDefault();
+                AccountType accountType = _context.Users.Where(u => u.Id == currentUserId).Select(u => u.AccountType).FirstOrDefault();
+
+                var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "trialing") && s.CustomerId == user.CustomerId).FirstOrDefault();
 
                 if (subscriptionInDb != null)
                 {
@@ -107,7 +110,8 @@ namespace TabRepository.Controllers
                     SubsriptionExpiration = user.SubscriptionExpiration,
                     TabVersionCount = tabVersionCount,
                     Email = user.Email,
-                    HasActiveSubscription = hasActiveSubscription
+                    HasActiveSubscription = hasActiveSubscription,
+                    AccountType = accountType
                 };
                 return View(model);
             }

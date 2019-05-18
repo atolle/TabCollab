@@ -1,4 +1,5 @@
 ﻿@model ManageViewModel
+@using TabRepository.Models.AccountViewModels
 @{
     ViewData["Title"] = "Account";
 }
@@ -8,7 +9,7 @@
         <div class="col" align="center">
             <div class="row">
                 <div class="col">
-                    @if (Model.SubsriptionExpiration == null)
+                    @if (Model.AccountType == AccountType.Free)
                     {
                         <h3>Free Account</h3>
                         <h5>Total Tab Versions: @Model.TabVersionCount</h5>
@@ -33,7 +34,8 @@
                         <h3>Subscription Account</h3>
                         <h5>Subscription Expiration: @Model.SubsriptionExpiration.Value.ToString("MM/dd/yyyy")</h5>
                         int daysLeft = ((int)(Model.SubsriptionExpiration - DateTime.Now).Value.TotalDays);
-                        @if (daysLeft >= 0)
+                        bool subscriptionExpired = daysLeft < 0;
+                        @if (!subscriptionExpired)
                         {
                             string color = daysLeft <= 30 ? "yellow" : "inherit";
                             <h5 style="color: @color;">@(daysLeft.ToString()) days left</h5>
@@ -49,10 +51,16 @@
                                 <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-danger dashboard-button">Cancel Auto-Renew</a>
                             </div>
                         }
+                        else if (subscriptionExpired)
+                        {
+                            <div class="subscription-btn-container">
+                                <a asp-controller="Account" asp-action="AddSubscription" class="btn btn-primary dashboard-button">Renew Subscription</a>
+                            </div>
+                        }
                         else
                         {
                             <div class="subscription-btn-container">
-                                <a asp-controller="Account" asp-action="AddSubscription" class="btn btn-primary dashboard-button">Upgrade Account</a>
+                                <a asp-controller="Account" asp-action="AddSubscription" class="btn btn-primary dashboard-button">Activate Auto-Renew</a>
                             </div>
                         }
                     }
@@ -181,16 +189,20 @@
                                 traditional: 'true',
                                 url: href
                             })
-                                .then(function (response) {
-                                    if (!response.success) {
-                                        bootbox.alert("Subscription auto-renew cancellation failed. Please contact TabCollab support at support@tabcollab.com.");
-                                    }
-                                    else {
-                                        bootbox.alert("Subscription auto-renew has been canceled.");
-                                        $('#btn-cancel-subscription').remove();
-                                        $('.subscription-btn-container').html('<a id="btn-reactivate-subscription" class="btn btn-default dashboard-button" href="/Account/SubscriptionReactivate">Reactivate Subscription Auto-Renew</a>');
-                                    }
-                                })
+                            .then(function (response) {
+                                if (!response.success) {
+                                    bootbox.alert("Subscription auto-renew cancellation failed. Please contact TabCollab support at support@tabcollab.com.");
+                                }
+                                else {
+                                    bootbox.alert("Subscription auto-renew has been canceled.");
+                                    $('#btn-cancel-subscription').remove();
+                                    $('.subscription-btn-container').html('<a class="btn btn-primary dashboard-button" href="/Account/AddSubscription">Activate Auto-Renew</a>');
+                                }
+                            })
+                            .fail(function (error) {
+                                bootbox.alert("Unable to update subscription. Error: " + error.statusText);
+                                enableSubmitButton();
+                            })
                         }
                         else {
                             bootbox.alert("Subscription not canceled.");

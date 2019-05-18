@@ -20,9 +20,7 @@ namespace TabRepository.Helpers
                 Type = "service",
             };
             var service = new ProductService();
-            Product product = service.Create(options);
-
-            return product;
+            return service.Create(options);
         }
 
         public static Plan CreatePlan(IConfiguration configuration, StripeProduct product)
@@ -38,9 +36,7 @@ namespace TabRepository.Helpers
                 Amount = 4999,
             };
             var service = new PlanService();
-            Plan plan = service.Create(options);
-
-            return plan;
+            return service.Create(options);
         }
 
         public static Customer CreateCustomer(IConfiguration configuration, ApplicationUser user, string paymentToken)
@@ -53,12 +49,10 @@ namespace TabRepository.Helpers
                 SourceToken = paymentToken
             };
             var service = new CustomerService();
-            Customer customer = service.Create(options);
-
-            return customer;
+            return service.Create(options);
         }
 
-        public static Subscription CreateSubscription(IConfiguration configuration, StripePlan plan, StripeCustomer customer)
+        public static Subscription CreateSubscription(IConfiguration configuration, StripePlan plan, StripeCustomer customer, ApplicationUser user, bool startFromSubscriptionEnd)
         {
             StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
 
@@ -67,15 +61,44 @@ namespace TabRepository.Helpers
                 new SubscriptionItemOption { PlanId = plan.Id }
             };
 
-            var options = new SubscriptionCreateOptions
-            {
-                CustomerId = customer.Id,
-                Items = items,
-            };
-            var service = new SubscriptionService();
-            Subscription subscription = service.Create(options);
+            SubscriptionCreateOptions options = null;
 
-            return subscription;
+            if (startFromSubscriptionEnd)
+            {
+                options = new SubscriptionCreateOptions
+                {
+                    CustomerId = customer.Id,
+                    Items = items,
+                    TrialEnd = user.SubscriptionExpiration
+                };
+            }
+            else
+            {
+                options = new SubscriptionCreateOptions
+                {
+                    CustomerId = customer.Id,
+                    Items = items
+                };
+            }
+
+            var service = new SubscriptionService();
+            return service.Create(options);
+        }
+
+        public static Subscription CancelSubscription(IConfiguration configuration, StripeSubscription subscription)
+        {
+            StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
+
+            var service = new SubscriptionService();
+            return service.Cancel(subscription.Id, null);
+        }
+
+        public static Subscription GetSubscription(IConfiguration configuration, StripeSubscription subscription)
+        {
+            StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
+
+            var service = new SubscriptionService();
+            return service.Get(subscription.Id, null);
         }
     }
 }

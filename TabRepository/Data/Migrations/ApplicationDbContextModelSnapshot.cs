@@ -406,6 +406,8 @@ namespace TabRepository.Migrations
 
                     b.Property<string>("PlanId");
 
+                    b.Property<string>("Status");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PlanId");

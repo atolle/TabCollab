@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using TabRepository.Models.AccountViewModels;
 
 namespace TabRepository.Models.ManageViewModels
 {
@@ -52,5 +53,9 @@ namespace TabRepository.Models.ManageViewModels
         public string Email { get; set; }
 
         public bool HasActiveSubscription { get; set; }
+
+        public bool HasCanceledSubscription { get; set; }
+
+        public AccountType AccountType { get; set; }
     }
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace TabRepository.Migrations
 {
-    public partial class AddStripeModels : Migration
+    public partial class AddStripeModel : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -51,7 +51,8 @@ namespace TabRepository.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CustomerId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PlanId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    PlanId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

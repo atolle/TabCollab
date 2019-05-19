@@ -76,6 +76,17 @@
   <ItemGroup>
     <Folder Include="Views\ProjectContributors\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Update="Views\Account\CreditCardUpdate.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\Account\_UpdateCreditCardFailure.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\Account\_UpdateCreditCardConfirmation.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+  </ItemGroup>
   
   <Target Name="PrepublishScript" BeforeTargets="PerpareForPublish">
     <Exec Command="bower install" />

@@ -100,5 +100,23 @@ namespace TabRepository.Helpers
             var service = new SubscriptionService();
             return service.Get(subscription.Id, null);
         }
+
+        public static Customer GetCustomer(IConfiguration configuration, StripeCustomer customer)
+        {
+            StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
+
+            var service = new CustomerService();
+            return service.Get(customer.Id, null);
+        }
+
+        public static Customer UpdateCustomerPayment(IConfiguration configuration, StripeCustomer customer, string paymentToken)
+        {
+            var options = new CustomerUpdateOptions
+            {
+                SourceToken = paymentToken
+            };
+            var service = new CustomerService();
+            return service.Update(customer.Id, options);
+        }
     }
 }

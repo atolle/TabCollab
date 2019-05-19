@@ -22,6 +22,8 @@ using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using Microsoft.EntityFrameworkCore;
+using Stripe;
 
 namespace TabRepository.Controllers
 {
@@ -105,13 +107,13 @@ namespace TabRepository.Controllers
                         // If the subscription is no longer active, change to free account
                         if (subscription.Status.ToLower() != "active" && subscription.Status.ToLower() != "trialing")
                         {
-                            userInDb.AccountType = AccountType.Free;
+                            userInDb.AccountType = Models.AccountViewModels.AccountType.Free;
                             _context.SaveChanges();
                         }
                     }
                     else
                     { 
-                        userInDb.AccountType = AccountType.Free;
+                        userInDb.AccountType = Models.AccountViewModels.AccountType.Free;
                         _context.SaveChanges();
                     }
 
@@ -138,115 +140,7 @@ namespace TabRepository.Controllers
             return View(model);
         }
 
-        //
-        // GET: /Account/SubscriptionConfirmation
-        //[HttpGet]
-        //[AllowAnonymous]
-        //public async Task<IActionResult> SubscriptionConfirmation(string subscription_id)
-        //{
-        //    try
-        //    {
-        //        var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.Id == subscription_id).FirstOrDefault();
-
-        //        if (subscriptionInDb == null)
-        //        {
-        //            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-        //        }
-
-        //        string requestToken = await PayPalProcessor.GetPayPalToken(_configuration);
-        //        var subscriptionJson = await PayPalProcessor.GetSubscription(requestToken, subscriptionInDb.Id);
-        //        var subscriptionObject = JObject.Parse(subscriptionJson);
-
-        //        subscriptionInDb.Status = (string)subscriptionObject["status"];
-
-        //        // User confirmed their subscription, so update their account type and subscription expiration
-        //        var userInDb = _context.Users.SingleOrDefault(u => u.Id == subscriptionInDb.UserId);
-
-        //        if (userInDb == null)
-        //        {
-        //            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-        //        }
-
-        //        if (subscriptionInDb.Status.ToLower() == "active")
-        //        {
-        //            userInDb.AccountType = AccountType.Subscription;
-
-        //            // Set their subscription expiration
-        //            if (!userInDb.SubscriptionExpiration.HasValue)
-        //            {
-        //                userInDb.SubscriptionExpiration = DateTime.Now.AddYears(1).AddDays(1);
-        //            }
-        //            else
-        //            {
-        //                if (userInDb.SubscriptionExpiration < DateTime.Now)
-        //                {
-        //                    userInDb.SubscriptionExpiration = DateTime.Now.AddYears(1).AddDays(1);
-        //                }
-        //                else
-        //                {
-        //                    userInDb.SubscriptionExpiration = userInDb.SubscriptionExpiration.Value.AddYears(1).AddDays(1);
-        //                }
-        //            }
-
-        //            _context.SaveChanges();
-
-        //            return View();
-        //        }
-        //        else
-        //        {
-        //            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-        //        }
-
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-        //    }
-        //}
-
-        //
-        // GET: /Account/SubscriptionCancel
-        //[HttpPost]
-        //public async Task<IActionResult> SubscriptionCancel()
-        //{
-        //    try
-        //    {
-        //        string currentUserId = User.GetUserId();
-
-        //        var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
-
-        //        var subscriptionInDb = _context.PayPalSubscriptions.Where(a => a.UserId == currentUserId).FirstOrDefault();
-
-        //        if (subscriptionInDb == null)
-        //        {
-        //            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-        //        }              
-
-        //        string requestToken = await PayPalProcessor.GetPayPalToken(_configuration);
-        //        var canceledSubscription = await PayPalProcessor.CancelSubscription(requestToken, subscriptionInDb.Id);
-
-        //        if (canceledSubscription)
-        //        {
-        //            // Get the subscription so we can get the new state
-        //            var subscriptionJson = await PayPalProcessor.GetSubscription(requestToken, subscriptionInDb.Id);
-        //            var subscriptionObject = JObject.Parse(subscriptionJson);
-
-        //            subscriptionInDb.Status = (string)subscriptionObject["status"];
-
-        //            _context.SaveChanges();
-
-        //            return Json(new { success = true });
-        //        }
-        //        else
-        //        {
-        //            return Json(new { success = false });
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-        //    }
-        //}
+        #region Subscriptions
 
         [HttpGet]
         [ActionName("SubscriptionCancel")]
@@ -294,42 +188,89 @@ namespace TabRepository.Controllers
         }
 
         //
-        // GET: /Account/Register
+        // GET: /Account/Subscribe
         [HttpGet]
-        [AllowAnonymous]
-        public IActionResult Register(string returnUrl = null)
-        {            
-            if (User.Identity.IsAuthenticated)
+        public IActionResult Subscribe()
+        {
+            string currentUserId = User.GetUserId();
+
+            var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+            var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "trialing") && s.Customer.UserId == currentUserId).FirstOrDefault();
+
+            if (subscriptionInDb == null)
             {
-                return RedirectToAction("Index", "Home");
+                return View("CreditCard");
+            }            
+            else
+            {                
+                return RedirectToAction("Index", "Home");                
+            }
+        }
+
+        //
+        // GET: /Account/UpdatePayment
+        [HttpGet]
+        public IActionResult UpdatePayment()
+        {
+            string currentUserId = User.GetUserId();
+
+            var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+            var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "trialing") && s.Customer.UserId == currentUserId).FirstOrDefault();
+
+            if (subscriptionInDb != null)
+            {
+                return View("CreditCardUpdate");
             }
             else
             {
-                ViewData["ReturnUrl"] = returnUrl;
-                return View();
+                return RedirectToAction("Index", "Home");
             }
         }
 
         //
-        // GET: /Account/RenewSubscription
-        [HttpGet]
-        public IActionResult RenewSubscription()
+        // GET: /Account/UpdatePayment
+        [HttpPost]
+        public IActionResult UpdatePayment(StripePaymentViewModel model)
         {
-            return View("CreditCard");
-        }
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
 
-        //
-        // GET: /Account/AddSubscription
-        [HttpGet]
-        public IActionResult AddSubscription()
-        {        
-            return View("CreditCard");
+                    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+                    var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();
+
+                    // No customer so we need to create one
+                    if (customerInDb != null)
+                    {
+                        var customer = StripeProcessor.UpdateCustomerPayment(_configuration, customerInDb, model.PaymentToken);
+                      
+                        return PartialView("_UpdateCreditCardConfirmation");
+                    }
+                }                
+
+                var modelErrors = ModelState.Values.SelectMany(v => v.Errors.Select(b => b.ErrorMessage)).ToList();
+
+                return Json(new { error = string.Join("<br />", modelErrors) });
+            }
+            catch (Stripe.StripeException e)
+            {
+                return Json(new { param = e.StripeError.Parameter, error = e.StripeError.Message });
+            }
+            catch (Exception e)
+            {
+                return Json(new { error = e.Message });
+            }
         }
 
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public IActionResult ProcessStripe(StripePaymentViewModel model)
+        public IActionResult SubscriptionProcess(StripePaymentViewModel model)
         {
             try
             {
@@ -393,10 +334,15 @@ namespace TabRepository.Controllers
                         _context.StripeCustomers.Add(customerInDb);
                         _context.SaveChanges();
                     }
+                    // We already have a customer, so updat their payment info
+                    else
+                    {
+                        var customer = StripeProcessor.UpdateCustomerPayment(_configuration, customerInDb, model.PaymentToken);
+                    }
 
                     var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.CustomerId == customerInDb.Id && (s.Status.ToLower() == "active" || s.Status.ToLower() == "trialing")).FirstOrDefault();
 
-                    // No subscription so we need to create one
+                    // No active subscription so we need to create one
                     if (subscriptionInDb == null)
                     {
                         bool updateSubscriptionExpiration = true;
@@ -435,7 +381,7 @@ namespace TabRepository.Controllers
 
                         if (subscriptionInDb.Status.ToLower() == "active" || subscriptionInDb.Status.ToLower() == "trialing")
                         {
-                            userInDb.AccountType = AccountType.Subscription;
+                            userInDb.AccountType = Models.AccountViewModels.AccountType.Subscription;
 
                             if (updateSubscriptionExpiration)
                             {
@@ -472,6 +418,25 @@ namespace TabRepository.Controllers
             }
         }
 
+        #endregion
+
+        //
+        // GET: /Account/Register
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Register(string returnUrl = null)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                ViewData["ReturnUrl"] = returnUrl;
+                return View();
+            }
+        }
+
         //
         // POST: /Account/Register
         [HttpPost]
@@ -492,7 +457,7 @@ namespace TabRepository.Controllers
                         FirstName = model.FirstName,
                         LastName = model.LastName,
                         Bio = "",
-                        AccountType = AccountType.Free,
+                        AccountType = Models.AccountViewModels.AccountType.Free,
                         SubscriptionExpiration = null
                     };
                     var result = await _userManager.CreateAsync(user, model.Password);
@@ -500,7 +465,7 @@ namespace TabRepository.Controllers
                     {
                         string partialView = "_RegisterConfirmation";
 
-                        if (model.AccountType == AccountType.Subscription)
+                        if (model.AccountType == Models.AccountViewModels.AccountType.Subscription)
                         {
                             partialView = "_CreditCardForm";
                             ViewBag.UserId = user.Id;

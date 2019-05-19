@@ -52,6 +52,7 @@ namespace TabRepository.Controllers.Api
 
             var subscriptionInDb = _context.StripeSubscriptions.Include(s => s.Customer).Where(s => s.Id == subscriptionId).FirstOrDefault();
 
+            // We need to make sure that the subscription for this message is still active
             if (subscriptionInDb != null)
             {
                 var userInDb = _context.Users.Where(u => u.Id == subscriptionInDb.Customer.UserId).FirstOrDefault();

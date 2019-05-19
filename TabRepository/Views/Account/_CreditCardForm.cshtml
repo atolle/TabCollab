@@ -112,7 +112,7 @@
     </div>
     @Html.AntiForgeryToken()
 </form>
-<form asp-controller="Account" asp-action="ProcessStripe" asp-route-returnurl="@ViewData["ReturnUrl"]" id="token-form" method="post" hidden>
+<form asp-controller="Account" asp-action="SubscriptionProcess" asp-route-returnurl="@ViewData["ReturnUrl"]" id="token-form" method="post" hidden>
     @Html.Hidden("UserId", ViewData["UserId"])    
     <input asp-for="PaymentToken" hidden />
 </form>

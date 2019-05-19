@@ -2,12 +2,12 @@
 @model CreditCardFormViewModel
 
 @{
-    ViewData["Title"] = "Subscription Payment";
+    ViewData["Title"] = "Update Credit Card";
 }
 
 <div class="flex-container-row">
     <form id="payment-form" class="form-horizontal">
-        <h2>Upgrade Account</h2>
+        <h2>Update Credit Card</h2>
         @Html.Hidden("UserId", ViewData["UserId"])
         <div class="row row-no-margin">
             <div class="col-md-6">
@@ -97,18 +97,16 @@
                 </div>
             </div>
         </div>
-        <p>* You subscription will auto-renew each year until you cancel *</p>
-        <p>Amount to be charged: $49.99</p>
         <div class="row row-no-margin">
             <div class="col">
                 <div class="form-group">
-                    <button type="submit" class="btn btn-default button-submit-wide">Subscribe</button>
+                    <button type="submit" class="btn btn-default button-submit-wide">Update</button>
                 </div>
             </div>
         </div>
         @Html.AntiForgeryToken()
     </form>
-    <form asp-controller="Account" asp-action="SubscriptionProcess" asp-route-returnurl="@ViewData["ReturnUrl"]" id="token-form" method="post" hidden>
+    <form asp-controller="Account" asp-action="UpdatePayment" asp-route-returnurl="@ViewData["ReturnUrl"]" id="token-form" method="post" hidden>
         <input asp-for="PaymentToken" hidden />
     </form>
 </div>
@@ -143,7 +141,7 @@
                             }
                         }
                         else {
-                            showFailureBootbox("processing credit card payment", response.error.message);
+                            showFailureBootbox("updating credit card", response.error.message);
                         }
 
                         enableSubmitButton();
@@ -182,12 +180,12 @@
                                         $('#exp-error').html(response.error);
                                         break;
                                     default:
-                                        showFailureBootbox("processing credit card payment", response.error);
+                                        showFailureBootbox("updating credit card", response.error);
                                         break;
                                 }
                             }
                             else {
-                                showFailureBootbox("processing credit card payment", response.error);
+                                showFailureBootbox("updating credit card", response.error);
                             }
                         }
                         else {
@@ -195,7 +193,7 @@
                         }
                     })
                     .fail(function (error) {
-                        showFailureBootbox("processing credit card payment", error.error);
+                        showFailureBootbox("updating credit card", error.error);
                     });
                 }
             }
@@ -268,7 +266,7 @@
 
             function enableSubmitButton() {
                 $('.button-submit-wide').removeClass('disabled');
-                $('.button-submit-wide').html('Subscribe');
+                $('.button-submit-wide').html('Update');
             }
         });
     </script>

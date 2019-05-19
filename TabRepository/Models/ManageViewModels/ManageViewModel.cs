@@ -57,5 +57,9 @@ namespace TabRepository.Models.ManageViewModels
         public bool HasCanceledSubscription { get; set; }
 
         public AccountType AccountType { get; set; }
+
+        public string CreditCardExpiration { get; set; }
+
+        public string CreditCardLast4 { get; set; }
     }
 }

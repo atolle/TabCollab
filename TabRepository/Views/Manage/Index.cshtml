@@ -26,13 +26,13 @@
                         <h5 style="color: @color;">@(tabsRemaining) tab versions remaining</h5>
 
                         <div class="subscription-btn-container">
-                            <a asp-controller="Account" asp-action="AddSubscription" class="btn btn-primary dashboard-button">Upgrade Account</a>
+                            <a asp-controller="Account" asp-action="Subscribe" class="btn btn-primary dashboard-button">Upgrade Account</a>
                         </div>
                     }
                     else
                     {
                         <h3>Subscription Account</h3>
-                        <h5>Subscription Expiration: @Model.SubsriptionExpiration.Value.ToString("MM/dd/yyyy")</h5>
+                        <h5>Subscription <span id="subscription-renewal-expiration" style="display: inline">@(Model.HasActiveSubscription == true ? "Renewal" : "Expiration")</span>: @Model.SubsriptionExpiration.Value.ToString("MM/dd/yyyy")</h5>
                         int daysLeft = ((int)(Model.SubsriptionExpiration - DateTime.Now).Value.TotalDays);
                         bool subscriptionExpired = daysLeft < 0;
                         @if (!subscriptionExpired)
@@ -44,25 +44,24 @@
                         {
                             <h5 style="color: red;">Subscription expired</h5>
                         }
-
-                        if (Model.HasActiveSubscription)
-                        {
                             <div class="subscription-btn-container">
-                                <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-danger dashboard-button">Cancel Auto-Renew</a>
+                                @if (Model.HasActiveSubscription)
+                                {
+                                    <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-danger dashboard-button">Cancel Auto-Renew</a>
+                                    @if (Model.CreditCardLast4 != null)
+                                    {
+                                        <a asp-controller="Account" asp-action="UpdatePayment" class="btn btn-default dashboard-button">Update Credit Card<br />************@Model.CreditCardLast4 @Model.CreditCardExpiration</a>
+                                    }
+                                }
+                                else if (subscriptionExpired)
+                                {
+                                    <a asp-controller="Account" asp-action="Subscribe" class="btn btn-primary dashboard-button">Renew Subscription</a>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Account" asp-action="Subscribe" class="btn btn-primary dashboard-button">Activate Auto-Renew</a>
+                                }
                             </div>
-                        }
-                        else if (subscriptionExpired)
-                        {
-                            <div class="subscription-btn-container">
-                                <a asp-controller="Account" asp-action="AddSubscription" class="btn btn-primary dashboard-button">Renew Subscription</a>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="subscription-btn-container">
-                                <a asp-controller="Account" asp-action="AddSubscription" class="btn btn-primary dashboard-button">Activate Auto-Renew</a>
-                            </div>
-                        }
                     }
                     @if (Model.HasPassword)
                     {
@@ -196,7 +195,8 @@
                                 else {
                                     bootbox.alert("Subscription auto-renew has been canceled.");
                                     $('#btn-cancel-subscription').remove();
-                                    $('.subscription-btn-container').html('<a class="btn btn-primary dashboard-button" href="/Account/AddSubscription">Activate Auto-Renew</a>');
+                                    $('.subscription-btn-container').html('<a class="btn btn-primary dashboard-button" href="/Account/Subscribe">Activate Auto-Renew</a>');
+                                    $('#subscription-renewal-expiration').html('Expiration');
                                 }
                             })
                             .fail(function (error) {
@@ -213,50 +213,6 @@
                 // CSS change to make the title display properly and add prompt text
                 $('.modal-header').css('display', 'unset');
                 $('.bootbox-body').prepend('<p>Are you sure you wish to cancel your subscription auto-renew?<br />Confirm by typing "yes" below:</p>');
-            });
-
-            //$(document).on("click", "#btn-reactivate-subscription", function (e, data) {
-            //    e.preventDefault();
-
-            //    var href = this.href,
-            //        that = this;
-
-            //    bootbox.prompt("Confirm Reactivate Subscription Auto-Renew", function (result) {
-            //        if (result != null) {
-            //            if (result.toLowerCase() == 'yes') {
-            //                $.ajax({
-            //                    type: 'POST',
-            //                    dataType: 'json',
-            //                    traditional: 'true',
-            //                    url: href
-            //                })
-            //                    .then(function (response) {
-            //                        if (!response.success) {
-            //                            bootbox.alert("Subscription reactivation failed. Please contact TabCollab support at support@tabcollab.com.");
-            //                        }
-            //                        else {
-            //                            bootbox.alert("Subscription has been reactivated.");
-            //                            $('#btn-reactivate-subscription').remove();
-            //                            $('.subscription-btn-container').html('<a id="btn-cancel-subscription" class="btn btn-danger dashboard-button" href="/Account/SubscriptionCancel">Cancel Auto-Renew</a>');
-            //                        }
-            //                    })
-            //            }
-            //            else {
-            //                bootbox.alert("Subscription not reactivated.");
-            //            }
-            //        }
-            //    });
-
-            //    // CSS change to make the title display properly and add prompt text
-            //    $('.modal-header').css('display', 'unset');
-            //    $('.bootbox-body').prepend('<p>Are you sure you wish to reactivate your subscription auto-renew?<br />Confirm by typing "yes" below:</p>');
-            //});
-
-            $(document).on("submit", "#paypal-form", function (e, data) {
-                $('.btn-subscribe').html('<div class="loader"></div>');
-                $('.btn-subscribe').prop('disabled', true);
-                $('#btn-reactivate-subscription').html('<div class="loader"></div>');
-                $('#btn-reactivate-subscription').prop('disabled', true);
             });
 
             $(document).on("submit", "#profile-form", function (e, data) {

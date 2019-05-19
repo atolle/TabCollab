@@ -57,6 +57,7 @@ namespace TabRepository.Controllers
                 {
                     string currentUserId = User.GetUserId();
                     string currentUsername = User.GetUsername();
+                    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
                     if (viewModel.Id == 0)  // We are creating a new Tab
                     {
@@ -75,7 +76,7 @@ namespace TabRepository.Controllers
 
                                 var tabVersionCount = 0;
 
-                                if (subscriptionExpiration == null || (int)(subscriptionExpiration - DateTime.Now).Value.TotalDays < 0)
+                                if (userInDb.AccountType == AccountType.Free || (userInDb.AccountType == AccountType.Subscription && (int)(subscriptionExpiration - DateTime.Now).Value.TotalDays < 0))
                                 {
                                     // Get a count of total tab versions that this user owns (i.e. their projects)
                                     tabVersionCount = _context.TabVersions.Include(u => u.User)
@@ -116,6 +117,8 @@ namespace TabRepository.Controllers
                                 {
                                     // Make sure the owner's account is not expired 
                                     string otherUserId = albumInDb.UserId;
+                                    var otherUserInDb = _context.Users.Where(u => u.Id == otherUserId).FirstOrDefault();
+
                                     var subscriptionExpiration = _context.Users
                                         .Where(u => u.Id == otherUserId)
                                         .Select(u => u.SubscriptionExpiration)
@@ -123,7 +126,7 @@ namespace TabRepository.Controllers
 
                                     var tabVersionCount = 0;
 
-                                    if (subscriptionExpiration == null || (int)(subscriptionExpiration - DateTime.Now).Value.TotalDays < 0)
+                                    if (otherUserInDb.AccountType == AccountType.Free || (otherUserInDb.AccountType == AccountType.Subscription && (int)(subscriptionExpiration - DateTime.Now).Value.TotalDays < 0))
                                     {
                                         // Get a count of total tab versions that this user owns (i.e. their projects)
                                         tabVersionCount = _context.TabVersions.Include(u => u.User)

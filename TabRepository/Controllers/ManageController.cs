@@ -17,6 +17,8 @@ using TabRepository.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using TabRepository.Models.AccountViewModels;
+using Microsoft.Extensions.Configuration;
+using Stripe;
 
 namespace TabRepository.Controllers
 {
@@ -32,6 +34,7 @@ namespace TabRepository.Controllers
         private ApplicationDbContext _context;
         private FileUploader _fileUploader;
         private readonly IHostingEnvironment _appEnvironment;
+        private IConfiguration _configuration;
 
         public ManageController(
           UserManager<ApplicationUser> userManager,
@@ -40,7 +43,8 @@ namespace TabRepository.Controllers
           ISmsSender smsSender,
           ILoggerFactory loggerFactory,
           ApplicationDbContext context, 
-          IHostingEnvironment appEnvironment)
+          IHostingEnvironment appEnvironment,
+          IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -50,6 +54,7 @@ namespace TabRepository.Controllers
             _context = context;
             _appEnvironment = appEnvironment;
             _fileUploader = new FileUploader(context, appEnvironment);
+            _configuration = configuration;
         }
 
         //
@@ -85,14 +90,25 @@ namespace TabRepository.Controllers
                     .Count();
                
                 bool hasActiveSubscription = false;
+                string creditCardLastFour = null;
+                string creditCardExpiration = null;
 
-                AccountType accountType = _context.Users.Where(u => u.Id == currentUserId).Select(u => u.AccountType).FirstOrDefault();
+                Models.AccountViewModels.AccountType accountType = _context.Users.Where(u => u.Id == currentUserId).Select(u => u.AccountType).FirstOrDefault();
 
+                var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();
                 var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "trialing") && s.CustomerId == user.CustomerId).FirstOrDefault();
 
                 if (subscriptionInDb != null)
                 {
                     hasActiveSubscription = true;
+                }
+
+                if (customerInDb != null)
+                {
+                    var customer = StripeProcessor.GetCustomer(_configuration, customerInDb);
+
+                    creditCardLastFour = (customer.Sources.FirstOrDefault() as Card).Last4;
+                    creditCardExpiration = (customer.Sources.FirstOrDefault() as Card).ExpMonth + "/" + (customer.Sources.FirstOrDefault() as Card).ExpYear;
                 }
 
                 var model = new ManageViewModel
@@ -111,7 +127,9 @@ namespace TabRepository.Controllers
                     TabVersionCount = tabVersionCount,
                     Email = user.Email,
                     HasActiveSubscription = hasActiveSubscription,
-                    AccountType = accountType
+                    AccountType = accountType,
+                    CreditCardExpiration = creditCardExpiration,
+                    CreditCardLast4 = creditCardLastFour
                 };
                 return View(model);
             }

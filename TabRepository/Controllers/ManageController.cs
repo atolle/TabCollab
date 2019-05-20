@@ -89,18 +89,25 @@ namespace TabRepository.Controllers
                     .Where(v => v.Tab.Album.Project.UserId == currentUserId)
                     .Count();
                
-                bool hasActiveSubscription = false;
+                SubscriptionStatus subscriptionStatus = SubscriptionStatus.None;
                 string creditCardLastFour = null;
                 string creditCardExpiration = null;
 
                 Models.AccountViewModels.AccountType accountType = _context.Users.Where(u => u.Id == currentUserId).Select(u => u.AccountType).FirstOrDefault();
 
                 var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();
-                var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "trialing") && s.CustomerId == user.CustomerId).FirstOrDefault();
+                var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Status.ToLower() == "active" && s.CustomerId == user.CustomerId).FirstOrDefault();
 
                 if (subscriptionInDb != null)
                 {
-                    hasActiveSubscription = true;
+                    if (subscriptionInDb.CancelAtPeriodEnd)
+                    {
+                        subscriptionStatus = SubscriptionStatus.CancelAtPeriodEnd;
+                    }
+                    else
+                    {
+                        subscriptionStatus = SubscriptionStatus.Active;
+                    }
                 }
 
                 if (customerInDb != null)
@@ -126,7 +133,7 @@ namespace TabRepository.Controllers
                     SubsriptionExpiration = user.SubscriptionExpiration,
                     TabVersionCount = tabVersionCount,
                     Email = user.Email,
-                    HasActiveSubscription = hasActiveSubscription,
+                    SubscriptionStatus = subscriptionStatus,
                     AccountType = accountType,
                     CreditCardExpiration = creditCardExpiration,
                     CreditCardLast4 = creditCardLastFour

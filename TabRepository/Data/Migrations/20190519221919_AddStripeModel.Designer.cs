@@ -13,7 +13,7 @@ using TabRepository.Models.AccountViewModels;
 namespace TabRepository.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20190518015124_AddStripeModel")]
+    [Migration("20190519221919_AddStripeModel")]
     partial class AddStripeModel
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -402,6 +402,8 @@ namespace TabRepository.Migrations
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("CancelAtPeriodEnd");
 
                     b.Property<string>("CustomerId");
 

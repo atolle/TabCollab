@@ -52,7 +52,7 @@ namespace TabRepository.Helpers
             return service.Create(options);
         }
 
-        public static Subscription CreateSubscription(IConfiguration configuration, StripePlan plan, StripeCustomer customer, ApplicationUser user, bool startFromSubscriptionEnd)
+        public static Subscription CreateSubscription(IConfiguration configuration, StripePlan plan, StripeCustomer customer, ApplicationUser user)
         {
             StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
 
@@ -63,23 +63,11 @@ namespace TabRepository.Helpers
 
             SubscriptionCreateOptions options = null;
 
-            if (startFromSubscriptionEnd)
+            options = new SubscriptionCreateOptions
             {
-                options = new SubscriptionCreateOptions
-                {
-                    CustomerId = customer.Id,
-                    Items = items,
-                    TrialEnd = user.SubscriptionExpiration
-                };
-            }
-            else
-            {
-                options = new SubscriptionCreateOptions
-                {
-                    CustomerId = customer.Id,
-                    Items = items
-                };
-            }
+                CustomerId = customer.Id,
+                Items = items
+            };
 
             var service = new SubscriptionService();
             return service.Create(options);
@@ -90,7 +78,23 @@ namespace TabRepository.Helpers
             StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
 
             var service = new SubscriptionService();
-            return service.Cancel(subscription.Id, null);
+            var options = new SubscriptionUpdateOptions
+            {
+                CancelAtPeriodEnd = true
+            };
+            return service.Update(subscription.Id, options);
+        }
+
+        public static Subscription ActivateSubscription(IConfiguration configuration, StripeSubscription subscription)
+        {
+            StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
+
+            var service = new SubscriptionService();
+            var options = new SubscriptionUpdateOptions
+            {
+                CancelAtPeriodEnd = false
+            };
+            return service.Update(subscription.Id, options);
         }
 
         public static Subscription GetSubscription(IConfiguration configuration, StripeSubscription subscription)

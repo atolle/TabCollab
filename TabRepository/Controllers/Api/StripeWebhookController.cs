@@ -58,7 +58,7 @@ namespace TabRepository.Controllers.Api
                 var userInDb = _context.Users.Where(u => u.Id == subscriptionInDb.Customer.UserId).FirstOrDefault();
                 var subscription = StripeProcessor.GetSubscription(_configuration, subscriptionInDb);
 
-                if (subscription.Status.ToLower() == "active" || subscription.Status.ToLower() == "trialing")
+                if (subscription.Status.ToLower() == "active")
                 {
                     userInDb.AccountType = Models.AccountViewModels.AccountType.Subscription;
                     userInDb.SubscriptionExpiration = subscription.CurrentPeriodEnd;

@@ -402,6 +402,8 @@ namespace TabRepository.Migrations
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<bool>("CancelAtPeriodEnd");
+
                     b.Property<string>("CustomerId");
 
                     b.Property<string>("PlanId");

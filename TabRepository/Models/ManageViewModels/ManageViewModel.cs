@@ -54,7 +54,7 @@ namespace TabRepository.Models.ManageViewModels
 
         public bool HasActiveSubscription { get; set; }
 
-        public bool HasCanceledSubscription { get; set; }
+        public SubscriptionStatus SubscriptionStatus { get; set; }
 
         public AccountType AccountType { get; set; }
 

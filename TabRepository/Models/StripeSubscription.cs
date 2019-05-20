@@ -15,8 +15,18 @@ namespace TabRepository.Models
 
         public string Status { get; set; }
 
+        public bool CancelAtPeriodEnd { get; set; }
+
         public virtual StripeCustomer Customer { get; set; }
 
         public virtual StripePlan Plan { get; set; }
+    }
+
+    public enum SubscriptionStatus
+    {
+        Active,
+        Canceled,
+        CancelAtPeriodEnd,
+        None
     }
 }

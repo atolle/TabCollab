@@ -98,14 +98,14 @@ namespace TabRepository.Controllers
                 if (result.Succeeded)
                 {
                     var userInDb = _context.Users.Where(u => u.UserName.ToLower() == model.Username.ToLower()).FirstOrDefault();
-                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status == "active" || s.Status == "trialing") && s.CustomerId == _context.StripeCustomers.Where(c => c.UserId == userInDb.Id).Select(c => c.Id).FirstOrDefault()).FirstOrDefault();                    
+                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Status == "active" && s.CustomerId == _context.StripeCustomers.Where(c => c.UserId == userInDb.Id).Select(c => c.Id).FirstOrDefault()).FirstOrDefault();                    
 
                     if (subscriptionInDb != null)
                     {
                         var subscription = StripeProcessor.GetSubscription(_configuration, subscriptionInDb);
 
                         // If the subscription is no longer active, change to free account
-                        if (subscription.Status.ToLower() != "active" && subscription.Status.ToLower() != "trialing")
+                        if (subscription.Status.ToLower() != "active")
                         {
                             userInDb.AccountType = Models.AccountViewModels.AccountType.Free;
                             _context.SaveChanges();
@@ -164,18 +164,20 @@ namespace TabRepository.Controllers
 
                 if (subscriptionInDb == null)
                 {
-                    subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Status.ToLower() == "trialing" && s.CustomerId == _context.StripeCustomers.Where(c => c.UserId == currentUserId).Select(c => c.Id).FirstOrDefault()).FirstOrDefault();
-
-                    if (subscriptionInDb == null)
-                    {
-                        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                    }                        
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);                     
                 }
 
                 // Get the subscription so we can get the new state
                 var subscription = StripeProcessor.CancelSubscription(_configuration, subscriptionInDb);
 
                 subscriptionInDb.Status = subscription.Status;
+                subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
+
+                // If the subscription is no longer active, set to free account
+                if (subscription.Status.ToLower() != "active")
+                {
+                    userInDb.AccountType = Models.AccountViewModels.AccountType.Free;
+                }
 
                 _context.SaveChanges();
 
@@ -196,7 +198,7 @@ namespace TabRepository.Controllers
 
             var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-            var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "trialing") && s.Customer.UserId == currentUserId).FirstOrDefault();
+            var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Status.ToLower() == "active" && s.Customer.UserId == currentUserId).FirstOrDefault();
 
             if (subscriptionInDb == null)
             {
@@ -217,7 +219,7 @@ namespace TabRepository.Controllers
 
             var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-            var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "trialing") && s.Customer.UserId == currentUserId).FirstOrDefault();
+            var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Status.ToLower() == "active" && s.Customer.UserId == currentUserId).FirstOrDefault();
 
             if (subscriptionInDb != null)
             {
@@ -244,12 +246,16 @@ namespace TabRepository.Controllers
 
                     var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();
 
-                    // No customer so we need to create one
+                    // Update customer's payment
                     if (customerInDb != null)
                     {
                         var customer = StripeProcessor.UpdateCustomerPayment(_configuration, customerInDb, model.PaymentToken);
                       
                         return PartialView("_UpdateCreditCardConfirmation");
+                    }
+                    else
+                    {
+                        return PartialView("_UpdateCreditCardFailure");
                     }
                 }                
 
@@ -340,55 +346,34 @@ namespace TabRepository.Controllers
                         var customer = StripeProcessor.UpdateCustomerPayment(_configuration, customerInDb, model.PaymentToken);
                     }
 
-                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.CustomerId == customerInDb.Id && (s.Status.ToLower() == "active" || s.Status.ToLower() == "trialing")).FirstOrDefault();
+                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.CustomerId == customerInDb.Id && s.Status.ToLower() == "active").FirstOrDefault();
 
                     // No active subscription so we need to create one
                     if (subscriptionInDb == null)
                     {
-                        bool updateSubscriptionExpiration = true;
                         Stripe.Subscription subscription = null;
 
-                        if (userInDb.SubscriptionExpiration != null)
-                        {
-                            // If we have a current subscription expriation and it has expired, just start a brand new subscription
-                            if ((int)(userInDb.SubscriptionExpiration - DateTime.Now).Value.TotalDays < 0)
-                            {
-                                subscription = StripeProcessor.CreateSubscription(_configuration, planInDb, customerInDb, userInDb, false);
-                            }
-                            // Otherwise, we need to make sure we start from the end of our current subscription
-                            else
-                            {
-                                subscription = StripeProcessor.CreateSubscription(_configuration, planInDb, customerInDb, userInDb, true);
-                                updateSubscriptionExpiration = false;
-                            }
-                        }
-                        // We've never had a subscription, so start a new one
-                        else
-                        {
-                            subscription = StripeProcessor.CreateSubscription(_configuration, planInDb, customerInDb, userInDb, false);
-                        }
-                        
+                        subscription = StripeProcessor.CreateSubscription(_configuration, planInDb, customerInDb, userInDb);                   
 
                         subscriptionInDb = new StripeSubscription
                         {
                             Id = subscription.Id,
                             CustomerId = customerInDb.Id,
                             PlanId = planInDb.Id,
-                            Status = subscription.Status
+                            Status = subscription.Status,
+                            CancelAtPeriodEnd = subscription.CancelAtPeriodEnd
                         };
 
                         customerInDb.SubscriptionId = subscription.Id;
 
-                        if (subscriptionInDb.Status.ToLower() == "active" || subscriptionInDb.Status.ToLower() == "trialing")
+                        _context.StripeSubscriptions.Add(subscriptionInDb);
+                        _context.SaveChanges();
+
+                        if (subscriptionInDb.Status.ToLower() == "active")
                         {
                             userInDb.AccountType = Models.AccountViewModels.AccountType.Subscription;
+                            userInDb.SubscriptionExpiration = subscription.CurrentPeriodEnd;                             
 
-                            if (updateSubscriptionExpiration)
-                            {
-                                userInDb.SubscriptionExpiration = subscription.CurrentPeriodEnd;
-                            }                                
-
-                            _context.StripeSubscriptions.Add(subscriptionInDb);
                             _context.SaveChanges();
 
                             return PartialView("_SubscriptionConfirmation");
@@ -398,6 +383,26 @@ namespace TabRepository.Controllers
                             return PartialView("_SubscriptionFailure");
                         }
                     }
+                    // If we have an active subscription, we should be reactivating it
+                    else if (subscriptionInDb.CancelAtPeriodEnd)
+                    {
+                        var subscription = StripeProcessor.ActivateSubscription(_configuration, subscriptionInDb);
+
+                        subscriptionInDb.Status = subscription.Status;
+                        subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
+
+                        _context.SaveChanges();
+
+                        if (subscriptionInDb.Status.ToLower() == "active")
+                        {
+                            return PartialView("_SubscriptionConfirmation");
+                        }
+                        else
+                        {
+                            return PartialView("_SubscriptionFailure");
+                        }
+                    }
+                    // If neither of the above, then we shouldn't be here
                     else
                     {
                         return new StatusCodeResult(StatusCodes.Status500InternalServerError);

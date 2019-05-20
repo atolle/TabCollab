@@ -45,7 +45,7 @@
                             <h5 style="color: red;">Subscription expired</h5>
                         }
                             <div class="subscription-btn-container">
-                                @if (Model.HasActiveSubscription)
+                                @if (Model.SubscriptionStatus == SubscriptionStatus.Active)
                                 {
                                     <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-danger dashboard-button">Cancel Auto-Renew</a>
                                     @if (Model.CreditCardLast4 != null)
@@ -53,11 +53,7 @@
                                         <a asp-controller="Account" asp-action="UpdatePayment" class="btn btn-default dashboard-button">Update Credit Card<br />************@Model.CreditCardLast4 @Model.CreditCardExpiration</a>
                                     }
                                 }
-                                else if (subscriptionExpired)
-                                {
-                                    <a asp-controller="Account" asp-action="Subscribe" class="btn btn-primary dashboard-button">Renew Subscription</a>
-                                }
-                                else
+                                else if (Model.SubscriptionStatus == SubscriptionStatus.CancelAtPeriodEnd)
                                 {
                                     <a asp-controller="Account" asp-action="Subscribe" class="btn btn-primary dashboard-button">Activate Auto-Renew</a>
                                 }

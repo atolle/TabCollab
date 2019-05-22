@@ -228,6 +228,9 @@
                             case 'exp_month':
                                 $('#exp-error').html(response.error.message);
                                 break;
+                            case 'address_zip':
+                                $('#zip-error').html(response.error.message);
+                                break;
                         }
                     }
                     else {
@@ -268,6 +271,9 @@
                                     case 'exp_year':
                                     case 'exp_month':
                                         $('#exp-error').html(response.error);
+                                        break;
+                                    case 'address_zip':
+                                        $('#zip-error').html(response.error.message);
                                         break;
                                 }
                             }
@@ -406,7 +412,8 @@
                 number: $('#CardNumber').val(),
                 cvc: $('#CVC').val(),
                 exp_month: $('#Month').val(),
-                exp_year: $('#Year').val()
+                exp_year: $('#Year').val(),
+                address_zip: $('#Zip').val()
             }, stripeResponseHandler);
         });
 

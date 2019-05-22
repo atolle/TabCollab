@@ -55,6 +55,20 @@
         <div class="col-md-6">
             <div class="form-group">
                 <div class="form-label">
+                    <label asp-for="Zip"></label>
+                </div>
+                <input asp-for="Zip" class="form-control form-input" />
+                <div class="form-label">
+                    <span asp-validation-for="Zip" style="color: red"></span>
+                    <span id="zip-error" class="validation-error" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row row-no-margin">
+        <div class="col-md-6">
+            <div class="form-group">
+                <div class="form-label">
                     <label>Expiration Date</label>
                 </div>
                 <div class="row">
@@ -90,9 +104,7 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row row-no-margin">
-        <div class="col credit-cards-container">
+        <div class="col-md-6 credit-cards-container">
             <div class="form-group" id="credit-cards">
                 <img class="credit-card" src="~/images/visa.png" id="visa">
                 <img class="credit-card" src="~/images/mastercard.png" id="mastercard">

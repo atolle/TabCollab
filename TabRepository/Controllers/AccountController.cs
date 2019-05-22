@@ -353,7 +353,7 @@ namespace TabRepository.Controllers
                     {
                         Stripe.Subscription subscription = null;
 
-                        subscription = StripeProcessor.CreateSubscription(_configuration, planInDb, customerInDb, userInDb);                   
+                        subscription = StripeProcessor.CreateSubscription(_configuration, planInDb, customerInDb, userInDb);
 
                         subscriptionInDb = new StripeSubscription
                         {
@@ -372,7 +372,7 @@ namespace TabRepository.Controllers
                         if (subscriptionInDb.Status.ToLower() == "active")
                         {
                             userInDb.AccountType = Models.AccountViewModels.AccountType.Subscription;
-                            userInDb.SubscriptionExpiration = subscription.CurrentPeriodEnd;                             
+                            userInDb.SubscriptionExpiration = subscription.CurrentPeriodEnd;
 
                             _context.SaveChanges();
 

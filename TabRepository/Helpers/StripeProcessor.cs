@@ -66,8 +66,10 @@ namespace TabRepository.Helpers
             options = new SubscriptionCreateOptions
             {
                 CustomerId = customer.Id,
-                Items = items
+                Items = items                
             };
+
+            options.AddExtraParam("enable_incomplete_payments", "false");
 
             var service = new SubscriptionService();
             return service.Create(options);

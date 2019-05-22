@@ -29,7 +29,8 @@ namespace TabRepository.ViewModels
         [Required]
         public int Year { get; set; }
 
-        [Required(ErrorMessage = "Zipcode is required")]
+        [Required(ErrorMessage = "Zip Code is required")]        
+        [Display(Name = "Zip Code")]
         public string Zip { get; set; }
 
         [Required]

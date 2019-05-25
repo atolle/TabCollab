@@ -16,14 +16,18 @@
                 <label asp-for="Username" class="float-left"></label>
             </div>
             <input asp-for="Username" class="form-control form-input" />
-            <span asp-validation-for="Username"></span>
+            <div class="form-label">
+                <span asp-validation-for="Username" style="color: red"></span>
+            </div>
         </div>
         <div class="form-group">
             <div class="form-label">
                 <label asp-for="Password"></label>
             </div>
             <input asp-for="Password" class="form-control form-input" />
-            <span asp-validation-for="Password"></span>
+            <div class="form-label">
+                <span asp-validation-for="Password" style="color: red"></span>
+            </div>
         </div>
         <div class="form-group">
             <div class="form-label">
@@ -65,11 +69,44 @@
         $('footer').show();
 
         $(document).on("submit", function (e, data) {
-            if (e.target.id == 'login') {
-                $('#login-button').html('<div class="loader"></div>');
-            }
+            e.preventDefault();
+
+            $('#login-button').html('<div class="loader"></div>');
             $('#login-button').addClass('disabled');
+
+            var form = e.target;
+            var formData = new FormData(form);
+
+            $.ajax({
+                url: form.action,
+                type: 'POST',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false
+            })
+                .then(function (response) {
+                    if (response.error) {
+                        enableSubmitButton();
+                        showFailureBootbox("logging in", response.error);
+                    }
+                    else if (response.url) {
+                        window.location.replace(response.url);
+                    }
+                    else {
+                        window.location.reload();
+                    }
+                })
+                .fail(function (error) {
+                    bootbox.alert("Unable to log in. Error: " + error.statusText);
+                    enableSubmitButton();
+                })
         });
     });
+
+    function enableSubmitButton() {
+        $('#login-button').html('Login');
+        $('#login-button').removeClass('disabled');
+    }
 </script>
 }

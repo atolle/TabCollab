@@ -312,7 +312,7 @@ footer {
 }
 
 .card {
-    margin-bottom: 20px;
+    margin-bottom: 40px;
 }
 
 .card-body {
@@ -445,11 +445,11 @@ footer {
 }
 
 .contributor-btn {
+    width: 100%;
     margin-right: 10px;
     margin-top: 10px;
     display: flex;
     justify-content: space-between;
-    width: 100%;
 }
 
 .contributor-text {
@@ -457,6 +457,11 @@ footer {
     text-overflow: ellipsis;
     width: 240px;
     text-align: left;
+}
+
+.contributor-x {
+    padding-left: 7px;
+    padding-top: 4px;
 }
 
 .contributor-btn:hover {
@@ -636,12 +641,6 @@ footer {
 .feature-column-title-border {
     border: 1px white solid;
     padding: 10px;
-}
-
-@media (max-width: 800px) {
-    .feature-row {
-        display: inline;
-    }
 }
 
 .white-divider {

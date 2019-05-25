@@ -81,7 +81,7 @@
                                 {
                                     var name = user.FirstName + " " + user.LastName + " (" + user.Username + ")";
                                     <input type='hidden' class='form-control contributor form-input' name='' value='@user.Username'>
-                                    <button data-username='@user.Username' data-text='@name' class='contributor-btn btn btn-default'><div class="contributor-text">@name</div><i class='fa fa-times' style='padding-left: 7px; padding-top: 2px;' /></button>                                
+                                    <div data-username='@user.Username' data-text='@name' class='contributor-btn btn btn-default'><div class="contributor-text">@name</div><i class='fa fa-times contributor-x' /></div>                                
                                 }
                             }
                         }

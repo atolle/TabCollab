@@ -125,6 +125,10 @@
                 </div>
             </div>
             <div class="col-md-6">
+                <div class="g-recaptcha" data-callback="reCaptchaCheck" data-sitekey="6LcYlqUUAAAAAMXYYEg3u92xlWMsISBh7te4n5we"></div>
+                <div class="form-label">
+                    <span id="recaptcha-error" class="validation-error" style="color: red"></span>
+                </div>
             </div>
         </div>
         <div class="row row-no-margin">
@@ -152,7 +156,12 @@
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
     <script src="~/lib/jquery.payment/lib/jquery.payment.min.js"></script>
     <script src="https://js.stripe.com/v2/"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script>
+    var reCaptchaCheck = function () {
+        $('#recaptcha-error').html('');
+    }
+
     $(document).ready(function () {
         $('footer').show();
 
@@ -353,6 +362,12 @@
                 if ($('#Image')[0].files[0].size > 1000000) {
                     return
                 }
+            }
+
+            var recaptcha = $("#g-recaptcha-response").val();
+            if (recaptcha === "") {
+                $('#recaptcha-error').html('Please check reCAPTCHA');
+                return;
             }
 
             $('.validation-error').html('');

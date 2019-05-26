@@ -4,175 +4,175 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div id="page">
-    <p></p>
-    <p></p>
-    <div class="row list-row">
-        @foreach (var user in Model)
-        {
-            <div class="col" align="center">
-                <div class="card card-profile">
-                    <div class="card-header" style="background-image: url('@user.ImageFilePath');"></div>
-                    <div class="card-body text-center">
-                        <h3>@user.Username</h3>
-                        <p class="m-b">@user.FirstName @user.LastName</p>
-                        <div>
-                            @if (!@user.IsCurrentUser)
-                            {
-                                if (@user.Status == FriendStatus.None)
+<div class="container-fluid list-container" style="display: flex;">
+    <div id="page">
+        <div class="row list-row">
+            @foreach (var user in Model)
+            {
+                <div class="col-lg-4" align="center">
+                    <div class="card card-profile">
+                        <div class="card-header" style="background-image: url('@user.ImageFilePath');"></div>
+                        <div class="card-body text-center">
+                            <h3>@user.Username</h3>
+                            <p class="m-b">@user.FirstName @user.LastName</p>
+                            <div>
+                                @if (!@user.IsCurrentUser)
                                 {
-                                    <a id="add-friend-button" data-username="@user.Username" class="btn btn-primary" href="@Url.Action("AddFriend", "Friends")">Add Friend</a>
-                                }
-                                else if (@user.Status == FriendStatus.Requested)
-                                {
-                                    if (@user.Direction == Direction.To)
+                                    if (@user.Status == FriendStatus.None)
                                     {
-                                        <a class="btn btn-default pull-left disabled">Request Sent</a>
-                                        <a id="cancel-request-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("CancelRequest", "Friends")">Cancel Request</a>
+                                        <a id="add-friend-button" data-username="@user.Username" class="btn btn-primary" href="@Url.Action("AddFriend", "Friends")">Add Friend</a>
                                     }
-                                    else
+                                    else if (@user.Status == FriendStatus.Requested)
                                     {
-                                        <a id="accept-friend-button" data-username="@user.Username" class="btn btn-primary pull-left" href="@Url.Action("AcceptFriend", "Friends")">Accept Friend</a>
-                                        <a id="decline-friend-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("DeclineFriend", "Friends")">Decline Friend</a>
+                                        if (@user.Direction == Direction.To)
+                                        {
+                                            <a class="btn btn-default pull-left disabled">Request Sent</a>
+                                            <a id="cancel-request-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("CancelRequest", "Friends")">Cancel Request</a>
+                                        }
+                                        else
+                                        {
+                                            <a id="accept-friend-button" data-username="@user.Username" class="btn btn-primary pull-left" href="@Url.Action("AcceptFriend", "Friends")">Accept Friend</a>
+                                            <a id="decline-friend-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("DeclineFriend", "Friends")">Decline Friend</a>
+                                        }
+                                    }
+                                    else if (@user.Status == FriendStatus.Friends)
+                                    {
+                                        <a class="btn btn-success pull-left">Friends</a>
+                                        <a id="remove-friend-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("RemoveFriend", "Friends")">Unfriend</a>
                                     }
                                 }
-                                else if (@user.Status == FriendStatus.Friends)
-                                {
-                                    <a class="btn btn-success pull-left">Friends</a>
-                                    <a id="remove-friend-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("RemoveFriend", "Friends")">Unfriend</a>
-                                }
-                            }
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
     </div>
 </div>
 
 @section scripts
-{
-<script>
-    $(document).ready(function () {
-        $('footer').show();
+    {
+    <script>
+        $(document).ready(function () {
+            $('footer').show();
 
-        // Add friend
-        $("#page").on("click", "#add-friend-button", function (e, data) {
-            e.preventDefault();
+            // Add friend
+            $("#page").on("click", "#add-friend-button", function (e, data) {
+                e.preventDefault();
 
-            var href = this.href,
-                that = this;
-            username = { username: $(that).attr('data-username') };
+                var href = this.href,
+                    that = this;
+                username = { username: $(that).attr('data-username') };
 
-            $.ajax({
-                url: href,
-                type: 'POST',
-                data: username,
-                dataType: 'json'
-            })
-                .then(function (data) {
-                    $(that).html("Request Sent");
-                    $(that).toggleClass('btn-primary btn-default disabled pull-left');
-                    $(that).parent().append('<a id="cancel-request-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/CancelRequest">Cancel Request</a>');
+                $.ajax({
+                    url: href,
+                    type: 'POST',
+                    data: username,
+                    dataType: 'json'
                 })
-                .fail(function (error) {
-                    bootbox.alert("Unable to send friend request. Error: " + error.statusText);
-                })
-        });
-
-        // Accept friend
-        $("#page").on("click", "#accept-friend-button", function (e, data) {
-            e.preventDefault();
-
-            var href = this.href,
-                that = this;
-            username = { username: $(that).attr('data-username') };
-
-            $.ajax({
-                url: href,
-                type: 'POST',
-                data: username,
-                dataType: 'json'
-            })
-                .then(function (data) {
-                    $(that).html("Friends");
-                    $(that).toggleClass('btn-primary btn-success');
-                    $(that).parent().html('<a class="btn btn-success pull-left">Friends</a><a id="remove-friend-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/RemoveFriend">Unfriend</a>')
-                })
-                .fail(function (error) {
-                    bootbox.alert("Unable to accept friend request. Error: " + error.statusText);
-                })
-        });
-
-        // Remove friend
-        $("#page").on("click", "#remove-friend-button", function (e, data) {
-            e.preventDefault();
-
-            var href = this.href,
-                that = this;
-            username = { username: $(that).attr('data-username') };
-
-            bootbox.confirm("Are you sure you wish to unfriend " + username.username + "?", function (result) {
-                if (result) {
-                    $.ajax({
-                        url: href,
-                        type: 'POST',
-                        data: username,
-                        dataType: 'json'
+                    .then(function (data) {
+                        $(that).html("Request Sent");
+                        $(that).toggleClass('btn-primary btn-default disabled pull-left');
+                        $(that).parent().append('<a id="cancel-request-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/CancelRequest">Cancel Request</a>');
                     })
-                        .then(function (data) {
-                            $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
+                    .fail(function (error) {
+                        bootbox.alert("Unable to send friend request. Error: " + error.statusText);
+                    })
+            });
+
+            // Accept friend
+            $("#page").on("click", "#accept-friend-button", function (e, data) {
+                e.preventDefault();
+
+                var href = this.href,
+                    that = this;
+                username = { username: $(that).attr('data-username') };
+
+                $.ajax({
+                    url: href,
+                    type: 'POST',
+                    data: username,
+                    dataType: 'json'
+                })
+                    .then(function (data) {
+                        $(that).html("Friends");
+                        $(that).toggleClass('btn-primary btn-success');
+                        $(that).parent().html('<a class="btn btn-success pull-left">Friends</a><a id="remove-friend-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/RemoveFriend">Unfriend</a>')
+                    })
+                    .fail(function (error) {
+                        bootbox.alert("Unable to accept friend request. Error: " + error.statusText);
+                    })
+            });
+
+            // Remove friend
+            $("#page").on("click", "#remove-friend-button", function (e, data) {
+                e.preventDefault();
+
+                var href = this.href,
+                    that = this;
+                username = { username: $(that).attr('data-username') };
+
+                bootbox.confirm("Are you sure you wish to unfriend " + username.username + "?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: href,
+                            type: 'POST',
+                            data: username,
+                            dataType: 'json'
                         })
-                        .fail(function (error) {
-                            bootbox.alert("Unable to remove friend. Error: " + error.statusText);
-                        })
-                }
+                            .then(function (data) {
+                                $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
+                            })
+                            .fail(function (error) {
+                                bootbox.alert("Unable to remove friend. Error: " + error.statusText);
+                            })
+                    }
+                });
+            });
+
+            // Decline friend
+            $("#page").on("click", "#decline-friend-button", function (e, data) {
+                e.preventDefault();
+
+                var href = this.href,
+                    that = this;
+                username = { username: $(that).attr('data-username') };
+
+                $.ajax({
+                    url: href,
+                    type: 'POST',
+                    data: username,
+                    dataType: 'json'
+                })
+                    .then(function (data) {
+                        $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
+                    })
+                    .fail(function (error) {
+                        bootbox.alert("Unable to decline friend request. Error: " + error.statusText);
+                    })
+            });
+
+            // Cancel request
+            $("#page").on("click", "#cancel-request-button", function (e, data) {
+                e.preventDefault();
+
+                var href = this.href,
+                    that = this;
+                username = { username: $(that).attr('data-username') };
+
+                $.ajax({
+                    url: href,
+                    type: 'POST',
+                    data: username,
+                    dataType: 'json'
+                })
+                    .then(function (data) {
+                        $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
+                    })
+                    .fail(function (error) {
+                        bootbox.alert("Unable to cancel friend request. Error: " + error.statusText);
+                    })
             });
         });
-
-        // Decline friend
-        $("#page").on("click", "#decline-friend-button", function (e, data) {
-            e.preventDefault();
-
-            var href = this.href,
-                that = this;
-            username = { username: $(that).attr('data-username') };
-
-            $.ajax({
-                url: href,
-                type: 'POST',
-                data: username,
-                dataType: 'json'
-            })
-                .then(function (data) {
-                    $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
-                })
-                .fail(function (error) {
-                    bootbox.alert("Unable to decline friend request. Error: " + error.statusText);
-                })
-        });
-
-        // Cancel request
-        $("#page").on("click", "#cancel-request-button", function (e, data) {
-            e.preventDefault();
-
-            var href = this.href,
-                that = this;
-            username = { username: $(that).attr('data-username') };
-
-            $.ajax({
-                url: href,
-                type: 'POST',
-                data: username,
-                dataType: 'json'
-            })
-                .then(function (data) {
-                    $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
-                })
-                .fail(function (error) {
-                    bootbox.alert("Unable to cancel friend request. Error: " + error.statusText);
-                })
-        });
-    });
-</script>
+    </script>
 }

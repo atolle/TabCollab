@@ -455,7 +455,6 @@ footer {
 .contributor-text {
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 240px;
     text-align: left;
 }
 
@@ -1134,4 +1133,11 @@ td {
 
 .btn-paypal-img {
     width: 280px;
+}
+
+.g-recaptcha {
+    transform: scale(0.89);
+    -webkit-transform: scale(0.89);
+    transform-origin: 0 0;
+    -webkit-transform-origin: 0 0;
 }

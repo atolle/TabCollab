@@ -206,6 +206,13 @@ footer {
     overflow-y: auto;
 }
 
+.navbar-collapse.collapse.show .notifications {
+    width: 100%;
+    max-width: 100% !important;
+    top: 25%;
+    z-index: 100;
+}
+
 .navbar-collapse.collapsing {
     max-height: 280px;
     overflow-y: auto;
@@ -553,15 +560,6 @@ footer {
 
 .notifications-btn:hover {
     cursor: pointer;
-}
-
-@media screen and (max-width: 767px) {
-    /* Hide captions */
-    .notifications {
-        width: 100%;
-        top: 25%;
-        z-index: 100;
-    }
 }
 
 .clear-btn {
@@ -1135,9 +1133,37 @@ td {
     width: 280px;
 }
 
-.g-recaptcha {
+.g-recaptcha-register {
     transform: scale(0.89);
     -webkit-transform: scale(0.89);
     transform-origin: 0 0;
     -webkit-transform-origin: 0 0;
+}
+
+.g-recaptcha-login {
+    transform: scale(0.93);
+    -webkit-transform: scale(0.93);
+    transform-origin: 0 0;
+    -webkit-transform-origin: 0 0;
+}
+
+#cookieConsent {
+    color: white;
+    background-color: rgb(134, 192, 144);
+    border-color: rgb(134, 192, 144);
+    border-radius: initial;
+}
+
+.accept-policy {
+    height: 100%;
+    opacity: initial !important;
+}
+
+.cookie-link {
+    color: white;
+    text-decoration: underline;
+}
+
+.cookie-link:hover {
+    color: white;
 }

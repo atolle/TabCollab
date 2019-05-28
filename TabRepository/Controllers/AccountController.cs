@@ -135,7 +135,7 @@ namespace TabRepository.Controllers
                 //    return View(model);
                 //}
 
-                return Json(new { error = "Invalid login attempt." });
+                return Json(new { error = "Invalid login attempt" });
             }
 
             // If we got here there were errors in the modelstate                

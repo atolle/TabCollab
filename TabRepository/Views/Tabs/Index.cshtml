@@ -26,14 +26,14 @@
                 </div>
             </div>
         </div>
-        <div id="treeTableContainer" style="display: none;">
-            <div class="treeWrapperContainer">
+        <div id="tree-table-container" style="display: none;">
+            <div class="tree-wrapper-container">
                 <div class="tab">
                     <button id="my-projects" class="btn btn-tab tablinks active">My Projects</button>
                     <button id="contributor-projects" class="btn btn-tab tablinks">Their Projects</button>
                 </div>
-                <div class="treeWrapperMy">
-                    <div class="jstree ownerTree" jstree-type="owner">
+                <div class="tree-wrapper-my-projects">
+                    <div class="jstree owner-tree" jstree-type="owner">
                         @foreach (var project in Model)
                         {
                             @if (project.IsOwner)
@@ -61,8 +61,8 @@
                         }
                     </div>
                 </div>
-                <div class="treeWrapperCon" style="display: none;">
-                    <div class="jstree contributorTree" jstree-type="contributor">
+                <div class="tree-wrapper-their-projects" style="display: none;">
+                    <div class="jstree contributor-tree" jstree-type="contributor">
                         @foreach (var project in Model)
                         {
                             @if (!project.IsOwner)
@@ -292,7 +292,7 @@
                                 return false;
                             }
                             else {
-                                var ownerTree = $('.ownerTree').jstree(true);
+                                var ownerTree = $('.owner-tree').jstree(true);
                                 original_parent = ownerTree.get_node(node[0].parent);
                                 return true;
                             }
@@ -328,7 +328,7 @@
                                         }
                                         else {
                                             // Delete the node from the tree
-                                            $('.ownerTree').jstree(true).delete_node(thatNode);
+                                            $('.owner-tree').jstree(true).delete_node(thatNode);
 
                                             // Get an empty tab version table
                                             var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
@@ -363,7 +363,7 @@
 
             // Event that fires when user drops a jstree node after dragging
             $(document).on('dnd_stop.vakata', function (e, data) {
-                var ownerTree = $('.ownerTree').jstree(true);
+                var ownerTree = $('.owner-tree').jstree(true);
                 var node = ownerTree.get_node(data.data.nodes[0]);
                 var node_parent = ownerTree.get_node(node.parent);
 
@@ -472,7 +472,7 @@
             });
 
             // Horizontal resizing of treeviews and table
-            $(".treeWrapperContainer").resizable({
+            $(".tree-wrapper-container").resizable({
                 handleSelector: "#splitter",
                 resizeHeight: false,
                 onDrag: function (e, $el, newWidth, newHeight, opt) {
@@ -506,11 +506,11 @@
         // When a node is selected determine if it is a tab or project and display the corresponding table
         // Tab: Tab versions table, Project: Empty table
         $(".jstree").on("select_node.jstree", function (e, data) {
-            if ($(this).hasClass('ownerTree')) {
-                $('.contributorTree').jstree("deselect_all");
+            if ($(this).hasClass('owner-tree')) {
+                $('.contributor-tree').jstree("deselect_all");
             }
             else {
-                $('.ownerTree').jstree("deselect_all");
+                $('.owner-tree').jstree("deselect_all");
             }
 
             selectedTree = $(this);
@@ -535,14 +535,14 @@
                 $('#album-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Album</button>');
 
                 // Only allow edit if we're the owner
-                if ($(selectedTree)[0].className.includes('ownerTree')) {
+                if ($(selectedTree)[0].className.includes('owner-tree')) {
                     $('#tab-button-container').empty().append('<button id="edit-tab-button" class="btn btn-primary dashboard-button" data-url="/Tabs/GetTabFormPartialView/?albumId=' + parentNodeId + '&tabId=' + nodeId + '">Edit Tab</button>');
                 }
                 else {
                     $('#tab-button-container').empty().append('<button id="new-tab-button" class="btn btn-primary dashboard-button" disabled>New Tab</button>');
                 }
 
-                if ($(selectedTree)[0].className.includes('ownerTree') && !allowNewTabs) {
+                if ($(selectedTree)[0].className.includes('owner-tree') && !allowNewTabs) {
                     $('#new-tabversion-button-container').empty().append('<button id="new-tab-version-button" class="btn btn-primary dashboard-button" disabled>New Tab Version</button>');
                 }
                 else {
@@ -559,7 +559,7 @@
                 $('#project-button-container').empty().append('<button id="new-project-button" class="btn btn-primary dashboard-button">New Project</button>');
                 $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>');
 
-                if ($(selectedTree)[0].className.includes('ownerTree') && !allowNewTabs) {
+                if ($(selectedTree)[0].className.includes('owner-tree') && !allowNewTabs) {
                     $('#tab-button-container').empty().append('<button id="new-tab-button" class="btn btn-primary dashboard-button" disabled>New Tab</button>');
                 }
                 else {
@@ -567,7 +567,7 @@
                 }
 
                 // Only allow edit if we're the owner
-                if ($(selectedTree)[0].className.includes('ownerTree')) {
+                if ($(selectedTree)[0].className.includes('owner-tree')) {
                     $('#album-button-container').empty().append('<button id="edit-album-button" class="btn btn-primary dashboard-button" data-url="/Albums/GetAlbumFormPartialView/?projectId=' + parentNodeId + '&albumId=' + nodeId + '">Edit Album</button>');
                 }
                 else {
@@ -590,7 +590,7 @@
                 $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>');
 
                 // Only allow edit if we're the owner
-                if ($(selectedTree)[0].className.includes('ownerTree')) {
+                if ($(selectedTree)[0].className.includes('owner-tree')) {
                     $('#project-button-container').empty().append('<button id="edit-project-button" class="btn btn-primary dashboard-button" data-url="/Projects/GetProjectFormPartialView/' + nodeId + '">Edit Project</button>');
                 }
                 else {
@@ -619,7 +619,7 @@
                             bootbox.alert("Unable to delete.");
                         }
                         else {
-                            if ($('#treeTableContainer').is(':visible')) {
+                            if ($('#tree-table-container').is(':visible')) {
                                 var nodeId = $(selectedTree).jstree().get_selected(true)[0].id;
                                 // Update tab versions table
                                 if (nodeId.substring(0, 3) == 'tab') {
@@ -970,7 +970,7 @@
                             // Create new tab node and select it - expand and deselect project node
                             var currentNode = $(selectedTree).jstree().get_selected(true)[0];
                             $(selectedTree).jstree().open_node(currentNode.id, false, false);
-                            if ($(selectedTree)[0].className.includes('ownerTree')) {
+                            if ($(selectedTree)[0].className.includes('owner-tree')) {
                                 $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
                             }
                             else {
@@ -1009,7 +1009,7 @@
                         if (!albumNode.length) {
                             var currentNode = $(selectedTree).jstree().get_selected(true)[0];
                             $(selectedTree).jstree().open_node(currentNode.id, false, false);
-                            if ($(selectedTree)[0].className.includes('ownerTree')) {
+                            if ($(selectedTree)[0].className.includes('owner-tree')) {
                                 $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);
                             }
                             else {
@@ -1034,12 +1034,12 @@
 
                         // Check to see if node already exists so we know whether to add a new node or edit an existing one
                         if (!projectNode.length) {
-                            var currentNode = $('.ownerTree').jstree().get_selected(true)[0];
+                            var currentNode = $('.owner-tree').jstree().get_selected(true)[0];
                             if (currentNode != null) {
-                                $('.ownerTree').jstree().deselect_node(currentNode.id, false, false);
+                                $('.owner-tree').jstree().deselect_node(currentNode.id, false, false);
                             }
-                            $('.ownerTree').jstree().create_node("#", { id: "project-" + response.id, text: response.name }, "last", false, false);
-                            $('.ownerTree').jstree().select_node("project-" + response.id, false, false);
+                            $('.owner-tree').jstree().create_node("#", { id: "project-" + response.id, text: response.name }, "last", false, false);
+                            $('.owner-tree').jstree().select_node("project-" + response.id, false, false);
                         }
                         else {
                             $(".jstree").jstree('rename_node', projectNode, response.name);
@@ -1092,21 +1092,21 @@
 
             if ($(window).width() <= 425) {
                 $('.buttons-container').hide();
-                $('#treeTableContainer').hide();
+                $('#tree-table-container').hide();
                 $('.projects-container').show();
             }
             else {
                 $('.buttons-container').show();
-                $('#treeTableContainer').show();
+                $('#tree-table-container').show();
                 $('.projects-container').hide();
             }
 
             if (setTreeWidth) {
                 if ($(window).width() < 760) {
-                    $('.treeWrapperContainer').css('width', '50%');
+                    $('.tree-wrapper-container').css('width', '50%');
                 }
                 else {
-                    $('.treeWrapperContainer').css('width', '20%');
+                    $('.tree-wrapper-container').css('width', '20%');
                 }
             }
 
@@ -1171,15 +1171,15 @@
         $("#dashboard").on("click", "#my-projects", function (e, data) {
             $('#my-projects').addClass('active');
             $('#contributor-projects').removeClass('active');
-            $('.treeWrapperMy').show();
-            $('.treeWrapperCon').hide();
+            $('.tree-wrapper-my-projects').show();
+            $('.tree-wrapper-their-projects').hide();
         });
 
         $("#dashboard").on("click", "#contributor-projects", function (e, data) {
             $('#contributor-projects').addClass('active');
             $('#my-projects').removeClass('active');
-            $('.treeWrapperCon').show();
-            $('.treeWrapperMy').hide();
+            $('.tree-wrapper-their-projects').show();
+            $('.tree-wrapper-my-projects').hide();
         });
 
         function enableSubmitButton() {

@@ -881,7 +881,7 @@ footer {
     border-top: none;
 }
 
-#treeTableContainer {
+#tree-table-container {
     height: 85%;
     display: flex;
     margin: auto;
@@ -936,7 +936,7 @@ footer {
     cursor: row-resize;
 }
 
-.treeWrapperContainer {
+.tree-wrapper-container {
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;
@@ -945,7 +945,7 @@ footer {
     overflow: hidden;
 }
 
-.treeWrapperMy, .treeWrapperCon {
+.tree-wrapper-my-projects, .tree-wrapper-their-projects {
     flex: 0 0 auto;
     height: 90%;
     border: 1px solid silver;

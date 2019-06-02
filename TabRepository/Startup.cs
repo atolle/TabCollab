@@ -100,13 +100,13 @@ namespace TabRepository
             loggerFactory.AddDebug();
 
             if (env.IsDevelopment())
-            {
+            {                
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseStatusCodePagesWithRedirects("/Home/Error?code={0}");
                 app.UseHsts();
             }
 

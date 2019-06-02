@@ -27,8 +27,19 @@ namespace TabRepository.Controllers
             return View();
         }
 
-        public IActionResult Error()
+        public IActionResult Error(int code)
         {
+            switch (code)
+            {
+                case 404:
+                    ViewData["Header"] = "Page Not Found";
+                    ViewData["Body"] = "We couldn't find the page you requested. Please check your URL.";
+                    break;
+                default:
+                    ViewData["Header"] = "Error Occurred";
+                    ViewData["Body"] = "An error has occurred. Please try your request again in a few minutes.";
+                    break;
+            }
             return View();
         }
 

@@ -270,6 +270,11 @@ footer {
     min-width: 290px;
     background-color: #222222;
     border: solid 1px grey;
+    border-radius: initial;
+}
+
+.card-header {
+    border-radius: initial;
 }
 
 .album-panel, .tab-panel, .tabversion-panel {
@@ -540,10 +545,6 @@ footer {
     /*max-width: 280px;*/
 }
 
-.notification-item {
-    text-align: right;
-}
-
 .notifications {
     position: absolute;
     border: 1px solid silver;
@@ -683,6 +684,10 @@ footer {
     margin-top: 10px;
     margin-bottom: 10px;
     margin-left: 10px;
+}
+
+.banner-overlay {
+    display: none;
 }
 
 .banner-text-top-wrapper {

@@ -4,9 +4,9 @@
 
 <div id="banner" style="position: relative">
     <img id="banner-img" src="~/images/banner_cropped.png" />
-    <div class="banner-text-top-wrapper"><h3 class="banner-text">CREATE YOUR MUSIC</h3></div>
-    <div class="banner-text-bottom-wrapper"><h3 class="banner-text">COMMUNITY.</h3></div>
-    <hr class="white-divider banner-white-divider" />
+    <div class="banner-overlay banner-text-top-wrapper"><h3 class="banner-text">CREATE YOUR MUSIC</h3></div>
+    <div class="banner-overlay banner-text-bottom-wrapper"><h3 class="banner-text">COMMUNITY.</h3></div>
+    <hr class="banner-overlay white-divider banner-white-divider" />
 </div>
 <hr class="white-divider" />
 
@@ -50,6 +50,10 @@
             $('#search-form').addClass('large-nav-item');
             $('footer').show();
             onResize();
+
+            $('#banner-img').on('load', function () {
+                $('.banner-overlay').show();
+            });
 
             function onResize() {
                 width = $(window).outerWidth();

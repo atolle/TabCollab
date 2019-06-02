@@ -30,11 +30,13 @@ namespace TabRepository.Controllers
 
             try
             {
-                var tabVersionInDb = _context
-                    .TabVersions
-                    .Include(v => v.Tab)
-                    .Where(v => v.Id == id && v.UserId == currentUserId)
-                    .FirstOrDefault();
+                // Do we own the project?
+                var tabVersionInDb = (from tabVersion in _context.TabVersions
+                                      join tab in _context.Tabs on tabVersion.TabId equals tab.Id
+                                      join album in _context.Albums on tab.AlbumId equals album.Id
+                                      join project in _context.Projects on album.ProjectId equals project.Id
+                                      where project.UserId == currentUserId && id == tabVersion.Id
+                                      select tabVersion).Include(u => u.User).FirstOrDefault();
 
                 // If we are not the owner, are we a contributor?
                 if (tabVersionInDb == null)
@@ -44,11 +46,8 @@ namespace TabRepository.Controllers
                                       join album in _context.Albums on tab.AlbumId equals album.Id
                                       join project in _context.Projects on album.ProjectId equals project.Id
                                       join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
-                                      where (contributor.UserId == currentUserId || project.UserId == currentUserId) && tabVersion.Id == id
-                                      select tabVersion)
-                                      .Include(v => v.User)
-                                      .Include(v => v.Tab)
-                                      .FirstOrDefault();
+                                      where contributor.UserId == currentUserId && id == tabVersion.Id
+                                      select tabVersion).Include(u => u.User).FirstOrDefault();
 
                     if (tabVersionInDb == null)
                     {
@@ -107,19 +106,25 @@ namespace TabRepository.Controllers
             string currentUserId = User.GetUserId();
 
             try
-            { 
-                var tabVersionInDb = _context.TabVersions.SingleOrDefault(v => v.Id == id && v.UserId == currentUserId);
+            {                
+                // Do we own the project?
+                var tabVersionInDb = (from tabVersion in _context.TabVersions
+                                        join tab in _context.Tabs on tabVersion.TabId equals tab.Id
+                                        join album in _context.Albums on tab.AlbumId equals album.Id
+                                        join project in _context.Projects on album.ProjectId equals project.Id
+                                        where project.UserId == currentUserId && id == tabVersion.Id
+                                        select tabVersion).Include(u => u.User).FirstOrDefault();
 
                 // If we are not the owner, are we a contributor?
                 if (tabVersionInDb == null)
                 {
                     tabVersionInDb = (from tabVersion in _context.TabVersions
-                                      join tab in _context.Tabs on tabVersion.TabId equals tab.Id
-                                      join album in _context.Albums on tab.AlbumId equals album.Id
-                                      join project in _context.Projects on album.ProjectId equals project.Id
-                                      join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
-                                      where contributor.UserId == currentUserId
-                                      select tabVersion).Include(u => u.User).FirstOrDefault();
+                                        join tab in _context.Tabs on tabVersion.TabId equals tab.Id
+                                        join album in _context.Albums on tab.AlbumId equals album.Id
+                                        join project in _context.Projects on album.ProjectId equals project.Id
+                                        join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
+                                        where contributor.UserId == currentUserId && id == tabVersion.Id
+                                        select tabVersion).Include(u => u.User).FirstOrDefault();
 
                     if (tabVersionInDb == null)
                     {

@@ -32,6 +32,11 @@
       "sizes": "128x128"
     },
     {
+      "src": "/images/TabCollab_icon_white_blackcircle_192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
       "src": "/images/TabCollab_icon_white_blackcircle_256.png",
       "type": "image/png",
       "sizes": "256x256"

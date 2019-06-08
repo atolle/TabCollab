@@ -346,8 +346,8 @@ footer {
 }
 
 .button-save {
-    width: 56px;
     height: 38px;
+    width: 64px;
 }
 
 .button-submit-wide {
@@ -1052,10 +1052,12 @@ td {
 #payment-form {
     flex-grow: 1;
     max-width: 600px;
+    margin-bottom: 10px;
 }
 
-#paypal-form {
-    margin-bottom: 10px;
+#bug-report-form {
+    flex-grow: 1;
+    max-width: 600px;
 }
 
 .row-no-margin {
@@ -1152,7 +1154,7 @@ td {
     -webkit-transform-origin: 0 0;
 }
 
-#cookieConsent {
+.cookie-banner {
     color: white;
     background-color: rgb(134, 192, 144);
     border-color: rgb(134, 192, 144);
@@ -1165,8 +1167,12 @@ td {
 }
 
 .cookie-link {
-    color: white;
-    text-decoration: underline;
+    color: white !important;
+    text-decoration: underline !important;
+}
+
+.cookie-link:hover {
+    cursor: pointer;
 }
 
 .cookie-link:hover {

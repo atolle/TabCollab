@@ -23,6 +23,12 @@
                 <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Help">Help</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="SendBugReport">Report Bug</a>
+            </li>
+            <li class="nav-item">
+                <a id="btn-install" style="display: none" class="btn-install nav-link">Install</a>
+            </li>
+            <li class="nav-item">
                 <button type="submit" class="btn btn-link navbar-btn navbar-link nav-link">Log out</button>
             </li>
         </ul>
@@ -33,6 +39,9 @@ else
     <ul class="nav navbar-nav navbar-right bottom-nav">
         <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Account" asp-action="Register">Register</a></li>
         <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Help">Help</a></li>
+        <li class="nav-item">
+            <a id="btn-install" style="display: none" class="btn-install nav-link">Install</a>
+        </li>
         <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Account" asp-action="Login">Log in</a></li>
     </ul>
 }

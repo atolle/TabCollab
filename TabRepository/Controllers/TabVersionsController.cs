@@ -253,7 +253,7 @@ namespace TabRepository.Controllers
 
                         var tabVersionInDb = _context.TabVersions.SingleOrDefault(v => v.Id == viewModel.Id && v.UserId == currentUserId);
 
-                        // If we are not the owner, are we a contributor?
+                        // If we are not the owner, are we the tab owner?
                         if (tabVersionInDb == null)
                         {
                             tabVersionInDb = (from tabVersion in _context.TabVersions

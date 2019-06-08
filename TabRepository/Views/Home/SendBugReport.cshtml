@@ -1,0 +1,186 @@
+﻿@using TabRepository.ViewModels
+@model BugReportFormViewModel
+
+@{
+    ViewData["Title"] = "Send Bug Report";
+}
+
+<div class="flex-container-row">
+    <form id="bug-report-form" class="form-horizontal" asp-controller="Home" asp-action="ProcessBugReport">
+        <h2>Send Bug Report</h2>
+        <div class="row row-no-margin">
+            <div class="col-md-6">
+                <div class="form-group owner">
+                    <div class="form-label">
+                        <label asp-for="Description"></label>
+                    </div>
+                    <textarea asp-for="Description" class="form-control form-input"></textarea>
+                    <div class="form-label">
+                        <span asp-validation-for="Description" style="color: red"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="Errors"></label>
+                    </div>
+                    <textarea asp-for="Errors" class="form-control form-input"></textarea>
+                    <div class="form-label">
+                        <span asp-validation-for="Errors" style="color: red"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-no-margin">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="Page"></label>
+                    </div>
+                    <select asp-for="Page" asp-items="Model.Pages" class="form-control form-input"></select>
+                    <div class="form-label">
+                        <span asp-validation-for="Page" style="color: red"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="DeviceType"></label>
+                    </div>
+                    <select asp-for="DeviceType" asp-items="Model.DeviceTypes" class="form-control form-input"></select>
+                    <div class="form-label">
+                        <span asp-validation-for="DeviceType" style="color: red"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-no-margin">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="Browser"></label>
+                    </div>
+                    <select asp-for="Browser" asp-items="Model.Browsers" class="form-control form-input"></select>
+                    <div class="form-label">
+                        <span asp-validation-for="Browser" style="color: red"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="form-label">
+                        @Html.LabelFor(m => m.Image, "Image")
+                    </div>
+                    @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default form-input file-input" })
+                    <div class="form-label">
+                        <span id="image-error" class="validation-error" style="color: red"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-no-margin">
+            <div class="col-md-6">
+                <div class="g-recaptcha g-recaptcha-register" data-callback="reCaptchaCheck" data-sitekey="6LcYlqUUAAAAAMXYYEg3u92xlWMsISBh7te4n5we"></div>
+                <div class="form-label">
+                    <span id="recaptcha-error" class="validation-error" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row row-no-margin">
+            <div class="col">
+                <div class="form-group">
+                    <button style="margin-top: 10px;" type="submit" class="btn btn-default button-submit-wide">Send Report</button>
+                </div>
+            </div>
+        </div>
+        @Html.AntiForgeryToken()
+    </form>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script>
+    var reCaptchaCheck = function () {
+        $('#recaptcha-error').html('');
+    }
+
+    $(document).ready(function () {
+        $('hr').show();
+        $('footer').show();
+
+        $("#bug-report-form").on("change", "#Image", function (e, data) {
+            // Make sure the image size is less than 1MB
+            if (this.files.length) {
+                if (this.files[0].size > 1000000) {
+                    $("#image-error").html("Image size limit is 1 MB");
+                }
+                else {
+                    $("#image-error").html("");
+                }
+            }
+            else {
+                $("#image-error").html("");
+            }
+        });
+
+        $("#bug-report-form").on("submit", function (e, data) {
+            e.preventDefault();
+
+            // Don't submit form if the image is too large
+            if ($('#Image')[0].files.length) {
+                if ($('#Image')[0].files[0].size > 1000000) {
+                    return
+                }
+            }
+
+            var recaptcha = $("#g-recaptcha-response").val();
+            if (recaptcha === "") {
+                $('#recaptcha-error').html('Please check reCAPTCHA');
+                return;
+            }
+
+            $('.validation-error').html('');
+            $('.button-submit-wide').html('<div class="loader"></div>');
+            $('.button-submit-wide').addClass('disabled');
+
+            var form = e.target;
+            var formData = new FormData(form);
+
+            $.ajax({
+                url: form.action,
+                type: 'POST',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false
+            })
+            .then(function (response) {
+                if (response.error) {
+                    enableSubmitButton();
+                    if (response.error.toLowerCase().includes('file')) {
+                        $('#image-error').html(response.error);
+                    }
+                    else {
+                        showFailureBootbox("submitting bug report", response.error);
+                    }
+                }
+                else {
+                    $('.flex-container-row').html(response);
+                }
+            })
+            .fail(function (error) {
+                bootbox.alert("Unable to submit bug report. Error: " + error.statusText);
+                enableSubmitButton();
+            })
+        });
+
+        function enableSubmitButton() {
+            $('.button-submit-wide').html('Submit Report');
+            $('.button-submit-wide').removeClass('disabled');
+        }
+    });
+    </script>
+}

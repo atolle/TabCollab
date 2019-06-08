@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,7 +27,13 @@ namespace TabRepository.Services
             return Execute(Options.SendGridKey, subject, message, email);
         }
 
-        public Task Execute(string apiKey, string subject, string message, string email)
+        public Task SendEmailAsyncWithAttachment(string email, string subject, string message, IFormFile file)
+        {
+            // Plug in your email service here to send an email.
+            return Execute(Options.SendGridKey, subject, message, email, file);
+        }
+
+        public Task Execute(string apiKey, string subject, string message, string email, IFormFile file = null)
         {
             var client = new SendGridClient(apiKey);
             var msg = new SendGridMessage()
@@ -35,6 +43,17 @@ namespace TabRepository.Services
                 PlainTextContent = message,
                 HtmlContent = message
             };
+
+            if (file != null)
+            {
+                using (var ms = new MemoryStream())
+                {
+                    file.CopyTo(ms);
+                    var fileBytes = ms.ToArray();
+                    msg.AddAttachment(file.FileName, Convert.ToBase64String(fileBytes));
+                }
+            }
+
             msg.AddTo(new EmailAddress(email));
             return client.SendEmailAsync(msg);
         }

@@ -78,6 +78,8 @@
         </div>
     </nav>
     <div class="body-content">
+        <partial name="_CookieConsent" />
+        <partial name="_InstallBanner" />
         @RenderBody()
         <footer style="display: none;">Copyright &copy; @DateTime.Now.Year - TabCollab</footer>
     </div>

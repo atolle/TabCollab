@@ -1,0 +1,24 @@
+﻿@using Microsoft.AspNetCore.Http.Features
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    var installBannerCookie = HttpContextAccessor.HttpContext.Request.Cookies["InstallBanner"];
+    var showBanner = installBannerCookie == null ? true : false;
+    var cookieString = "InstallBanner=hide; expires=" + DateTime.UtcNow.AddYears(1) + "; path=/; secure; samesite=lax";
+}
+
+@if (showBanner)
+{
+    <div id="banner-install" style="display: none;" class="cookie-banner alert alert-info alert-dismissible fade show" role="alert">
+        <div>Install TabCollab on your device! <a class="btn-install cookie-link">Click here to install.</a> You can always install later from the navigation bar at the top of every page.</div>
+        <button type="button" class="fa fa-times accept-policy close" data-dismiss="alert" aria-label="Close" data-install-banner-string="@cookieString"></button>
+    </div>
+    <script>
+        (function () {
+            var button = document.querySelector("#banner-install button[data-install-banner-string]");
+            button.addEventListener("click", function (event) {
+                document.cookie = button.dataset.installBannerString;
+            }, false);
+        })();
+    </script>
+}

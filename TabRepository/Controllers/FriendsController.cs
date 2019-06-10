@@ -52,7 +52,7 @@ namespace TabRepository.Controllers
 
             var users = from u in _context.Users
                         from f in _context.Friends.Where(f => (u.Id == f.User1Id && currentUserId == f.User2Id) || (u.Id == f.User2Id && currentUserId == f.User1Id)).DefaultIfEmpty()
-                        where u.UserName.Contains(search)
+                        where u.UserName.StartsWith(search)
                         select new { u.Id, u.UserName, u.FirstName, u.LastName, u.ImageFilePath, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status };
 
             List < FriendViewModel > viewModel = new List<FriendViewModel>();

@@ -35,16 +35,16 @@
                     <div class="col-3">
                         @if (t.IsOwner)
                         {
-                            <a id="edit-tabversion-button" class="white-icon" data-tab-id="@t.TabVersion.TabId" data-tabversion-id="@t.TabVersion.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")"><i class="fa fa-pencil fa-lg" /></a>
+                            <a id="edit-tabversion-button" class="white-icon" data-toggle="tooltip" title="Edit Tab Version" data-tab-id="@t.TabVersion.TabId" data-tabversion-id="@t.TabVersion.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")"><i class="fa fa-pencil fa-lg" /></a>
                         }
                     </div>
                     <div class="col-3">
-                        <a id="download-tabversion-button" class="white-icon" href="@Url.Action("Download", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-download fa-lg" /></a>
+                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="Download Tab Version" href="@Url.Action("Download", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-download fa-lg" /></a>
                     </div>
                     <div class="col-3">
                         @if (System.IO.Path.GetExtension(t.TabVersion.TabFile.Name).Contains(".gp"))
                         {
-                            <a id="play-tabversion-button" class="white-icon" target="_blank" href="@Url.Action("Player", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-play fa-lg" /></a>
+                            <a id="play-tabversion-button" class="white-icon" data-toggle="tooltip" title="Play Tab Version" target="_blank" href="@Url.Action("Player", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-play fa-lg" /></a>
                         }
                         else
                         {
@@ -54,7 +54,7 @@
                     <div class="col-3">
                         @if (t.IsOwner)
                         {
-                            <a id="delete-tabversion-button" class="white-icon" href="@Url.Action("Delete", "TabVersions", new { id = t.TabVersion.Id })"><i class="fa fa-times fa-lg" /></a>
+                            <a id="delete-tabversion-button" class="white-icon" data-toggle="tooltip" title="Delete Tab Version" href="@Url.Action("Delete", "TabVersions", new { id = t.TabVersion.Id })"><i class="fa fa-times fa-lg" /></a>
                         }
                     </div>
                 </div>                

@@ -104,7 +104,7 @@ namespace TabRepository.Controllers
 
                     if (userInDb == null)
                     {
-                        return StatusCode(StatusCodes.Status500InternalServerError);
+                        return Json(new { error = "User not found" });
                     }
 
                     if (viewModel.Image != null)
@@ -112,7 +112,7 @@ namespace TabRepository.Controllers
                         // Limit file size to 1 MB
                         if (viewModel.Image.Length > 1000000)
                         {
-                            return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
+                            return Json(new { error = "Image size limit is 1 MB" });
                         }
                     }
 
@@ -145,9 +145,9 @@ namespace TabRepository.Controllers
 
                 return Json(new { error = string.Join("<br />", modelErrors) });
             }
-            catch
+            catch(Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }
         }
     }

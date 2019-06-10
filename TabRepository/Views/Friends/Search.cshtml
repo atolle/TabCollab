@@ -37,7 +37,7 @@
                                     }
                                     else if (@user.Status == FriendStatus.Friends)
                                     {
-                                        <a class="btn btn-success pull-left">Friends</a>
+                                        <a class="btn btn-primary pull-left">Friends</a>
                                         <a id="remove-friend-button" data-username="@user.Username" class="btn btn-danger pull-right" href="@Url.Action("RemoveFriend", "Friends")">Unfriend</a>
                                     }
                                 }

@@ -177,7 +177,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     deferredPrompt = e;
 
     // Only show install button/banner on touch screens
-    if (('ontouchstart' in window)) {
+    if ('ontouchstart' in window) {
         $btnInstall.show();
         $bannerInstall.show();
     }

@@ -528,6 +528,9 @@
 
                 $.get(url, function (data) {
                     $('#tabversions-table-container').empty().append(tabLoader + data);
+                    if (!('ontouchstart' in window)) {
+                        $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+                    }
                     // Call onResize to resize the user images
                     onResize(false);
                 });
@@ -629,7 +632,9 @@
                                     var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
                                     $.get(url, function (data) {
                                         $('#tabversions-table-container').empty().append(data);
-
+                                        if (!('ontouchstart' in window)) {
+                                            $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+                                        }
                                         // Call onResize to resize the user images
                                         onResize(false);
                                     });
@@ -958,7 +963,9 @@
 
                         $.get(url, function (data) {
                             $('#tabversions-table-container').empty().append(data);
-
+                            if (!('ontouchstart' in window)) {
+                                $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+                            }
                             // Call onResize to resize the user images
                             onResize(false);
                         });
@@ -988,7 +995,9 @@
 
                         $.get(url, function (data) {
                             $('#tabversions-table-container').empty().append(data);
-
+                            if (!('ontouchstart' in window)) {
+                                $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+                            }
                             // Call onResize to resize the user images
                             onResize(false);
                         });

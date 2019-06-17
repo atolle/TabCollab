@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using System.Threading;
 using Microsoft.IdentityModel.Protocols;
+using TabRepository.Helpers;
 
 namespace TabRepository
 {
@@ -70,6 +71,7 @@ namespace TabRepository
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
+            services.AddTransient<UserAuthenticator>();
            
             services.AddAuthentication().AddGoogle(googleOptions =>
             {

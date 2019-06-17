@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using TabRepository.Interfaces;
 
 namespace TabRepository.Models
 {
-    public class Album
+    public class Album : IItem
     {
         public int Id { get; set; }
 

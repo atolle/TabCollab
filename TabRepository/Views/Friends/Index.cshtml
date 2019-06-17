@@ -43,13 +43,18 @@
                     data: username,
                     dataType: 'json'
                 })
-                .then(function (data) {
-                    $(that).html("Request Sent");
-                    $(that).toggleClass('btn-primary btn-default disabled pull-left');
-                    $(that).parent().append('<a id="cancel-request-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/CancelRequest">Cancel Request</a>');
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("sending friend request", response.error);
+                    }
+                    else {
+                        $(that).html("Request Sent");
+                        $(that).toggleClass('btn-primary btn-default disabled pull-left');
+                        $(that).parent().append('<a id="cancel-request-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/CancelRequest">Cancel Request</a>');
+                    }                 
                 })
                 .fail(function (error) {
-                    bootbox.alert("Unable to send friend request. Error: " + error.statusText);
+                    showFailureBootbox("sending friend request", error.statusText);
                 })
             });
 
@@ -67,13 +72,18 @@
                     data: username,
                     dataType: 'json'
                 })
-                .then(function (data) {
-                    $(that).html("Friends");
-                    $(that).toggleClass('btn-primary btn-success');
-                    $(that).parent().html('<a class="btn btn-success pull-left">Friends</a><a id="remove-friend-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/RemoveFriend">Unfriend</a>')
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("accepting friend request", response.error);
+                    }
+                    else {
+                        $(that).html("Friends");
+                        $(that).toggleClass('btn-primary btn-success');
+                        $(that).parent().html('<a class="btn btn-success pull-left">Friends</a><a id="remove-friend-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/RemoveFriend">Unfriend</a>')
+                    }                   
                 })
                 .fail(function (error) {
-                    bootbox.alert("Unable to accept friend request. Error: " + error.statusText);
+                    showFailureBootbox("accepting friend request", error.statusText);
                 })
             });
 
@@ -93,11 +103,16 @@
                             data: username,
                             dataType: 'json'
                         })
-                        .then(function (data) {
-                            repopulateFriendsList();
+                        .then(function (response) {
+                            if (response.error) {
+                                showFailureBootbox("removing friend", response.error);
+                            }
+                            else {
+                                repopulateFriendsList();
+                            }
                         })
                         .fail(function (error) {
-                            bootbox.alert("Unable to remove friend. Error: " + error.statusText);
+                            showFailureBootbox("removing friend", error.statusText);
                         });
                     }
                 });
@@ -117,11 +132,16 @@
                     data: username,
                     dataType: 'json'
                 })
-                .then(function (data) {
-                    repopulateFriendsList();
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("declining friend", response.error);
+                    }
+                    else {
+                        repopulateFriendsList();
+                    }
                 })
                 .fail(function (error) {
-                    bootbox.alert("Unable to decline friend request. Error: " + error.statusText);
+                    showFailureBootbox("declining friend", error.statusText);
                 })
             });
 
@@ -139,11 +159,16 @@
                     data: username,
                     dataType: 'json'
                 })
-                .then(function (data) {
-                    repopulateFriendsList();
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("canceling friend request", response.error);
+                    }
+                    else {
+                        repopulateFriendsList();
+                    }
                 })
                 .fail(function (error) {
-                    bootbox.alert("Unable to cancel friend request. Error: " + error.statusText);
+                    showFailureBootbox("canceling friend request", error.statusText);
                 })
             });
 
@@ -151,23 +176,35 @@
                 return new Promise((resolve, reject) => {
                     var url = '@Url.Action("GetFriendsListPartialView", "Friends", null)';
 
-                    $.get(url, function (data) {
-                        // If we get back empty-list, empty out any existing projects and set CSS for proper display
-                        if (data.includes('empty-list')) {
-                            $('#friends-list-wrapper').empty();
-                            $('.list-container').append(data);
-                            $('.list-container').css('display', 'flex');
-                            $('#page').css('position', 'absolute');
+                    $.ajax({
+                        url: href,
+                        type: 'GET',
+                    })
+                    .then(function (response) {
+                        if (response.error) {
+                            showFailureBootbox("loading friend list", response.error);
                         }
                         else {
-                            $('#page').css('position', 'static');
-                            $('.list-container').css('display', 'block');
-                            $('.empty-list').remove();
-                            $('#friends-list-wrapper').empty().append(data);
+                            // If we get back empty-list, empty out any existing projects and set CSS for proper display
+                            if (response.includes('empty-list')) {
+                                $('#friends-list-wrapper').empty();
+                                $('.list-container').append(response);
+                                $('.list-container').css('display', 'flex');
+                                $('#page').css('position', 'absolute');
+                            }
+                            else {
+                                $('#page').css('position', 'static');
+                                $('.list-container').css('display', 'block');
+                                $('.empty-list').remove();
+                                $('#friends-list-wrapper').empty().append(response);
+                            }
                         }
+                        resolve();
                     })
-                    .then(resolve)
-                    .fail(reject)
+                    .fail(function (error) {
+                        showFailureBootbox("loading friend list", error.statusText);
+                        reject();
+                    })
                 })
             }
         });

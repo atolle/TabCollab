@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using TabRepository.Interfaces;
 
 namespace TabRepository.Models
 {
-    public class Project
+    public class Project : IItem
     {
         public int Id { get; set; }
 
@@ -29,6 +30,6 @@ namespace TabRepository.Models
 
         public virtual ICollection<Album> Albums { get; set; } 
         
-        public virtual ICollection<ApplicationUser> Contributors { get; set; }
+        public virtual ICollection<ProjectContributor> Contributors { get; set; }
     }
 }

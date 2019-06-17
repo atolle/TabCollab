@@ -1,9 +1,10 @@
 ﻿using System;
+using TabRepository.Interfaces;
 using TabRepository.Models;
 
 namespace TabRepository.Models
 {
-    public class TabVersion
+    public class TabVersion : IItem
     {
         public int Id { get; set; }
 

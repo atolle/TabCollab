@@ -20,12 +20,14 @@ namespace TabRepository.Controllers
         private ApplicationDbContext _context;
         private FileUploader _fileUploader;
         private readonly IHostingEnvironment _appEnvironment;
+        private UserAuthenticator _userAuthenticator;
 
-        public ProjectsController(ApplicationDbContext context, IHostingEnvironment appEnvironment)
+        public ProjectsController(ApplicationDbContext context, IHostingEnvironment appEnvironment, UserAuthenticator userAuthenticator)
         {
             _context = context;
             _appEnvironment = appEnvironment;
-            _fileUploader = new FileUploader(context, appEnvironment);  
+            _fileUploader = new FileUploader(context, appEnvironment);
+            _userAuthenticator = userAuthenticator;
         }
 
         protected override void Dispose(bool disposing)
@@ -51,7 +53,6 @@ namespace TabRepository.Controllers
                 {
                     string currentUserId = User.GetUserId();
                     string currentUsername = User.GetUsername();
-
 
                     if (viewModel.Id == 0)  // We are creating a new project
                     {
@@ -109,12 +110,12 @@ namespace TabRepository.Controllers
                     {
                         using (var transaction = _context.Database.BeginTransaction())
                         {
-                            var projectInDb = _context.Projects.SingleOrDefault(p => p.Id == viewModel.Id && p.UserId == currentUserId);
+                            var projectInDb = (Project)_userAuthenticator.CheckUserEditAccess(Item.Project, viewModel.Id, currentUserId);
 
                             // If current user does not have access to project or project does not exist
                             if (projectInDb == null)
                             {
-                                return NotFound();
+                                return Json(new { error = "Project not found" });
                             }
 
                             projectInDb.Name = viewModel.Name;
@@ -126,7 +127,7 @@ namespace TabRepository.Controllers
                                 // Limit file size to 1 MB
                                 if (viewModel.Image.Length > 1000000)
                                 {
-                                    return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
+                                    return Json(new { error = "Image size limit is 1 MB" });
                                 }
 
                                 projectInDb.ImageFileName = viewModel.Image.FileName;
@@ -210,11 +211,11 @@ namespace TabRepository.Controllers
                     }
                 }
 
-                var projectInDb = _context.Projects.SingleOrDefault(p => p.Id == id && p.UserId == currentUserId);
+                var projectInDb = (Project)_userAuthenticator.CheckUserDeleteAccess(Item.Project, id, currentUserId);
 
                 // If current user does not have access to project or project does not exist
                 if (projectInDb == null)
-                    return NotFound();
+                    return Json(new { error = "Project not found" });
 
                 var notificationsInDb = _context.Notifications.Where(n => n.ProjectId == projectInDb.Id).ToList();
 
@@ -233,7 +234,7 @@ namespace TabRepository.Controllers
             }
             catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }
         }
 
@@ -259,8 +260,10 @@ namespace TabRepository.Controllers
                 try
                 {
                     // Return a list of all Projects belonging to the current user
-                    var projectInDb = _context.Projects
-                        .SingleOrDefault(p => p.UserId == currentUserId && p.Id == id);
+                    var projectInDb = (Project)_userAuthenticator.CheckUserEditAccess(Item.Project, id, currentUserId);
+
+                    if (projectInDb == null)
+                        return Json(new { error = "Project not found" });
 
                     var contributors = _context.ProjectContributors
                         .Where(p => p.ProjectId == projectInDb.Id)
@@ -282,9 +285,9 @@ namespace TabRepository.Controllers
 
                     return PartialView("_ProjectForm", viewModel);
                 }
-                catch
+                catch (Exception e)
                 {
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                    return Json(new { error = e.Message });
                 }
             }
             else
@@ -302,9 +305,9 @@ namespace TabRepository.Controllers
 
                     return PartialView("_ProjectForm", viewModel);
                 }
-                catch
+                catch (Exception e)
                 {
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                    return Json(new { error = e.Message });
                 }
             }
         }
@@ -312,87 +315,105 @@ namespace TabRepository.Controllers
         [HttpGet]
         public ActionResult GetProjectListPartialView()
         {
-            string currentUserId = User.GetUserId();
-            List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
-
-            // Return a list of all Projects belonging to the current user
-            var projects = _context.Projects.Include(u => u.User)
-                .Where(p => p.UserId == currentUserId)
-                .OrderBy(p => p.Name)
-                .ToList();
-
-            var contributorProjects = _context.ProjectContributors
-                .Where(c => c.UserId == currentUserId)
-                .Select(c => c.Project)
-                .Include(u => u.User).ToList();
-
-            projects = projects.Union(contributorProjects).ToList();
-
-            foreach (var project in projects)
+            try
             {
-                var vm = new ProjectIndexViewModel()
+                string currentUserId = User.GetUserId();
+                List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
+
+                // Return a list of all Projects belonging to the current user
+                var projects = _context.Projects
+                    .Include(u => u.User)
+                    .Where(p => p.UserId == currentUserId)
+                    .OrderBy(p => p.Name)
+                    .ToList();
+
+                var contributorProjects = _context.ProjectContributors
+                    .Where(c => c.UserId == currentUserId)
+                    .Select(c => c.Project)
+                    .Include(u => u.User)
+                    .ToList();
+
+                projects = projects.Union(contributorProjects).ToList();
+
+                foreach (var project in projects)
                 {
-                    Id = project.Id,
-                    UserId = project.UserId,
-                    Name = project.Name,
-                    Owner = project.User.UserName,
-                    ImageFileName = project.ImageFileName,
-                    ImageFilePath = project.ImageFilePath,
-                    DateCreated = project.DateCreated,
-                    DateModified = project.DateModified,
-                    User = project.User,
-                    Albums = project.Albums,
-                    IsOwner = project.UserId == currentUserId
-                };
+                    var vm = new ProjectIndexViewModel()
+                    {
+                        Id = project.Id,
+                        UserId = project.UserId,
+                        Name = project.Name,
+                        Owner = project.User.UserName,
+                        ImageFileName = project.ImageFileName,
+                        ImageFilePath = project.ImageFilePath,
+                        DateCreated = project.DateCreated,
+                        DateModified = project.DateModified,
+                        User = project.User,
+                        Albums = project.Albums,
+                        IsOwner = project.UserId == currentUserId
+                    };
 
-                // Add projects to project view model
-                viewModel.Add(vm);
+                    // Add projects to project view model
+                    viewModel.Add(vm);
+                }
+
+                return PartialView("_ProjectList", viewModel);
             }
-
-            return PartialView("_ProjectList", viewModel);
+            catch (Exception e)
+            {
+                return Json(new { error = e.Message });
+            }
         }
 
         [HttpGet]
         public ActionResult GetProjectSelectionPartialView()
         {
-            string currentUserId = User.GetUserId();
-            List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
-
-            // Return a list of all Projects belonging to the current user
-            var projects = _context.Projects.Include(u => u.User)
-                .Where(p => p.UserId == currentUserId)
-                .OrderBy(p => p.Name)
-                .ToList();
-
-            var contributorProjects = _context.ProjectContributors
-                .Where(c => c.UserId == currentUserId)
-                .Select(c => c.Project)
-                .Include(u => u.User).ToList();
-
-            projects = projects.Union(contributorProjects).ToList();
-
-            foreach (var proj in projects)
+            try
             {
-                var vm = new ProjectIndexViewModel()
+                string currentUserId = User.GetUserId();
+                List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
+
+                // Return a list of all Projects belonging to the current user
+                var projects = _context.Projects
+                    .Include(u => u.User)
+                    .Where(p => p.UserId == currentUserId)
+                    .OrderBy(p => p.Name)
+                    .ToList();
+
+                var contributorProjects = _context.ProjectContributors
+                    .Where(c => c.UserId == currentUserId)
+                    .Select(c => c.Project)
+                    .Include(u => u.User)
+                    .ToList();
+
+                projects = projects.Union(contributorProjects).ToList();
+
+                foreach (var proj in projects)
                 {
-                    Id = proj.Id,
-                    UserId = proj.UserId,
-                    Name = proj.Name,
-                    Owner = proj.User.UserName,
-                    ImageFileName = proj.ImageFileName,
-                    ImageFilePath = proj.ImageFilePath,
-                    DateCreated = proj.DateCreated,
-                    DateModified = proj.DateModified,
-                    User = proj.User,
-                    Albums = proj.Albums,
-                    IsOwner = proj.UserId == currentUserId
-                };
+                    var vm = new ProjectIndexViewModel()
+                    {
+                        Id = proj.Id,
+                        UserId = proj.UserId,
+                        Name = proj.Name,
+                        Owner = proj.User.UserName,
+                        ImageFileName = proj.ImageFileName,
+                        ImageFilePath = proj.ImageFilePath,
+                        DateCreated = proj.DateCreated,
+                        DateModified = proj.DateModified,
+                        User = proj.User,
+                        Albums = proj.Albums,
+                        IsOwner = proj.UserId == currentUserId
+                    };
 
-                // Add projects to project view model
-                viewModel.Add(vm);
+                    // Add projects to project view model
+                    viewModel.Add(vm);
+                }
+
+                return PartialView("_ProjectSelection", viewModel);
             }
-
-            return PartialView("_ProjectSelection", viewModel);
+            catch (Exception e)
+            {
+                return Json(new { error = e.Message });
+            }
         }
     }
 }

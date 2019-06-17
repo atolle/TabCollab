@@ -20,12 +20,14 @@ namespace TabRepository.Controllers
         private ApplicationDbContext _context;
         private FileUploader _fileUploader;
         private readonly IHostingEnvironment _appEnvironment;
+        private UserAuthenticator _userAuthenticator;
 
-        public AlbumsController(ApplicationDbContext context, IHostingEnvironment appEnvironment)
+        public AlbumsController(ApplicationDbContext context, IHostingEnvironment appEnvironment, UserAuthenticator userAuthenticator)
         {
             _context = context;
             _appEnvironment = appEnvironment;
             _fileUploader = new FileUploader(context, appEnvironment);
+            _userAuthenticator = userAuthenticator;
         }
 
         protected override void Dispose(bool disposing)
@@ -38,9 +40,10 @@ namespace TabRepository.Controllers
             string currentUserId = User.GetUserId();
 
             // Verify current user has access to this project
-            var projectInDb = _context.Projects.Single(p => p.Id == projectId && p.UserId == currentUserId);
+            var projectInDb = (Project)_userAuthenticator.CheckUserCreateAccess(Item.Project, projectId, currentUserId);
+
             if (projectInDb == null)
-                return NotFound();
+                return Json(new { error = "Project not found" });
 
             var viewModel = new AlbumFormViewModel()
             {
@@ -65,20 +68,11 @@ namespace TabRepository.Controllers
                     string currentUsername = User.GetUsername();
 
                     // Verify current user has access to this project
-                    var projectInDb = _context.Projects.SingleOrDefault(p => p.Id == viewModel.ProjectId && p.UserId == currentUserId);
+                    var projectInDb = (Project)_userAuthenticator.CheckUserCreateAccess(Item.Project, viewModel.ProjectId, currentUserId);
 
-                    // If there is not project matching this project Id and this user Id, check to see if this user is a contributor
                     if (projectInDb == null)
                     {
-                        projectInDb = (from project in _context.Projects
-                                       join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
-                                       where contributor.UserId == currentUserId && project.Id == viewModel.ProjectId
-                                       select project).Include(u => u.User).FirstOrDefault();
-
-                        if (projectInDb == null)
-                        {
-                            return NotFound();
-                        }
+                        return Json(new { error = "Project not found" });
                     }
 
                     if (viewModel.Id == 0)  // We are creating a new album
@@ -100,7 +94,7 @@ namespace TabRepository.Controllers
                                 // Limit file size to 1 MB
                                 if (viewModel.Image.Length > 1000000)
                                 {
-                                    return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
+                                    return Json(new { error = "Image size limit is 1 MB" });
                                 }
 
                                 album.ImageFileName = viewModel.Image.FileName;
@@ -120,12 +114,12 @@ namespace TabRepository.Controllers
                     }
                     else // We're updating an album
                     {
-                        var albumInDb = _context.Albums.SingleOrDefault(p => p.Id == viewModel.Id && p.UserId == currentUserId);
+                        var albumInDb = (Album)_userAuthenticator.CheckUserEditAccess(Item.Album, viewModel.Id, currentUserId);
 
                         // If current user does not have access to project or project does not exist
                         if (albumInDb == null)
                         {
-                            return NotFound();
+                            return Json(new { error = "Album not found" });
                         }
 
                         albumInDb.Name = viewModel.Name;
@@ -137,7 +131,7 @@ namespace TabRepository.Controllers
                             // Limit file size to 1 MB
                             if (viewModel.Image.Length > 1000000)
                             {
-                                return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
+                                return Json(new { error = "Image size limit is 1 MB" });
                             }
 
                             albumInDb.ImageFileName = viewModel.Image.FileName;
@@ -173,14 +167,11 @@ namespace TabRepository.Controllers
                     string currentUserId = User.GetUserId();
                     string currentUsername = User.GetUsername();
 
-                    var albumInDb = _context
-                        .Albums
-                        .Include(a => a.Project)
-                        .SingleOrDefault(a => a.Id == id && a.UserId == currentUserId);
+                    var albumInDb = (Album)_userAuthenticator.CheckUserDeleteAccess(Item.Album, id, currentUserId);
 
                     // If current user does not have access to project or project does not exist
                     if (albumInDb == null)
-                        return NotFound();
+                        return Json(new { error = "Album not found" });
 
                     _context.Albums.Remove(albumInDb);
                     _context.SaveChanges();
@@ -192,9 +183,9 @@ namespace TabRepository.Controllers
                     return Json(new { success = true });
                 }
             }
-            catch
+            catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }
         }
 
@@ -227,20 +218,11 @@ namespace TabRepository.Controllers
                 if (albumId == 0)
                 {
                     // Verify current user has access to this project
-                    var projectInDb = _context.Projects.SingleOrDefault(p => p.Id == projectId && p.UserId == currentUserId);
+                    var projectInDb = (Project)_userAuthenticator.CheckUserCreateAccess(Item.Project, projectId, currentUserId);
 
-                    
                     if (projectInDb == null)
                     {
-                        projectInDb = (from project in _context.Projects
-                                        join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId                                        
-                                        where contributor.UserId == currentUserId && project.Id == projectId
-                                        select project).Include(u => u.User).FirstOrDefault();
-                        
-                        if (projectInDb == null)
-                        {
-                            return NotFound();
-                        }                        
+                        return Json(new { error = "Project not found" });                       
                     }
 
                     viewModel.ProjectId = projectInDb.Id;
@@ -249,10 +231,11 @@ namespace TabRepository.Controllers
                 // Existing album
                 else
                 {
-                    var albumInDb = _context.Albums.Single(p => p.Id == albumId && p.UserId == currentUserId);
+                    var albumInDb = (Album)_userAuthenticator.CheckUserEditAccess(Item.Album, albumId, currentUserId);
+
                     if (albumInDb == null)
                     {
-                        return NotFound();
+                        return Json(new { error = "Album not found" });
                     }
 
                     viewModel.Id = albumInDb.Id;
@@ -264,7 +247,7 @@ namespace TabRepository.Controllers
             }
             catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             } 
         }
 
@@ -321,7 +304,7 @@ namespace TabRepository.Controllers
                 }
                 catch (Exception e)
                 {
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                    return Json(new { error = e.Message });
                 }
 
             }
@@ -361,11 +344,10 @@ namespace TabRepository.Controllers
 
                     return PartialView("_AlbumList", viewModel);
                 }
-                catch
+                catch (Exception e)
                 {
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                    return Json(new { error = e.Message });
                 }
-
             }
         }
 
@@ -422,9 +404,8 @@ namespace TabRepository.Controllers
                 }
                 catch (Exception e)
                 {
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                    return Json(new { error = e.Message });
                 }
-
             }
             else
             {
@@ -462,9 +443,9 @@ namespace TabRepository.Controllers
 
                     return PartialView("_AlbumSelection", viewModel);
                 }
-                catch
+                catch (Exception e)
                 {
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                    return Json(new { error = e.Message });
                 }
 
             }
@@ -479,23 +460,23 @@ namespace TabRepository.Controllers
             {
                 for (int i = 0; i < albumIds.Count; i++)
                 {
-                    var album = _context.Albums.Where(a => a.Id == albumIds[i]).FirstOrDefault();
+                    var albumInDb = (Album)_userAuthenticator.CheckUserEditAccess(Item.Album, albumIds[i], currentUserId);
 
-                    if (album.UserId != currentUserId)
+                    if (albumInDb.UserId != currentUserId)
                     {
-                        return NotFound();
+                        return Json(new { error = "Album not found" });
                     }
 
-                    album.Order = i;
+                    albumInDb.Order = i;
                 }
 
                 _context.SaveChanges();
 
-                return Json(new { });
+                return Json(new { success = true });
             }
-            catch
+            catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }
         }
 
@@ -506,29 +487,29 @@ namespace TabRepository.Controllers
 
             try
             {
-                var project = _context.Projects.Where(p => p.Id == projectId && p.UserId == currentUserId).FirstOrDefault();
+                var projectInDb = (Project)_userAuthenticator.CheckUserEditAccess(Item.Project, projectId, currentUserId);
 
-                if (project == null)
+                if (projectInDb == null)
                 {
-                    return NotFound();
+                    return Json(new { error = "Project not found" });
                 }
 
-                var album = _context.Albums.Where(a => a.Id == albumId && a.UserId == currentUserId).FirstOrDefault();
+                var albumInDb = (Album)_userAuthenticator.CheckUserEditAccess(Item.Album, albumId, currentUserId);
 
-                if (album == null)
+                if (albumInDb == null)
                 {
-                    return NotFound();
+                    return Json(new { error = "Album not found" });
                 }
 
-                album.Project = project;
+                albumInDb.Project = projectInDb;
 
                 _context.SaveChanges();                
 
-                return Json(new { });
+                return Json(new { success = true });
             }
-            catch
+            catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }
         }
     }

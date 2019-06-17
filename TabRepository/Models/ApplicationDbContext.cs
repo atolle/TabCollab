@@ -23,19 +23,24 @@ namespace TabRepository.Data
             // Projects Table
             builder.Entity<Project>()
                 .HasMany(p => p.Albums)
-                .WithOne(t => t.Project)
+                .WithOne(a => a.Project)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Project>()
+                .HasMany(p => p.Contributors)
+                .WithOne(c => c.Project)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Albums Table
             builder.Entity<Album>()
-                .HasMany(p => p.Tabs)
+                .HasMany(a => a.Tabs)
                 .WithOne(t => t.Album)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Tabs Table
             builder.Entity<Tab>()
                 .HasMany(t => t.TabVersions)
-                .WithOne(t => t.Tab)
+                .WithOne(v => v.Tab)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Tab Versions Table
@@ -43,7 +48,7 @@ namespace TabRepository.Data
             // TabVersion's PK
             builder.Entity<TabVersion>()
                 .HasOne(v => v.TabFile)
-                .WithOne(v => v.TabVersion)
+                .WithOne(f => f.TabVersion)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasForeignKey<TabFile>(f => f.Id);
 
@@ -68,12 +73,7 @@ namespace TabRepository.Data
             builder.Entity<ProjectContributor>()
                 .HasOne(p => p.User)
                 .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<ProjectContributor>()
-                .HasOne(p => p.Project)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict);          
 
             builder.Entity<UserTabVersion>()
                 .HasKey(v => new { v.UserId, v.TabId });

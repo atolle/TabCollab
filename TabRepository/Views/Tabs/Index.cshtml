@@ -242,7 +242,7 @@
                 else {
                     // Show information regarding free account tab overrage
                     bootbox.dialog({
-                        message: "Free TabCollab Account<br /><br />You have met the 50 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.",
+                        message: "<h4>Free TabCollab Account</h4><br />You have met the 50 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.",
                         buttons: {
                             confirm: {
                                 label: 'Close',
@@ -323,8 +323,8 @@
                                         url: href
                                     })
                                     .then(function (response) {
-                                        if (!response.success) {
-                                            bootbox.alert("Unable to delete.");
+                                        if (response.error) {
+                                            showFailureBootbox("deleting", response.error);
                                         }
                                         else {
                                             // Delete the node from the tree
@@ -333,11 +333,26 @@
                                             // Get an empty tab version table
                                             var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
-                                            $.get(url, function (data) {
-                                                $('#tabversions-table-container').empty().append(data);
-                                                onResize(false);
+                                            $.ajax({
+                                                url: url,
+                                                type: 'GET',
                                             })
+                                            .then(function (response) {
+                                                if (response.error) {
+                                                    showFailureBootbox("deleting", response.error);
+                                                }
+                                                else {
+                                                    $('#tabversions-table-container').empty().append(response);
+                                                    onResize(false);
+                                                }
+                                            })
+                                            .fail(function (error) {
+                                                showFailureBootbox("deleting", error.statusText);
+                                            });
                                         }
+                                    })
+                                    .fail(function (error) {
+                                        showFailureBootbox("deleting", error.statusText);
                                     })
                                 }
                                 else if (result != null) {
@@ -424,7 +439,7 @@
                         })
                     })
                     .fail(function (error) {
-                        bootbox.alert("Unable to move tab. Error code: " + error);
+                        showFailureBootbox("moving tab", error.statusText);
                     });
                 }
                 else if (node.id.includes('album')) {
@@ -466,7 +481,7 @@
                         })
                     })
                     .fail(function (error) {
-                        bootbox.alert("Unable to move album. Error code: " + error);
+                        showFailureBootbox("moving album", error.statusText);
                     });
                 }
             });
@@ -526,14 +541,27 @@
 
                 var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
 
-                $.get(url, function (data) {
-                    $('#tabversions-table-container').empty().append(tabLoader + data);
-                    if (!('ontouchstart' in window)) {
-                        $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                })
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("retrieving tab versions", response.error);
                     }
-                    // Call onResize to resize the user images
-                    onResize(false);
+                    else {
+                        $('#tabversions-table-container').empty().append(tabLoader + response);
+                        if (!('ontouchstart' in window)) {
+                            $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+                        }
+                        // Call onResize to resize the user images
+                        onResize(false);
+                    }
+                })
+                .fail(function (error) {
+                    showFailureBootbox("retrieving tab versions", error.statusText);
                 });
+
                 $('#project-button-container').empty().append('<button id="new-project-button" class="btn btn-primary dashboard-button">New Project</button>');
                 $('#album-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Album</button>');
 
@@ -579,10 +607,22 @@
 
                 var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
-                $.get(url, function (data) {
-                    $('#tabversions-table-container').empty().append(tabLoader + data);
-                    onResize(false);
+                $.ajax({
+                    url: url,
+                    type: 'GET',
                 })
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("retrieving tab versions", response.error);
+                    }
+                    else {
+                        $('#tabversions-table-container').empty().append(tabLoader + response);
+                        onResize(false);
+                    }
+                })
+                .fail(function (error) {
+                    showFailureBootbox("retrieving tab versions", error.statusText);
+                });
             }
             else if (nodeId.substring(0, 7) == 'project') {
                 nodeId = nodeId.substring(8);
@@ -602,10 +642,22 @@
 
                 var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
-                $.get(url, function (data) {
-                    $('#tabversions-table-container').empty().append(tabLoader + data);
-                    onResize(false);
+                $.ajax({
+                    url: url,
+                    type: 'GET',
                 })
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("retrieving tab versions", response.error);
+                    }
+                    else {
+                        $('#tabversions-table-container').empty().append(tabLoader + response);
+                        onResize(false);
+                    }
+                })
+                .fail(function (error) {
+                    showFailureBootbox("retrieving tab versions", error.statusText);
+                });
             }
         });
 
@@ -617,9 +669,13 @@
 
             bootbox.confirm("Are you sure you wish to delete this tab version? This cannot be undone.", function (result) {
                 if (result) {
-                    $.post(href, function (response) {
-                        if (!response.success) {
-                            bootbox.alert("Unable to delete.");
+                    $.ajax({
+                        url: href,
+                        type: 'DELETE',
+                    })
+                    .then(function (response) {
+                        if (response.error) {
+                            showFailureBootbox("deleting tab version", response.error);
                         }
                         else {
                             if ($('#tree-table-container').is(':visible')) {
@@ -630,24 +686,50 @@
 
                                     //var $tabversions-table-container = $('#tabversions-table-container'),
                                     var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions")?id=' + nodeId;
-                                    $.get(url, function (data) {
-                                        $('#tabversions-table-container').empty().append(data);
-                                        if (!('ontouchstart' in window)) {
-                                            $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+
+                                    $.ajax({
+                                        url: url,
+                                        type: 'GET',
+                                    })
+                                    .then(function (response) {
+                                        if (response.error) {
+                                            showFailureBootbox("retrieving tab versions", response.error);
                                         }
-                                        // Call onResize to resize the user images
-                                        onResize(false);
+                                        else {
+                                            $('#tabversions-table-container').empty().append(response);
+                                            if (!('ontouchstart' in window)) {
+                                                $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+                                            }
+                                            // Call onResize to resize the user images
+                                            onResize(false);
+                                        }
+                                    })
+                                    .fail(function (error) {
+                                        showFailureBootbox("retrieving tab versions", error.statusText);
                                     });
                                 }
                                 else if (nodeId.substring(0, 7) == 'project') {
                                     nodeId = nodeId.substring(8);
                                     var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
-                                    $.get(url, function (data) {
-                                        $('#tabversions-table-container').empty().append(data);
 
-                                        // Call onResize to resize the user images
-                                        onResize(false);
+                                    $.ajax({
+                                        url: url,
+                                        type: 'GET',
                                     })
+                                    .then(function (response) {
+                                        if (response.error) {
+                                            showFailureBootbox("retrieving tab versions", response.error);
+                                        }
+                                        else {
+                                            $('#tabversions-table-container').empty().append(response);
+
+                                            // Call onResize to resize the user images
+                                            onResize(false);
+                                        }
+                                    })
+                                    .fail(function (error) {
+                                        showFailureBootbox("retrieving tab versions", error.statusText);
+                                    });
                                 }
                             }
                             else {
@@ -655,6 +737,9 @@
                                 $("#tabversion-" + tabVersionId).remove();
                             }
                         }
+                    })
+                    .fail(function (error) {
+                        showFailureBootbox("deleting tab version", error.statusText);
                     });
                 }
             })
@@ -682,14 +767,26 @@
 
             var url = $(this).data('url');
 
-            $.get(url, function (data) {
-                $('#tab-form-container').html(data);
+            $.ajax({
+                url: url,
+                type: 'GET',
+            })
+            .then(function (response) {
+                if (response.error) {
+                    showFailureBootbox("showing tab form", response.error);
+                }
+                else {
+                    $('#tab-form-container').html(response);
 
-                // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#tab-form"));
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($("#tab-form"));
 
-                currentModal = $('#tab-form-modal');
-                currentModal.modal('show');
+                    currentModal = $('#tab-form-modal');
+                    currentModal.modal('show');
+                }
+            })
+            .fail(function (error) {
+                showFailureBootbox("showing tab form", error.statusText);
             });
         });
 
@@ -699,16 +796,28 @@
 
             var url = $('#project-form-modal').data('url');
 
-            $.get(url, function (data) {
-                $('#project-form-container').html(data);
+            $.ajax({
+                url: url,
+                type: 'GET',
+            })
+            .then(function (response) {
+                if (response.error) {
+                    showFailureBootbox("showing project form", response.error);
+                }
+                else {
+                    $('#project-form-container').html(response);
 
-                // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#project-form"));
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($("#project-form"));
 
-                bindImageSizeValidation();
+                    bindImageSizeValidation();
 
-                currentModal = $('#project-form-modal');
-                currentModal.modal('show');
+                    currentModal = $('#project-form-modal');
+                    currentModal.modal('show');
+                }
+            })
+            .fail(function (error) {
+                showFailureBootbox("showing project form", error.statusText);
             });
         });
 
@@ -718,16 +827,28 @@
 
             var url = $(this).data('url');
 
-            $.get(url, function (data) {
-                $('#project-form-container').html(data);
+            $.ajax({
+                url: url,
+                type: 'GET',
+            })
+            .then(function (response) {
+                if (response.error) {
+                    showFailureBootbox("showing project form", response.error);
+                }
+                else {
+                    $('#project-form-container').html(response);
 
-                // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#project-form"));
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($("#project-form"));
 
-                bindImageSizeValidation();
+                    bindImageSizeValidation();
 
-                currentModal = $('#project-form-modal');
-                currentModal.modal('show');
+                    currentModal = $('#project-form-modal');
+                    currentModal.modal('show');
+                }
+            })
+            .fail(function (error) {
+                showFailureBootbox("showing project form", error.statusText);
             });
         });
 
@@ -743,16 +864,28 @@
 
                 url = url + "?projectId=" + nodeId;
 
-                $.get(url, function (data) {
-                    $('#album-form-container').html(data);
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                })
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("showing album form", response.error);
+                    }
+                    else {
+                        $('#album-form-container').html(response);
 
-                    // Client side validation for dynamic modal injection
-                    $.validator.unobtrusive.parse($("#album-form"));
+                        // Client side validation for dynamic modal injection
+                        $.validator.unobtrusive.parse($("#album-form"));
 
-                    bindImageSizeValidation();
+                        bindImageSizeValidation();
 
-                    currentModal = $('#album-form-modal');
-                    currentModal.modal('show');
+                        currentModal = $('#album-form-modal');
+                        currentModal.modal('show');
+                    }
+                })
+                .fail(function (error) {
+                    showFailureBootbox("showing album form", error.statusText);
                 });
             }
         });
@@ -763,16 +896,28 @@
 
             var url = $(this).data('url');
 
-            $.get(url, function (data) {
-                $('#album-form-container').html(data);
+            $.ajax({
+                url: url,
+                type: 'GET',
+            })
+            .then(function (response) {
+                if (response.error) {
+                    showFailureBootbox("showing album form", response.error);
+                }
+                else {
+                    $('#album-form-container').html(response);
 
-                // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#album-form"));
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($("#album-form"));
 
-                bindImageSizeValidation();
+                    bindImageSizeValidation();
 
-                currentModal = $('#album-form-modal');
-                currentModal.modal('show');
+                    currentModal = $('#album-form-modal');
+                    currentModal.modal('show');
+                }
+            })
+            .fail(function (error) {
+                showFailureBootbox("showing album form", error.statusText);
             });
         });
 
@@ -804,18 +949,30 @@
         });
 
         function showFileUploadModal(url, formId) {
-            $.get(url, function (data) {
-                $('#' + formId + '-container').html(data);
+            $.ajax({
+                url: url,
+                type: 'GET',
+            })
+            .then(function (response) {
+                if (response.error) {
+                    showFailureBootbox("showing form", response.error);
+                }
+                else {
+                    $('#' + formId + '-container').html(response);
 
-                $('#' + formId)
-                    .removeData("validator") /* added by the raw jquery.validate plugin */
-                    .removeData("unobtrusiveValidation");  /* added by the jquery unobtrusive plugin*/
+                    $('#' + formId)
+                        .removeData("validator") /* added by the raw jquery.validate plugin */
+                        .removeData("unobtrusiveValidation");  /* added by the jquery unobtrusive plugin*/
 
-                // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($('#' + formId));
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($('#' + formId));
 
-                currentModal = $('#' + formId + '-modal');
-                currentModal.modal('show');
+                    currentModal = $('#' + formId + '-modal');
+                    currentModal.modal('show');
+                }
+            })
+            .fail(function (error) {
+                showFailureBootbox("showing form", error.statusText);
             });
         }
 
@@ -839,18 +996,22 @@
                 url: href,
                 type: 'GET',
             })
-                .then(function (data) {
-                    $('#tabversion-form-container').html(data);
+            .then(function (response) {
+                if (response.error) {
+                    showFailureBootbox("showing tab version form", response.error);
+                }
+                else {
+                    $('#tabversion-form-container').html(response);
                     // Client side validation for dynamic modal injection
                     $.validator.unobtrusive.parse($("#tabversion-form"));
 
                     currentModal = $('#tabversion-form-modal');
                     currentModal.modal('show');
-
-                })
-                .fail(function (error) {
-                    bootbox.alert("Unable to show album form. Error: " + error.statusText);
-                })
+                }
+            })
+            .fail(function (error) {
+                showFailureBootbox("showing tab version form", error.statusText);
+            })
         });
 
         $(document).on("change", "#contributors-list", function (e, data) {
@@ -961,14 +1122,26 @@
                     if (form.id === "tab-form") {
                         var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
 
-                        $.get(url, function (data) {
-                            $('#tabversions-table-container').empty().append(data);
-                            if (!('ontouchstart' in window)) {
-                                $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+                        $.ajax({
+                            url: url,
+                            type: 'GET',
+                        })
+                        .then(function (response) {
+                            if (response.error) {
+                                showFailureBootbox("retrieving tab versions", response.error);
                             }
-                            // Call onResize to resize the user images
-                            onResize(false);
-                        });
+                            else {
+                                $('#tabversions-table-container').empty().append(response);
+                                if (!('ontouchstart' in window)) {
+                                    $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+                                }
+                                // Call onResize to resize the user images
+                                onResize(false);
+                            }
+                        })
+                        .fail(function (error) {
+                            showFailureBootbox("retrieving tab versions", error.statusText);
+                        })
 
                         var tabNode = $('#tab-' + response.id);
 
@@ -993,24 +1166,48 @@
                     else if (form.id === "tabversion-form") {
                         var url = '@Url.Action("UpdateTabVersionsTable", "TabVersions", null)?id=' + response.id;
 
-                        $.get(url, function (data) {
-                            $('#tabversions-table-container').empty().append(data);
-                            if (!('ontouchstart' in window)) {
-                                $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+                        $.ajax({
+                            url: url,
+                            type: 'GET',
+                        })
+                        .then(function (response) {
+                            if (response.error) {
+                                showFailureBootbox("retrieving tab versions", response.error);
                             }
-                            // Call onResize to resize the user images
-                            onResize(false);
-                        });
+                            else {
+                                $('#tabversions-table-container').empty().append(response);
+                                if (!('ontouchstart' in window)) {
+                                    $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+                                }
+                                // Call onResize to resize the user images
+                                onResize(false);
+                            }
+                        })
+                        .fail(function (error) {
+                            showFailureBootbox("retrieving tab versions", error.statusText);
+                        })
                     }
                     else if (form.id === "album-form") {
-                        var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)?id=' + response.id;
+                        var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
-                        $.get(url, function (data) {
-                            $('#tabversions-table-container').empty().append(data);
+                        $.ajax({
+                            url: url,
+                            type: 'GET',
+                        })
+                        .then(function (response) {
+                            if (response.error) {
+                                showFailureBootbox("retrieving tab versions", response.error);
+                            }
+                            else {
+                                $('#tabversions-table-container').empty().append(response);
 
-                            // Call onResize to resize the user images
-                            onResize(false);
-                        });
+                                // Call onResize to resize the user images
+                                onResize(false);
+                            }
+                        })
+                        .fail(function (error) {
+                            showFailureBootbox("retrieving tab versions", error.statusText);
+                        })
 
                         var albumNode = $('#album-' + response.id);
 
@@ -1035,9 +1232,21 @@
                     else if (form.id === "project-form") {
                         var url = '@Url.Action("GetEmptyTabVersionsTable", "TabVersions", null)';
 
-                        $.get(url, function (data) {
-                            $('#tabversions-table-container').empty().append(data);
-                        });
+                        $.ajax({
+                            url: url,
+                            type: 'GET',
+                        })
+                        .then(function (response) {
+                            if (response.error) {
+                                showFailureBootbox("retrieving tab versions", response.error);
+                            }
+                            else {
+                                $('#tabversions-table-container').empty().append(response);
+                            }
+                        })
+                        .fail(function (error) {
+                            showFailureBootbox("retrieving tab versions", error.statusText);
+                        })
 
                         var projectNode = $('#project-' + response.id);
 
@@ -1057,7 +1266,7 @@
                 }
             })
             .fail(function (error) {
-                bootbox.alert("Unable to save.<br /><br />Error: " + error.responseText);
+                showFailureBootbox("saving", error.statusText);
                 enableSubmitButton();
             });
         });
@@ -1162,11 +1371,25 @@
             $(this).siblings('.tabversions-container').empty().append('<div class="loader"></div>')
             $(this).siblings('.tabversions-container').show();
             var url = '@Url.Action("GetTabVersionsList", "TabVersions")?id=' + $(that).attr('data-tab-id');
-            $.get(url, function (data) {
-                $(that).siblings('.tabversions-container').hide();
-                $(that).siblings('.tabversions-container').empty().append(data);
-                $(that).siblings('.tabversions-container').show(200);
-            });
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+            })
+            .then(function (response) {
+                if (response.error) {
+                    showFailureBootbox("retrieving tab versions", response.error);
+                }
+                else {
+                    $(that).siblings('.tabversions-container').hide();
+                    $(that).siblings('.tabversions-container').empty().append(response);
+                    $(that).siblings('.tabversions-container').show(200);
+                }
+            })
+            .fail(function (error) {
+                showFailureBootbox("retrieving tab versions", error.statusText);
+            })
+
             $(this).siblings('.hide-tabversions').show();
         });
 

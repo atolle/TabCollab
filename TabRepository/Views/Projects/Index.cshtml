@@ -44,7 +44,7 @@ $(document).ready(function () {
             $('footer').show();
         })
         .catch(function (error) {
-            bootbox.alert("Unable to load projects. Error: " + error.statusText);
+            showFailureBootbox("loading projects", error.statusText);
         });
 
     // Only show tooltips on non-touchscreens
@@ -68,12 +68,15 @@ $(document).ready(function () {
                     url: href
                 })
                 .then(function (response) {
-                    if (!response.success) {
-                        bootbox.alert("Unable to delete.");
+                    if (response.error) {
+                        showFailureBootbox("deleting project", response.error);
                     }
                     else {
                         repopulateProjectList();
                     }
+                })
+                .fail(function (error) {
+                    showFailureBootbox("deleting project", error.statusText);
                 })
             }
             else if (result != null) {
@@ -96,8 +99,12 @@ $(document).ready(function () {
             url: href,
             type: 'GET',
         })
-            .then(function (data) {
-                $('#project-form-container').html(data);
+        .then(function (response) {
+            if (response.error) {
+                showFailureBootbox("showing project form", response.error);
+            }
+            else {
+                $('#project-form-container').html(response);
                 // Client side validation for dynamic modal injection
                 $.validator.unobtrusive.parse($("#project-form"));
 
@@ -105,11 +112,11 @@ $(document).ready(function () {
 
                 currentModal = $('#project-form-modal');
                 currentModal.modal('show');
-
-            })
-            .fail(function (error) {
-                bootbox.alert("Unable to show project form. Error: " + error.statusText);
-            })
+            }
+        })
+        .fail(function (error) {
+            showFailureBootbox("showing project form", error.statusText);
+        })
     });
 
     // Show modal for edit project
@@ -122,19 +129,23 @@ $(document).ready(function () {
             url: href,
             type: 'GET',
         })
-            .then(function (data) {
-                $('#project-form-container').html(data);
-                // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#project-form"));
+            .then(function (response) {
+                if (response.error) {
+                    showFailureBootbox("showing project form", response.error);
+                }
+                else {
+                    $('#project-form-container').html(response);
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($("#project-form"));
 
-                bindImageSizeValidation();
+                    bindImageSizeValidation();
 
-                currentModal = $('#project-form-modal');
-                currentModal.modal('show');
-
+                    currentModal = $('#project-form-modal');
+                    currentModal.modal('show');
+                }
             })
             .fail(function (error) {
-                bootbox.alert("Unable to show project form. Error: " + error.statusText);
+                showFailureBootbox("showing project form", error.statusText);
             })
     });
 
@@ -257,7 +268,7 @@ $(document).ready(function () {
             }
         })
         .fail(function (error) {
-            bootbox.alert("Unable to save project. Error: " + error.statusText);
+            showFailureBootbox("saving", error.statusText);
             enableSubmitButton();
         })
     });
@@ -266,23 +277,36 @@ $(document).ready(function () {
         return new Promise((resolve, reject) => {
             var url = '@Url.Action("GetProjectListPartialView", "Projects", null)';
 
-            $.get(url, function (data) {
-                // If we get back empty-list, empty out any existing projects and set CSS for proper display
-                if (data.includes('empty-list')) {
-                    $('#project-list-wrapper').empty();
-                    $('.list-container').append(data);
-                    $('.list-container').css('display', 'flex');
-                    $('#page').css('position', 'absolute');
+            $.ajax({
+                url: url,
+                type: 'GET',
+            })
+            .then(function (response) {
+                if (response.error) {
+                    showFailureBootbox("retrieving project list", response.error);
                 }
                 else {
-                    $('#page').css('position', 'static');
-                    $('.list-container').css('display', 'block');
-                    $('.empty-list').remove();
-                    $('#project-list-wrapper').empty().append(data);
+                    // If we get back empty-list, empty out any existing projects and set CSS for proper display
+                    if (response.includes('empty-list')) {
+                        $('#project-list-wrapper').empty();
+                        $('.list-container').append(response);
+                        $('.list-container').css('display', 'flex');
+                        $('#page').css('position', 'absolute');
+                    }
+                    else {
+                        $('#page').css('position', 'static');
+                        $('.list-container').css('display', 'block');
+                        $('.empty-list').remove();
+                        $('#project-list-wrapper').empty().append(response);
+                    }
                 }
+
+                resolve();
             })
-                .then(resolve)
-                .fail(reject)
+            .fail(function (error) {
+                showFailureBootbox("retrieving project list", error.statusText.error);
+                reject();
+            })
         })
     }
 

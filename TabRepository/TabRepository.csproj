@@ -52,10 +52,14 @@
     <PackageReference Include="Stripe.net" Version="25.9.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
   </ItemGroup>
-  <ItemGroup>
-    <!--<DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0" />
+  <ItemGroup><!--<DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0" />
     <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.0" />
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />-->
+  
+    <Compile Remove="Data\Migrations\20190617005725_test.cs" />
+    <Compile Remove="Data\Migrations\20190617005725_test.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190617010120_test.cs" />
+    <Compile Remove="Data\Migrations\20190617010120_test.Designer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\ProjectContributors\" />

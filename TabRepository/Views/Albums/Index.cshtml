@@ -62,13 +62,15 @@ $(document).ready(function () {
                     url: href
                 })
                 .then(function (response) {
-                    if (!response.success) {
-                        bootbox.alert("Unable to delete.");
+                    if (response.error) {
+                        showFailureBootbox("deleting album", response.error);
                     }
                     else {
                         repopulateAlbumList();
                     }
                 })
+                .fail(function (error) {
+                });
             }
             else if (result != null) {
                 bootbox.alert("Name did not match.");
@@ -90,19 +92,24 @@ $(document).ready(function () {
             url: href,
             type: 'GET',
         })
-        .then(function (data) {
-            $('#album-form-container').html(data);
+        .then(function (response) {
+            if (response.error) {
+                showFailureBootbox("showing album form", response.error);
+            }
+            else {
+                $('#album-form-container').html(response);
 
-            // Client side validation for dynamic modal injection
-            $.validator.unobtrusive.parse($("#album-form"));
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($("#album-form"));
 
-            bindImageSizeValidation();
+                bindImageSizeValidation();
 
-            currentModal = $('#album-form-modal');
-            currentModal.modal('show');
+                currentModal = $('#album-form-modal');
+                currentModal.modal('show');
+            }
         })
         .fail(function (error) {
-            bootbox.alert("Unable to show album form. Error: " + error.statusText);
+            showFailureBootbox("showing album form", error.statusText);
         })
     });
 
@@ -116,19 +123,23 @@ $(document).ready(function () {
             url: href,
             type: 'GET',
         })
-        .then(function (data) {
-            $('#album-form-container').html(data);
-            // Client side validation for dynamic modal injection
-            $.validator.unobtrusive.parse($("#album-form"));
+        .then(function (response) {
+            if (response.error) {
+                showFailureBootbox("showing album form", response.error);
+            }
+            else {
+                $('#album-form-container').html(response);
+                // Client side validation for dynamic modal injection
+                $.validator.unobtrusive.parse($("#album-form"));
 
-            bindImageSizeValidation();
+                bindImageSizeValidation();
 
-            currentModal = $('#album-form-modal');
-            currentModal.modal('show');
-
+                currentModal = $('#album-form-modal');
+                currentModal.modal('show');
+            }
         })
         .fail(function (error) {
-            bootbox.alert("Unable to show album form. Error: " + error.statusText);
+            showFailureBootbox("showing album form", error.statusText);
         })
     });
 
@@ -172,17 +183,21 @@ $(document).ready(function () {
                 url: href,
                 type: 'GET',
             })
-            .then(function (data) {
-                $('#album-form-container').html(data);
-                // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#album-form"));
+            .then(function (response) {
+                if (response.error) {
+                    showFailureBootbox("showing album form", response.error);
+                }
+                else {
+                    $('#album-form-container').html(response);
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($("#album-form"));
 
-                currentModal = $('#album-form-modal');
-                currentModal.modal('show');
-
+                    currentModal = $('#album-form-modal');
+                    currentModal.modal('show');
+                }
             })
             .fail(function (error) {
-                bootbox.alert("Unable to show album form. Error: " + error.statusText);
+                showFailureBootbox("showing album form", error.statusText);
             })
         }, 500)
     });
@@ -247,36 +262,45 @@ $(document).ready(function () {
             }
         })
         .fail(function (error) {
-            bootbox.alert("Unable to save project. Error: " + error.statusText);
+            showFailureBootbox("saving album", error.statusText);
             enableSubmitButton();
         })
     });
-
-    function handleSaveError(statusCode) {
-        bootbox.alert("Unable to save. Error code: " + statusCode);
-    }
 
     function repopulateAlbumList() {
         return new Promise((resolve, reject) => {
             var url = '@Url.Action("GetAlbumListPartialView", "Albums", null)';
 
-            $.get(url, function (data) {
-                // If we get back empty-list, empty out any existing projects and set CSS for proper display
-                if (data.includes('empty-list')) {
-                    $('#album-list-wrapper').empty();
-                    $('.list-container').append(data);
-                    $('.list-container').css('display', 'flex');
-                    $('#page').css('position', 'absolute');
+            $.ajax({
+                url: url,
+                type: 'GET',
+            })
+            .then(function (response) {
+                if (response.error) {
+                    showFailureBootbox("retrieving album list", response.error);
                 }
                 else {
-                    $('#page').css('position', 'static');
-                    $('.list-container').css('display', 'block');
-                    $('.empty-list').remove();
-                    $('#album-list-wrapper').empty().append(data);
+                    // If we get back empty-list, empty out any existing projects and set CSS for proper display
+                    if (response.includes('empty-list')) {
+                        $('#album-list-wrapper').empty();
+                        $('.list-container').append(response);
+                        $('.list-container').css('display', 'flex');
+                        $('#page').css('position', 'absolute');
+                    }
+                    else {
+                        $('#page').css('position', 'static');
+                        $('.list-container').css('display', 'block');
+                        $('.empty-list').remove();
+                        $('#album-list-wrapper').empty().append(response);
+                    }
                 }
+
+                resolve();
             })
-            .then(resolve)
-            .fail(reject)
+            .fail(function (error) {
+                showFailureBootbox("retrieving album list", error.statusText.error);
+                reject();
+            })
         })
     }
 

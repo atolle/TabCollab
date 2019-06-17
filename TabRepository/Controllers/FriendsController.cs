@@ -154,7 +154,7 @@ namespace TabRepository.Controllers
                 }
                 catch (Exception e)
                 {
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                    return Json(new { error = e.Message });
                 }
             }
         }
@@ -177,7 +177,7 @@ namespace TabRepository.Controllers
 
                         if (otherUserId == null)
                         {
-                            return new StatusCodeResult(StatusCodes.Status404NotFound);
+                            return Json(new { error = "User not found" });
                         }
 
                         var friendInDb = _context
@@ -202,9 +202,9 @@ namespace TabRepository.Controllers
 
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);
                 }
-                catch
+                catch (Exception e)
                 {
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                    return Json(new { error = e.Message });
                 }
             }
         }
@@ -223,7 +223,7 @@ namespace TabRepository.Controllers
 
                     if (otherUserId == null)
                     {
-                        return new StatusCodeResult(StatusCodes.Status404NotFound);
+                        return Json(new { error = "User not found" });
                     }
 
                     var friendInDb = _context
@@ -244,9 +244,9 @@ namespace TabRepository.Controllers
 
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
-            catch
+            catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }
         }
 
@@ -264,7 +264,7 @@ namespace TabRepository.Controllers
 
                     if (otherUserId == null)
                     {
-                        return new StatusCodeResult(StatusCodes.Status404NotFound);
+                        return Json(new { error = "User not found" });
                     }
 
                     var friendInDb = _context
@@ -321,9 +321,9 @@ namespace TabRepository.Controllers
 
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
-            catch
+            catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }
         }
 
@@ -341,7 +341,7 @@ namespace TabRepository.Controllers
 
                     if (otherUserId == null)
                     {
-                        return new StatusCodeResult(StatusCodes.Status404NotFound);
+                        return Json(new { error = "User not found" });
                     }
 
                     var friendInDb = _context
@@ -362,9 +362,9 @@ namespace TabRepository.Controllers
 
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
-            catch
+            catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }
         }
 
@@ -420,9 +420,9 @@ namespace TabRepository.Controllers
 
                 return PartialView("_FriendsList", viewModel);
             }
-            catch
+            catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }
         }
 

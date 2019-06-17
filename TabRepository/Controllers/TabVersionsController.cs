@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TabRepository.Data;
+using TabRepository.Helpers;
 using TabRepository.Models;
 using TabRepository.ViewModels;
 
@@ -16,10 +17,12 @@ namespace TabRepository.Controllers
     public class TabVersionsController : Controller
     {
         private ApplicationDbContext _context;
+        private UserAuthenticator _userAuthenticator;
 
-        public TabVersionsController(ApplicationDbContext context)
+        public TabVersionsController(ApplicationDbContext context, UserAuthenticator userAuthenticator)
         {
             _context = context;
+            _userAuthenticator = userAuthenticator;
         }
 
         protected override void Dispose(bool disposing)
@@ -32,10 +35,10 @@ namespace TabRepository.Controllers
             string currentUserId = User.GetUserId();
 
             // Verify current user has access to this Tab
-            var tabInDb = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId);
+            var tabInDb = (Tab)_userAuthenticator.CheckUserCreateAccess(Item.Tab, id, currentUserId);
 
             if (tabInDb == null)
-                return NotFound();
+                return Json(new { error = "Tab not found" });
 
             var viewModel = new TabVersionFormViewModel()
             {
@@ -64,93 +67,62 @@ namespace TabRepository.Controllers
                         using (var transaction = _context.Database.BeginTransaction())
                         {
                             // Verify user has access to this tab
-                            var tabInDb = _context.Tabs.Include(t => t.Album).ThenInclude(a => a.Project).SingleOrDefault(t => t.Id == viewModel.TabId && t.UserId == currentUserId);
+                            var tabInDb = (Tab)_userAuthenticator.CheckUserCreateAccess(Item.Tab, viewModel.TabId, currentUserId);
+
+                            if (tabInDb == null)
+                                return Json(new { error = "Tab not found" });
 
                             // If we own this tab we need to make sure we have an active subscription or less than 50 tabs
-                            if (tabInDb != null)
+
+                            var subscriptionExpiration = _context.Users
+                                .Where(u => u.Id == tabInDb.UserId)
+                                .Select(u => u.SubscriptionExpiration)
+                                .FirstOrDefault();
+
+                            var tabVersionCount = 0;
+
+                            if (tabInDb.User.AccountType == Models.AccountViewModels.AccountType.Free || (tabInDb.User.AccountType == Models.AccountViewModels.AccountType.Subscription && (int)(subscriptionExpiration - DateTime.Now).Value.TotalDays < 0))
                             {
-                                var subscriptionExpiration = _context.Users
-                                    .Where(u => u.Id == currentUserId)
-                                    .Select(u => u.SubscriptionExpiration)
-                                    .FirstOrDefault();
+                                // Get a count of total tab versions that this user owns (i.e. their projects)
+                                tabVersionCount = _context.TabVersions
+                                    .Include(u => u.User)
+                                    .Include(v => v.Tab)
+                                    .Include(v => v.Tab.Album)
+                                    .Include(v => v.Tab.Album.Project)
+                                    .Where(v => v.Tab.Album.Project.UserId == tabInDb.UserId)
+                                    .Count();
 
-                                var tabVersionCount = 0;
-
-                                if (userInDb.AccountType == Models.AccountViewModels.AccountType.Free || (userInDb.AccountType == Models.AccountViewModels.AccountType.Subscription && (int)(subscriptionExpiration - DateTime.Now).Value.TotalDays < 0))
+                                if (tabVersionCount >= 50)
                                 {
-                                    // Get a count of total tab versions that this user owns (i.e. their projects)
-                                    tabVersionCount = _context.TabVersions.Include(u => u.User)
-                                        .Include(v => v.Tab)
-                                        .Include(v => v.Tab.Album)
-                                        .Include(v => v.Tab.Album.Project)
-                                        .Where(v => v.Tab.Album.Project.UserId == currentUserId)
-                                        .Count();
-
-                                    if (tabVersionCount >= 50)
+                                    if (subscriptionExpiration == null)
                                     {
-                                        if (subscriptionExpiration == null)
+                                        string error;
+
+                                        if (tabInDb.UserId == currentUserId)
                                         {
-                                            return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />You have met the 50 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.");
+                                            error = "<br /><br />You have met the 50 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.";
                                         }
                                         else
                                         {
-                                            return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />Your TabCollab subscription has expired. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To renew your subscription, go the the Account page.");
+                                            error = "<br /><br />The owner has met the 50 allowed free tab versions that are included with the free TabCollab account.";
                                         }
+
+                                        return Json(new { error = error });
                                     }
-                                }
-                            }
-
-                            // If we are not the owner, are we a contributor?
-                            if (tabInDb == null)
-                            {
-                                tabInDb = (from tab in _context.Tabs
-                                           join album in _context.Albums on tab.AlbumId equals album.Id
-                                           join project in _context.Projects on album.ProjectId equals project.Id
-                                           join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
-                                           where contributor.UserId == currentUserId && tab.Id == viewModel.TabId
-                                           select tab)
-                                           .Include(t => t.Album)
-                                           .ThenInclude(a => a.Project)
-                                           .FirstOrDefault();
-
-                                if (tabInDb == null)
-                                {
-                                    return NotFound();
-                                }
-                                else
-                                {
-                                    // Make sure the owner's account is not expired 
-                                    string otherUserId = tabInDb.UserId;
-                                    var otherUserInDb = _context.Users.Where(u => u.Id == otherUserId).FirstOrDefault();
-
-                                    var subscriptionExpiration = _context.Users
-                                        .Where(u => u.Id == otherUserId)
-                                        .Select(u => u.SubscriptionExpiration)
-                                        .FirstOrDefault();
-
-                                    var tabVersionCount = 0;
-
-                                    if (otherUserInDb.AccountType == Models.AccountViewModels.AccountType.Free || (otherUserInDb.AccountType == Models.AccountViewModels.AccountType.Subscription &&  (int)(subscriptionExpiration - DateTime.Now).Value.TotalDays < 0))
+                                    else
                                     {
-                                        // Get a count of total tab versions that this user owns (i.e. their projects)
-                                        tabVersionCount = _context.TabVersions.Include(u => u.User)
-                                            .Include(v => v.Tab)
-                                            .Include(v => v.Tab.Album)
-                                            .Include(v => v.Tab.Album.Project)
-                                            .Where(v => v.Tab.Album.Project.UserId == otherUserId)
-                                            .Count();
+                                        string error;
 
-                                        if (tabVersionCount >= 50)
+                                        if (tabInDb.UserId == currentUserId)
                                         {
-                                            if (subscriptionExpiration == null)
-                                            {
-                                                return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />The owner has met the 50 allowed free tab versions that are included with the free TabCollab account.");
-                                            }
-                                            else
-                                            {
-                                                return StatusCode(StatusCodes.Status500InternalServerError, "<br /><br />The owner's TabCollab subscription has expired.");
-                                            }
+                                            error = "<br /><br />Your TabCollab subscription has expired. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To renew your subscription, go the the Account page.";
                                         }
+                                        else
+                                        {
+                                            error = "<br /><br />The owner's TabCollab subscription has expired.";
+                                        }
+
+                                        return Json(new { error = error });
                                     }
                                 }
                             }
@@ -162,7 +134,7 @@ namespace TabRepository.Controllers
                                 // Limit file size to 1 MB
                                 if (viewModel.FileData.Length > 1000000)
                                 {
-                                    return StatusCode(StatusCodes.Status500InternalServerError, "File size limit is 1 MB");
+                                    return Json(new { error = "File size limit is 1 MB" });
                                 }
                                 using (var fileStream = viewModel.FileData.OpenReadStream())
                                 using (var ms = new MemoryStream())
@@ -232,39 +204,12 @@ namespace TabRepository.Controllers
                     }
                     else
                     {
-                        // Verify user has access to this tab
-                        var tabInDb = _context.Tabs.SingleOrDefault(t => t.Id == viewModel.TabId && t.UserId == currentUserId);
-
-                        // If we are not the owner, are we a contributor?
-                        if (tabInDb == null)
-                        {
-                            tabInDb = (from tab in _context.Tabs
-                                       join album in _context.Albums on tab.AlbumId equals album.Id
-                                       join project in _context.Projects on album.ProjectId equals project.Id
-                                       join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
-                                       where contributor.UserId == currentUserId && tab.Id == viewModel.TabId
-                                       select tab).FirstOrDefault();
-
-                            if (tabInDb == null)
-                            {
-                                return NotFound();
-                            }
-                        }
-
-                        var tabVersionInDb = _context.TabVersions.SingleOrDefault(v => v.Id == viewModel.Id && v.UserId == currentUserId);
+                        var tabVersionInDb = (TabVersion)_userAuthenticator.CheckUserEditAccess(Item.TabVersion, viewModel.Id, currentUserId);
 
                         // If we are not the owner, are we the tab owner?
                         if (tabVersionInDb == null)
                         {
-                            tabVersionInDb = (from tabVersion in _context.TabVersions
-                                              join tab in _context.Tabs on tabVersion.TabId equals tab.Id
-                                              where tab.UserId == currentUserId && tabVersion.Id == viewModel.Id
-                                              select tabVersion).Include(u => u.User).FirstOrDefault();
-
-                            if (tabVersionInDb == null)
-                            {
-                                return NotFound();
-                            }
+                        return Json(new { error = "Tab version not found" });
                         }
 
                         tabVersionInDb.Description = viewModel.Description;
@@ -272,7 +217,7 @@ namespace TabRepository.Controllers
                         _context.TabVersions.Update(tabVersionInDb);
                         _context.SaveChanges();
 
-                        return Json(new { name = tabInDb.Name, id = tabInDb.Id });
+                        return Json(new { name = tabVersionInDb.Tab.Name, id = tabVersionInDb.Tab.Id });
                     }
                 }
 
@@ -287,31 +232,6 @@ namespace TabRepository.Controllers
             }
         }
 
-        //// GET: TabVersions
-        //[HttpGet]
-        //public ActionResult Index(int id)
-        //{
-        //    // Return a list of all TabVersions belonging to the current user for current Tab (id)
-        //    string currentUserId = User.GetUserId();
-
-        //    try
-        //    {
-        //        var viewModel = new TabVersionIndexViewModel()
-        //        {
-        //            TabVersions = _context.TabVersions.Where(v => v.UserId == currentUserId && v.TabId == id).ToList(),
-        //            TabName = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId).Name,
-        //            TabId = id,
-        //            AlbumId = _context.Tabs.Single(t => t.Id == id && t.UserId == currentUserId).AlbumId
-        //        };
-
-        //        return View(viewModel);
-        //    }
-        //    catch
-        //    {
-        //        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-        //    }
-        //}
-
         // GET: TabVersions
         [HttpGet]
         public ActionResult UpdateTabVersionsTable(int id)
@@ -321,42 +241,18 @@ namespace TabRepository.Controllers
 
             try
             {
-                var tabInDb = _context.Tabs.SingleOrDefault(t => t.Id == id && t.UserId == currentUserId);
+                var tabInDb = (Tab)_userAuthenticator.CheckUserReadAccess(Item.Tab, id, currentUserId);
                 
                 // If we are not the owner, are we a contributor?
                 if (tabInDb == null)
-                {
-                    tabInDb = (from tab in _context.Tabs
-                               join album in _context.Albums on tab.AlbumId equals album.Id
-                               join project in _context.Projects on album.ProjectId equals project.Id
-                               join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
-                               where contributor.UserId == currentUserId && tab.Id == id
-                               select tab).FirstOrDefault();
-
-                    if (tabInDb == null)
-                    {
-                        return NotFound();
-                    }
-                }
-
-                var tabVersionsInDb = _context.TabVersions
-                        .Include(v => v.TabFile)
-                        .Include(v => v.User)
-                        .Where(v => v.TabId == id)
-                        .OrderBy(v => v.Version)
-                        .ToList();
-
-                var albumInDb = _context.Tabs.Include(t => t.Album).SingleOrDefault(t => t.Id == id).Album;
-
-                if (tabVersionsInDb == null || tabInDb == null || albumInDb == null)
-                {
-                    return NotFound();
+                {                    
+                    return RedirectToAction("GetEmptyTabVersionsTable", "TabVersions");
                 }
 
                 // Load Tab Versions into view model to be able to send over whether the current user is the owner of the tab
                 List<TabVersionViewModel> tabVersions = new List<TabVersionViewModel>();
 
-                foreach (var tabVersion in tabVersionsInDb)
+                foreach (var tabVersion in tabInDb.TabVersions)
                 {
                     var tabVersionViewModel = new TabVersionViewModel()
                     {
@@ -372,14 +268,14 @@ namespace TabRepository.Controllers
                     TabVersions = tabVersions,
                     TabName = tabInDb.Name,
                     TabId = id,
-                    AlbumId = albumInDb.Id                    
+                    AlbumId = tabInDb.Album.Id                    
                 };
 
                 return PartialView("_TabVersionsTable", viewModel);
             }
-            catch
+            catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }
         }
 
@@ -391,42 +287,18 @@ namespace TabRepository.Controllers
 
             try
             {
-                var tabInDb = _context.Tabs.SingleOrDefault(t => t.Id == id && t.UserId == currentUserId);
+                var tabInDb = (Tab)_userAuthenticator.CheckUserReadAccess(Item.Tab, id, currentUserId);
 
                 // If we are not the owner, are we a contributor?
                 if (tabInDb == null)
                 {
-                    tabInDb = (from tab in _context.Tabs
-                               join album in _context.Albums on tab.AlbumId equals album.Id
-                               join project in _context.Projects on album.ProjectId equals project.Id
-                               join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
-                               where contributor.UserId == currentUserId && tab.Id == id
-                               select tab).FirstOrDefault();
-
-                    if (tabInDb == null)
-                    {
-                        return NotFound();
-                    }
-                }
-
-                var tabVersionsInDb = _context.TabVersions
-                        .Include(v => v.TabFile)
-                        .Include(v => v.User)
-                        .Where(v => v.TabId == id)
-                        .OrderBy(v => v.Version)
-                        .ToList();
-
-                var albumInDb = _context.Tabs.Include(t => t.Album).SingleOrDefault(t => t.Id == id).Album;
-
-                if (tabVersionsInDb == null || tabInDb == null || albumInDb == null)
-                {
-                    return NotFound();
+                    return Json(new { error = "Tab not found" });
                 }
 
                 // Load Tab Versions into view model to be able to send over whether the current user is the owner of the tab
                 List<TabVersionViewModel> tabVersions = new List<TabVersionViewModel>();
 
-                foreach (var tabVersion in tabVersionsInDb)
+                foreach (var tabVersion in tabInDb.TabVersions)
                 {
                     var tabVersionViewModel = new TabVersionViewModel()
                     {
@@ -442,14 +314,14 @@ namespace TabRepository.Controllers
                     TabVersions = tabVersions,
                     TabName = tabInDb.Name,
                     TabId = id,
-                    AlbumId = albumInDb.Id
+                    AlbumId = tabInDb.Album.Id
                 };
 
                 return PartialView("_TabVersionList", viewModel);
             }
-            catch
+            catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }
         }
 
@@ -474,10 +346,11 @@ namespace TabRepository.Controllers
             }
             catch
             {
-                return NotFound();
+                return PartialView("_EmptyTabVersionsTable", null);
             }
         }
 
+        [HttpDelete]
         public ActionResult Delete(int id)
         {
             try
@@ -488,29 +361,12 @@ namespace TabRepository.Controllers
                     string currentUserId = User.GetUserId();
                     string currentUsername = User.GetUsername();
 
-                    var tabVersionInDb = _context
-                        .TabVersions
-                        .Include(v => v.Tab)
-                        .ThenInclude(t => t.Album)
-                        .ThenInclude(a => a.Project)
-                        .SingleOrDefault(v => v.Id == id && v.UserId == currentUserId);
+                    // Are we the project owner?
+                    var tabVersionInDb = (TabVersion)_userAuthenticator.CheckUserDeleteAccess(Item.TabVersion, id, currentUserId);
 
                     if (tabVersionInDb == null)
                     {
-                        tabVersionInDb = (from tabVersion in _context.TabVersions
-                                          join tab in _context.Tabs on tabVersion.TabId equals tab.Id
-                                          where tab.UserId == currentUserId && tabVersion.Id == id
-                                          select tabVersion)
-                                          .Include(u => u.User)
-                                          .Include(u => u.Tab)
-                                          .ThenInclude(t => t.Album)
-                                          .ThenInclude(a => a.Project)
-                                          .FirstOrDefault();
-
-                        if (tabVersionInDb == null)
-                        {
-                            return Json(new { success = false });
-                        }
+                        return Json(new { error = "Tab version not found" });
                     }
 
                     _context.TabVersions.Remove(tabVersionInDb);
@@ -523,9 +379,9 @@ namespace TabRepository.Controllers
                     return Json(new { success = true });
                 }
             }
-            catch
+            catch (Exception e)
             {
-                return Json(new { success = false });
+                return Json(new { error = e.Message });
             }            
         }
 
@@ -549,22 +405,12 @@ namespace TabRepository.Controllers
                 if (tabVersionId == 0)
                 {
                     // Verify user has access to this tab
-                    var tabInDb = _context.Tabs.SingleOrDefault(t => t.Id == tabId && t.UserId == currentUserId);
+                    var tabInDb = (Tab)_userAuthenticator.CheckUserCreateAccess(Item.Tab, tabId, currentUserId);
 
                     // If we are not the owner, are we a contributor?
                     if (tabInDb == null)
                     {
-                        tabInDb = (from tab in _context.Tabs
-                                   join album in _context.Albums on tab.AlbumId equals album.Id
-                                   join project in _context.Projects on album.ProjectId equals project.Id
-                                   join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
-                                   where contributor.UserId == currentUserId && tab.Id == tabId
-                                   select tab).FirstOrDefault();
-
-                        if (tabInDb == null)
-                        {
-                            return NotFound();
-                        }
+                        return Json(new { error = "Tab not found" });
                     }
 
                     viewModel.TabId = tabId;
@@ -572,19 +418,11 @@ namespace TabRepository.Controllers
                 }
                 else
                 {
-                    var tabVersionInDb = _context.TabVersions.SingleOrDefault(v => v.Id == tabVersionId && v.UserId == currentUserId);
+                    var tabVersionInDb = (TabVersion)_userAuthenticator.CheckUserEditAccess(Item.TabVersion, tabVersionId, currentUserId);
 
                     if (tabVersionInDb == null)
                     {
-                        tabVersionInDb = (from tabVersion in _context.TabVersions
-                                          join tab in _context.Tabs on tabVersion.TabId equals tab.Id
-                                          where tab.UserId == currentUserId && tabVersion.Id == tabVersionId
-                                          select tabVersion).Include(u => u.User).FirstOrDefault();
-
-                        if (tabVersionInDb == null)
-                        {
-                            return Json(new { success = false });
-                        }
+                        return Json(new { error = "Tab version not found" });
                     }
 
                     viewModel.Id = tabVersionInDb.Id;
@@ -594,9 +432,9 @@ namespace TabRepository.Controllers
 
                 return PartialView("_TabVersionForm", viewModel);
             }
-            catch
+            catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }
         }
 
@@ -630,9 +468,9 @@ namespace TabRepository.Controllers
 
                 return Json(new { hasLatest });
             }
-            catch
+            catch (Exception e)
             {
-                return Json(new { hasLatest });
+                return Json(new { error = e.Message });
             }
         }
     }

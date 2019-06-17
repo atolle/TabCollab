@@ -65,7 +65,7 @@ namespace TabRepository.Controllers
             }
             catch (Exception e)
             {
-                return Json(new { });
+                return Json(new { error = e.Message });
             }
         }
 
@@ -84,11 +84,11 @@ namespace TabRepository.Controllers
                     _context.SaveChanges();
                 }
 
-                return Json(new { });
+                return Json(new { success = true });
             }
-            catch
+            catch (Exception e)
             {
-                return Json(new { });
+                return Json(new { error = e.Message }); 
             }
         }
 
@@ -107,11 +107,11 @@ namespace TabRepository.Controllers
                     _context.SaveChanges();
                 }
 
-                return Json(new { });
+                return Json(new { success = true });
             }
-            catch
+            catch (Exception e)
             {
-                return Json(new { });
+                return Json(new { error = e.Message });
             }
         }
 

@@ -26,12 +26,12 @@
                             <div class="col">
                                 <div id="free-btn" class="btn btn-outline-primary" style="width: 100%">Free</div>
                             </div>
-                            <div class="col">
+                            @*Temporary for beta<div class="col">
                                 <div id="subscription-btn" class="btn btn-outline-primary" style="width: 100%">Subscription</div>
-                            </div>
+                            </div>*@
                         </div>
                         <input type="radio" id="free-radio" asp-for="AccountType" value="0" style="opacity: 0" />
-                        <input type="radio" id="subscription-radio" asp-for="AccountType" value="1" style="opacity: 0" />
+                        @*Temporary for beta<input type="radio" id="subscription-radio" asp-for="AccountType" value="1" style="opacity: 0" />*@
                     </div>
                 </div>
                 <span asp-validation-for="AccountType" style="color: red"></span>

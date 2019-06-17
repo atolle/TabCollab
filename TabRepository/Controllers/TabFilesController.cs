@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using TabRepository.Data;
+using TabRepository.Helpers;
 using TabRepository.Models;
 
 namespace TabRepository.Controllers
@@ -12,10 +14,12 @@ namespace TabRepository.Controllers
     public class TabFilesController : Controller
     {
         private ApplicationDbContext _context;
+        private UserAuthenticator _userAuthenticator;
 
-        public TabFilesController(ApplicationDbContext context)
+        public TabFilesController(ApplicationDbContext context, UserAuthenticator userAuthenticator)
         {
             _context = context;
+            _userAuthenticator = userAuthenticator;
         }
 
         protected override void Dispose(bool disposing)
@@ -31,35 +35,19 @@ namespace TabRepository.Controllers
             try
             {
                 // Do we own the project?
-                var tabVersionInDb = (from tabVersion in _context.TabVersions
-                                      join tab in _context.Tabs on tabVersion.TabId equals tab.Id
-                                      join album in _context.Albums on tab.AlbumId equals album.Id
-                                      join project in _context.Projects on album.ProjectId equals project.Id
-                                      where project.UserId == currentUserId && id == tabVersion.Id
-                                      select tabVersion).Include(u => u.User).FirstOrDefault();
+                var tabVersionInDb = (TabVersion)_userAuthenticator.CheckUserReadAccess(Item.TabVersion, id, currentUserId);
 
                 // If we are not the owner, are we a contributor?
                 if (tabVersionInDb == null)
                 {
-                    tabVersionInDb = (from tabVersion in _context.TabVersions
-                                      join tab in _context.Tabs on tabVersion.TabId equals tab.Id
-                                      join album in _context.Albums on tab.AlbumId equals album.Id
-                                      join project in _context.Projects on album.ProjectId equals project.Id
-                                      join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
-                                      where contributor.UserId == currentUserId && id == tabVersion.Id
-                                      select tabVersion).Include(u => u.User).FirstOrDefault();
-
-                    if (tabVersionInDb == null)
-                    {
-                        return NotFound();
-                    }
+                    return Json(new { error = "Tab version not found" });
                 }
 
                 var tabFileInDb = _context.TabFiles.Single(f => f.Id == id);
 
                 if (tabFileInDb == null)
                 {
-                    return NotFound();
+                    return Json(new { error = "Tab file not found" });
                 }
 
                 byte[] fileBytes = tabFileInDb.TabData;
@@ -94,9 +82,9 @@ namespace TabRepository.Controllers
 
                 return File(fileBytes, "application/octet-stream", fileName);
             }
-            catch
+            catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }
         }
 
@@ -106,38 +94,22 @@ namespace TabRepository.Controllers
             string currentUserId = User.GetUserId();
 
             try
-            {                
+            {
                 // Do we own the project?
-                var tabVersionInDb = (from tabVersion in _context.TabVersions
-                                        join tab in _context.Tabs on tabVersion.TabId equals tab.Id
-                                        join album in _context.Albums on tab.AlbumId equals album.Id
-                                        join project in _context.Projects on album.ProjectId equals project.Id
-                                        where project.UserId == currentUserId && id == tabVersion.Id
-                                        select tabVersion).Include(u => u.User).FirstOrDefault();
+                var tabVersionInDb = (TabVersion)_userAuthenticator.CheckUserReadAccess(Item.TabVersion, id, currentUserId);
 
                 // If we are not the owner, are we a contributor?
                 if (tabVersionInDb == null)
                 {
-                    tabVersionInDb = (from tabVersion in _context.TabVersions
-                                        join tab in _context.Tabs on tabVersion.TabId equals tab.Id
-                                        join album in _context.Albums on tab.AlbumId equals album.Id
-                                        join project in _context.Projects on album.ProjectId equals project.Id
-                                        join contributor in _context.ProjectContributors on project.Id equals contributor.ProjectId
-                                        where contributor.UserId == currentUserId && id == tabVersion.Id
-                                        select tabVersion).Include(u => u.User).FirstOrDefault();
-
-                    if (tabVersionInDb == null)
-                    {
-                        return NotFound();
-                    }
+                    return Json(new { error = "Tab version not found" });
                 }
 
                 ViewBag.Id = id.ToString();
                 return View();
             }
-            catch
+            catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
             }
         }
     }

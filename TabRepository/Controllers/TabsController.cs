@@ -62,6 +62,11 @@ namespace TabRepository.Controllers
                     string currentUsername = User.GetUsername();
                     var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
+                    if (userInDb == null)
+                    {
+                        return Json(new { error = "User not found" });
+                    }
+
                     if (viewModel.Id == 0)  // We are creating a new Tab
                     {
                         using (var transaction = _context.Database.BeginTransaction())
@@ -214,7 +219,7 @@ namespace TabRepository.Controllers
                                 _context.SaveChanges();
                             }
 
-                            NotificationsController.AddNotification(_context, NotificationType.TabAdded, null, tab.Album.ProjectId, currentUsername, currentUserId, tab.Name, tab.Album.Name);
+                            NotificationsController.AddNotification(_context, NotificationType.TabAdded, null, tab.Album.ProjectId, userInDb, tab.Name, tab.Album.Name);
 
                             transaction.Commit();
 
@@ -354,16 +359,24 @@ namespace TabRepository.Controllers
                     // Verify user has access to current Tab (id)
                     string currentUserId = User.GetUserId();
                     string currentUsername = User.GetUsername();
+                    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+                    if (userInDb == null)
+                    {
+                        return Json(new { error = "User not found" });
+                    }
 
                     var tabInDb = (Tab)_userAuthenticator.CheckUserDeleteAccess(Item.Tab, id, currentUserId);
 
                     if (tabInDb == null)
+                    {
                         return Json(new { error = "Tab not found" });
+                    }
 
                     _context.Tabs.Remove(tabInDb);
                     _context.SaveChanges();
 
-                    NotificationsController.AddNotification(_context, NotificationType.TabDeleted, null, tabInDb.Album.ProjectId, currentUsername, currentUserId, tabInDb.Name, tabInDb.Album.Name);
+                    NotificationsController.AddNotification(_context, NotificationType.TabDeleted, null, tabInDb.Album.ProjectId, userInDb, tabInDb.Name, tabInDb.Album.Name);
 
                     transaction.Commit();
                 }

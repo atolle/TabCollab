@@ -17,7 +17,9 @@ namespace TabRepository.Models
 
         public string Title { get; set; }
 
-        public string Message { get; set; }
+        public string Message1 { get; set; }
+
+        public string Message2 { get; set; }
 
         public DateTime Timestamp { get; set; }
 

@@ -53,6 +53,7 @@ namespace TabRepository.Controllers
                 {
                     string currentUserId = User.GetUserId();
                     string currentUsername = User.GetUsername();
+                    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
                     if (viewModel.Id == 0)  // We are creating a new project
                     {
@@ -161,7 +162,7 @@ namespace TabRepository.Controllers
 
                                         _context.ProjectContributors.Add(contributor);
 
-                                        NotificationsController.AddNotification(_context, NotificationType.ContributorAdded, null, projectInDb.Id, currentUsername, currentUserId, user.Username, projectInDb.Name);
+                                        NotificationsController.AddNotification(_context, NotificationType.ContributorAdded, null, projectInDb.Id, userInDb, user.Username, projectInDb.Name);
                                     }
                                 }
                             }

@@ -194,7 +194,7 @@ namespace TabRepository.Controllers
                                 _context.SaveChanges();
                             }
 
-                            NotificationsController.AddNotification(_context, NotificationType.TabVersionAdded, null, tabVersion.Tab.Album.ProjectId, currentUsername, currentUserId, tabVersion.Version.ToString(), tabVersion.Tab.Name);
+                            NotificationsController.AddNotification(_context, NotificationType.TabVersionAdded, null, tabVersion.Tab.Album.ProjectId, userInDb, tabVersion.Version.ToString(), tabVersion.Tab.Name);
 
                             transaction.Commit();
 
@@ -360,6 +360,12 @@ namespace TabRepository.Controllers
                     // Verify current user has access to this TabVersion (id)
                     string currentUserId = User.GetUserId();
                     string currentUsername = User.GetUsername();
+                    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+                    if (userInDb == null)
+                    {
+                        return Json(new { error = "User not found" });
+                    }
 
                     // Are we the project owner?
                     var tabVersionInDb = (TabVersion)_userAuthenticator.CheckUserDeleteAccess(Item.TabVersion, id, currentUserId);
@@ -372,7 +378,7 @@ namespace TabRepository.Controllers
                     _context.TabVersions.Remove(tabVersionInDb);
                     _context.SaveChanges();
 
-                    NotificationsController.AddNotification(_context, NotificationType.TabVersionDeleted, null, tabVersionInDb.Tab.Album.ProjectId, currentUsername, currentUserId, tabVersionInDb.Version.ToString(), tabVersionInDb.Tab.Name);
+                    NotificationsController.AddNotification(_context, NotificationType.TabVersionDeleted, null, tabVersionInDb.Tab.Album.ProjectId, userInDb, tabVersionInDb.Version.ToString(), tabVersionInDb.Tab.Name);
 
                     transaction.Commit();
 

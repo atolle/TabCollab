@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TabRepository.Data;
 using TabRepository.Models;
 
@@ -30,7 +31,12 @@ namespace TabRepository.Controllers
 
             try
             {
-                var notifications = _context.NotificationUsers.Where(n => n.UserId == currentUserId).Select(n => n.Notification).ToList();
+                var notifications = _context.NotificationUsers
+                    .Where(n => n.UserId == currentUserId)
+                    .Select(n => n.Notification)
+                    .Include(n => n.FromUser)
+                    .ToList();
+
                 string html = "";
                 int count = 0;
 
@@ -55,7 +61,20 @@ namespace TabRepository.Controllers
                             href = Url.Action("Index", "Tabs");
                             break;
                     }                    
-                    html += "<div class='notification' data-notification-id='" + notification.Id + "'><a class='btn list-group-item notification-item' style='display: flex; justify-content: space-between;' href='" + href + "'><span style='overflow: hidden; text-overflow: ellipsis'>" + notification.Message + "</span><i class='fa fa-times fa-lg notification-delete-btn' data-notification-id='" + notification.Id + "' style='padding-left: 7px; padding-top: 2px;' /></a></div>";
+                    html += "<div class='notification' data-notification-id='" + notification.Id + "'> " +
+                                "<a class='list-group-item notification-item' href='" + href + "'>" + 
+                                    "<div style='display: flex; justify-content: center; width: 60px'>" + 
+                                        "<img class='notification-image' src=" + notification.FromUser.ImageFilePath + ">" +
+                                    "</div>" +
+                                    "<div style='width: calc(100% - 90px)'>" +
+                                        "<div class='notification-message'>"+ notification.Message1 + "</div>" +
+                                        "<div class='notification-message'>" + notification.Message2 + "</div>" +
+                                    "</div>" +
+                                    "<div style='display: flex; justify-content: center; width: 30px'>" +
+                                        "<i class='fa fa-times fa-lg notification-delete-btn' data-notification-id='" + notification.Id + "'/>" +
+                                    "</div>" +                                                                        
+                                "</a>" + 
+                            "</div>";
                     count++;
                 }
                 
@@ -115,57 +134,66 @@ namespace TabRepository.Controllers
             }
         }
 
-        public static void AddNotification(ApplicationDbContext context, NotificationType notificationType, string toUserId, int? projectId, string currentUsername, string currentUserId, string objectName, string parentName)
+        public static void AddNotification(ApplicationDbContext context, NotificationType notificationType, ApplicationUser toUser, int? projectId, ApplicationUser currentUser, string objectName, string parentName)
         {
             string title = "";
-            string message = "";
+            string message1 = "";
+            string message2 = "";
 
             switch (notificationType)
             {
                 case NotificationType.AlbumAdded:
                     title = "Album Added";
-                    message = currentUsername + " added " + objectName + " to " + parentName;
+                    message1 = "Album Added: " + objectName;
+                    message2 = "Project: " + parentName;
                     break;
                 case NotificationType.AlbumDeleted:
-                    title = "Album Added";
-                    message = currentUsername + " deleted " + objectName + " from " + parentName;
+                    title = "Album Deleted";
+                    message1 = "Album Deleted: " + objectName;
+                    message2 = "Project: " + parentName;
                     break;
                 case NotificationType.ContributorAdded:
                     title = "Contributor Added";
-                    message = currentUsername + " added contributor " + objectName + " to " + parentName;
+                    message1 = "Contributor Added: " + objectName;
+                    message2 = "Project: " + parentName;
                     break;
                 case NotificationType.FriendAccepted:
                     title = "Friend Accepted";
-                    message = currentUsername + " accepted your friend request";
+                    message1 = "Friend Accepted: " + currentUser.UserName;
                     break;
                 case NotificationType.FriendRequested:
                     title = "Friend Requested";
-                    message = currentUsername + " sent you a friend request";
+                    message1 = "Friend Requested: " + currentUser.UserName;
                     break;
                 case NotificationType.TabAdded:
                     title = "Tab Added";
-                    message = currentUsername + " added " + objectName + " to " + parentName;
+                    message1 = "Tab Added: " + objectName;
+                    message2 = "Album: " + parentName;
                     break;
                 case NotificationType.TabDeleted:
                     title = "Tab Deleted";
-                    message = currentUsername + " deleted " + objectName + " from " + parentName;
+                    message1 = "Tab Deleted: " + objectName;
+                    message2 = "Album: " + parentName;
                     break;
                 case NotificationType.TabVersionAdded:
                     title = "Tab Version Added";
-                    message = currentUsername + " added new version to " + parentName;
+                    message1 = "Tab Version Added";
+                    message2 = "Tab: " + parentName;
                     break;
                 case NotificationType.TabVersionDeleted:
                     title = "Tab Version Deleted";
-                    message = currentUsername + " deleted version " + objectName + " from " + parentName;
+                    message1 = "Tab Version Deleted";
+                    message2 = "Tab: " + parentName;
                     break;
             }
 
             Notification notification = new Notification()
             {
-                ToUserId = toUserId,
-                FromUserId = currentUserId,
+                ToUserId = toUser == null ? null : toUser.Id,
+                FromUserId = currentUser.Id,
                 Title = title,
-                Message = message,
+                Message1 = message1,
+                Message2 = message2,
                 Timestamp = DateTime.Now,
                 ProjectId = projectId,
                 NotificationType = notificationType
@@ -178,7 +206,7 @@ namespace TabRepository.Controllers
             {
                 var contributors = context
                     .ProjectContributors
-                    .Where(c => c.ProjectId == projectId && c.UserId != currentUserId)
+                    .Where(c => c.ProjectId == projectId && c.UserId != currentUser.UserName)
                     .ToList();                
 
                 foreach (ProjectContributor contributor in contributors)
@@ -195,7 +223,7 @@ namespace TabRepository.Controllers
 
                 var ownerId = context
                     .Projects
-                    .Where(p => p.Id == projectId && p.UserId != currentUserId)
+                    .Where(p => p.Id == projectId && p.UserId != currentUser.UserName)
                     .Select(p => p.UserId)
                     .FirstOrDefault();
 
@@ -215,7 +243,7 @@ namespace TabRepository.Controllers
             {
                 NotificationUser notificationUser = new NotificationUser()
                 {
-                    UserId = toUserId,
+                    UserId = toUser.Id,
                     NotificationId = notification.Id,
                     IsRead = false
                 };

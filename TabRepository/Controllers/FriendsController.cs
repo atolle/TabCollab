@@ -107,13 +107,13 @@ namespace TabRepository.Controllers
                     {
                         string currentUserId = User.GetUserId();
                         string currentUsername = User.GetUsername();
-                        ApplicationUser otherUser = _context.Users.Where(u => u.UserName == username).FirstOrDefault();
-                        string otherUserId = otherUser.Id;
+                        var otherUserInDb = _context.Users.Where(u => u.UserName == username).FirstOrDefault();
+                        string otherUserId = otherUserInDb.Id;
+                        var currentUserInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-
-                        if (otherUserId == null)
+                        if (currentUserInDb == null || otherUserInDb == null)
                         {
-                            return new StatusCodeResult(StatusCodes.Status404NotFound);
+                            return Json(new { error = "User not found" });
                         }
 
                         var friendInDb = _context
@@ -142,7 +142,7 @@ namespace TabRepository.Controllers
                             _context.SaveChanges();
                         }
 
-                        NotificationsController.AddNotification(_context, NotificationType.FriendRequested, otherUserId, null, currentUsername, currentUserId, null, null);
+                        NotificationsController.AddNotification(_context, NotificationType.FriendRequested, otherUserInDb, null, currentUserInDb, null, null);
 
                         transaction.Commit();
 
@@ -172,10 +172,11 @@ namespace TabRepository.Controllers
                     {
                         string currentUserId = User.GetUserId();
                         string currentUsername = User.GetUsername();                        
-                        ApplicationUser otherUser = _context.Users.Where(u => u.UserName == username).FirstOrDefault();
-                        string otherUserId = otherUser.Id;
+                        var otherUserInDb = _context.Users.Where(u => u.UserName == username).FirstOrDefault();
+                        string otherUserId = otherUserInDb.Id;
+                        var currentUserInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-                        if (otherUserId == null)
+                        if (currentUserInDb == null || otherUserInDb == null)
                         {
                             return Json(new { error = "User not found" });
                         }
@@ -192,7 +193,7 @@ namespace TabRepository.Controllers
                             _context.SaveChanges();
                         }
 
-                        NotificationsController.AddNotification(_context, NotificationType.FriendAccepted, otherUserId, null, currentUsername, currentUserId, null, null);
+                        NotificationsController.AddNotification(_context, NotificationType.FriendAccepted, otherUserInDb, null, currentUserInDb, null, null);
 
                         transaction.Commit();
 

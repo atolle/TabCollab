@@ -60,6 +60,12 @@
     <Compile Remove="Data\Migrations\20190617005725_test.Designer.cs" />
     <Compile Remove="Data\Migrations\20190617010120_test.cs" />
     <Compile Remove="Data\Migrations\20190617010120_test.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190627163409_AddSecondMessageToNotification.cs" />
+    <Compile Remove="Data\Migrations\20190627163409_AddSecondMessageToNotification.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190627173514_AddSecondMessageToNotification.cs" />
+    <Compile Remove="Data\Migrations\20190627173514_AddSecondMessageToNotification.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190627202903_AddSecondMessageToNotifications.cs" />
+    <Compile Remove="Data\Migrations\20190627202903_AddSecondMessageToNotifications.Designer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\ProjectContributors\" />

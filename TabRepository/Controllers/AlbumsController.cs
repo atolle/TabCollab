@@ -66,6 +66,12 @@ namespace TabRepository.Controllers
                 {
                     string currentUserId = User.GetUserId();
                     string currentUsername = User.GetUsername();
+                    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+                    if (userInDb == null)
+                    {
+                        return Json(new { error = "User not found" });
+                    }
 
                     // Verify current user has access to this project
                     var projectInDb = (Project)_userAuthenticator.CheckUserCreateAccess(Item.Project, viewModel.ProjectId, currentUserId);
@@ -105,7 +111,7 @@ namespace TabRepository.Controllers
                             _context.Albums.Add(album);
                             _context.SaveChanges();
 
-                            NotificationsController.AddNotification(_context, NotificationType.AlbumAdded, null, album.ProjectId, currentUsername, currentUserId, album.Name, album.Project.Name);
+                            NotificationsController.AddNotification(_context, NotificationType.AlbumAdded, null, album.ProjectId, userInDb, album.Name, album.Project.Name);
 
                             transaction.Commit();
 
@@ -166,17 +172,25 @@ namespace TabRepository.Controllers
                 {
                     string currentUserId = User.GetUserId();
                     string currentUsername = User.GetUsername();
+                    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+                    if (userInDb == null)
+                    {
+                        return Json(new { error = "User not found" });
+                    }
 
                     var albumInDb = (Album)_userAuthenticator.CheckUserDeleteAccess(Item.Album, id, currentUserId);
 
                     // If current user does not have access to project or project does not exist
                     if (albumInDb == null)
+                    {
                         return Json(new { error = "Album not found" });
+                    }                        
 
                     _context.Albums.Remove(albumInDb);
                     _context.SaveChanges();
 
-                    NotificationsController.AddNotification(_context, NotificationType.AlbumDeleted, null, albumInDb.ProjectId, currentUsername, currentUserId, albumInDb.Name, albumInDb.Project.Name);
+                    NotificationsController.AddNotification(_context, NotificationType.AlbumDeleted, null, albumInDb.ProjectId, userInDb, albumInDb.Name, albumInDb.Project.Name);
 
                     transaction.Commit();
 

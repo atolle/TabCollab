@@ -93,7 +93,9 @@
             </div>
             <div id="splitter"></div>
             <div id="tabversions-table-container">
-                <div class="list-loader tab-loader" style="display: none;"></div>
+                <div class="tab-loader-container" style="display: none;">
+                    <div class="tab-loader"></div>
+                </div>
                 <table class="table table-striped table-dark table-hover tabversions-table">
                     <thead>
                         <tr>
@@ -220,7 +222,7 @@
 
         $(document).ready(function () {
             var allowNewTabs = true,
-                tabLoader = "<div class='list-loader tab-loader' style='display: none;'></div>";
+                tabLoader = "<div class='tab-loader-container' style='display: none;'><div class='tab-loader'></div></div>";
 
             if (@Model.Count() > 0) {
                 allowNewTabs = @Json.Serialize(@Model.Select(m => m.AllowNewTabs).FirstOrDefault());
@@ -535,7 +537,7 @@
 
             if (nodeId.substring(0, 3) == 'tab') {
                 $('.tabversions-table').hide();
-                $('.tab-loader').show();
+                $('.tab-loader-container').show();
                 nodeId = nodeId.substring(4);
                 parentNodeId = data.instance.get_node(data.node.parent).id.substring(6);
 

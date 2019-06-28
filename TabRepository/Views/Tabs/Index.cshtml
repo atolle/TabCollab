@@ -232,7 +232,7 @@
                 if (@Json.Serialize(@Model.Select(m => m.SubscriptionExpiration).FirstOrDefault()) != null && @Json.Serialize(@Model.Select(m => m.SubscriptionExpired).FirstOrDefault())) {
                     // Show information regarding subscription account expiration
                     bootbox.dialog({
-                        message: "Subscription TabCollab Account<br /><br />Your TabCollab subscription has expired. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To renew your subscription, go the the Account page.",
+                        message: "<h4>Subscription TabCollab Account</h4><br />Your TabCollab subscription has expired. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To renew your subscription, go the the Account page.",
                         buttons: {
                             confirm: {
                                 label: 'Close',

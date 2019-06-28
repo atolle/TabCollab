@@ -35,6 +35,7 @@ namespace TabRepository.Controllers
                     .Where(n => n.UserId == currentUserId)
                     .Select(n => n.Notification)
                     .Include(n => n.FromUser)
+                    .OrderByDescending(n => n.Timestamp)
                     .ToList();
 
                 string html = "";

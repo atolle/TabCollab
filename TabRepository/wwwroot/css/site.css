@@ -772,6 +772,7 @@ footer {
     -webkit-background-clip: padding-box;
     background-clip: padding-box;
     outline: 0;
+    border-radius: unset !important;
 }
 
 .close {

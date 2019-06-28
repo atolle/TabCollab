@@ -30,7 +30,7 @@
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Tabs" asp-action="Index">Tabs</a></li>
                     <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Projects" asp-action="Index">Projects</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Albums" asp-action="Index">Albums</a></li>                    
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Albums" asp-action="Index">Albums</a></li>
                     <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Friends" asp-action="Index">Friends</a></li>
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")
@@ -58,5 +58,6 @@
         <script src="~/lib/bootbox.js/bootbox.js"></script>
     </environment>
     @RenderSection("Scripts", required: false)
+    <partial name="_BetaModal" />
 </body>
 </html>

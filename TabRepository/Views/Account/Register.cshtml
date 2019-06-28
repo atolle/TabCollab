@@ -13,6 +13,52 @@
     </div>
 </div>
 
+<div id="free-modal" class="modal fade">
+    <div class="modal-dialog text-left">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Free Account</h4>
+                <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6 style='text-decoration: underline'>What You Get</h6>
+                With the free TabCollab account, you get 50 free tab version uploads for your own projects and unlimited uploads to the projects of other musicians.<br /><br />This type of account is ideal of those who need to be able to contribute to other projects and occasionally work on personal projects.<br /><br />
+                <h6 style='text-decoration: underline'>Price</h6>
+                This type of account is free!<br /><br />HOWEVER, for $49.99 per year you can sign up for a subscription account and get UNLIMITED tab version uploads. You can upgrade to a subscription account at any time through the Account page.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="subscription-modal" class="modal fade">
+    <div class="modal-dialog text-left">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Subscription Account</h4>
+                <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6 style='text-decoration: underline'>What You Get</h6>
+                With the subscription-based TabCollab account, you get UNLIMITED tab version uploads for your projects, as well as unlimited uploads to the projects of other musicians.<br /><br />If you love working on multiple projects, or you have a project to which multiple musicians will be contributing, this is the type of account for you.<br /><br />
+                <h6 style='text-decoration: underline'>Price</h6>
+                $49.99 per year
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="flex-container-row">
     <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" id="register-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal">
         <h2>Register</h2>
@@ -165,6 +211,9 @@
     $(document).ready(function () {
         $('footer').show();
 
+        var freeModal = $('#free-modal');
+        var subscriptionModal = $('#subscription-modal');
+
         // Show information regarding free account
         $(document).on("click", "#free-btn", function (e, data) {
             if (!$(this).hasClass('checked')) {
@@ -173,15 +222,7 @@
                 $('#free-radio').click();
                 $('#free-radio').click();
             }
-            bootbox.dialog({
-                message: "<h4>Free TabCollab Account</h4><br /><h6 style='text-decoration: underline'>What You Get</h6>With the free TabCollab account, you get 50 free tab version uploads for your own projects and unlimited uploads to the projects of other musicians.<br /><br />This type of account is ideal of those who need to be able to contribute to other projects and occasionally work on personal projects.<br /><br /><h6 style='text-decoration: underline'>Price</h6>This type of account is free!<br /><br />HOWEVER, for $49.99 per year you can sign up for a subscription account and get UNLIMITED tab version uploads. You can upgrade to a subscription account at any time through the Account page.",
-                buttons: {
-                    confirm: {
-                        label: 'Close',
-                        className: 'btn-default'
-                    },
-                }
-            });
+            freeModal.modal('show');
         });
 
         // Show information regarding subscription account
@@ -192,15 +233,7 @@
                 $('#subscription-radio').click();
                 $('#subscription-radio').click();
             }
-            bootbox.dialog({
-                message: "<h4>Subscription TabCollab Account</h4><br /><h6 style='text-decoration: underline'>What You Get</h6>With the subscription-based TabCollab account, you get UNLIMITED tab version uploads for your projects, as well as unlimited uploads to the projects of other musicians.<br /><br />If you love working on multiple projects, or you have a project to which multiple musicians will be contributing, this is the type of account for you.<br /><br /><h6 style='text-decoration: underline'>Price</h6>$49.99 per year",
-                buttons: {
-                    confirm: {
-                        label: 'Close',
-                        className: 'btn-default'
-                    },
-                }
-            });
+            subscriptionModal.modal('show');
         });
 
         $(document).on("change", "#Image", function (e, data) {

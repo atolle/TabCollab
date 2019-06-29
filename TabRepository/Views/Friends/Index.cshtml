@@ -78,8 +78,7 @@
                     }
                     else {
                         $(that).html("Friends");
-                        $(that).toggleClass('btn-primary btn-success');
-                        $(that).parent().html('<a class="btn btn-success pull-left">Friends</a><a id="remove-friend-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/RemoveFriend">Unfriend</a>')
+                        $(that).parent().html('<a class="btn btn-primary pull-left">Friends</a><a id="remove-friend-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/RemoveFriend">Unfriend</a>')
                     }                   
                 })
                 .fail(function (error) {

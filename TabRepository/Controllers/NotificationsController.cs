@@ -163,8 +163,8 @@ namespace TabRepository.Controllers
                     message1 = "Friend Accepted: " + currentUser.UserName;
                     break;
                 case NotificationType.FriendRequested:
-                    title = "Friend Requested";
-                    message1 = "Friend Requested: " + currentUser.UserName;
+                    title = "Friend Request";
+                    message1 = "Friend Request: " + currentUser.UserName;
                     break;
                 case NotificationType.TabAdded:
                     title = "Tab Added";

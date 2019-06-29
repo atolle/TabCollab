@@ -147,10 +147,10 @@ namespace TabRepository.Controllers
                         transaction.Commit();
 
                         // Return a null json result as the POST is expecting json
-                        return new JsonResult(null);
+                        return Json(new { success = true });
                     }
 
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                    return Json(new { error = "Unable to add friend" });
                 }
                 catch (Exception e)
                 {
@@ -198,10 +198,10 @@ namespace TabRepository.Controllers
                         transaction.Commit();
 
                         // Return a null json result as the POST is expecting json
-                        return new JsonResult(null);
+                        return Json(new { success = true });
                     }
 
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                    return Json(new { error = "Unable to accept friend" });
                 }
                 catch (Exception e)
                 {
@@ -240,10 +240,10 @@ namespace TabRepository.Controllers
                     }
 
                     // Return a null json result as the POST is expecting json
-                    return new JsonResult(null);
+                    return Json(new { success = true });
                 }
 
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = "Unable to decline friend" });
             }
             catch (Exception e)
             {
@@ -317,10 +317,10 @@ namespace TabRepository.Controllers
                     }
 
                     // Return a null json result as the POST is expecting json
-                    return new JsonResult(null);
+                    return Json(new { success = true });
                 }
 
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = "Unable to remove friend" });
             }
             catch (Exception e)
             {
@@ -358,10 +358,10 @@ namespace TabRepository.Controllers
                     }
 
                     // Return a null json result as the POST is expecting json
-                    return new JsonResult(null);
+                    return Json(new { success = true });
                 }
 
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = "Unable to cancel request" });
             }
             catch (Exception e)
             {

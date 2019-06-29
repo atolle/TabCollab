@@ -6,6 +6,46 @@
 
 <link href="~/css/jstreestyle.css" rel="stylesheet" />
 
+<div id="subscription-limit-modal" class="modal fade">
+    <div class="modal-dialog text-left">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Tab Version Limit Reached</h4>
+                <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Your TabCollab subscription has expired. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To renew your subscription, go the the Account page.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="tab-limit-modal" class="modal fade">
+    <div class="modal-dialog text-left">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Tab Version Limit Reached</h4>
+                <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                You have met the 50 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="dashboard-container">
     <div id="dashboard">
         <div class="buttons-container" style="display: none;">
@@ -230,28 +270,10 @@
 
             if (!allowNewTabs) {
                 if (@Json.Serialize(@Model.Select(m => m.SubscriptionExpiration).FirstOrDefault()) != null && @Json.Serialize(@Model.Select(m => m.SubscriptionExpired).FirstOrDefault())) {
-                    // Show information regarding subscription account expiration
-                    bootbox.dialog({
-                        message: "<h4>Subscription TabCollab Account</h4><br />Your TabCollab subscription has expired. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To renew your subscription, go the the Account page.",
-                        buttons: {
-                            confirm: {
-                                label: 'Close',
-                                className: 'btn-default'
-                            },
-                        }
-                    });
+                    $('#subscription-limit-modal').modal('show');
                 }
                 else {
-                    // Show information regarding free account tab overrage
-                    bootbox.dialog({
-                        message: "<h4>Free TabCollab Account</h4><br />You have met the 50 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.",
-                        buttons: {
-                            confirm: {
-                                label: 'Close',
-                                className: 'btn-default'
-                            },
-                        }
-                    });
+                    $('#tab-limit-modal').modal('show');
                 }
             }
 

@@ -70,14 +70,19 @@
                     data: username,
                     dataType: 'json'
                 })
-                    .then(function (data) {
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("sending friend request", response.error);
+                    }
+                    else {
                         $(that).html("Request Sent");
                         $(that).toggleClass('btn-primary btn-default disabled pull-left');
                         $(that).parent().append('<a id="cancel-request-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/CancelRequest">Cancel Request</a>');
-                    })
-                    .fail(function (error) {
-                        bootbox.alert("Unable to send friend request. Error: " + error.statusText);
-                    })
+                    }                        
+                })
+                .fail(function (error) {
+                    showFailureBootbox("sending friend request", error.statusText);
+                })
             });
 
             // Accept friend
@@ -94,14 +99,18 @@
                     data: username,
                     dataType: 'json'
                 })
-                    .then(function (data) {
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("accepting friend request", response.error);
+                    }
+                    else {
                         $(that).html("Friends");
-                        $(that).toggleClass('btn-primary btn-success');
-                        $(that).parent().html('<a class="btn btn-success pull-left">Friends</a><a id="remove-friend-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/RemoveFriend">Unfriend</a>')
-                    })
-                    .fail(function (error) {
-                        bootbox.alert("Unable to accept friend request. Error: " + error.statusText);
-                    })
+                        $(that).parent().html('<a class="btn btn-primary pull-left">Friends</a><a id="remove-friend-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/RemoveFriend">Unfriend</a>')
+                    }                   
+                })
+                .fail(function (error) {
+                    showFailureBootbox("accepting friend request", error.statusText);
+                })
             });
 
             // Remove friend
@@ -120,12 +129,17 @@
                             data: username,
                             dataType: 'json'
                         })
-                            .then(function (data) {
+                        .then(function (response) {
+                            if (response.error) {
+                                showFailureBootbox("removing friend", response.error);
+                            }
+                            else {
                                 $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
-                            })
-                            .fail(function (error) {
-                                bootbox.alert("Unable to remove friend. Error: " + error.statusText);
-                            })
+                            }                            
+                        })
+                        .fail(function (error) {
+                            showFailureBootbox("removing friend", error.statusText);
+                        })
                     }
                 });
             });
@@ -144,12 +158,17 @@
                     data: username,
                     dataType: 'json'
                 })
-                    .then(function (data) {
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("declining friend request", response.error);
+                    }
+                    else {
                         $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
-                    })
-                    .fail(function (error) {
-                        bootbox.alert("Unable to decline friend request. Error: " + error.statusText);
-                    })
+                    }                    
+                })
+                .fail(function (error) {
+                    showFailureBootbox("declining friend request", error.statusText);
+                })
             });
 
             // Cancel request
@@ -166,12 +185,17 @@
                     data: username,
                     dataType: 'json'
                 })
-                    .then(function (data) {
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("canceling friend request", response.error);
+                    }
+                    else {
                         $(that).parent().html('<a id="add-friend-button" data-username="' + username.username + '" class="btn btn-primary" href="/Friends/AddFriend">Add Friend</a>');
-                    })
-                    .fail(function (error) {
-                        bootbox.alert("Unable to cancel friend request. Error: " + error.statusText);
-                    })
+                    }                    
+                })
+                .fail(function (error) {
+                    showFailureBootbox("canceling friend request", error.statusText);
+                })
             });
         });
     </script>

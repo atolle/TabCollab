@@ -7,7 +7,7 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <form id="search-form" class="form-inline my-2 my-lg-0 search-form" asp-controller="Friends" asp-action="Search" method="get" autocomplete="off">
-        <input id="search-input" type="text" class="form-control mr-sm-2" placeholder="Search musicians" name="search">
+        <input id="search-input" type="text" class="form-control mr-sm-2" placeholder="Search musicians" name="searchString">
         <ul class="list-group search-results"></ul>
     </form>
     <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" id="logoutForm" class="navbar-right">

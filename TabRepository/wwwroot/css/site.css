@@ -230,6 +230,9 @@ footer {
     right: 0;
     top: 100%;
     z-index: 1;
+    max-height: 400px;
+    overflow-y: scroll;
+    display: unset !important;
 }
 
 .search-btn {

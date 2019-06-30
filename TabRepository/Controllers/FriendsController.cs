@@ -41,18 +41,30 @@ namespace TabRepository.Controllers
         [HttpPost]
         public ActionResult FuzzySearch(string searchString)
         {
-            var usernames = _context.Users.Where(u => u.UserName.StartsWith(searchString)).Select(n => n.UserName).ToList();
+            searchString = searchString.Trim();
+            List<object> usernames = new List<object>();
+
+            var users = _context
+                .Users
+                .Where(u => u.UserName.StartsWith(searchString) || u.FirstName.StartsWith(searchString) || u.LastName.StartsWith(searchString) || (u.FirstName + " " + u.LastName).StartsWith(searchString));
+
+            foreach (ApplicationUser user in users)
+            {
+                usernames.Add(new { firstName = user.FirstName, lastName = user.LastName, username = user.UserName });
+            }
+
             return Json(usernames);
         }
 
         [HttpGet]
-        public ActionResult Search(string search)
+        public ActionResult Search(string searchString)
         {
+            searchString = searchString.Trim();
             string currentUserId = User.GetUserId();
 
             var users = from u in _context.Users
                         from f in _context.Friends.Where(f => (u.Id == f.User1Id && currentUserId == f.User2Id) || (u.Id == f.User2Id && currentUserId == f.User1Id)).DefaultIfEmpty()
-                        where u.UserName.StartsWith(search)
+                        where u.UserName.StartsWith(searchString) || u.FirstName.StartsWith(searchString) || u.LastName.StartsWith(searchString) || (u.FirstName + " " + u.LastName).StartsWith(searchString)
                         select new { u.Id, u.UserName, u.FirstName, u.LastName, u.ImageFilePath, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status };
 
             List < FriendViewModel > viewModel = new List<FriendViewModel>();

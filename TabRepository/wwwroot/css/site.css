@@ -1231,3 +1231,8 @@ td {
 .notifications {
     width: 400px;
 }
+
+.tutorial-icon {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

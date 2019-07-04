@@ -22,6 +22,8 @@ namespace TabRepository.Models
 
         public string ImageFilePath { get; set; }
 
+        public bool TabTutorialShown { get; set; }
+
         public DateTime? SubscriptionExpiration { get; set; }
 
         public AccountType AccountType { get; set; }

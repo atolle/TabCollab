@@ -329,7 +329,8 @@ namespace TabRepository.Controllers
                         IsOwner = project.UserId == currentUserId,
                         AllowNewTabs = allowNewTabs,
                         SubscriptionExpired = userInDb.SubscriptionExpiration == null ? true : ((int)(userInDb.SubscriptionExpiration - DateTime.Now).Value.TotalDays <= 0 ? true : false),
-                        SubscriptionExpiration = userInDb.SubscriptionExpiration
+                        SubscriptionExpiration = userInDb.SubscriptionExpiration,
+                        TabTutorialShown = userInDb.TabTutorialShown
                     };
                     foreach (var album in vm.Albums)
                     {
@@ -602,6 +603,32 @@ namespace TabRepository.Controllers
                 }
 
                 tabInDb.Album = albumInDb;
+
+                _context.SaveChanges();
+
+                return Json(new { success = true });
+            }
+            catch (Exception e)
+            {
+                return Json(new { error = e.Message });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult TabTutorialShown()
+        {
+            string currentUserId = User.GetUserId();
+
+            try
+            {
+                var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+                if (userInDb == null)
+                {
+                    return Json(new { error = "User not found" });
+                }
+
+                userInDb.TabTutorialShown = true;
 
                 _context.SaveChanges();
 

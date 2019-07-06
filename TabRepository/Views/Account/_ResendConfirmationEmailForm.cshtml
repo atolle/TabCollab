@@ -1,8 +1,8 @@
-﻿@model ForgotPasswordViewModel
+﻿@model ResendConfirmationEmailViewModel
 
 <div class="flex-container-col">
-    <form asp-controller="Account" asp-action="ForgotPassword" id="forgot-password-form" method="post" class="form-horizontal form-center">
-        <h2>Forgot Password</h2>
+    <form asp-controller="Account" asp-action="ResendConfirmationEmail" id="confirmation-email-form" method="post" class="form-horizontal form-center">
+        <h2>Resend Confirmation Email</h2>
         <div class="form-group">
             <div class="form-label">
                 <label asp-for="Username"></label>

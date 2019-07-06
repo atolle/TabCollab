@@ -22,15 +22,15 @@
                     <p>
                         <ul>
                             <li>Create/edit/delete projects, albums, and tabs</li>
-                            <li>Add/edit/delete new tab versions</li>
+                            <li>Add/edit/delete tab versions</li>
                             <li>Add/remove contributors</li>
-                            <li>Download and play your tabs</li>
+                            <li>Download and play your tab versions</li>
                         </ul>
                     </p>
                     The next few pages are a brief tutorial to help you get going. You can always re-open the tutorial from the top of this page.
                 </div>
                 <div id="page-2" style="display: none;">
-                    <h6 style='text-decoration: underline'>Creating a new Project</h6>
+                    <h6 style='text-decoration: underline'>Creating a New Project</h6>
                     <p>
                         To create a new project, select <button class="btn btn-primary dashboard-button">New Project</button>
                     </p>
@@ -67,6 +67,9 @@
                             <img src="~/images/full-tree.png" />
                         </div>
                     </p>
+                </div>
+                <div id="page-4" style="display: none;">
+                    <h6 style='text-decoration: underline'>Using the Tree cont.</h6>
                     <p>
                         You can delete projects, albums, and tabs by right-clicking them. This right-click functionality is only available for <span style="color: rgb(134, 192, 144)">My Projects</span>.
                     </p>
@@ -76,34 +79,62 @@
                         </div>
                     </p>
                     <p>
+                        You can reorder tabs and albums and move them to different parents by click-dragging.
+                    </p>
+                    <p>
                         The buttons at the top of the page will change based on which item in the tree you have selected. For example, if you select a tab, you'll see <button class="btn btn-primary dashboard-button">New Tab</button> change to <button class="btn btn-primary dashboard-button">Edit Tab</button>
                         <br />
                         You'll also see <button class="btn btn-primary dashboard-button">New Tab Version</button> become available.
                     </p>
+                </div>
+                <div id="page-5" style="display: none;">
+                    <h6 style='text-decoration: underline'>Creating and Editing Items</h6>
                     <p>
                         To create a new item
                     </p>
                     <ol>
                         <li>
-                            Select the parent in the tree
+                            Select the item's parent in the tree
                         </li>
                         <li>
                             Select the new item button
                         </li>
                     </ol>
                     <p>
-                        For example: Creating a new tab
+                        For example: creating a new album
                     </p>
                     <ol>
                         <li>
-                            Select the album in the tree
+                            Select the project in the tree
                         </li>
                         <li>
-                            Select <button class="btn btn-primary dashboard-button">New Tab</button>
+                            Select <button class="btn btn-primary dashboard-button">New Album</button>
+                        </li>
+                    </ol>
+                    <p>
+                        To edit an item
+                    </p>
+                    <ol>
+                        <li>
+                            Select the item in the tree
+                        </li>
+                        <li>
+                            Select the edit item button
+                        </li>
+                    </ol>
+                    <p>
+                        For example: editing a tab
+                    </p>
+                    <ol>
+                        <li>
+                            Select the tab in the tree
+                        </li>
+                        <li>
+                            Select <button class="btn btn-primary dashboard-button">Edit Tab</button>
                         </li>
                     </ol>
                 </div>
-                <div id="page-4" style="display: none;">
+                <div id="page-6" style="display: none;">
                     <h6 style='text-decoration: underline'>Accessing Tab Versions</h6>
                     <p>
                         Tab versions will load when you select a tab in the tree:
@@ -464,10 +495,18 @@
                 else if ($('#page-3').is(':visible')) {
                     $('#page-3').hide();
                     $('#page-4').show();
-                    $('#tutorial-modal').find('.modal-dialog').css('max-width', '700px');
                 }
                 else if ($('#page-4').is(':visible')) {
                     $('#page-4').hide();
+                    $('#page-5').show();
+                }
+                else if ($('#page-5').is(':visible')) {
+                    $('#page-5').hide();
+                    $('#page-6').show();
+                    $('#tutorial-modal').find('.modal-dialog').css('max-width', '700px');
+                }
+                else if ($('#page-6').is(':visible')) {
+                    $('#page-6').hide();
                     $('#page-1').show();
                     $('#tutorial-modal').find('.modal-dialog').css('max-width', '500px');
                 }
@@ -476,7 +515,7 @@
             $('#btn-prev').on('click', function () {
                 if ($('#page-1').is(':visible')) {
                     $('#page-1').hide();
-                    $('#page-4').show();
+                    $('#page-6').show();
                     $('#tutorial-modal').find('.modal-dialog').css('max-width', '700px');
                 }
                 else if ($('#page-2').is(':visible')) {
@@ -490,6 +529,14 @@
                 else if ($('#page-4').is(':visible')) {
                     $('#page-4').hide();
                     $('#page-3').show();
+                }
+                else if ($('#page-5').is(':visible')) {
+                    $('#page-5').hide();
+                    $('#page-4').show();
+                }
+                else if ($('#page-6').is(':visible')) {
+                    $('#page-6').hide();
+                    $('#page-5').show();
                     $('#tutorial-modal').find('.modal-dialog').css('max-width', '500px');
                 }
             });

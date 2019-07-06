@@ -48,16 +48,12 @@
         </div>
     </form>
     <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal form-center">
-        <div class="form-group">
-            <div class="form-label">
-                <p>
-                    <a class="link"  asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]">Register as a new user?</a>
-                </p>
-                <p>
-                    <a class="link" asp-action="ForgotPassword">Forgot your password?</a>
-                </p>
-            </div>
-        </div>
+        <p>
+            <a class="link" asp-action="ForgotPassword">Forgot Password</a>
+        </p>
+        <p>
+            <a class="link" asp-action="ResendConfirmationEmail">Resend Confirmation Email</a>
+        </p>
     </form>
 </div>
 

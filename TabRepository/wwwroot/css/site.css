@@ -1236,3 +1236,7 @@ td {
     margin-top: 10px;
     margin-bottom: 10px;
 }
+
+#confirmation-email-container {
+    height: 100%;
+}

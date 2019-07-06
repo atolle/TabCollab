@@ -735,6 +735,54 @@ namespace TabRepository.Controllers
         }
 
         //
+        // GET: /Account/ForgotPassword
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResendConfirmationEmail()
+        {
+            return View();
+        }
+
+        //
+        // POST: /Account/ForgotPassword
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResendConfirmationEmail(ResendConfirmationEmailViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var userByUsername = await _userManager.FindByNameAsync(model.Username);
+
+                if (userByUsername == null)
+                {
+                    // Don't reveal that the user does not exist
+                    return PartialView("_ResendConfirmationEmailConfirmation");
+                }
+            
+                if (userByUsername.Email != model.Email)
+                {
+                    // Don't reveal that the email does not match
+                    return PartialView("_ResendConfirmationEmailConfirmation");
+                }
+
+                // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=532713
+                // Send an email with this link
+                if (!userByUsername.EmailConfirmed)
+                {
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(userByUsername);
+                    var callbackUrl = Url.Action(nameof(ConfirmEmail), "Account", new { userId = userByUsername.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                    await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
+                        $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+                }
+                return PartialView("_ResendConfirmationEmailConfirmation");
+            }
+
+            // If we got this far, something failed
+            return PartialView("_ResendConfirmationEmailForm", model);
+        }
+
+        //
         // GET: /Account/ForgotPasswordConfirmation
         [HttpGet]
         [AllowAnonymous]

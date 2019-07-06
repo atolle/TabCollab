@@ -61,11 +61,14 @@ namespace TabRepository.Controllers
                         case NotificationType.ContributorAdded:
                             href = Url.Action("Index", "Tabs");
                             break;
-                    }                    
+                    }
+
+                    string imagePath = notification.FromUser.ImageFilePath == null ? "/images/TabCollab_icon_white_blackcircle_512.png" : notification.FromUser.ImageFilePath;
+
                     html += "<div class='notification' data-notification-id='" + notification.Id + "'> " +
                                 "<a class='list-group-item notification-item' href='" + href + "'>" + 
                                     "<div style='display: flex; justify-content: center; width: 60px'>" + 
-                                        "<img class='notification-image' src=" + notification.FromUser.ImageFilePath + ">" +
+                                        "<img class='notification-image' src=" + imagePath + ">" +
                                     "</div>" +
                                     "<div style='width: calc(100% - 90px)'>" +
                                         "<div class='notification-message'>"+ notification.Message1 + "</div>" +
@@ -207,7 +210,7 @@ namespace TabRepository.Controllers
             {
                 var contributors = context
                     .ProjectContributors
-                    .Where(c => c.ProjectId == projectId && c.UserId != currentUser.UserName)
+                    .Where(c => c.ProjectId == projectId && c.UserId != currentUser.Id)
                     .ToList();                
 
                 foreach (ProjectContributor contributor in contributors)
@@ -224,7 +227,7 @@ namespace TabRepository.Controllers
 
                 var ownerId = context
                     .Projects
-                    .Where(p => p.Id == projectId && p.UserId != currentUser.UserName)
+                    .Where(p => p.Id == projectId && p.UserId != currentUser.Id)
                     .Select(p => p.UserId)
                     .FirstOrDefault();
 

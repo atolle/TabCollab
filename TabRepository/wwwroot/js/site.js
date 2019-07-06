@@ -52,7 +52,7 @@ function addSearchSuggestions(suggestions) {
     for (var i = 0; i < suggestions.length; i++) {
         var input = document.createElement("a");
         input.className = "btn list-group-item";
-        input.setAttribute('href', '/Friends/Search?searchString=' + suggestions[i].username);
+        input.setAttribute('href', '/Friends/Search?searchString=' + suggestions[i].username + '&exact=true');
         input.innerHTML = suggestions[i].username + '<br />(' + suggestions[i].firstName + ' ' + suggestions[i].lastName + ')';
         input.name = suggestions[i].username;
         container.appendChild(input);

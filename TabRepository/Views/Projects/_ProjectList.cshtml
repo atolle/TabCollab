@@ -7,7 +7,7 @@
         {
             <div class="col-lg-4" align="center">
                 <div class="card card-profile">
-                    <div class="card-header" style="background-image: url('@project.ImageFilePath');"></div>
+                    <div class="card-header" style="background-image: url('@(project.ImageFilePath == null ? "images/TabCollab_icon_white_square_512.png" : project.ImageFilePath)');"></div>
                     <div class="card-body text-center">
                         <h3>@project.Name</h3>
                         <p class="m-b">Owner: @project.Owner</p>

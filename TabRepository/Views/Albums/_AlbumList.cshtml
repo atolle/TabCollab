@@ -7,7 +7,7 @@
         {
             <div class="col-lg-4" align="center">
                 <div class="card card-profile">
-                    <div class="card-header" style="background-image: url('@album.ImageFilePath');"></div>
+                    <div class="card-header" style="background-image: url('@(album.ImageFilePath == null ? "images/TabCollab_icon_white_square_512.png" : album.ImageFilePath)');"></div>
                     <div class="card-body text-center">
                         <h3>@album.Name</h3>
                         <p class="m-b">Project: @album.ProjectName<br />Owner: @album.Owner</p>

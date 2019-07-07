@@ -356,7 +356,7 @@
             {
                 <div class="col-md-4" align="center">
                     <div class="card card-profile">
-                        <div class="card-header" style="background-image: url('@project.ImageFilePath');"></div>
+                        <div class="card-header" style="background-image: url('@(project.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : project.ImageFilePath)');"></div>
                         <div class="card-body text-center">
                             <h3>@project.Name</h3>
                             <p></p>
@@ -369,7 +369,7 @@
                                     {
                                         <div id="@album.Id" class="item-container">
                                             <div class="card album-panel card-profile">
-                                                <div class="card-header" style="background-image: url('@album.ImageFilePath');"></div>
+                                                <div class="card-header" style="background-image: url('@(album.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : album.ImageFilePath)');"></div>
                                                 <div class="card-body text-center">
                                                     <h5>@album.Name</h5>
                                                 </div>

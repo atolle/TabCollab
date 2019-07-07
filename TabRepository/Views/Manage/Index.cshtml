@@ -72,7 +72,7 @@
         </div>
         <div class="col" align="center">
             <div class="card card-profile" style="margin-bottom: 10px;">
-                <div id="profile-image" class="card-header" style="background-image: url('@Model.ImageFilePath');"></div>
+                <div id="profile-image" class="card-header" style="background-image: url('@(Model.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : Model.ImageFilePath)');"></div>
                 <div class="card-body text-center">
                     <h3>@Model.Username</h3>
                 </div>
@@ -216,7 +216,7 @@
 
                 // Don't submit form if the image is too large
                 if ($('#Image')[0].files.length) {
-                    if ($('#Image').files[0].size > 1000000) {
+                    if ($('#Image')[0].files.size > 1000000) {
                         return
                     }
                 }

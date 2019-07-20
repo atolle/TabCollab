@@ -130,11 +130,11 @@ namespace TabRepository.Controllers
 
                     if (viewModel.Image == null)
                     {
-                        await _emailSender.SendEmailAsync("support@tabcollab.com", "Bug Report", bugReport.ToString());
+                        await _emailSender.SendEmailAsync("support@tabcollab.com", "Bug Report", bugReport.ToString(), bugReport.ToString());
                     }
                     else
                     {
-                        await _emailSender.SendEmailAsyncWithAttachment("support@tabcollab.com", "Bug Report", bugReport.ToString(), viewModel.Image);
+                        await _emailSender.SendEmailAsyncWithAttachment("support@tabcollab.com", "Bug Report", bugReport.ToString(), bugReport.ToString(), viewModel.Image);
                     }
 
                     return PartialView("_BugReportConfirmation");

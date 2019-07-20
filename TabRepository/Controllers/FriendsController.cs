@@ -60,6 +60,11 @@ namespace TabRepository.Controllers
         [HttpGet]
         public ActionResult Search(string searchString, bool exact = false)
         {
+            if (searchString == null)
+            {
+                return View(new List<FriendViewModel>());
+            }
+
             searchString = searchString.Trim();
             string currentUserId = User.GetUserId();
 

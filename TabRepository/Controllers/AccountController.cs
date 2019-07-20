@@ -523,8 +523,15 @@ namespace TabRepository.Controllers
                         // Send an email with this link
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         var callbackUrl = Url.Action(nameof(ConfirmEmail), "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                        await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                            $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+                        await _emailSender.SendEmailAsync(
+                            model.Email, 
+                            "Confirm your account",
+                            String.Format(@"
+                                Hi {0}!
+
+                                Thanks for creating your TabCollab account.To start using your account, please verify your email by clicking  <a href='{1}'>here</a>.", model.Username, callbackUrl),
+                            HtmlTemplate.GetConfirmEmailHtml(model.Username, callbackUrl)
+                        );
 
                         _logger.LogInformation(3, "User created a new account with password.");
                         return PartialView(partialView);
@@ -726,6 +733,7 @@ namespace TabRepository.Controllers
                 var code = await _userManager.GeneratePasswordResetTokenAsync(userByUsername);
                 var callbackUrl = Url.Action(nameof(ResetPassword), "Account", new { userId = userByUsername.Id, code = code }, protocol: HttpContext.Request.Scheme);
                 await _emailSender.SendEmailAsync(model.Email, "Reset Password",
+                   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>",
                    $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
                 return PartialView("_ForgotPasswordConfirmation");
             }
@@ -772,8 +780,15 @@ namespace TabRepository.Controllers
                 {
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(userByUsername);
                     var callbackUrl = Url.Action(nameof(ConfirmEmail), "Account", new { userId = userByUsername.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                    await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                        $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+                    await _emailSender.SendEmailAsync(
+                        model.Email,
+                        "Confirm your account",
+                        String.Format(@"
+                                Hi {0}!
+
+                                Thanks for creating your TabCollab account.To start using your account, please verify your email by clicking  <a href='{1}'>here</a>.", model.Username, callbackUrl),
+                        HtmlTemplate.GetConfirmEmailHtml(model.Username, callbackUrl)
+                    );
                 }
                 return PartialView("_ResendConfirmationEmailConfirmation");
             }
@@ -877,7 +892,7 @@ namespace TabRepository.Controllers
             var message = "Your security code is: " + code;
             if (model.SelectedProvider == "Email")
             {
-                await _emailSender.SendEmailAsync(await _userManager.GetEmailAsync(user), "Security Code", message);
+                await _emailSender.SendEmailAsync(await _userManager.GetEmailAsync(user), "Security Code", message, message);
             }
             else if (model.SelectedProvider == "Phone")
             {

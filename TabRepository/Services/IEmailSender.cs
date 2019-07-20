@@ -8,7 +8,7 @@ namespace TabRepository.Services
 {
     public interface IEmailSender
     {
-        Task SendEmailAsync(string email, string subject, string message);
-        Task SendEmailAsyncWithAttachment(string email, string subject, string message, IFormFile file);
+        Task SendEmailAsync(string email, string subject, string message, string html);
+        Task SendEmailAsyncWithAttachment(string email, string subject, string message, string html, IFormFile file);
     }
 }

@@ -7,10 +7,10 @@
 <div class="container-fluid list-container" style="display: flex;">
     <div id="page">
         <div id="friends-list-wrapper"></div>
-    </div>
-    <div id="list-loader-wrapper" class="flex-container-row">
-        <div class="flex-container-col">
-            <div class="list-loader"></div>
+        <div id="list-loader-wrapper" style="min-height: 100% !important;" class="flex-container-row">
+            <div class="flex-container-col">
+                <div class="list-loader"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -51,7 +51,7 @@
                         $(that).html("Request Sent");
                         $(that).toggleClass('btn-primary btn-default disabled pull-left');
                         $(that).parent().append('<a id="cancel-request-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/CancelRequest">Cancel Request</a>');
-                    }                 
+                    }
                 })
                 .fail(function (error) {
                     showFailureBootbox("sending friend request", error.statusText);
@@ -79,7 +79,7 @@
                     else {
                         $(that).html("Friends");
                         $(that).parent().html('<a class="btn btn-primary pull-left">Friends</a><a id="remove-friend-button" data-username="' + username.username + '" class="btn btn-danger pull-right" href="/Friends/RemoveFriend">Unfriend</a>')
-                    }                   
+                    }
                 })
                 .fail(function (error) {
                     showFailureBootbox("accepting friend request", error.statusText);

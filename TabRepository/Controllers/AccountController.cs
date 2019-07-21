@@ -501,18 +501,18 @@ namespace TabRepository.Controllers
                         //}
 
                         // Save profile image if it was added
-                        if (model.Image != null)
+                        if (model.CroppedImage != null)
                         {
                             // Limit file size to 1 MB
-                            if (model.Image.Length <= 1000000)
+                            if (model.CroppedImage.Length <= 1000000)
                             {
                                 string currentUserId = user.Id;
 
                                 var userInDb = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
 
-                                string imageFilePath = await _fileUploader.UploadFileToFileSystem(model.Image, currentUserId, "Profile");
+                                string imageFilePath = await _fileUploader.UploadFileToFileSystem(model.CroppedImage, currentUserId, "Profile");
 
-                                userInDb.ImageFileName = model.Image.FileName;
+                                userInDb.ImageFileName = model.CroppedImage.FileName;
                                 userInDb.ImageFilePath = imageFilePath;
 
                                 _context.SaveChanges();

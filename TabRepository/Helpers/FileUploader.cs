@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using TabRepository.Data;
@@ -28,8 +29,10 @@ namespace TabRepository.Helpers
                 Directory.CreateDirectory(userFolderPath);
             }
 
-            string filePath = userFolderPath + "\\" + file.FileName;
-            relativePath += "\\" + file.FileName;
+            string fileName = generateFileName(file);
+
+            string filePath = userFolderPath + "\\" + fileName;
+            relativePath += "\\" + fileName;
 
             if (file.Length > 0)
             {
@@ -43,6 +46,11 @@ namespace TabRepository.Helpers
             {
                 return "";
             }
+        }
+
+        private string generateFileName(IFormFile file)
+        {
+            return (Guid.NewGuid()).ToString() + Path.GetExtension(file.FileName);
         }
     }
 }

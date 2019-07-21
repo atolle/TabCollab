@@ -8,17 +8,16 @@
         <div class="buttons-container">
             <a id="new-album-button" data-toggle="tooltip" title="Add New Album" class="white-icon pull-left add-button" href="@Url.Action("GetProjectSelectionPartialView", "Projects")"><i class="fa fa-plus fa-3x"></i></a>
         </div>
-
+        <div id="list-loader-wrapper" class="flex-container-row">
+            <div class="flex-container-col">
+                <div class="list-loader"></div>
+            </div>
+        </div>
         <div id="album-list-wrapper"></div>
 
         <div id='album-form-modal' class='modal fade'>
             <div id='album-form-container'>
             </div>
-        </div>
-    </div>
-    <div id="list-loader-wrapper" class="flex-container-row">
-        <div class="flex-container-col">
-            <div class="list-loader"></div>
         </div>
     </div>
 </div>
@@ -102,8 +101,6 @@ $(document).ready(function () {
                 // Client side validation for dynamic modal injection
                 $.validator.unobtrusive.parse($("#album-form"));
 
-                bindImageSizeValidation();
-
                 currentModal = $('#album-form-modal');
                 currentModal.modal('show');
             }
@@ -131,8 +128,6 @@ $(document).ready(function () {
                 $('#album-form-container').html(response);
                 // Client side validation for dynamic modal injection
                 $.validator.unobtrusive.parse($("#album-form"));
-
-                bindImageSizeValidation();
 
                 currentModal = $('#album-form-modal');
                 currentModal.modal('show');
@@ -192,6 +187,8 @@ $(document).ready(function () {
                     // Client side validation for dynamic modal injection
                     $.validator.unobtrusive.parse($("#album-form"));
 
+                    imageUpload();
+
                     currentModal = $('#album-form-modal');
                     currentModal.modal('show');
                 }
@@ -202,69 +199,70 @@ $(document).ready(function () {
         }, 500)
     });
 
-    function bindImageSizeValidation() {
-        $(document).on("change", "#Image", function (e, data) {
-            // Make sure the image size is less than 1MB
-            if (this.files.length) {
-                if (this.files[0].size > 1000000) {
-                    $("#image-error").html("Image size limit is 1 MB");
-                }
-                else {
-                    $("#image-error").html("");
-                }
-            }
-            else {
-                $("#image-error").html("");
-            }
-        });
-    }
-
     $("#page").on("submit", function (e, data) {
         e.preventDefault();
+
+        var $deferred = $.Deferred();
 
         // Don't submit form if the image is too large
         if ($('#Image')[0].files.length) {
             if ($('#Image')[0].files[0].size > 1000000) {
                 return
             }
+            $('#image-upload').croppie('result', {
+                type: 'blob',
+                size: 'original',
+                format: 'jpeg'
+            }).then(function (blob) {
+                $deferred.resolve(blob);
+            });
+        }
+        else {
+            $deferred.resolve();
         }
 
-        var form = e.target;
-        var formData = new FormData(form);
+        $deferred.then(function (blob) {
+            var form = e.target;
+            var formData = new FormData(form);
 
-        // Show spinner on save button
-        $('.button-save').html('<div class="loader"></div>');
-        $('.button-save').addClass('disabled');
-        $('.validation-error').html('');
+            if (blob) {
+                formData.append('CroppedImage', blob, 'image.jpeg');
+            }
 
-        $.ajax({
-            url: form.action,
-            type: 'POST',
-            data: formData,
-            cache: false,
-            contentType: false,
-            processData: false
-        })
-        .then(function (response) {
-            if (response.error) {            
-                enableSubmitButton();
-                if (response.error.toLowerCase().includes('file')) {
-                    $('#image-error').html(response.error);
+            // Show spinner on save button
+            $('.button-save').html('<div class="loader"></div>');
+            $('.button-save').addClass('disabled');
+            $('.validation-error').html('');
+
+            $.ajax({
+                url: form.action,
+                type: 'POST',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false
+            })
+            .then(function (response) {
+                if (response.error) {
+                    enableSubmitButton();
+                    if (response.error.toLowerCase().includes('file')) {
+                        $('#image-error').html(response.error);
+                    }
+                    else {
+                        showFailureBootbox("saving", response.error);
+                    }
                 }
                 else {
-                    showFailureBootbox("saving", response.error);
+                    currentModal.modal('hide');
+                    // Call GetAlbumListPartialView to repopulate the project list
+                    repopulateAlbumList();
                 }
-            }
-            else {
-                currentModal.modal('hide');
-                // Call GetAlbumListPartialView to repopulate the project list
-                repopulateAlbumList();
-            }
-        })
-        .fail(function (error) {
-            showFailureBootbox("saving album", error.statusText);
-            enableSubmitButton();
-        })
+            })
+            .fail(function (error) {
+                showFailureBootbox("saving album", error.statusText);
+                enableSubmitButton();
+            })
+        });
     });
 
     function repopulateAlbumList() {

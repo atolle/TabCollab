@@ -161,8 +161,11 @@
         <div class="row row-no-margin">
             <div class="col-md-6">
                 <div class="form-group">
-                    <div class="form-label">
+                    <div class="form-label image-upload">
                         @Html.LabelFor(m => m.Image, "Profile Image")
+                        <div id="image-upload-container" style="display: none;">
+                            <div id="image-upload"></div>
+                        </div>
                     </div>
                     @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default form-input file-input" })
                     <div class="form-label">
@@ -211,6 +214,8 @@
     $(document).ready(function () {
         $('footer').show();
 
+        imageUpload();
+
         var freeModal = $('#free-modal');
         var subscriptionModal = $('#subscription-modal');
 
@@ -234,21 +239,6 @@
                 $('#subscription-radio').click();
             }
             subscriptionModal.modal('show');
-        });
-
-        $(document).on("change", "#Image", function (e, data) {
-            // Make sure the image size is less than 1MB
-            if (this.files.length) {
-                if (this.files[0].size > 1000000) {
-                    $("#image-error").html("Image size limit is 1 MB");
-                }
-                else {
-                    $("#image-error").html("");
-                }
-            }
-            else {
-                $("#image-error").html("");
-            }
         });
 
         Stripe.setPublishableKey('pk_test_mMmjGjT6aetaMgLCCu14fWGm00wC0SGVLv');
@@ -390,34 +380,51 @@
         $(document).on("submit", "#register-form", function (e, data) {
             e.preventDefault();
 
+            var $deferred = $.Deferred();
+
             // Don't submit form if the image is too large
             if ($('#Image')[0].files.length) {
                 if ($('#Image')[0].files[0].size > 1000000) {
                     return
                 }
+                $('#image-upload').croppie('result', {
+                    type: 'blob',
+                    size: 'original',
+                    format: 'jpeg'
+                }).then(function (blob) {
+                    $deferred.resolve(blob);
+                });
+            }
+            else {
+                $deferred.resolve();
             }
 
-            var recaptcha = $("#g-recaptcha-response").val();
-            if (recaptcha === "") {
-                $('#recaptcha-error').html('Please check reCAPTCHA');
-                return;
-            }
+            $deferred.then(function (blob) {
+                var recaptcha = $("#g-recaptcha-response").val();
+                if (recaptcha === "") {
+                    $('#recaptcha-error').html('Please check reCAPTCHA');
+                    return;
+                }
 
-            $('.validation-error').html('');
-            $('.button-submit-wide').html('<div class="loader"></div>');
-            $('.button-submit-wide').addClass('disabled');
+                $('.validation-error').html('');
+                $('.button-submit-wide').html('<div class="loader"></div>');
+                $('.button-submit-wide').addClass('disabled');
 
-            var form = e.target;
-            var formData = new FormData(form);
+                var form = e.target;
+                var formData = new FormData(form);
 
-            $.ajax({
-                url: form.action,
-                type: 'POST',
-                data: formData,
-                cache: false,
-                contentType: false,
-                processData: false
-            })
+                if (blob) {
+                    formData.append('CroppedImage', blob, 'image.jpeg');
+                }
+
+                $.ajax({
+                    url: form.action,
+                    type: 'POST',
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                })
                 .then(function (response) {
                     enableSubmitButton();
 
@@ -446,6 +453,7 @@
                 .fail(function (error) {
                     showFailureBootbox("resgistering", error.statusText);
                 });
+            });
         });
 
         $(document).on("submit", "#payment-form", function (e, data) {

@@ -410,15 +410,15 @@ namespace TabRepository.Controllers
             var user = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
 
             // Limit file size to 1 MB
-            if (viewModel.Image != null)
+            if (viewModel.CroppedImage != null)
             {
-                if (viewModel.Image.Length > 1000000)
+                if (viewModel.CroppedImage.Length > 1000000)
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
                 }
 
-                string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, currentUserId, "Profile");
-                user.ImageFileName = viewModel.Image.FileName;
+                string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.CroppedImage, currentUserId, "Profile");
+                user.ImageFileName = viewModel.CroppedImage.FileName;
                 user.ImageFilePath = imageFilePath;
             }
 
@@ -442,7 +442,7 @@ namespace TabRepository.Controllers
             }
 
             // Limit file size to 1 MB
-            if (viewModel.Image.Length > 1000000)
+            if (viewModel.CroppedImage.Length > 1000000)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
             }
@@ -451,9 +451,9 @@ namespace TabRepository.Controllers
 
             var user = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
 
-            string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, currentUserId, "Profile");
+            string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.CroppedImage, currentUserId, "Profile");
 
-            user.ImageFileName = viewModel.Image.FileName;
+            user.ImageFileName = viewModel.CroppedImage.FileName;
             user.ImageFilePath = imageFilePath;
 
             _context.SaveChanges();

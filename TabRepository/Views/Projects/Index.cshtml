@@ -8,7 +8,11 @@
         <div class="buttons-container">
             <a id="new-project-button" data-toggle="tooltip" title="Add New Project" class="white-icon pull-left add-button" href="@Url.Action("GetProjectFormPartialView", "Projects")"><i class="fa fa-plus fa-3x"></i></a>
         </div>
-
+        <div id="list-loader-wrapper" class="flex-container-row">
+            <div class="flex-container-col">
+                <div class="list-loader"></div>
+            </div>
+        </div>
         <div id="project-list-wrapper"></div>
 
         <div id='project-form-modal' class='modal fade' align="center">
@@ -19,11 +23,6 @@
         <div id='album-form-modal' class='modal fade' align="center">
             <div id='album-form-container'>
             </div>
-        </div>
-    </div>
-    <div id="list-loader-wrapper" class="flex-container-row">
-        <div class="flex-container-col">
-            <div class="list-loader"></div>
         </div>
     </div>
 </div>
@@ -106,9 +105,9 @@ $(document).ready(function () {
             else {
                 $('#project-form-container').html(response);
                 // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#project-form"));
+                $.validator.unobtrusive.parse($("#project-form"));                
 
-                bindImageSizeValidation();
+                imageUpload();
 
                 currentModal = $('#project-form-modal');
                 currentModal.modal('show');
@@ -138,7 +137,7 @@ $(document).ready(function () {
                     // Client side validation for dynamic modal injection
                     $.validator.unobtrusive.parse($("#project-form"));
 
-                    bindImageSizeValidation();
+                    imageUpload();
 
                     currentModal = $('#project-form-modal');
                     currentModal.modal('show');
@@ -203,73 +202,74 @@ $(document).ready(function () {
         $("input[value=" + username + "]").remove();
     });
 
-    function bindImageSizeValidation() {
-        $(document).on("change", "#Image", function (e, data) {
-            // Make sure the image size is less than 1MB
-            if (this.files.length) {
-                if (this.files[0].size > 1000000) {
-                    $("#image-error").html("Image size limit is 1 MB");
-                }
-                else {
-                    $("#image-error").html("");
-                }
-            }
-            else {
-                $("#image-error").html("");
-            }
-        });
-    }
-
     $("#page").on("submit", function (e, data) {
         e.preventDefault();
+
+        var $deferred = $.Deferred();
 
         // Don't submit form if the image is too large
         if ($('#Image')[0].files.length) {
             if ($('#Image')[0].files[0].size > 1000000) {
                 return
             }
+            $('#image-upload').croppie('result', {
+                type: 'blob',
+                size: 'original',
+                format: 'jpeg'
+            }).then(function (blob) {
+                $deferred.resolve(blob);
+            });
+        }
+        else {
+            $deferred.resolve();
         }
 
-        // Loop through all contributors to add index for model binding
-        $('.contributor').each(function (index) {
-            $(this).attr('name', 'Contributors[' + index + '].Username');
-        });
+        $deferred.then(function (blob) {
+            // Loop through all contributors to add index for model binding
+            $('.contributor').each(function (index) {
+                $(this).attr('name', 'Contributors[' + index + '].Username');
+            });
 
-        var form = e.target;
-        var formData = new FormData(form);
+            var form = e.target;
+            var formData = new FormData(form);
 
-        // Show spinner on save button
-        $('.button-save').html('<div class="loader"></div>');
-        $('.button-save').addClass('disabled');
-        $('.validation-error').html('');
+            if (blob) {
+                formData.append('CroppedImage', blob, 'image.jpeg');
+            }
 
-        $.ajax({
-            url: form.action,
-            type: 'POST',
-            data: formData,
-            cache: false,
-            contentType: false,
-            processData: false
-        })
-        .then(function (response) {
-            if (response.error) {
-                enableSubmitButton();
-                if (response.error.toLowerCase().includes('file')) {
-                    $('#image-error').html(response.error);
+            // Show spinner on save button
+            $('.button-save').html('<div class="loader"></div>');
+            $('.button-save').addClass('disabled');
+            $('.validation-error').html('');
+
+            $.ajax({
+                url: form.action,
+                type: 'POST',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false
+            })
+            .then(function (response) {
+                if (response.error) {
+                    enableSubmitButton();
+                    if (response.error.toLowerCase().includes('file')) {
+                        $('#image-error').html(response.error);
+                    }
+                    else {
+                        showFailureBootbox("saving", response.error);
+                    }
                 }
                 else {
-                    showFailureBootbox("saving", response.error);
+                    currentModal.modal('hide');
+                    // Call GetProjectListPartialView to repopulate the project list
+                    repopulateProjectList();
                 }
-            }
-            else {
-                currentModal.modal('hide');
-                // Call GetProjectListPartialView to repopulate the project list
-                repopulateProjectList();
-            }
-        })
-        .fail(function (error) {
-            showFailureBootbox("saving", error.statusText);
-            enableSubmitButton();
+            })
+            .fail(function (error) {
+                showFailureBootbox("saving", error.statusText);
+                enableSubmitButton();
+            })
         })
     });
 

@@ -212,3 +212,74 @@ if ('serviceWorker' in navigator) {
         });
     });
 }
+
+function imageUpload() {
+    var $uploadCrop;
+
+    // Make sure we don't already have a Croppie instantiated
+    $('#image-upload').croppie('destroy');
+
+    function readFile(input) {
+        // Make sure the image size is less than 1MB
+        if (input.files.length) {
+            if (input.files[0].size > 1000000) {
+                $("#image-error").html("Image size limit is 1 MB");
+                return;
+            }
+            else {
+                $("#image-error").html("");
+                $('#image-upload-container').show();
+            }
+        }
+        else {
+            $("#image-error").html("");
+            $('#image-upload-conatiner').hide();
+        }
+
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('.image-upload').addClass('ready');
+                $uploadCrop.croppie('bind', {
+                    url: e.target.result
+                }).then(function () {
+                    console.log('jQuery bind complete');
+                });
+
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+        else {
+            swal("Sorry - you're browser doesn't support the FileReader API");
+        }
+    }    
+    
+    $('#Image').on('change', function () {
+        readFile(this);
+
+        // Initialize Croppie
+        $uploadCrop = $('#image-upload').croppie({
+            viewport: {
+                width: 230,
+                height: 230,
+                type: 'square'
+            },
+            enableExif: true,
+            enableOrientation: true
+        });
+
+        // Add rotate and delete buttons after Croppie is initialized, which dynamically adds elements to the DOM
+        $('.cr-slider-wrap').append('<div id="image-buttons"><a id="image-rotate" data-deg="90" data-toggle="tooltip" title="Rotate Image" class="white-icon"><i class="fa fa-undo fa-lg" /></a><a id="image-delete" data-deg="90" data-toggle="tooltip" title="Rotate Image" class="white-icon"><i class="fa fa-times fa-lg" /></a></div>');
+        
+        $('#image-rotate').on('click', function (ev) {
+            $uploadCrop.croppie('rotate', parseInt($(this).data('deg')));
+        });
+
+        $('#image-delete').on('click', function (ev) {
+            $('#Image').val('');
+            $('#image-upload').croppie('destroy');
+        });
+    });
+}

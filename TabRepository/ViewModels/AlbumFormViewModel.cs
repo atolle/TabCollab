@@ -17,6 +17,8 @@ namespace TabRepository.ViewModels
 
         public IFormFile Image { get; set; }
 
+        public IFormFile CroppedImage { get; set; }
+
         [FileExtensions(Extensions = "png,gif,jpeg,jpg,nofile", ErrorMessage = "Invalid file type")]
         public string FileName
         {

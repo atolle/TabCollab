@@ -11,11 +11,13 @@
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/css/site.css" />
         <link rel="stylesheet" href="~/css/font-awesome-4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="~/lib/Croppie/croppie.css">
     </environment>
     <environment names="Staging,Production">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/css/site.css" />
         <link rel="stylesheet" href="~/css/font-awesome-4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="~/lib/Croppie/croppie.css">
     </environment>
     @Html.Raw(JavaScriptSnippet.FullScript)
 </head>
@@ -49,6 +51,8 @@
         <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/lib/bootbox.js/bootbox.js"></script>
+        <script src="~/lib/exif-js/exif.js"></script>
+        <script src="~/lib/Croppie/croppie.js"></script>
     </environment>
     <environment names="Staging,Production">
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -56,6 +60,8 @@
         <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/lib/bootbox.js/bootbox.js"></script>
+        <script src="~/lib/exif-js/exif.js"></script>
+        <script src="~/lib/Croppie/croppie.js"></script>
     </environment>
     @RenderSection("Scripts", required: false)
     <partial name="_BetaModal" />

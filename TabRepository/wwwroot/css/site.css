@@ -35,6 +35,7 @@ footer {
 
 #page {
     min-height: 100%;
+    width: 100%;
 }
 
 /* Wrapping element */
@@ -279,6 +280,8 @@ footer {
 
 .card-header {
     border-radius: initial;
+    width: 100%;
+    padding-top: 100%;
 }
 
 .album-panel, .tab-panel, .tabversion-panel {
@@ -296,7 +299,6 @@ footer {
 }
 
 .card-header {
-    padding: 10px 15px;
     border-bottom: solid 1px grey;
     height: 300px !important;
     background-position: center;
@@ -407,6 +409,10 @@ footer {
     width: 120px;
     height: 120px;
     animation: spin 2s linear infinite;
+}
+
+#list-loader-wrapper {
+    min-height: calc(100% - 10em) !important;
 }
 
 .tab-loader {
@@ -1239,4 +1245,21 @@ td {
 
 #confirmation-email-container {
     height: 100%;
+}
+
+.croppie-container .cr-image { 
+    position: relative !important;
+}
+
+.croppie-container .cr-boundary {
+    max-height: 300px;
+}
+
+.cr-slider-wrap {
+    background-color: rgb(33, 33, 33);
+}
+
+#image-buttons {
+    display: flex;
+    justify-content: space-around
 }

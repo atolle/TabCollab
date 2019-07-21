@@ -69,16 +69,16 @@ namespace TabRepository.Controllers
                                 DateModified = DateTime.Now
                             };
 
-                            if (viewModel.Image != null)
+                            if (viewModel.CroppedImage != null)
                             {
                                 // Limit file size to 1 MB
-                                if (viewModel.Image.Length > 1000000)
+                                if (viewModel.CroppedImage.Length > 1000000)
                                 {
-                                    return StatusCode(StatusCodes.Status500InternalServerError, "Image size limit is 1 MB");
+                                    return Json(new { error = "Image size limit is 1 MB" });
                                 }
 
-                                project.ImageFileName = viewModel.Image.FileName;
-                                string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + project.Id.ToString());
+                                project.ImageFileName = viewModel.CroppedImage.FileName;
+                                string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.CroppedImage, User.GetUserId(), "Project" + project.Id.ToString());
                                 project.ImageFilePath = imageFilePath;
                             }
 
@@ -123,16 +123,16 @@ namespace TabRepository.Controllers
                             projectInDb.Description = viewModel.Description;
                             projectInDb.DateModified = DateTime.Now;
 
-                            if (viewModel.Image != null)
+                            if (viewModel.CroppedImage != null)
                             {
                                 // Limit file size to 1 MB
-                                if (viewModel.Image.Length > 1000000)
+                                if (viewModel.CroppedImage.Length > 1000000)
                                 {
                                     return Json(new { error = "Image size limit is 1 MB" });
                                 }
 
-                                projectInDb.ImageFileName = viewModel.Image.FileName;
-                                string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Project" + projectInDb.Id.ToString());
+                                projectInDb.ImageFileName = viewModel.CroppedImage.FileName;
+                                string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.CroppedImage, User.GetUserId(), "Project" + projectInDb.Id.ToString());
                                 projectInDb.ImageFilePath = imageFilePath;
                             }
 

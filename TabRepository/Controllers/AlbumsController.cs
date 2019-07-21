@@ -95,16 +95,16 @@ namespace TabRepository.Controllers
                                 DateModified = DateTime.Now
                             };
 
-                            if (viewModel.Image != null)
+                            if (viewModel.CroppedImage != null)
                             {
                                 // Limit file size to 1 MB
-                                if (viewModel.Image.Length > 1000000)
+                                if (viewModel.CroppedImage.Length > 1000000)
                                 {
                                     return Json(new { error = "Image size limit is 1 MB" });
                                 }
 
-                                album.ImageFileName = viewModel.Image.FileName;
-                                string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, projectInDb.UserId, "Album" + album.Id.ToString());
+                                album.ImageFileName = viewModel.CroppedImage.FileName;
+                                string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.CroppedImage, projectInDb.UserId, "Album" + album.Id.ToString());
                                 album.ImageFilePath = imageFilePath;
                             }
 
@@ -132,16 +132,16 @@ namespace TabRepository.Controllers
                         albumInDb.Description = viewModel.Description;
                         albumInDb.DateModified = DateTime.Now;
 
-                        if (viewModel.Image != null)
+                        if (viewModel.CroppedImage != null)
                         {
                             // Limit file size to 1 MB
-                            if (viewModel.Image.Length > 1000000)
+                            if (viewModel.CroppedImage.Length > 1000000)
                             {
                                 return Json(new { error = "Image size limit is 1 MB" });
                             }
 
-                            albumInDb.ImageFileName = viewModel.Image.FileName;
-                            string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.Image, User.GetUserId(), "Album" + albumInDb.Id.ToString());
+                            albumInDb.ImageFileName = viewModel.CroppedImage.FileName;
+                            string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.CroppedImage, User.GetUserId(), "Album" + albumInDb.Id.ToString());
                             albumInDb.ImageFilePath = imageFilePath;
                         }
 

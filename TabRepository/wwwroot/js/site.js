@@ -257,6 +257,11 @@ function imageUpload() {
     }    
     
     $('#Image').on('change', function () {
+        if (!this.files.length) {
+            $('#image-upload').croppie('destroy');
+            return;
+        }
+
         readFile(this);
 
         // Initialize Croppie

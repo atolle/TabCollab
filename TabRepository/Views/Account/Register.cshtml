@@ -214,6 +214,7 @@
     $(document).ready(function () {
         $('footer').show();
 
+        onResize();
         imageUpload();
 
         var freeModal = $('#free-modal');
@@ -508,6 +509,18 @@
                 currentModal = $('#privacy-modal');
                 currentModal.modal('show');
             });
+        });
+
+        function onResize() {
+            if ($(window).width() < 600) {
+                $('.flex-container-row').css('display', 'unset');
+            }
+            else {
+                $('.flex-container-row').css('display', 'flex');
+            }
+        };
+        window.addEventListener("resize", function () {
+            onResize();
         });
     });
     </script>

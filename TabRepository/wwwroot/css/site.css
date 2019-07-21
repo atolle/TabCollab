@@ -1255,7 +1255,8 @@ td {
     max-height: 300px;
 }
 
-.cr-slider-wrap {
+.croppie-container .cr-slider-wrap {
+    width: 100% !important;
     background-color: rgb(33, 33, 33);
 }
 

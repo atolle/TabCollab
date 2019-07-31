@@ -460,7 +460,7 @@
     <script>
         var original_parent;
 
-        $(document).ready(function () {
+        $(document).ready(function () {           
             var allowNewTabs = true,
                 tabTutorialShown = false,
                 tabLoader = "<div class='tab-loader-container' style='display: none;'><div class='tab-loader'></div></div>",
@@ -1356,9 +1356,9 @@
             e.preventDefault();
 
             // Don't submit form if the image is too large
-            if (currentModal.find("#FileData").length) {
-                if (currentModal.find('#FileData')[0].files.length) {
-                    if (currentModal.find('#FileData')[0].files[0].size > 1000000) {
+            if ($("#FileData").length) {
+                if ($('#FileData')[0].files.length) {
+                    if ($('#FileData')[0].files[0].size > 1000000) {
                         return
                     }
                 }
@@ -1367,17 +1367,22 @@
             var $deferred = $.Deferred();
 
             // Don't submit form if the image is too large
-            if ($('#Image')[0].files.length) {
-                if ($('#Image')[0].files[0].size > 1000000) {
-                    return
+            if ($('#Image').length) {
+                if ($('#Image')[0].files.length) {
+                    if ($('#Image')[0].files[0].size > 1000000) {
+                        return
+                    }
+                    $('#image-upload').croppie('result', {
+                        type: 'blob',
+                        size: 'original',
+                        format: 'jpeg'
+                    }).then(function (blob) {
+                        $deferred.resolve(blob);
+                    });
                 }
-                $('#image-upload').croppie('result', {
-                    type: 'blob',
-                    size: 'original',
-                    format: 'jpeg'
-                }).then(function (blob) {
-                    $deferred.resolve(blob);
-                });
+                else {
+                    $deferred.resolve();
+                }
             }
             else {
                 $deferred.resolve();
@@ -1731,6 +1736,19 @@
             $('.button-save').html('Save');
             $('.button-save').removeClass('disabled');
         }
+
+        $('#project-form-modal').on('hidden.bs.modal', function (e) {
+            $('#project-form-container').html('');
+        });
+        $('#album-form-modal').on('hidden.bs.modal', function (e) {
+            $('#album-form-container').html('');
+        });
+        $('#tab-form-modal').on('hidden.bs.modal', function (e) {
+            $('#tab-form-container').html('');
+        });
+        $('#tabversion-form-modal').on('hidden.bs.modal', function (e) {
+            $('#tabversion-form-container').html('');
+        });
     });
     </script>
 }

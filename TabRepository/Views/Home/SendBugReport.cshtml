@@ -72,6 +72,9 @@
                 <div class="form-group">
                     <div class="form-label">
                         @Html.LabelFor(m => m.Image, "Image")
+                        <div id="image-upload-container" style="display: none;">
+                            <div id="image-upload"></div>
+                        </div>
                     </div>
                     @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default form-input file-input" })
                     <div class="form-label">
@@ -111,29 +114,28 @@
         $('hr').show();
         $('footer').show();
 
-        $("#bug-report-form").on("change", "#Image", function (e, data) {
-            // Make sure the image size is less than 1MB
-            if (this.files.length) {
-                if (this.files[0].size > 1000000) {
-                    $("#image-error").html("Image size limit is 1 MB");
-                }
-                else {
-                    $("#image-error").html("");
-                }
-            }
-            else {
-                $("#image-error").html("");
-            }
-        });
+        imageUpload();
 
         $("#bug-report-form").on("submit", function (e, data) {
             e.preventDefault();
+
+            var $deferred = $.Deferred();
 
             // Don't submit form if the image is too large
             if ($('#Image')[0].files.length) {
                 if ($('#Image')[0].files[0].size > 1000000) {
                     return
                 }
+                $('#image-upload').croppie('result', {
+                    type: 'blob',
+                    size: 'original',
+                    format: 'jpeg'
+                }).then(function (blob) {
+                    $deferred.resolve(blob);
+                });
+            }
+            else {
+                $deferred.resolve();
             }
 
             var recaptcha = $("#g-recaptcha-response").val();
@@ -142,39 +144,46 @@
                 return;
             }
 
-            $('.validation-error').html('');
-            $('.button-submit-wide').html('<div class="loader"></div>');
-            $('.button-submit-wide').addClass('disabled');
+            $deferred.then(function (blob) {
 
-            var form = e.target;
-            var formData = new FormData(form);
+                $('.validation-error').html('');
+                $('.button-submit-wide').html('<div class="loader"></div>');
+                $('.button-submit-wide').addClass('disabled');
 
-            $.ajax({
-                url: form.action,
-                type: 'POST',
-                data: formData,
-                cache: false,
-                contentType: false,
-                processData: false
-            })
-            .then(function (response) {
-                if (response.error) {
-                    enableSubmitButton();
-                    if (response.error.toLowerCase().includes('file')) {
-                        $('#image-error').html(response.error);
+                var form = e.target;
+                var formData = new FormData(form);
+
+                if (blob) {
+                    formData.append('CroppedImage', blob, 'image.jpeg');
+                }
+
+                $.ajax({
+                    url: form.action,
+                    type: 'POST',
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                })
+                .then(function (response) {
+                    if (response.error) {
+                        enableSubmitButton();
+                        if (response.error.toLowerCase().includes('file')) {
+                            $('#image-error').html(response.error);
+                        }
+                        else {
+                            showFailureBootbox("submitting bug report", response.error);
+                        }
                     }
                     else {
-                        showFailureBootbox("submitting bug report", response.error);
+                        $('.flex-container-row').html(response);
                     }
-                }
-                else {
-                    $('.flex-container-row').html(response);
-                }
-            })
-            .fail(function (error) {
-                bootbox.alert("Unable to submit bug report. Error: " + error.statusText);
-                enableSubmitButton();
-            })
+                })
+                .fail(function (error) {
+                    bootbox.alert("Unable to submit bug report. Error: " + error.statusText);
+                    enableSubmitButton();
+                })
+            });
         });
 
         function enableSubmitButton() {

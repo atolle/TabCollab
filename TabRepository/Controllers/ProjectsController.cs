@@ -77,9 +77,10 @@ namespace TabRepository.Controllers
                                     return Json(new { error = "Image size limit is 1 MB" });
                                 }
 
-                                project.ImageFileName = viewModel.CroppedImage.FileName;
-                                string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.CroppedImage, User.GetUserId(), "Project" + project.Id.ToString());
-                                project.ImageFilePath = imageFilePath;
+                                Helpers.File file = await _fileUploader.UploadFileToFileSystem(viewModel.CroppedImage, User.GetUserId(), "Project" + project.Id.ToString());
+
+                                project.ImageFilePath = file.Path;
+                                project.ImageFileName = file.Name;
                             }
 
                             _context.Projects.Add(project);
@@ -131,9 +132,10 @@ namespace TabRepository.Controllers
                                     return Json(new { error = "Image size limit is 1 MB" });
                                 }
 
-                                projectInDb.ImageFileName = viewModel.CroppedImage.FileName;
-                                string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.CroppedImage, User.GetUserId(), "Project" + projectInDb.Id.ToString());
-                                projectInDb.ImageFilePath = imageFilePath;
+                                Helpers.File file = await _fileUploader.UploadFileToFileSystem(viewModel.CroppedImage, User.GetUserId(), "Project" + projectInDb.Id.ToString());
+
+                                projectInDb.ImageFilePath = file.Path;
+                                projectInDb.ImageFileName = file.Name;
                             }
 
                             // Add new contributors, remove any that were removed

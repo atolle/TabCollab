@@ -510,10 +510,10 @@ namespace TabRepository.Controllers
 
                                 var userInDb = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
 
-                                string imageFilePath = await _fileUploader.UploadFileToFileSystem(model.CroppedImage, currentUserId, "Profile");
+                                Helpers.File file = await _fileUploader.UploadFileToFileSystem(model.CroppedImage, currentUserId, "Profile");
 
-                                userInDb.ImageFileName = model.CroppedImage.FileName;
-                                userInDb.ImageFilePath = imageFilePath;
+                                userInDb.ImageFileName = file.Name;
+                                userInDb.ImageFilePath = file.Path;
 
                                 _context.SaveChanges();
                             }
@@ -652,10 +652,10 @@ namespace TabRepository.Controllers
 
                         var userInDb = _context.Users.SingleOrDefault(u => u.Id == currentUserId);
 
-                        string imageFilePath = await _fileUploader.UploadFileToFileSystem(model.Image, currentUserId, "Profile");
+                        Helpers.File file = await _fileUploader.UploadFileToFileSystem(model.Image, currentUserId, "Profile");
 
-                        userInDb.ImageFileName = model.Image.FileName;
-                        userInDb.ImageFilePath = imageFilePath;
+                        userInDb.ImageFileName = file.Name;
+                        userInDb.ImageFilePath = file.Path;
 
                         _context.SaveChanges();
                     }

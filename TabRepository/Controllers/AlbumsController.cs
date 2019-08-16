@@ -103,9 +103,10 @@ namespace TabRepository.Controllers
                                     return Json(new { error = "Image size limit is 1 MB" });
                                 }
 
-                                album.ImageFileName = viewModel.CroppedImage.FileName;
-                                string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.CroppedImage, projectInDb.UserId, "Album" + album.Id.ToString());
-                                album.ImageFilePath = imageFilePath;
+                                Helpers.File file = await _fileUploader.UploadFileToFileSystem(viewModel.CroppedImage, projectInDb.UserId, "Album" + album.Id.ToString());
+
+                                album.ImageFilePath = file.Path;
+                                album.ImageFileName = file.Name;
                             }
 
                             _context.Albums.Add(album);
@@ -140,9 +141,10 @@ namespace TabRepository.Controllers
                                 return Json(new { error = "Image size limit is 1 MB" });
                             }
 
-                            albumInDb.ImageFileName = viewModel.CroppedImage.FileName;
-                            string imageFilePath = await _fileUploader.UploadFileToFileSystem(viewModel.CroppedImage, User.GetUserId(), "Album" + albumInDb.Id.ToString());
-                            albumInDb.ImageFilePath = imageFilePath;
+                            Helpers.File file = await _fileUploader.UploadFileToFileSystem(viewModel.CroppedImage, User.GetUserId(), "Album" + albumInDb.Id.ToString());
+
+                            albumInDb.ImageFilePath = file.Path;
+                            albumInDb.ImageFileName = file.Name;
                         }
 
                         _context.Albums.Update(albumInDb);

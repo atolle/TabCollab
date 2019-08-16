@@ -107,10 +107,10 @@ namespace TabRepository.Controllers
                         return Json(new { error = "User not found" });
                     }
 
-                    if (viewModel.Image != null)
+                    if (viewModel.CroppedImage != null)
                     {
                         // Limit file size to 1 MB
-                        if (viewModel.Image.Length > 1000000)
+                        if (viewModel.CroppedImage.Length > 1000000)
                         {
                             return Json(new { error = "Image size limit is 1 MB" });
                         }
@@ -123,7 +123,7 @@ namespace TabRepository.Controllers
                         viewModel.Page,
                         viewModel.Browser,
                         viewModel.DeviceType,
-                        viewModel.Image,
+                        viewModel.CroppedImage,
                         userInDb.UserName,
                         userInDb.Email
                     );
@@ -134,7 +134,7 @@ namespace TabRepository.Controllers
                     }
                     else
                     {
-                        await _emailSender.SendEmailAsyncWithAttachment("support@tabcollab.com", "Bug Report", bugReport.ToString(), bugReport.ToString(), viewModel.Image);
+                        await _emailSender.SendEmailAsyncWithAttachment("support@tabcollab.com", "Bug Report", bugReport.ToString(), bugReport.ToString(), viewModel.CroppedImage);
                     }
 
                     return PartialView("_BugReportConfirmation");

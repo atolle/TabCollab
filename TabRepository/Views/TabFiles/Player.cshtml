@@ -6,7 +6,7 @@
 <link href="~/css/player.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.min.css" integrity="sha256-6b+gYy3DG/roKdQiHqp1FJYFQkaZdM6ohUpGyFyUAGk=" crossorigin="anonymous" />
 
-<div id="list-loader-wrapper" class="container-fluid" style="display: flex;">
+<div id="list-loader" class="container-fluid" style="display: flex;">
     <div class="flex-container-row">
         <div class="flex-container-col">
             <div class="list-loader"></div>
@@ -93,7 +93,7 @@
             e.stopPropagation();
         });
         at.on('alphaTab.loaded', function (e, score) {
-            $('#list-loader-wrapper').hide();
+            $('#list-loader').hide();
             var trackList = $('#trackList');
             trackList.empty();
 

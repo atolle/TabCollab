@@ -4,7 +4,7 @@
 @{
     var betaModalCookie = HttpContextAccessor.HttpContext.Request.Cookies["BetaModalCookie"];
     var showModal = betaModalCookie == null ? true : false;
-    var cookieString = "BetaModalCookie=hide; expires=" + DateTime.UtcNow.AddYears(1) + "; path=/; secure; samesite=lax";
+    var cookieString = "BetaModalCookie=hide; expires=" + DateTime.UtcNow.AddYears(1).ToString("r") + "; path=/; secure; samesite=lax";
 }
 
 @if (showModal)

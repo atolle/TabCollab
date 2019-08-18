@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TabRepository.ViewModels
 {
-    public class BugReportFormViewModel
+    public class ReportIssueFormViewModel
     {
         [Required(ErrorMessage = "Please describe what you saw")]
         [Display(Name = "What did you see?")]

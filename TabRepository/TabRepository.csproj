@@ -71,7 +71,7 @@
     <Folder Include="Views\ProjectContributors\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Update="Views\Home\SendBugReport.cshtml">
+    <Content Update="Views\Home\ReportIssue.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="Views\Account\CreditCardUpdate.cshtml">
@@ -83,7 +83,7 @@
     <Content Update="Views\Account\_UpdateCreditCardConfirmation.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Update="Views\Home\_BugReportConfirmation.cshtml">
+    <Content Update="Views\Home\_ReportIssueConfirmation.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
   </ItemGroup>

@@ -581,7 +581,7 @@ footer {
     left: 50%; /* position the left edge of the element at the middle of the parent */
     transform: translate(-50%, 26px); /* This is a shorthand of translateX(-50%) and translateY(30%) */
     max-width: 400px;
-    z-index: 1;
+    z-index: 2;
     max-height: 400px;
     overflow-y: scroll;
 }

@@ -1,13 +1,13 @@
 ﻿@using TabRepository.ViewModels
-@model BugReportFormViewModel
+@model ReportIssueFormViewModel
 
 @{
-    ViewData["Title"] = "Send Bug Report";
+    ViewData["Title"] = "Report Issue";
 }
 
 <div class="flex-container-row">
-    <form id="bug-report-form" class="form-horizontal" asp-controller="Home" asp-action="ProcessBugReport">
-        <h2>Send Bug Report</h2>
+    <form id="bug-report-form" class="form-horizontal" asp-controller="Home" asp-action="ProcessIssue">
+        <h2>Report Issue</h2>
         <div class="row row-no-margin">
             <div class="col-md-6">
                 <div class="form-group owner">
@@ -94,7 +94,7 @@
         <div class="row row-no-margin">
             <div class="col">
                 <div class="form-group">
-                    <button style="margin-top: 10px;" type="submit" class="btn btn-default button-submit-wide">Send Report</button>
+                    <button style="margin-top: 10px;" type="submit" class="btn btn-default button-submit-wide">Report Issue</button>
                 </div>
             </div>
         </div>
@@ -187,7 +187,7 @@
         });
 
         function enableSubmitButton() {
-            $('.button-submit-wide').html('Submit Report');
+            $('.button-submit-wide').html('Report Issue');
             $('.button-submit-wide').removeClass('disabled');
         }
     });

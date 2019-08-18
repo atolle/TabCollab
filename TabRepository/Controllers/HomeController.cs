@@ -84,15 +84,15 @@ namespace TabRepository.Controllers
 
         [HttpGet]
         [Authorize]
-        public IActionResult SendBugReport()
+        public IActionResult ReportIssue()
         {
-            BugReportFormViewModel viewModel = new BugReportFormViewModel();
+            ReportIssueFormViewModel viewModel = new ReportIssueFormViewModel();
             return View(viewModel);
         }
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> ProcessBugReport(BugReportFormViewModel viewModel)
+        public async Task<IActionResult> ProcessIssue(ReportIssueFormViewModel viewModel)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace TabRepository.Controllers
                         }
                     }
 
-                    BugReport bugReport = new BugReport
+                    Issue issue = new Issue
                     (
                         viewModel.Description,
                         viewModel.Errors,
@@ -130,14 +130,14 @@ namespace TabRepository.Controllers
 
                     if (viewModel.Image == null)
                     {
-                        await _emailSender.SendEmailAsync("support@tabcollab.com", "Bug Report", bugReport.ToString(), bugReport.ToString());
+                        await _emailSender.SendEmailAsync("support@tabcollab.com", "Bug Report", issue.ToString(), issue.ToString());
                     }
                     else
                     {
-                        await _emailSender.SendEmailAsyncWithAttachment("support@tabcollab.com", "Bug Report", bugReport.ToString(), bugReport.ToString(), viewModel.CroppedImage);
+                        await _emailSender.SendEmailAsyncWithAttachment("support@tabcollab.com", "Bug Report", issue.ToString(), issue.ToString(), viewModel.CroppedImage);
                     }
 
-                    return PartialView("_BugReportConfirmation");
+                    return PartialView("_ReportIssueConfirmation");
                 }
 
                 // If we got here there were errors in the modelstate                
@@ -152,7 +152,7 @@ namespace TabRepository.Controllers
         }
     }
 
-    public class BugReport
+    public class Issue
     {
         private string _description;
         private string _errors;
@@ -163,7 +163,7 @@ namespace TabRepository.Controllers
         private string _username;
         private string _email;
 
-        public BugReport(string description, string errors, string page, string browser, string deviceType, IFormFile image, string username, string email)
+        public Issue(string description, string errors, string page, string browser, string deviceType, IFormFile image, string username, string email)
         {
             _description = description;
             _errors = errors;
@@ -178,7 +178,7 @@ namespace TabRepository.Controllers
         public override string ToString()
         {
             return $@"
-                <p>Bug Report</p>
+                <p>Issue</p>
                 <br />
                 <p>Username: {_username}</p>
                 <p>Email: {_email}</p>

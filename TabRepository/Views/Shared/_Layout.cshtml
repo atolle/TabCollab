@@ -7,6 +7,7 @@
     <title>@(ViewData["Title"] != null ? ViewData["Title"].ToString() + " - TabCollab" : "TabCollab")</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#000000">
+    <meta name="description" content="A version control web app for tracking, storing, playing, and collaborating on music tablature.">
     <environment names="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/css/site.css" />
@@ -43,7 +44,7 @@
         <partial name="_CookieConsent" />
         <partial name="_InstallBanner" />
         @RenderBody()
-        <footer style="display: none;">Copyright &copy; @DateTime.Now.Year - TabCollab</footer>
+        <footer style="display: none;">Copyright &copy; @DateTime.Now.Year - TabCollab LLC.</footer>
     </div>
     <environment names="Development">
         <script src="~/lib/jquery/dist/jquery.min.js"></script>

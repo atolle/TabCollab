@@ -1,4 +1,5 @@
-﻿@model IEnumerable<TabRepository.ViewModels.ProjectIndexViewModel>
+﻿@using TabRepository.ViewModels
+@model TabIndexViewModel
 @{
     ViewBag.Title = "Tabs";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -268,7 +269,7 @@
                 </div>
                 <div class="tree-wrapper-my-projects">
                     <div class="jstree owner-tree" jstree-type="owner">
-                        @foreach (var project in Model)
+                        @foreach (var project in Model.ProjectIndexViewModels)
                         {
                             @if (project.IsOwner)
                             {
@@ -297,7 +298,7 @@
                 </div>
                 <div class="tree-wrapper-their-projects" style="display: none;">
                     <div class="jstree contributor-tree" jstree-type="contributor">
-                        @foreach (var project in Model)
+                        @foreach (var project in Model.ProjectIndexViewModels)
                         {
                             @if (!project.IsOwner)
                             {
@@ -352,7 +353,7 @@
         </div>
         <div class="projects-container row list-row" style="display: none;">
             @{ int i = 1; }
-            @foreach (var project in Model)
+            @foreach (var project in Model.ProjectIndexViewModels)
             {
                 <div class="col-md-4" align="center">
                     <div class="card card-profile">
@@ -461,14 +462,12 @@
         var original_parent;
 
         $(document).ready(function () {           
-            var allowNewTabs = true,
-                tabTutorialShown = false,
+            var True = true,
+                False = false,
+                allowNewTabs = @Model.AllowNewTabs,
+                tabTutorialShown = @Model.TabTutorialShown,
                 tabLoader = "<div class='tab-loader-container' style='display: none;'><div class='tab-loader'></div></div>",
-                currentPage = 1;
-
-            if (@Model.Count() > 0) {
-                tabTutorialShown = @Json.Serialize(@Model.Select(m => m.TabTutorialShown).FirstOrDefault());
-            }
+                currentPage = 1;   
 
             if ($(window).width() > 600 && !tabTutorialShown) {
                 $('#tutorial-modal').modal('show');
@@ -551,12 +550,8 @@
                 $('#tutorial-modal').modal('show');
             });
 
-            if (@Model.Count() > 0) {
-                allowNewTabs = @Json.Serialize(@Model.Select(m => m.AllowNewTabs).FirstOrDefault());
-            }
-
             if (!allowNewTabs) {
-                if (@Json.Serialize(@Model.Select(m => m.SubscriptionExpiration).FirstOrDefault()) != null && @Json.Serialize(@Model.Select(m => m.SubscriptionExpired).FirstOrDefault())) {
+                if (@(Model.SubscriptionExpiration != null ? true : false) && @Model.SubscriptionExpired) {
                     $('#subscription-limit-modal').modal('show');
                 }
                 else {

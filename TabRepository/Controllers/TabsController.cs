@@ -263,7 +263,8 @@ namespace TabRepository.Controllers
         {
             string currentUserId = User.GetUserId();
 
-            List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
+            TabIndexViewModel viewModel = new TabIndexViewModel();
+            viewModel.ProjectIndexViewModels = new List<ProjectIndexViewModel>();
 
             try
             {
@@ -311,6 +312,12 @@ namespace TabRepository.Controllers
                     }
                 }
 
+                viewModel.TabTutorialShown = userInDb.TabTutorialShown;
+                viewModel.AllowNewTabs = allowNewTabs;
+                viewModel.SubscriptionExpired = userInDb.SubscriptionExpiration == null ? true : ((int)(userInDb.SubscriptionExpiration - DateTime.Now).Value.TotalDays <= 0 ? true : false);
+                viewModel.SubscriptionExpiration = userInDb.SubscriptionExpiration;
+
+
                 foreach (var project in projects)
                 {
                     project.Albums = project.Albums.OrderBy(a => a.Order).ToList();
@@ -326,11 +333,7 @@ namespace TabRepository.Controllers
                         DateModified = project.DateModified,
                         User = project.User,
                         Albums = project.Albums,
-                        IsOwner = project.UserId == currentUserId,
-                        AllowNewTabs = allowNewTabs,
-                        SubscriptionExpired = userInDb.SubscriptionExpiration == null ? true : ((int)(userInDb.SubscriptionExpiration - DateTime.Now).Value.TotalDays <= 0 ? true : false),
-                        SubscriptionExpiration = userInDb.SubscriptionExpiration,
-                        TabTutorialShown = userInDb.TabTutorialShown
+                        IsOwner = project.UserId == currentUserId
                     };
                     foreach (var album in vm.Albums)
                     {
@@ -338,7 +341,7 @@ namespace TabRepository.Controllers
                     }
 
                     // Add projects to project view model
-                    viewModel.Add(vm);
+                    viewModel.ProjectIndexViewModels.Add(vm);
                 }
 
                 return View(viewModel);

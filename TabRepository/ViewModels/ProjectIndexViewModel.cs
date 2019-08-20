@@ -28,14 +28,6 @@ namespace TabRepository.ViewModels
 
         public bool IsOwner { get; set; }
 
-        public bool AllowNewTabs { get; set; }
-
-        public bool TabTutorialShown { get; set; }
-
-        public bool SubscriptionExpired { get; set; }
-
-        public DateTime? SubscriptionExpiration { get; set; }
-
         public virtual ApplicationUser User { get; set; }
 
         public virtual ICollection<Album> Albums { get; set; }        

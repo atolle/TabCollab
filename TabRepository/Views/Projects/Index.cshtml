@@ -4,15 +4,11 @@
 }
 
 <div class="container-fluid list-container" style="display: flex;">
-    <div id="page">
+    <div id="project-container">
         <div class="buttons-container">
             <a id="new-project-button" data-toggle="tooltip" title="Add New Project" class="white-icon pull-left add-button" href="@Url.Action("GetProjectFormPartialView", "Projects")"><i class="fa fa-plus fa-3x"></i></a>
         </div>
-        <div id="list-loader-wrapper" class="flex-container-row">
-            <div class="flex-container-col">
-                <div class="list-loader"></div>
-            </div>
-        </div>
+
         <div id="project-list-wrapper"></div>
 
         <div id='project-form-modal' class='modal fade' align="center">
@@ -23,6 +19,11 @@
         <div id='album-form-modal' class='modal fade' align="center">
             <div id='album-form-container'>
             </div>
+        </div>
+    </div>
+    <div id="list-loader-wrapper" class="flex-container-row">
+        <div class="flex-container-col">
+            <div class="list-loader"></div>
         </div>
     </div>
 </div>
@@ -38,7 +39,6 @@ $(document).ready(function () {
     repopulateProjectList()
         .then(function (result) {
             $('#list-loader-wrapper').remove();
-            $('.container-fluid').show();
             $('hr').show();
             $('footer').show();
         })
@@ -52,7 +52,7 @@ $(document).ready(function () {
     }
 
     // Deleting a project
-    $("#page").on("click", "#delete-project-button", function (e, data) {
+    $("#project-container").on("click", "#delete-project-button", function (e, data) {
         e.preventDefault();
 
         var href = this.href,
@@ -89,7 +89,7 @@ $(document).ready(function () {
     });
 
     // Show modal for new project
-    $("#page").on("click", "#new-project-button", function (e, data) {
+    $("#project-container").on("click", "#new-project-button", function (e, data) {
         e.preventDefault();
 
         var href = this.href;
@@ -119,7 +119,7 @@ $(document).ready(function () {
     });
 
     // Show modal for edit project
-    $("#page").on("click", "#edit-project-button", function (e, data) {
+    $("#project-container").on("click", "#edit-project-button", function (e, data) {
         e.preventDefault();
 
         var href = this.href + "/?projectId=" + $(this).attr("data-project-id");
@@ -148,7 +148,7 @@ $(document).ready(function () {
             })
     });
 
-    $("#page").on("click", ".show-buttons-icon", function (e, data) {
+    $("#project-container").on("click", ".show-buttons-icon", function (e, data) {
         // Only show tooltips on non-touchscreens
         if (!('ontouchstart' in window)) {
             $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
@@ -165,7 +165,7 @@ $(document).ready(function () {
         $(parent).siblings('.hide-items-icon-container').show();
     });
 
-    $("#page").on("click", ".hide-buttons-icon", function (e, data) {
+    $("#project-container").on("click", ".hide-buttons-icon", function (e, data) {
 
         var parent = $(this).parent();
 
@@ -202,7 +202,7 @@ $(document).ready(function () {
         $("input[value=" + username + "]").remove();
     });
 
-    $("#page").on("submit", function (e, data) {
+    $("#project-container").on("submit", function (e, data) {
         e.preventDefault();
 
         var $deferred = $.Deferred();
@@ -291,10 +291,8 @@ $(document).ready(function () {
                         $('#project-list-wrapper').empty();
                         $('.list-container').append(response);
                         $('.list-container').css('display', 'flex');
-                        $('#page').css('position', 'absolute');
                     }
                     else {
-                        $('#page').css('position', 'static');
                         $('.list-container').css('display', 'block');
                         $('.empty-list').remove();
                         $('#project-list-wrapper').empty().append(response);

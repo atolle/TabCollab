@@ -4,20 +4,21 @@
 }
 
 <div class="container-fluid list-container" style="display: flex;">
-    <div id="page">
+    <div id="album-container">
         <div class="buttons-container">
             <a id="new-album-button" data-toggle="tooltip" title="Add New Album" class="white-icon pull-left add-button" href="@Url.Action("GetProjectSelectionPartialView", "Projects")"><i class="fa fa-plus fa-3x"></i></a>
         </div>
-        <div id="list-loader-wrapper" class="flex-container-row">
-            <div class="flex-container-col">
-                <div class="list-loader"></div>
-            </div>
-        </div>
+
         <div id="album-list-wrapper"></div>
 
         <div id='album-form-modal' class='modal fade'>
             <div id='album-form-container'>
             </div>
+        </div>
+    </div>
+    <div id="list-loader-wrapper" class="flex-container-row">
+        <div class="flex-container-col">
+            <div class="list-loader"></div>
         </div>
     </div>
 </div>
@@ -31,8 +32,7 @@
 $(document).ready(function () {
     repopulateAlbumList()
         .then(function (result) {
-            $('#list-loader-wrapper').remove();
-            $('.container-fluid').show();
+            $('#list-loader-wrapper').remove();           
             $('hr').show();
             $('footer').show();
         })
@@ -46,7 +46,7 @@ $(document).ready(function () {
     }
 
     // Deleting an album
-    $("#page").on("click", "#delete-album-button", function (e, data) {
+    $("#album-container").on("click", "#delete-album-button", function (e, data) {
         e.preventDefault();
 
         var href = this.href,
@@ -82,7 +82,7 @@ $(document).ready(function () {
     });
 
     // Show modal for new project
-    $("#page").on("click", "#new-album-button", function (e, data) {
+    $("#album-container").on("click", "#new-album-button", function (e, data) {
         e.preventDefault();
 
         var href = this.href;
@@ -111,7 +111,7 @@ $(document).ready(function () {
     });
 
     // Show modal for edit album
-    $("#page").on("click", "#edit-album-button", function (e, data) {
+    $("#album-container").on("click", "#edit-album-button", function (e, data) {
         e.preventDefault();
 
         var href = this.href + "?projectId=" + $(this).attr("data-project-id") + "&albumId=" + $(this).attr("data-album-id");
@@ -138,7 +138,7 @@ $(document).ready(function () {
         })
     });
 
-    $("#page").on("click", ".show-buttons-icon", function (e, data) {
+    $("#album-container").on("click", ".show-buttons-icon", function (e, data) {
         // Only show tooltips on non-touchscreens
         if (!('ontouchstart' in window)) {
             $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
@@ -155,7 +155,7 @@ $(document).ready(function () {
         $(parent).siblings('.hide-items-icon-container').show();
     });
 
-    $("#page").on("click", ".hide-buttons-icon", function (e, data) {
+    $("#album-container").on("click", ".hide-buttons-icon", function (e, data) {
 
         var parent = $(this).parent();
 
@@ -165,7 +165,7 @@ $(document).ready(function () {
         $(parent).siblings('.show-items-icon-container').show();
     });
 
-    $("#page").on("click", ".project-selection-panel", function (e, data) {
+    $("#album-container").on("click", ".project-selection-panel", function (e, data) {
         e.preventDefault();
 
         var that = this;
@@ -199,7 +199,7 @@ $(document).ready(function () {
         }, 500)
     });
 
-    $("#page").on("submit", function (e, data) {
+    $("#album-container").on("submit", function (e, data) {
         e.preventDefault();
 
         var $deferred = $.Deferred();
@@ -283,10 +283,8 @@ $(document).ready(function () {
                         $('#album-list-wrapper').empty();
                         $('.list-container').append(response);
                         $('.list-container').css('display', 'flex');
-                        $('#page').css('position', 'absolute');
                     }
                     else {
-                        $('#page').css('position', 'static');
                         $('.list-container').css('display', 'block');
                         $('.empty-list').remove();
                         $('#album-list-wrapper').empty().append(response);

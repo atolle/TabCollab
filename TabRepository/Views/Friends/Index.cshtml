@@ -5,12 +5,12 @@
 }
 
 <div class="container-fluid list-container" style="display: flex;">
-    <div id="page">
+    <div id="friend-container">
         <div id="friends-list-wrapper"></div>
-        <div id="list-loader-wrapper" style="min-height: 100% !important;" class="flex-container-row">
-            <div class="flex-container-col">
-                <div class="list-loader"></div>
-            </div>
+    </div>
+    <div id="list-loader-wrapper" class="flex-container-row" style="min-height: 100% !important;">
+        <div class="flex-container-col">
+            <div class="list-loader"></div>
         </div>
     </div>
 </div>
@@ -22,7 +22,6 @@
             repopulateFriendsList()
                 .then(function (result) {
                     $('#list-loader-wrapper').remove();
-                    $('.container-fluid').show();
                     $('hr').show();
                     $('footer').show();
                 })
@@ -30,7 +29,7 @@
                     bootbox.alert("Unable to load friends. Error: " + error.statusText);
                 });
             // Add friend
-            $("#page").on("click", "#add-friend-button", function (e, data) {
+            $("#friend-container").on("click", "#add-friend-button", function (e, data) {
                 e.preventDefault();
 
                 var href = this.href,
@@ -59,7 +58,7 @@
             });
 
             // Accept friend
-            $("#page").on("click", "#accept-friend-button", function (e, data) {
+            $("#friend-container").on("click", "#accept-friend-button", function (e, data) {
                 e.preventDefault();
 
                 var href = this.href,
@@ -87,7 +86,7 @@
             });
 
             // Remove friend
-            $("#page").on("click", "#remove-friend-button", function (e, data) {
+            $("#friend-container").on("click", "#remove-friend-button", function (e, data) {
                 e.preventDefault();
 
                 var href = this.href,
@@ -118,7 +117,7 @@
             });
 
             // Decline friend
-            $("#page").on("click", "#decline-friend-button", function (e, data) {
+            $("#friend-container").on("click", "#decline-friend-button", function (e, data) {
                 e.preventDefault();
 
                 var href = this.href,
@@ -145,7 +144,7 @@
             });
 
             // Cancel request
-            $("#page").on("click", "#cancel-request-button", function (e, data) {
+            $("#friend-container").on("click", "#cancel-request-button", function (e, data) {
                 e.preventDefault();
 
                 var href = this.href,
@@ -189,10 +188,8 @@
                                 $('#friends-list-wrapper').empty();
                                 $('.list-container').append(response);
                                 $('.list-container').css('display', 'flex');
-                                $('#page').css('position', 'absolute');
                             }
                             else {
-                                $('#page').css('position', 'static');
                                 $('.list-container').css('display', 'block');
                                 $('.empty-list').remove();
                                 $('#friends-list-wrapper').empty().append(response);

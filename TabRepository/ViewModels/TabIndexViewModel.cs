@@ -11,6 +11,8 @@ namespace TabRepository.ViewModels
 
         public bool TabTutorialShown { get; set; }
 
+        public bool TabTutorialMobileShown { get; set; }
+
         public bool AllowNewTabs { get; set; }
 
         public bool SubscriptionExpired { get; set; }

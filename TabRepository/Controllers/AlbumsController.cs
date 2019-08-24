@@ -293,7 +293,8 @@ namespace TabRepository.Controllers
                         DateCreated = album.DateCreated,
                         DateModified = album.DateModified,
                         User = album.User,
-                        Tabs = album.Tabs
+                        Tabs = album.Tabs,
+                        IsOwner = album.UserId == currentUserId
                     };
 
                     // Add projects to project view model

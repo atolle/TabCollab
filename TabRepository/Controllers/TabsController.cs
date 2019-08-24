@@ -296,6 +296,7 @@ namespace TabRepository.Controllers
                 }
 
                 viewModel.TabTutorialShown = userInDb.TabTutorialShown;
+                viewModel.TabTutorialMobileShown = userInDb.TabTutorialMobileShown;
                 viewModel.AllowNewTabs = allowNewTabs;
                 viewModel.SubscriptionExpired = userInDb.SubscriptionExpiration == null ? true : ((int)(userInDb.SubscriptionExpiration - DateTime.Now).Value.TotalDays <= 0 ? true : false);
                 viewModel.SubscriptionExpiration = userInDb.SubscriptionExpiration;
@@ -593,6 +594,32 @@ namespace TabRepository.Controllers
                 }
 
                 userInDb.TabTutorialShown = true;
+
+                _context.SaveChanges();
+
+                return Json(new { success = true });
+            }
+            catch (Exception e)
+            {
+                return Json(new { error = e.Message });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult TabTutorialMobileShown()
+        {
+            string currentUserId = User.GetUserId();
+
+            try
+            {
+                var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+                if (userInDb == null)
+                {
+                    return Json(new { error = "User not found" });
+                }
+
+                userInDb.TabTutorialMobileShown = true;
 
                 _context.SaveChanges();
 

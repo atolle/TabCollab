@@ -24,6 +24,8 @@ namespace TabRepository.Models
 
         public bool TabTutorialShown { get; set; }
 
+        public bool TabTutorialMobileShown { get; set; }
+
         public DateTime? SubscriptionExpiration { get; set; }
 
         public AccountType AccountType { get; set; }

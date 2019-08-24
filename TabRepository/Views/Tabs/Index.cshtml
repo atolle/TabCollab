@@ -198,6 +198,75 @@
     </div>
 </div>
 
+<div id="tutorial-mobile-modal" class="modal fade">
+    <div class="modal-dialog text-left">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Tabs Page Tutorial (Mobile)</h4>
+                <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="page-1-mobile">
+                    Welcome to the Tabs page on mobile! This is where you will probably spend most of your time on TabCollab. From here, you can:
+                    <p>
+                        <ul>
+                            <li>Create tabs</li>
+                            <li>Add/edit/delete tab versions</li>
+                            <li>Download and play your tab versions</li>
+                        </ul>
+                    </p>
+                    The next few pages are a brief tutorial to help you get going. You can always re-open the tutorial from the top of this page.
+                </div>
+                <div id="page-2-mobile" style="display: none;">
+                    <h6 style='text-decoration: underline'>Accessing Tabs</h6>
+                    <p>
+                        The mobile Tab page is organized by
+                        <ul>
+                            <li>Projects</li>
+                            <li>Albums</li>
+                            <li>Tabs</li>
+                            <li>Tab Versions</li>
+                        </ul>
+                    </p>
+                    <p>
+                        You expand Projects to access Albums, expand Albums to access Tabs, expand Tabs to access Tab Versions.
+                    </p>
+                </div>
+                <div id="page-3-mobile" style="display: none;">
+                    <h6 style='text-decoration: underline'>Creating Tabs and Tab Versions</h6>
+                    <p>
+                        Create new Tabs via <i class="fa fa-plus fa-3x"></i>
+                    </p>
+                    <p>
+                        You have to have at least one Project with one Album to create a new Tab or Tab Version.
+                    </p>
+                    <p>
+                        You will be prompted to select the Project and then the Album for your new Tab or Tab Version.
+                    </p>
+                    <p>
+                        You can create a new Tab via <i class="fa fa-plus fa-3x"></i> at the top of the Tab list, or create a new Tab Version by selecting a Tab.
+                    </p>
+                    <div style="display: flex; justify-content: center">
+                        <img src="~/images/tab-selection-mobile.png" />
+                    </div>
+                </div>               
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: space-between">
+                <div>
+                    <button type="button" class="btn btn-default" id="btn-prev-mobile">Prev</button>
+                    <button type="button" class="btn btn-default" id="btn-next-mobile">Next</button>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="subscription-limit-modal" class="modal fade">
     <div class="modal-dialog text-left">
         <!-- Modal content-->
@@ -399,6 +468,7 @@
                 False = false,
                 allowNewTabs = @Model.AllowNewTabs,
                 tabTutorialShown = @Model.TabTutorialShown,
+                tabTutorialMobileShown = @Model.TabTutorialMobileShown,
                 tabLoader = "<div class='tab-loader-container' style='display: none;'><div class='tab-loader'></div></div>",
                 currentPage = 1;   
 
@@ -416,8 +486,6 @@
                 }
             }
 
-
-
             $('footer').show();
 
             repopulateTabList();
@@ -425,7 +493,7 @@
             onResize(true);
 
 //
-// Tutorial
+// Tutorials
 //
             if ($(window).width() > 600 && !tabTutorialShown) {
                 $('#tutorial-modal').modal('show');
@@ -443,6 +511,24 @@
                 })
                 .fail(function (error) {
                     showFailureBootbox("updating tab tutorial status", error.statusText);
+                })
+            }
+            else if ($(window).width() <= 600 && !tabTutorialMobileShown) {
+                $('#tutorial-mobile-modal').modal('show');
+
+                var url = '@Url.Action("TabTutorialMobileShown", "Tabs")';
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                })
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("updating tab tutorial mobile status", response.error);
+                    }
+                })
+                .fail(function (error) {
+                    showFailureBootbox("updating tab tutorial mobile status", error.statusText);
                 })
             }
 
@@ -504,11 +590,42 @@
                 }
             });
 
+            $('#btn-next-mobile').on('click', function () {
+                if ($('#page-1-mobile').is(':visible')) {
+                    $('#page-1-mobile').hide();
+                    $('#page-2-mobile').show();
+                }
+                else if ($('#page-2-mobile').is(':visible')) {
+                    $('#page-2-mobile').hide();
+                    $('#page-3-mobile').show();
+                }
+                else if ($('#page-3-mobile').is(':visible')) {
+                    $('#page-3-mobile').hide();
+                    $('#page-1-mobile').show();
+                }
+            });
+
+            $('#btn-prev-mobile').on('click', function () {
+                if ($('#page-1-mobile').is(':visible')) {
+                    $('#page-1-mobile').hide();
+                    $('#page-3-mobile').show();
+                    $('#tutorial-modal').find('.modal-dialog').css('max-width', '700px');
+                }
+                else if ($('#page-2-mobile').is(':visible')) {
+                    $('#page-2-mobile').hide();
+                    $('#page-1-mobile').show();
+                }
+                else if ($('#page-3-mobile').is(':visible')) {
+                    $('#page-3-mobile').hide();
+                    $('#page-2-mobile').show();
+                }
+            });
+
             $('#btn-tutorial').on('click', function () {
                 $('#tutorial-modal').modal('show');
             });
 //
-// End Tutorial
+// End Tutorials
 //
 
 //

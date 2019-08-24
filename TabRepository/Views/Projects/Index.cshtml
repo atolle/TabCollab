@@ -4,11 +4,10 @@
 }
 
 <div class="container-fluid list-container" style="display: flex;">
+    <div class="add-button-container">
+        <a id="new-project-button" data-toggle="tooltip" title="Add New Project" class="white-icon add-button" href="@Url.Action("GetProjectFormPartialView", "Projects")"><i class="fa fa-plus fa-3x"></i></a>
+    </div>
     <div id="project-container">
-        <div class="buttons-container">
-            <a id="new-project-button" data-toggle="tooltip" title="Add New Project" class="white-icon pull-left add-button" href="@Url.Action("GetProjectFormPartialView", "Projects")"><i class="fa fa-plus fa-3x"></i></a>
-        </div>
-
         <div id="project-list-wrapper"></div>
 
         <div id='project-form-modal' class='modal fade' align="center">
@@ -25,6 +24,9 @@
         <div class="flex-container-col">
             <div class="list-loader"></div>
         </div>
+    </div>
+    <div class="add-button-container" style="visibility: hidden">
+        <i class="fa fa-plus fa-3x"></i>
     </div>
 </div>
 
@@ -52,7 +54,7 @@ $(document).ready(function () {
     }
 
     // Deleting a project
-    $("#project-container").on("click", "#delete-project-button", function (e, data) {
+    $(document).on("click", "#delete-project-button", function (e, data) {
         e.preventDefault();
 
         var href = this.href,
@@ -89,7 +91,7 @@ $(document).ready(function () {
     });
 
     // Show modal for new project
-    $("#project-container").on("click", "#new-project-button", function (e, data) {
+    $(document).on("click", "#new-project-button", function (e, data) {
         e.preventDefault();
 
         var href = this.href;
@@ -105,7 +107,7 @@ $(document).ready(function () {
             else {
                 $('#project-form-container').html(response);
                 // Client side validation for dynamic modal injection
-                $.validator.unobtrusive.parse($("#project-form"));                
+                $.validator.unobtrusive.parse($("#project-form"));
 
                 imageUpload();
 
@@ -119,7 +121,7 @@ $(document).ready(function () {
     });
 
     // Show modal for edit project
-    $("#project-container").on("click", "#edit-project-button", function (e, data) {
+    $(document).on("click", "#edit-project-button", function (e, data) {
         e.preventDefault();
 
         var href = this.href + "/?projectId=" + $(this).attr("data-project-id");
@@ -148,7 +150,7 @@ $(document).ready(function () {
             })
     });
 
-    $("#project-container").on("click", ".show-buttons-icon", function (e, data) {
+    $(document).on("click", ".show-buttons-icon", function (e, data) {
         // Only show tooltips on non-touchscreens
         if (!('ontouchstart' in window)) {
             $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
@@ -165,7 +167,7 @@ $(document).ready(function () {
         $(parent).siblings('.hide-items-icon-container').show();
     });
 
-    $("#project-container").on("click", ".hide-buttons-icon", function (e, data) {
+    $(document).on("click", ".hide-buttons-icon", function (e, data) {
 
         var parent = $(this).parent();
 
@@ -289,13 +291,13 @@ $(document).ready(function () {
                     // If we get back empty-list, empty out any existing projects and set CSS for proper display
                     if (response.includes('empty-list')) {
                         $('#project-list-wrapper').empty();
-                        $('.list-container').append(response);
-                        $('.list-container').css('display', 'flex');
+                        $('#project-container').after(response);
+                        $('.list-container').css('flex-direction', 'row');
                     }
                     else {
-                        $('.list-container').css('display', 'block');
                         $('.empty-list').remove();
                         $('#project-list-wrapper').empty().append(response);
+                        $('.list-container').css('flex-direction', 'column');
                     }
                 }
 

@@ -17,10 +17,10 @@
             @foreach (var project in Model)
             { 
                 <div class="row">
-                    <div class="card selection-panel project-selection-panel" data-project-id="@project.Id" data-dismiss="modal">
-                        <div class="card-header" style="background-image: url('@project.ImageFilePath');"></div>
+                    <div class="card card-profile selection-panel project-selection-panel" data-project-id="@project.Id" data-dismiss="modal">
+                        <div class="card-header" style="background-image: url('@(project.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : project.ImageFilePath)');"></div>
                         <div class="card-body">
-                            <h3 style="margin-top: 15px; text-align: center;">@project.Name</h3>
+                            <h3 style="text-align: center;">@project.Name</h3>
                         </div>
                     </div>
                 </div>

@@ -324,19 +324,7 @@ namespace TabRepository.Controllers
                 List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
 
                 // Return a list of all Projects belonging to the current user
-                var projects = _context.Projects
-                    .Include(u => u.User)
-                    .Where(p => p.UserId == currentUserId)
-                    .OrderBy(p => p.Name)
-                    .ToList();
-
-                var contributorProjects = _context.ProjectContributors
-                    .Where(c => c.UserId == currentUserId)
-                    .Select(c => c.Project)
-                    .Include(u => u.User)
-                    .ToList();
-
-                projects = projects.Union(contributorProjects).ToList();
+                var projects = _userAuthenticator.GetAllItems(Item.Project, null, currentUserId).Cast<Project>().ToList();
 
                 foreach (var project in projects)
                 {
@@ -376,19 +364,7 @@ namespace TabRepository.Controllers
                 List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
 
                 // Return a list of all Projects belonging to the current user
-                var projects = _context.Projects
-                    .Include(u => u.User)
-                    .Where(p => p.UserId == currentUserId)
-                    .OrderBy(p => p.Name)
-                    .ToList();
-
-                var contributorProjects = _context.ProjectContributors
-                    .Where(c => c.UserId == currentUserId)
-                    .Select(c => c.Project)
-                    .Include(u => u.User)
-                    .ToList();
-
-                projects = projects.Union(contributorProjects).ToList();
+                var projects = _userAuthenticator.GetAllItems(Item.Project, null, currentUserId).Cast<Project>().ToList();
 
                 foreach (var proj in projects)
                 {

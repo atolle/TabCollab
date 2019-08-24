@@ -1,0 +1,28 @@
+﻿@model TabRepository.ViewModels.TabSelectionViewModel
+
+<div class="modal-dialog selection-modal" align="center">
+    <!-- Modal content-->
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Select Tab</h4>
+            <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="add-button-container">
+                <a id="new-tab-mobile-modal-button" class="white-icon add-button" data-album-id="@Model.AlbumId" data-dismiss="modal"><i data-toggle="tooltip" title="Add New Tab" class="fa fa-plus fa-3x"></i></a>
+            </div>
+            @foreach (var tab in Model.Tabs)
+            {
+                <div class="row">
+                    <div class="card card-profile selection-panel tab-selection-panel" data-tab-id="@tab.Id" data-dismiss="modal">
+                        <div class="card-body">
+                            <h3 style="text-align: center;">@tab.Name</h3>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

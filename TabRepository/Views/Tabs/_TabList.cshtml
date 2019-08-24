@@ -1,60 +1,88 @@
-﻿@model IEnumerable<TabRepository.ViewModels.AlbumIndexViewModel>
+﻿@using TabRepository.ViewModels
+@model TabIndexViewModel
 
-<div class="row list-row">
-    @foreach (var album in Model)
+@{ int i = 1; }
+@if (Model.ProjectIndexViewModels.Count == 0)
+{
+    <div class="flex-container-row empty-list">
+        <div class="flex-container-col">
+            <h2 style="color: grey">You don't have any Projects, Albums, or Tabs! Create a Project from the Projects page.</h2>
+        </div>
+    </div>
+}
+else
+{
+    @foreach (var project in Model.ProjectIndexViewModels)
     {
-        <div class="col" align="center">
+        <div class="col-md-4" align="center">
             <div class="card card-profile">
-                <div class="card-header" style="background-image: url('@(album.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : album.ImageFilePath)');"></div>
+                <div class="card-header" style="background-image: url('@(project.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : project.ImageFilePath)');"></div>
                 <div class="card-body text-center">
-                    <h3>@album.Name</h3>
-                    <p class="m-b">Project: @album.ProjectName<br />Owner: @album.Owner</p>
-                    <div class="tabs-container">
-                        <div class="show-items-icon-container">
-                            <i class="fa fa-lg fa-chevron-down show-buttons-icon"></i>
-                        </div>
-                        <div class="tab-list @(album.IsOwner ? "tab-list-sort" : "")">
-                        @foreach (var tab in album.Tabs)
-                        {
-                            <div id="@tab.Id" class="item-container">
-                                <div class="row tab-panel-row">
-                                    <div class="card tab-panel">
-                                        <p>@tab.Name</p>
-                                        @if (album.IsOwner)
-                                        {
-                                        <div class="row">
-                                            <div class="col-4">
-                                                <a id="new-tabversion-button" data-toggle="tooltip" title="Add new tab version" class="list-icon white-icon" data-tab-id="@tab.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")"><i class="fa fa-plus fa-lg" /></a>
-                                            </div>
-                                            <div class="col-4">
-                                                <a id="edit-tab-button" data-toggle="tooltip" title="Edit tab" class="list-icon white-icon" data-album-id="@tab.AlbumId" data-tab-id="@tab.Id" href="@Url.Action("GetTabFormPartialView", "Tabs")"><i class="fa fa-pencil fa-lg"></i></a>
-                                            </div>
-                                            <div class="col-4">
-                                                <a id="delete-tab-button" data-toggle="tooltip" title="Delete tab" class="list-icon white-icon" href="@Url.Action("Delete", "Tabs", new { id = tab.Id })"><i class="fa fa-times fa-lg" /></a>
-                                            </div> 
-                                        </div>
-                                        }
-                                        else
-                                        {
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <a id="new-tabversion-button" data-toggle="tooltip" title="Add new tab version" class="list-icon white-icon" data-tab-id="@tab.Id" href="@Url.Action("GetTabVersionFormPartialView", "TabVersions")"><i class="fa fa-plus fa-lg" /></a>
-                                                </div>
-                                            </div>                                           
-                                        }
-                                    </div>
-                                </div>
+                    <h3>@project.Name</h3>
+                    <p></p>
+                    @if (project.Albums.Count > 0)
+                    {
+                        <div class="albums-container">
+                            <div class="show-items-icon-container">
+                                <i class="fa fa-chevron-down fa-lg show-buttons-icon"></i>
                             </div>
-                        }
+                            <div class="album-list">
+                                @foreach (var album in project.Albums)
+                                {
+                                    <div id="@album.Id" class="item-container">
+                                        <div class="card album-panel card-profile">
+                                            <div class="card-header" style="background-image: url('@(album.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : album.ImageFilePath)');"></div>
+                                            <div class="card-body text-center">
+                                                <h5>@album.Name</h5>
+                                            </div>
+                                            @if (album.Tabs.Count > 0)
+                                            {
+                                                <div class="tabs-container">
+                                                    <div class="show-items-icon-container">
+                                                        <i class="fa fa-chevron-down show-buttons-icon"></i>
+                                                    </div>
+                                                    <p></p>
+                                                    <div class="tab-list">
+                                                        @foreach (var tab in album.Tabs)
+                                                        {
+                                                            <div id="@tab.Id" class="item-container">
+                                                                <div class="row tab-panel-row">
+                                                                    <div class="card tab-panel">
+                                                                        <h6>@tab.Name</h6>
+                                                                        <div data-tab-id="@tab.Id" class="show-items-icon-container show-tabversions">
+                                                                            <i class="fa fa-chevron-down show-buttons-icon"></i>
+                                                                        </div>
+                                                                        <div class="tabversions-container"></div>
+                                                                        <div class="hide-items-icon-container hide-tabversions">
+                                                                            <i class="fa fa-chevron-up hide-buttons-icon"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <div class="hide-items-icon-container">
+                                                        <i class="fa fa-chevron-up hide-buttons-icon"></i>
+                                                    </div>
+                                                    <p></p>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="hide-items-icon-container">
+                                <i class="fa fa-chevron-up fa-lg hide-buttons-icon"></i>
+                            </div>
                         </div>
-                        <div class="hide-items-icon-container">
-                            <i class="fa fa-lg fa-chevron-up hide-buttons-icon"></i>
-                        </div>
-                    </div>
+                    }
                 </div>
             </div>
         </div>
+        @if (i % 3 == 0)
+        {
+            <div class="clearfix"></div>
+        }
+        i++;
     }
-
-</div>
-
+}

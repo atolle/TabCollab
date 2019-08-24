@@ -352,92 +352,9 @@
             <div class="list-loader"></div>
         </div>
         <div class="projects-container row list-row" style="display: none;">
-            @{ int i = 1; }
-            @if (Model.ProjectIndexViewModels.Count == 0)
-            {
-                <div class="flex-container-row empty-list">
-                    <div class="flex-container-col">
-                        <h2 style="color: grey">You don't have any Projects, Albums, or Tabs! Create a Project from the Projects page.</h2>
-                    </div>
-                </div>
-            }
-            else
-            {
-                @foreach (var project in Model.ProjectIndexViewModels)
-                {
-                    <div class="col-md-4" align="center">
-                        <div class="card card-profile">
-                            <div class="card-header" style="background-image: url('@(project.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : project.ImageFilePath)');"></div>
-                            <div class="card-body text-center">
-                                <h3>@project.Name</h3>
-                                <p></p>
-                                @if (project.Albums.Count > 0)
-                                {
-                                    <div class="albums-container">
-                                        <div class="show-items-icon-container">
-                                            <i class="fa fa-chevron-down fa-lg show-buttons-icon"></i>
-                                        </div>
-                                        <div class="album-list">
-                                            @foreach (var album in project.Albums)
-                                            {
-                                                <div id="@album.Id" class="item-container">
-                                                    <div class="card album-panel card-profile">
-                                                        <div class="card-header" style="background-image: url('@(album.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : album.ImageFilePath)');"></div>
-                                                        <div class="card-body text-center">
-                                                            <h5>@album.Name</h5>
-                                                        </div>
-                                                        @if (album.Tabs.Count > 0)
-                                                        {
-                                                            <div class="tabs-container">
-                                                                <div class="show-items-icon-container">
-                                                                    <i class="fa fa-chevron-down show-buttons-icon"></i>
-                                                                </div>
-                                                                <p></p>
-                                                                <div class="tab-list">
-                                                                    @foreach (var tab in album.Tabs)
-                                                                    {
-                                                                        <div id="@tab.Id" class="item-container">
-                                                                            <div class="row tab-panel-row">
-                                                                                <div class="card tab-panel">
-                                                                                    <h6>@tab.Name</h6>
-                                                                                    <div data-tab-id="@tab.Id" class="show-items-icon-container show-tabversions">
-                                                                                        <i class="fa fa-chevron-down show-buttons-icon"></i>
-                                                                                    </div>
-                                                                                    <div class="tabversions-container"></div>
-                                                                                    <div class="hide-items-icon-container hide-tabversions">
-                                                                                        <i class="fa fa-chevron-up hide-buttons-icon"></i>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    }
-                                                                </div>
-                                                                <div class="hide-items-icon-container">
-                                                                    <i class="fa fa-chevron-up hide-buttons-icon"></i>
-                                                                </div>
-                                                                <p></p>
-                                                            </div>
-                                                        }
-                                                    </div>
-                                                </div>
-                                            }
-                                        </div>
-                                        <div class="hide-items-icon-container">
-                                            <i class="fa fa-chevron-up fa-lg hide-buttons-icon"></i>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                    @if (i % 3 == 0)
-                    {
-                        <div class="clearfix"></div>
-                    }
-                    i++;
-                }
-            }
-
+            <div class="add-button-container">
+                <a id="new-tab-mobile-button" class="white-icon add-button" href="@Url.Action("GetProjectSelectionPartialView", "Projects")"><i data-toggle="tooltip" title="Add New Tab" class="fa fa-plus fa-3x"></i></a>
+            </div>
         </div>
 
         <div id='tab-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetTabFormPartialView", "Tabs")'>
@@ -457,6 +374,11 @@
 
         <div id='tabversion-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetTabVersionFormPartialView", "TabVersions")'>
             <div id='tabversion-form-container'>
+            </div>
+        </div>
+
+        <div id='tab-mobile-form-modal' class='modal fade' align="center">
+            <div id='tab-mobile-form-container'>
             </div>
         </div>
     </div>
@@ -480,6 +402,31 @@
                 tabLoader = "<div class='tab-loader-container' style='display: none;'><div class='tab-loader'></div></div>",
                 currentPage = 1;   
 
+            // Only show tooltips on non-touchscreens
+            if (!('ontouchstart' in window)) {
+                $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+            }
+
+            if (!allowNewTabs) {
+                if (@(Model.SubscriptionExpiration != null ? true : false) && @Model.SubscriptionExpired) {
+                    $('#subscription-limit-modal').modal('show');
+                }
+                else {
+                    $('#tab-limit-modal').modal('show');
+                }
+            }
+
+
+
+            $('footer').show();
+
+            repopulateTabList();
+
+            onResize(true);
+
+//
+// Tutorial
+//
             if ($(window).width() > 600 && !tabTutorialShown) {
                 $('#tutorial-modal').modal('show');
 
@@ -560,22 +507,13 @@
             $('#btn-tutorial').on('click', function () {
                 $('#tutorial-modal').modal('show');
             });
+//
+// End Tutorial
+//
 
-            if (!allowNewTabs) {
-                if (@(Model.SubscriptionExpiration != null ? true : false) && @Model.SubscriptionExpired) {
-                    $('#subscription-limit-modal').modal('show');
-                }
-                else {
-                    $('#tab-limit-modal').modal('show');
-                }
-            }
-
-            $('footer').show();
-
-            $('.list-loader-wrapper').hide();
-
-            onResize(true);
-
+//
+// JSTree Methods
+//
             $(function () {
                 $(".jstree").jstree({
                     "core": {
@@ -977,7 +915,14 @@
                 });
             }
         });
+//
+// End JSTree Methods
+//
 
+
+// 
+// Click Events
+//
         // Deleting a tab version
         $("#dashboard").on("click", "#delete-tabversion-button", function (e, data) {
             e.preventDefault();
@@ -1265,42 +1210,165 @@
             }
         });
 
-        function showFileUploadModal(url, formId) {
+        // Show modal for new tab on mobile
+        $("#dashboard").on("click", "#new-tab-mobile-button", function (e, data) {
+            e.preventDefault();
+
+            var href = this.href;
+
             $.ajax({
-                url: url,
+                url: href,
                 type: 'GET',
             })
             .then(function (response) {
                 if (response.error) {
-                    showFailureBootbox("showing form", response.error);
+                    showFailureBootbox("showing project selection", response.error);
                 }
                 else {
-                    $('#' + formId + '-container').html(response);
-
-                    $('#' + formId)
-                        .removeData("validator") /* added by the raw jquery.validate plugin */
-                        .removeData("unobtrusiveValidation");  /* added by the jquery unobtrusive plugin*/
+                    $('#tab-mobile-form-container').html(response);
 
                     // Client side validation for dynamic modal injection
-                    $.validator.unobtrusive.parse($('#' + formId));
+                    $.validator.unobtrusive.parse($("#tab-mobile-form"));
 
-                    currentModal = $('#' + formId + '-modal');
+                    currentModal = $('#tab-mobile-form-modal');
                     currentModal.modal('show');
                 }
             })
             .fail(function (error) {
-                showFailureBootbox("showing form", error.statusText);
-            });
-        }
+                showFailureBootbox("showing project selection", error.statusText);
+            })
+        });
 
-        $(document).on("change", "#FileData", function (e, data) {
-            $(".file-error").html("");
-            // Make sure the image size is less than 1MB
-            if (this.files.length) {
-                if (this.files[0].size > 1000000) {
-                    $(".file-size-error").html("File size limit is 1 MB");
-                }
-            }
+        $(document).on("click", ".project-selection-panel", function (e, data) {
+            e.preventDefault();
+
+            var that = this;
+
+            // Give modal time to close
+            setTimeout(function () {
+                var href = "@Url.Action("GetAlbumSelectionPartialView", "Albums")" + "/?projectId=" + $(that).attr("data-project-id");
+
+                $.ajax({
+                    url: href,
+                    type: 'GET',
+                })
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("showing album selection", response.error);
+                    }
+                    else {
+                        $('#tab-mobile-form-container').html(response);
+                        // Client side validation for dynamic modal injection
+                        $.validator.unobtrusive.parse($("#tab-mobile-form"));
+
+                        currentModal = $('#tab-mobile-form-modal');
+                        currentModal.modal('show');
+                    }
+                })
+                .fail(function (error) {
+                    showFailureBootbox("showing album selection", error.statusText);
+                })
+            }, 500)
+        });
+
+        $(document).on("click", ".album-selection-panel", function (e, data) {
+            e.preventDefault();
+
+            var that = this;
+
+            // Give modal time to close
+            setTimeout(function () {
+                var href = "@Url.Action("GetTabSelectionPartialView", "Tabs")" + "/?albumId=" + $(that).attr("data-album-id");
+
+                $.ajax({
+                    url: href,
+                    type: 'GET',
+                })
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("showing tab selection", response.error);
+                    }
+                    else {
+                        $('#tab-mobile-form-container').html(response);
+                        // Client side validation for dynamic modal injection
+                        $.validator.unobtrusive.parse($("#tab-mobile-form"));
+
+                        if (!('ontouchstart' in window)) {
+                            $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+                        }
+
+                        currentModal = $('#tab-mobile-form-modal');
+                        currentModal.modal('show');
+                    }
+                })
+                .fail(function (error) {
+                    showFailureBootbox("showing tab selection", error.statusText);
+                })
+            }, 500)
+        });
+
+        $(document).on("click", ".tab-selection-panel", function (e, data) {
+            e.preventDefault();
+
+            var that = this;
+
+            // Give modal time to close
+            setTimeout(function () {
+                var href = "@Url.Action("GetTabVersionFormPartialView", "TabVersions")" + "/?tabId=" + $(that).attr("data-tab-id");
+
+                $.ajax({
+                    url: href,
+                    type: 'GET',
+                })
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("showing tab version form", response.error);
+                    }
+                    else {
+                        $('#tab-mobile-form-container').html(response);
+                        // Client side validation for dynamic modal injection
+                        $.validator.unobtrusive.parse($("#tab-mobile-form"));
+
+                        currentModal = $('#tab-mobile-form-modal');
+                        currentModal.modal('show');
+                    }
+                })
+                .fail(function (error) {
+                    showFailureBootbox("showing tab version selection", error.statusText);
+                })
+            }, 500)
+        });
+
+        $(document).on("click", "#new-tab-mobile-modal-button", function (e, data) {
+            e.preventDefault();
+
+            var that = this;
+
+            // Give modal time to close
+            setTimeout(function () {
+                var href = "@Url.Action("GetTabFormPartialView", "Tabs")" + "/?albumId=" + $(that).attr("data-album-id");
+
+                $.ajax({
+                    url: href,
+                    type: 'GET',
+                })
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("showing tab version form", response.error);
+                    }
+                    else {
+                        $('#tab-mobile-form-container').html(response);
+                        // Client side validation for dynamic modal injection
+                        $.validator.unobtrusive.parse($("#tab-mobile-form"));
+
+                        currentModal = $('#tab-mobile-form-modal');
+                        currentModal.modal('show');
+                    }
+                })
+                .fail(function (error) {
+                    showFailureBootbox("showing tab version selection", error.statusText);
+                })
+            }, 500)
         });
 
         // Show modal for edit album
@@ -1358,6 +1426,142 @@
             $("input[value=" + username + "]").remove();
         });
 
+        function showFileUploadModal(url, formId) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+            })
+            .then(function (response) {
+                if (response.error) {
+                    showFailureBootbox("showing form", response.error);
+                }
+                else {
+                    $('#' + formId + '-container').html(response);
+
+                    $('#' + formId)
+                        .removeData("validator") /* added by the raw jquery.validate plugin */
+                        .removeData("unobtrusiveValidation");  /* added by the jquery unobtrusive plugin*/
+
+                    // Client side validation for dynamic modal injection
+                    $.validator.unobtrusive.parse($('#' + formId));
+
+                    currentModal = $('#' + formId + '-modal');
+                    currentModal.modal('show');
+                }
+            })
+            .fail(function (error) {
+                showFailureBootbox("showing form", error.statusText);
+            });
+        }
+
+        $(document).on("change", "#FileData", function (e, data) {
+            $(".file-error").html("");
+            // Make sure the image size is less than 1MB
+            if (this.files.length) {
+                if (this.files[0].size > 1000000) {
+                    $(".file-size-error").html("File size limit is 1 MB");
+                }
+            }
+        });
+
+        $("#dashboard").on("click", ".show-buttons-icon", function (e, data) {
+            $('html,body').animate({
+                scrollTop: $(this).parent().parent().offset().top
+            }, 750);
+        });
+
+        $("#dashboard").on("click", ".hide-buttons-icon", function (e, data) {
+            $('html,body').animate({
+                scrollTop: $(this).closest('.card').offset().top
+            }, 500);
+        });
+
+        $("#dashboard").on("click", ".show-buttons-icon", function (e, data) {
+            // Only show tooltips on non-touchscreens
+            if (!('ontouchstart' in window)) {
+                $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+            }
+
+            var parent = $(this).parent();
+
+            $(parent).hide();
+            $(parent).siblings('.album-list').children('.item-container').show(200);
+            $(parent).siblings('.tab-list').children('.item-container').show(200);
+            // Wait until the expansion animation is complete to show the buttons
+            setTimeout(function () {
+                $(parent).siblings('.album-list').children('.item-container').children().css("visibility", "visible");
+                $(parent).siblings('.tab-list').children('.item-container').children().css("visibility", "visible");
+            }, 200)
+            $(parent).siblings('.hide-items-icon-container').show();
+        });
+
+        $("#dashboard").on("click", ".hide-buttons-icon", function (e, data) {
+
+            var parent = $(this).parent();
+
+            $(parent).hide();
+            $(parent).siblings('.album-list').children('.item-container').children().css("visibility", "hidden");
+            $(parent).siblings('.album-list').children('.item-container').hide(200);
+            $(parent).siblings('.tab-list').children('.item-container').children().css("visibility", "hidden");
+            $(parent).siblings('.tab-list').children('.item-container').hide(200);
+            $(parent).siblings('.show-items-icon-container').show();
+        });
+
+        $("#dashboard").on("click", ".show-tabversions", function (e, data) {
+            var that = this;
+            $(this).hide();
+            $(this).siblings('.tabversions-container').empty().append('<div class="loader"></div>')
+            $(this).siblings('.tabversions-container').show();
+            var url = '@Url.Action("GetTabVersionsList", "TabVersions")?id=' + $(that).attr('data-tab-id');
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+            })
+            .then(function (response) {
+                if (response.error) {
+                    showFailureBootbox("retrieving tab versions", response.error);
+                }
+                else {
+                    $(that).siblings('.tabversions-container').hide();
+                    $(that).siblings('.tabversions-container').empty().append(response);
+                    $(that).siblings('.tabversions-container').show(200);
+                }
+            })
+            .fail(function (error) {
+                showFailureBootbox("retrieving tab versions", error.statusText);
+            })
+
+            $(this).siblings('.hide-tabversions').show();
+        });
+
+        $("#dashboard").on("click", ".hide-tabversions", function (e, data) {
+            $(this).hide();
+            $(this).siblings('.tabversions-container').hide(200);
+            $(this).siblings('.tabversions-container').empty();
+            $(this).siblings('.show-tabversions').show();
+        });
+
+        $("#dashboard").on("click", "#my-projects", function (e, data) {
+            $('#my-projects').addClass('active');
+            $('#contributor-projects').removeClass('active');
+            $('.tree-wrapper-my-projects').show();
+            $('.tree-wrapper-their-projects').hide();
+        });
+
+        $("#dashboard").on("click", "#contributor-projects", function (e, data) {
+            $('#contributor-projects').addClass('active');
+            $('#my-projects').removeClass('active');
+            $('.tree-wrapper-their-projects').show();
+            $('.tree-wrapper-my-projects').hide();
+        });
+//
+// End Click Events 
+//
+
+//
+// Submit Event
+//
         $("#dashboard").on("submit", function (e, data) {
             e.preventDefault();
 
@@ -1434,6 +1638,10 @@
                         else {
                             showFailureBootbox("saving", response.error);
                         }
+                    }
+                    else if ($(window).width() <= 600) {
+                        currentModal.modal('hide');
+                        repopulateTabList();
                     }
                     else {
                         currentModal.modal('hide');
@@ -1592,19 +1800,13 @@
 
             });
         });
+//
+// End Submit Event
+//
 
-        $("#dashboard").on("click", ".show-buttons-icon", function (e, data) {
-            $('html,body').animate({
-                scrollTop: $(this).parent().parent().offset().top
-            }, 750);
-        });
-
-        $("#dashboard").on("click", ".hide-buttons-icon", function (e, data) {
-            $('html,body').animate({
-                scrollTop: $(this).closest('.card').offset().top
-            }, 500);
-        });
-
+//
+// Misc Methods
+//
         function getContributorCount() {
             return $('.contributor-btn').length;
         }
@@ -1631,26 +1833,45 @@
             }
 
             if ($(window).width() <= 600) {
+                // Don't make any changes if we're already in mobile view
+                if ($('.projects-container').is(":visible")) {
+                    return;
+                }
+
                 $('.buttons-container').hide();
                 $('#tree-table-container').hide();
-                $('.projects-container').show();
-                if ($('.col-md-4').length) {
-                    $('body').height('unset');
-                    $('.projects-container').css('height', 'initial');
-                }
-                else {
-                    $('.projects-container').css('height', '100%');
-                }
+
+                $('.list-loader-wrapper').show();
+
+                repopulateTabList().then(_ => {
+                    // Make sure we're still less than 600px since this is async
+                    if ($(window).width() <= 600) {
+                        $('.list-loader-wrapper').hide();
+                        // Handles the transition between mobile view and full screen view
+                        $('.dashboard-container').css('min-height', '100%');
+                        $('.dashboard-container').css('height', 'unset');
+
+                        $('.projects-container').show();
+                    }
+                })
             }
             else {
-                $('.buttons-container').css('display', 'flex');
+                $('.buttons-container').show();
                 $('#tree-table-container').show();
-                $('.projects-container').hide();
-                $('body').height('100%');
+                $('.projects-container').hide(); 
+
+                // Handles the transition between mobile view and full screen view
+                $('.dashboard-container').css('min-height', 'unset');
+                $('.dashboard-container').css('height', '100%');
+
+                $('.list-loader-wrapper').hide();
             }
 
             if (setTreeWidth) {
-                if ($(window).width() < 760) {
+                if ($(window).width() >= 760 && $(window).width() < 1150) {
+                    $('.tree-wrapper-container').css('width', '35%');
+                }
+                else if ($(window).width() < 760) {
                     $('.tree-wrapper-container').css('width', '50%');
                 }
                 else {
@@ -1660,88 +1881,9 @@
 
             $('.tabversion-user-image').css('height', $('.tabversion-user-image').css('width'));
         };
+
         window.addEventListener("resize", function () {
             onResize(true);
-        });
-
-        $("#dashboard").on("click", ".show-buttons-icon", function (e, data) {
-            // Only show tooltips on non-touchscreens
-            if (!('ontouchstart' in window)) {
-                $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
-            }
-
-            var parent = $(this).parent();
-
-            $(parent).hide();
-            $(parent).siblings('.album-list').children('.item-container').show(200);
-            $(parent).siblings('.tab-list').children('.item-container').show(200);
-            // Wait until the expansion animation is complete to show the buttons
-            setTimeout(function () {
-                $(parent).siblings('.album-list').children('.item-container').children().css("visibility", "visible");
-                $(parent).siblings('.tab-list').children('.item-container').children().css("visibility", "visible");
-            }, 200)
-            $(parent).siblings('.hide-items-icon-container').show();
-        });
-
-        $("#dashboard").on("click", ".hide-buttons-icon", function (e, data) {
-
-            var parent = $(this).parent();
-
-            $(parent).hide();
-            $(parent).siblings('.album-list').children('.item-container').children().css("visibility", "hidden");
-            $(parent).siblings('.album-list').children('.item-container').hide(200);
-            $(parent).siblings('.tab-list').children('.item-container').children().css("visibility", "hidden");
-            $(parent).siblings('.tab-list').children('.item-container').hide(200);
-            $(parent).siblings('.show-items-icon-container').show();
-        });
-
-        $("#dashboard").on("click", ".show-tabversions", function (e, data) {
-            var that = this;
-            $(this).hide();
-            $(this).siblings('.tabversions-container').empty().append('<div class="loader"></div>')
-            $(this).siblings('.tabversions-container').show();
-            var url = '@Url.Action("GetTabVersionsList", "TabVersions")?id=' + $(that).attr('data-tab-id');
-
-            $.ajax({
-                url: url,
-                type: 'GET',
-            })
-            .then(function (response) {
-                if (response.error) {
-                    showFailureBootbox("retrieving tab versions", response.error);
-                }
-                else {
-                    $(that).siblings('.tabversions-container').hide();
-                    $(that).siblings('.tabversions-container').empty().append(response);
-                    $(that).siblings('.tabversions-container').show(200);
-                }
-            })
-            .fail(function (error) {
-                showFailureBootbox("retrieving tab versions", error.statusText);
-            })
-
-            $(this).siblings('.hide-tabversions').show();
-        });
-
-        $("#dashboard").on("click", ".hide-tabversions", function (e, data) {
-            $(this).hide();
-            $(this).siblings('.tabversions-container').hide(200);
-            $(this).siblings('.tabversions-container').empty();
-            $(this).siblings('.show-tabversions').show();
-        });
-
-        $("#dashboard").on("click", "#my-projects", function (e, data) {
-            $('#my-projects').addClass('active');
-            $('#contributor-projects').removeClass('active');
-            $('.tree-wrapper-my-projects').show();
-            $('.tree-wrapper-their-projects').hide();
-        });
-
-        $("#dashboard").on("click", "#contributor-projects", function (e, data) {
-            $('#contributor-projects').addClass('active');
-            $('#my-projects').removeClass('active');
-            $('.tree-wrapper-their-projects').show();
-            $('.tree-wrapper-my-projects').hide();
         });
 
         function enableSubmitButton() {
@@ -1761,7 +1903,36 @@
         $('#tabversion-form-modal').on('hidden.bs.modal', function (e) {
             $('#tabversion-form-container').html('');
         });
+
+        function repopulateTabList() {
+            return new Promise((resolve, reject) => {
+                var url = '@Url.Action("GetTabListPartialView", "Tabs", null)';
+
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                })
+                .then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("retrieving tab list", response.error);
+                    }
+                    else {                        
+                        $('.add-button-container').nextAll().remove();
+                        $('.add-button-container').after(response);
+                    }
+
+                    resolve();
+                })
+                .fail(function (error) {
+                    showFailureBootbox("retrieving tab list", error.statusText.error);
+                    reject();
+                })
+            })
+        }
+//
+// End Misc Methods
+//
     });
-    </script>
+</script>
 }
 

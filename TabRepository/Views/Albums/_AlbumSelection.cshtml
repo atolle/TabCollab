@@ -17,10 +17,10 @@
             @foreach (var album in Model)
             {
                 <div class="row">
-                    <div class="card selection-panel album-selection-panel" data-album-id="@album.Id" data-dismiss="modal" href="@Url.Action("GetAlbumFormPartialView", "Albums")">
-                        <div class="card-header" style="background-image: url('@album.ImageFilePath');"></div>
+                    <div class="card card-profile selection-panel album-selection-panel" data-album-id="@album.Id" data-dismiss="modal">
+                        <div class="card-header" style="background-image: url('@(album.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : album.ImageFilePath)');"></div>
                         <div class="card-body">
-                            <h3 style="margin-top: 15px; text-align: center;">@album.Name</h3>
+                            <h3 style="text-align: center;">@album.Name</h3>
                         </div>
                     </div>
                 </div>

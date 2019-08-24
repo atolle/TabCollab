@@ -17,6 +17,103 @@ namespace TabRepository.Helpers
             _context = context;
         }
 
+        public List<IItem>GetAllItems(Item item, int? parentId, string userId)
+        {
+            switch (item)
+            {
+                case Item.Project:
+
+                    var projectInDb = _context.Projects
+                        .Include(p => p.User)
+                        .Include(p => p.Albums)
+                        .ThenInclude(a => a.Tabs)
+                        .ThenInclude(t => t.TabVersions)
+                        .ThenInclude(v => v.TabFile)
+                        .Include(p => p.Contributors)
+                        .Where
+                        (p =>
+                            (
+                                // We are the project owner or a contributor
+                                p.UserId == userId ||
+                                p.Contributors.Where(c => c.UserId == userId).FirstOrDefault() != null
+                            )
+                        )
+                        .ToList();
+
+                    return projectInDb.Cast<IItem>().ToList();
+
+                case Item.Album:
+
+                    var albumInDb = _context.Albums
+                        .Include(a => a.User)
+                        .Include(a => a.Tabs)
+                        .ThenInclude(t => t.TabVersions)
+                        .ThenInclude(v => v.TabFile)
+                        .Include(a => a.Project)
+                        .ThenInclude(p => p.Contributors)
+                        .Where
+                        (a =>
+                            (parentId == 0 ? (1 == 1) : a.ProjectId == parentId) &&
+                            (
+                                // We are the album owner or a contributor
+                                a.UserId == userId ||
+                                a.Project.Contributors.Where(c => c.UserId == userId).FirstOrDefault() != null
+                            )
+                        )
+                        .ToList();
+
+                    return albumInDb.Cast<IItem>().ToList();
+
+                case Item.Tab:
+
+                    var tabInDb = _context.Tabs
+                        .Include(t => t.User)
+                        .Include(t => t.TabVersions)
+                        .ThenInclude(v => v.User)
+                        .Include(t => t.TabVersions)
+                        .ThenInclude(v => v.TabFile)
+                        .Include(t => t.Album)
+                        .ThenInclude(a => a.Project)
+                        .ThenInclude(p => p.Contributors)
+                        .Where
+                        (t =>
+                            (parentId == 0 ? (1 == 1) : t.AlbumId == parentId) &&
+                            (
+                                // We are the tab owner or a contributor
+                                t.UserId == userId ||
+                                t.Album.Project.Contributors.Where(c => c.UserId == userId).FirstOrDefault() != null
+                            )
+                        )
+                        .ToList();
+
+                    return tabInDb.Cast<IItem>().ToList();
+
+                case Item.TabVersion:
+
+                    var tabVersionInDb = _context.TabVersions
+                        .Include(v => v.User)
+                        .Include(v => v.TabFile)
+                        .Include(v => v.Tab)
+                        .ThenInclude(t => t.Album)
+                        .ThenInclude(a => a.Project)
+                        .ThenInclude(p => p.Contributors)
+                        .Where
+                        (v =>
+                            (parentId == 0 ? (1 == 1) : v.TabId == parentId) &&
+                            (
+                                // We are the project owner or a contributor         
+                                v.Tab.Album.Project.UserId == userId ||
+                                v.Tab.Album.Project.Contributors.Where(c => c.UserId == userId).FirstOrDefault() != null
+                            )
+                        )
+                        .ToList();
+
+                    return tabVersionInDb.Cast<IItem>().ToList();
+
+                default: return null;
+            }
+        }
+
         public IItem CheckUserReadAccess(Item item, int? id, string userId)
         {
             switch (item)

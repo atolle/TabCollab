@@ -18,5 +18,8 @@ namespace TabRepository.Models.AccountViewModels
 
         [Display(Name = "Remember Me")]
         public bool RememberMe { get; set; }
+
+        [Required]
+        public string ReCaptchaToken { get; set; }
     }
 }

@@ -62,5 +62,8 @@ namespace TabRepository.Models.AccountViewModels
         [Required]
         [Display(Name = "I agree to the Terms of Service and Privacy Policy")]
         public bool AgreeToTerms { get; set; }
+
+        [Required]
+        public string ReCaptchaToken { get; set; }
     }
 }

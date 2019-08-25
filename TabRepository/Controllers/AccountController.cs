@@ -92,6 +92,11 @@ namespace TabRepository.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
+                if (!GoogleReCaptchaProcessor.ReCaptchaPassed(_configuration, model.ReCaptchaToken))
+                {
+                    return Json(new { error = "You failed the ReCaptcha. If you are not a robot, please try again. If you are a robot, please go away." });
+                }
+
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
@@ -136,6 +141,11 @@ namespace TabRepository.Controllers
                 //}
 
                 return Json(new { error = "Invalid login attempt" });
+            }
+
+            if (model.ReCaptchaToken == null)
+            {
+                return Json(new { error = "You failed the ReCaptcha. If you are not a robot, please try again. If you are a robot, please go away." });
             }
 
             // If we got here there were errors in the modelstate                
@@ -476,6 +486,11 @@ namespace TabRepository.Controllers
                 ViewData["ReturnUrl"] = returnUrl;
                 if (ModelState.IsValid)
                 {
+                    if (!GoogleReCaptchaProcessor.ReCaptchaPassed(_configuration, model.ReCaptchaToken))
+                    {
+                        return Json(new { error = "You failed the ReCaptcha. If you are not a robot, please try again. If you are a robot, please go away." });
+                    }
+
                     // Default to Free account type and change if we get a successful credit card charge
                     var user = new ApplicationUser
                     {
@@ -541,6 +556,11 @@ namespace TabRepository.Controllers
                     var errors = string.Join("<br />", result.Errors.Select(e => e.Description).ToList());
 
                     return Json(new { error = errors });
+                }
+
+                if (model.ReCaptchaToken == null)
+                {
+                    return Json(new { error = "You failed the ReCaptcha. If you are not a robot, please try again. If you are a robot, please go away." });
                 }
 
                 // If we got here there were errors in the modelstate                

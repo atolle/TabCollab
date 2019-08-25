@@ -84,14 +84,6 @@
             </div>
         </div>
         <div class="row row-no-margin">
-            <div class="col-md-6">
-                <div class="g-recaptcha g-recaptcha-register" data-callback="reCaptchaCheck" data-sitekey="6LcYlqUUAAAAAMXYYEg3u92xlWMsISBh7te4n5we"></div>
-                <div class="form-label">
-                    <span id="recaptcha-error" class="validation-error" style="color: red"></span>
-                </div>
-            </div>
-        </div>
-        <div class="row row-no-margin">
             <div class="col">
                 <div class="form-group">
                     <button style="margin-top: 10px;" type="submit" class="btn btn-default button-submit-wide">Report Issue</button>
@@ -106,10 +98,6 @@
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script>
-    var reCaptchaCheck = function () {
-        $('#recaptcha-error').html('');
-    }
-
     $(document).ready(function () {
         $('hr').show();
         $('footer').show();
@@ -136,12 +124,6 @@
             }
             else {
                 $deferred.resolve();
-            }
-
-            var recaptcha = $("#g-recaptcha-response").val();
-            if (recaptcha === "") {
-                $('#recaptcha-error').html('Please check reCAPTCHA');
-                return;
             }
 
             $deferred.then(function (blob) {

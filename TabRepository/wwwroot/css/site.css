@@ -351,6 +351,16 @@ footer {
     margin: 20px;
 }
 
+.mobile-button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    width: 100%;
+    margin-left: 35px;
+    margin-right: 35px;
+    margin-bottom: 20px;
+}
+
 .edit-button-icon {
     margin-left: 2px;
 }

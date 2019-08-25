@@ -421,11 +421,15 @@
             <div class="list-loader"></div>
         </div>
         <div class="projects-container row list-row" style="display: none;">
-            <div class="add-button-container">
-                <a id="new-tab-mobile-button" class="white-icon add-button" href="@Url.Action("GetProjectSelectionPartialView", "Projects")"><i data-toggle="tooltip" title="Add New Tab" class="fa fa-plus fa-3x"></i></a>
+            <div class="mobile-button-container" style="display: flex; justify-content: space-between; margin-top: 5px;">
+                <div>
+                    <a id="new-tab-mobile-button" class="white-icon add-button" href="@Url.Action("GetProjectSelectionPartialView", "Projects")"><i data-toggle="tooltip" title="Add New Tab" class="fa fa-plus fa-3x"></i></a>
+                </div>
+                <div>
+                    <button id="btn-tutorial-mobile" class="btn btn-info dashboard-button" style="margin-top: 7px;">Show Tutorial</button>
+                </div>                                
             </div>
         </div>
-
         <div id='tab-form-modal' class='modal fade' align="center" data-url='@Url.Action("GetTabFormPartialView", "Tabs")'>
             <div id='tab-form-container'>
             </div>
@@ -623,6 +627,10 @@
 
             $('#btn-tutorial').on('click', function () {
                 $('#tutorial-modal').modal('show');
+            });
+
+            $('#btn-tutorial-mobile').on('click', function () {
+                $('#tutorial-mobile-modal').modal('show');
             });
 //
 // End Tutorials
@@ -2034,8 +2042,8 @@
                         showFailureBootbox("retrieving tab list", response.error);
                     }
                     else {                        
-                        $('.add-button-container').nextAll().remove();
-                        $('.add-button-container').after(response);
+                        $('.mobile-button-container').nextAll().remove();
+                        $('.mobile-button-container').after(response);
                     }
 
                     resolve();

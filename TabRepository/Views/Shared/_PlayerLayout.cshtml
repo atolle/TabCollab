@@ -6,12 +6,12 @@
     <title>@(ViewData["Title"] != null ? ViewData["Title"].ToString() + " - TabCollab" : "TabCollab")</title>
     <environment names="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" href="~/css/site.css" />
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/css/font-awesome-4.7.0/css/font-awesome.min.css">
     </environment>
     <environment names="Staging,Production">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" href="~/css/site.css" />
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/css/font-awesome-4.7.0/css/font-awesome.min.css">
     </environment>    
 </head>

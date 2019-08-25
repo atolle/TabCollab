@@ -188,7 +188,7 @@
         <div class="row row-no-margin">
             <div class="col">
                 <div class="form-group">
-                    <button type="submit" class="btn btn-default disabled button-submit-wide">Register</button>
+                    <button type="submit" class="btn btn-default disabled button-submit-wide">Loading reCaptcha...</button>
                 </div>
             </div>
         </div>
@@ -206,6 +206,10 @@
         grecaptcha.ready(function () {
             grecaptcha.execute('6LeLxbQUAAAAAKwu6kOAvAESdUxF92qrudialxI9', { action: 'homepage' }).then(function (token) {
                 document.getElementById("ReCaptchaToken").value = token;
+                $('.button-submit-wide').html('Register');
+                if (document.getElementById('AgreeToTerms').checked) {
+                    $('.button-submit-wide').removeClass('disabled');
+                }
             });
         });
 
@@ -368,7 +372,9 @@
 
         $(document).on("change", "#AgreeToTerms", function () {
             if (this.checked) {
-                $('.button-submit-wide').removeClass('disabled');
+                if ($('.button-submit-wide').html() != 'Loading reCaptcha...') {
+                    $('.button-submit-wide').removeClass('disabled');
+                }                
             }
             else {
                 $('.button-submit-wide').addClass('disabled');

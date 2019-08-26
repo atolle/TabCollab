@@ -93,7 +93,9 @@
             })
                 .then(function (response) {
                     if (response.error) {
-                        enableSubmitButton();
+                        $('#login-button').html('Loading reCaptcha...');
+                        $('#login-button').addClass('disabled');
+
                         switch (response.error) {
                             case "Invalid login attempt":
                                 $('#username-error').html(response.error);
@@ -102,6 +104,14 @@
                                 showFailureBootbox("logging in", response.error);
                                 break;
                         }
+
+                        // Generate new reCaptcha token
+                        grecaptcha.ready(function () {
+                            grecaptcha.execute('6LeLxbQUAAAAAKwu6kOAvAESdUxF92qrudialxI9', { action: 'homepage' }).then(function (token) {
+                                document.getElementById("ReCaptchaToken").value = token;
+                                enableSubmitButton();
+                            });
+                        });
                     }
                     else if (response.url) {
                         window.location.replace(response.url);

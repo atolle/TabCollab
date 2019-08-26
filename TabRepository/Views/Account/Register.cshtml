@@ -424,9 +424,10 @@
                     processData: false
                 })
                 .then(function (response) {
-                    enableSubmitButton();
-
                     if (response.error) {
+                        $('.button-submit-wide').html('Loading reCaptcha...');
+                        $('.button-submit-wide').addClass('disabled');
+
                         if (response.error.toLowerCase().includes('username') || response.error.toLowerCase().includes('user name')) {
                             $('#username-error').html(response.error);
                         }
@@ -442,6 +443,17 @@
                         else {
                             showFailureBootbox("resgistering", response.error);
                         }
+
+                        // Generate new reCaptcha token
+                        grecaptcha.ready(function () {
+                            grecaptcha.execute('6LeLxbQUAAAAAKwu6kOAvAESdUxF92qrudialxI9', { action: 'homepage' }).then(function (token) {
+                                document.getElementById("ReCaptchaToken").value = token;
+                                $('.button-submit-wide').html('Register');
+                                if (document.getElementById('AgreeToTerms').checked) {
+                                    $('.button-submit-wide').removeClass('disabled');
+                                }
+                            });
+                        });
                     }
                     else {
                         $('.flex-container-row').html(response);

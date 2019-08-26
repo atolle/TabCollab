@@ -94,7 +94,7 @@ namespace TabRepository.Controllers
             {
                 if (!GoogleReCaptchaProcessor.ReCaptchaPassed(_configuration, model.ReCaptchaToken))
                 {
-                    return Json(new { error = "You failed the ReCaptcha. If you are not a robot, please try again. If you are a robot, please go away." });
+                    return Json(new { error = "You failed the ReCaptcha. If you are not a robot, please try again." });
                 }
 
                 // This doesn't count login failures towards account lockout
@@ -145,7 +145,7 @@ namespace TabRepository.Controllers
 
             if (model.ReCaptchaToken == null)
             {
-                return Json(new { error = "You failed the ReCaptcha. If you are not a robot, please try again. If you are a robot, please go away." });
+                return Json(new { error = "You failed the ReCaptcha. If you are not a robot, please try again." });
             }
 
             // If we got here there were errors in the modelstate                
@@ -488,7 +488,7 @@ namespace TabRepository.Controllers
                 {
                     if (!GoogleReCaptchaProcessor.ReCaptchaPassed(_configuration, model.ReCaptchaToken))
                     {
-                        return Json(new { error = "You failed the ReCaptcha. If you are not a robot, please try again. If you are a robot, please go away." });
+                        return Json(new { error = "You failed the ReCaptcha. If you are not a robot, please try again." });
                     }
 
                     // Default to Free account type and change if we get a successful credit card charge
@@ -560,7 +560,7 @@ namespace TabRepository.Controllers
 
                 if (model.ReCaptchaToken == null)
                 {
-                    return Json(new { error = "You failed the ReCaptcha. If you are not a robot, please try again. If you are a robot, please go away." });
+                    return Json(new { error = "You failed the ReCaptcha. If you are not a robot, please try again." });
                 }
 
                 // If we got here there were errors in the modelstate                

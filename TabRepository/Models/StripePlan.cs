@@ -13,6 +13,8 @@ namespace TabRepository.Models
 
         public string ProductId { get; set; }
 
+        public string Interval { get; set; }
+
         public virtual StripeProduct Product { get; set; }
 
         public virtual ICollection<StripeSubscription> Subscriptions { get; set; }

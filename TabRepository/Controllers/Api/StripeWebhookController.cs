@@ -63,6 +63,7 @@ namespace TabRepository.Controllers.Api
             {
                 var userInDb = _context.Users.Where(u => u.Id == subscriptionInDb.Customer.UserId).FirstOrDefault();
                 var subscription = _stripeProcessor.GetSubscription(_configuration, subscriptionInDb);
+                subscriptionInDb.Status = subscription.Status.ToLower();
 
                 if (subscription.Status.ToLower() == "active")
                 {

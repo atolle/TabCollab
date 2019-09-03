@@ -105,7 +105,10 @@ namespace TabRepository.Controllers
                 string creditCardExpiration = null;
 
                 var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();
-                var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Status.ToLower() == "active" && s.CustomerId == user.CustomerId).FirstOrDefault();
+                var subscriptionInDb = _context.StripeSubscriptions
+                    .Include(s => s.Plan)
+                    .Where(s => s.Status.ToLower() == "active" && s.CustomerId == user.CustomerId)
+                    .FirstOrDefault();
 
                 if (subscriptionInDb != null)
                 {
@@ -145,7 +148,8 @@ namespace TabRepository.Controllers
                     SubscriptionStatus = subscriptionStatus,
                     AccountType = user.AccountType,
                     CreditCardExpiration = creditCardExpiration,
-                    CreditCardLast4 = creditCardLastFour
+                    CreditCardLast4 = creditCardLastFour,
+                    Interval = subscriptionInDb != null ? subscriptionInDb.Plan.Interval : ""
                 };
                 return View(model);
             }

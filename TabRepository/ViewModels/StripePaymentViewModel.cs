@@ -14,6 +14,6 @@ namespace TabRepository.ViewModels
         public string PaymentToken { get; set; }
 
         [Required]
-        public SubscriptionRecurrence StripeRecurrence { get; set; }
+        public SubscriptionInterval StripeRecurrence { get; set; }
     }
 }

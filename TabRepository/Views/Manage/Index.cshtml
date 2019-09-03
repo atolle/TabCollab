@@ -36,7 +36,8 @@
                     }
                     else if (Model.AccountType == AccountType.Pro)
                     {
-                        <h3>Pro Account</h3>                     
+                        <h3>Pro Account</h3>
+                        <h6>@(Model.Interval == "month" ? "Monthly" : "Yearly")</h6>
                         <div class="subscription-btn-container">
                             @if (Model.SubscriptionStatus == SubscriptionStatus.Active)
                             {

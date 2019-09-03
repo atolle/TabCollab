@@ -66,5 +66,7 @@ namespace TabRepository.Models.ManageViewModels
         public string CreditCardExpiration { get; set; }
 
         public string CreditCardLast4 { get; set; }
+
+        public string Interval { get; set; }
     }
 }

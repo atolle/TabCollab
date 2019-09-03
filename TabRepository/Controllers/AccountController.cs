@@ -334,7 +334,8 @@ namespace TabRepository.Controllers
                         {
                             Id = plan.Id,
                             Nickname = plan.Nickname,
-                            ProductId = productInDb.Id
+                            ProductId = productInDb.Id,
+                            Interval = plan.Interval
                         };
 
                         _context.StripePlans.Add(planInDb);

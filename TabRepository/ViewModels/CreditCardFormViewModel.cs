@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TabRepository.ViewModels
 {
-    public enum SubscriptionRecurrence
+    public enum SubscriptionInterval
     {
         Monthly,
         Yearly
@@ -44,6 +44,6 @@ namespace TabRepository.ViewModels
         public string PaymentToken { get; set; }
 
         [Required(ErrorMessage = "Recurrence is required")]
-        public SubscriptionRecurrence Recurrence { get; set; }
+        public SubscriptionInterval Recurrence { get; set; }
     }
 }

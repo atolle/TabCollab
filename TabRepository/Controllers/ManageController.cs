@@ -104,10 +104,20 @@ namespace TabRepository.Controllers
                 string creditCardLastFour = null;
                 string creditCardExpiration = null;
 
-                Models.AccountViewModels.AccountType accountType = _context.Users.Where(u => u.Id == currentUserId).Select(u => u.AccountType).FirstOrDefault();
+                var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();
+                var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Status.ToLower() == "active" && s.CustomerId == user.CustomerId).FirstOrDefault();
 
-                var subscriptionInDb = _userAuthenticator.GetSubscription(user);
-                var customerInDb = _userAuthenticator.GetCustomer(user);
+                if (subscriptionInDb != null)
+                {
+                    if (subscriptionInDb.CancelAtPeriodEnd)
+                    {
+                        subscriptionStatus = SubscriptionStatus.CancelAtPeriodEnd;
+                    }
+                    else
+                    {
+                        subscriptionStatus = SubscriptionStatus.Active;
+                    }
+                }
 
                 if (customerInDb != null)
                 {
@@ -133,7 +143,7 @@ namespace TabRepository.Controllers
                     TabVersionCount = tabVersionCount,
                     Email = user.Email,
                     SubscriptionStatus = subscriptionStatus,
-                    AccountType = accountType,
+                    AccountType = user.AccountType,
                     CreditCardExpiration = creditCardExpiration,
                     CreditCardLast4 = creditCardLastFour
                 };

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TabRepository.Data;
 using TabRepository.Interfaces;
+using TabRepository.Models;
 
 namespace TabRepository.Helpers
 {

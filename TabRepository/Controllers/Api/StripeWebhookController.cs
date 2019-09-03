@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,11 +20,15 @@ namespace TabRepository.Controllers.Api
     {
         private ApplicationDbContext _context;
         private IConfiguration _configuration;
+        private IHostingEnvironment _env;
+        private StripeProcessor _stripeProcessor;
 
-        public StripeWebhookController(ApplicationDbContext context, IConfiguration configuration)
+        public StripeWebhookController(ApplicationDbContext context, IConfiguration configuration, IHostingEnvironment env)
         {
             _context = context;
             _configuration = configuration;
+            _env = env;
+            _stripeProcessor = new StripeProcessor(_env, _configuration);
         }
 
         protected override void Dispose(bool disposing)
@@ -42,6 +47,7 @@ namespace TabRepository.Controllers.Api
             switch (stripeEvent.Type)
             {
                 case "customer.subscription.updated":
+                case "customer.subscription.deleted":
                     subscriptionId = (stripeEvent.Data.Object as Subscription).Id;
                     break;
                 case "invoice.payment_succeeded":
@@ -56,12 +62,11 @@ namespace TabRepository.Controllers.Api
             if (subscriptionInDb != null)
             {
                 var userInDb = _context.Users.Where(u => u.Id == subscriptionInDb.Customer.UserId).FirstOrDefault();
-                var subscription = StripeProcessor.GetSubscription(_configuration, subscriptionInDb);
+                var subscription = _stripeProcessor.GetSubscription(_configuration, subscriptionInDb);
 
                 if (subscription.Status.ToLower() == "active")
                 {
-                    userInDb.AccountType = Models.AccountViewModels.AccountType.Subscription;
-                    userInDb.SubscriptionExpiration = subscription.CurrentPeriodEnd;
+                    userInDb.AccountType = Models.AccountViewModels.AccountType.Pro;
                 }
                 else
                 {

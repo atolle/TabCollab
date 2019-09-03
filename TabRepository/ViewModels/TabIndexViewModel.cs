@@ -15,8 +15,6 @@ namespace TabRepository.ViewModels
 
         public bool AllowNewTabs { get; set; }
 
-        public bool SubscriptionExpired { get; set; }
-
-        public DateTime? SubscriptionExpiration { get; set; }
+        public bool AllowNewTabVersions { get; set; }
     }
 }

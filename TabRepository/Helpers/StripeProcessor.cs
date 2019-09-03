@@ -1,18 +1,39 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TabRepository.Models;
+using TabRepository.ViewModels;
 
 namespace TabRepository.Helpers
 {
     public class StripeProcessor
     {
-        public static Product CreateProduct(IConfiguration configuration)
+        private IHostingEnvironment _env;
+        private IConfiguration _configuration;
+        private string _stripeSecret;
+
+        public StripeProcessor(IHostingEnvironment env, IConfiguration configuration)
         {
-            StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
+            _env = env;
+            _configuration = configuration;
+
+            if (_env.IsDevelopment())
+            {
+                _stripeSecret = configuration["Stripe:TestSecret"];
+            }
+            else
+            {
+                _stripeSecret = configuration["Stripe:ProductionSecret"];
+            }
+        }
+
+        public Product CreateProduct(IConfiguration configuration)
+        {
+            StripeConfiguration.SetApiKey(_stripeSecret);
 
             var options = new ProductCreateOptions
             {
@@ -23,25 +44,26 @@ namespace TabRepository.Helpers
             return service.Create(options);
         }
 
-        public static Plan CreatePlan(IConfiguration configuration, StripeProduct product)
+        public Plan CreatePlan(IConfiguration configuration, StripeProduct product, SubscriptionRecurrence recurrence)
         {
-            StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
+            StripeConfiguration.SetApiKey(_stripeSecret);            
 
             var options = new PlanCreateOptions
             {
                 ProductId = product.Id,
-                Nickname = "TabCollab Standard Subscription",
-                Interval = "year",
+                Nickname = $"TabCollab Pro {recurrence.ToString()} Subscription",
+                Interval = recurrence == SubscriptionRecurrence.Monthly ? "month" : "year",
                 Currency = "usd",
-                Amount = 4999,
+                Amount = recurrence == SubscriptionRecurrence.Monthly ? 499 : 4999,
             };
+
             var service = new PlanService();
             return service.Create(options);
         }
 
-        public static Customer CreateCustomer(IConfiguration configuration, ApplicationUser user, string paymentToken)
+        public Customer CreateCustomer(IConfiguration configuration, ApplicationUser user, string paymentToken)
         {
-            StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
+            StripeConfiguration.SetApiKey(_stripeSecret);
 
             var options = new CustomerCreateOptions
             {
@@ -52,9 +74,9 @@ namespace TabRepository.Helpers
             return service.Create(options);
         }
 
-        public static Subscription CreateSubscription(IConfiguration configuration, StripePlan plan, StripeCustomer customer, ApplicationUser user)
+        public Subscription CreateSubscription(IConfiguration configuration, StripePlan plan, StripeCustomer customer, ApplicationUser user)
         {
-            StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
+            StripeConfiguration.SetApiKey(_stripeSecret);
 
             var items = new List<SubscriptionItemOption>
             {
@@ -75,9 +97,9 @@ namespace TabRepository.Helpers
             return service.Create(options);
         }
 
-        public static Subscription CancelSubscription(IConfiguration configuration, StripeSubscription subscription)
+        public Subscription CancelSubscription(IConfiguration configuration, StripeSubscription subscription)
         {
-            StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
+            StripeConfiguration.SetApiKey(_stripeSecret);
 
             var service = new SubscriptionService();
             var options = new SubscriptionUpdateOptions
@@ -87,9 +109,9 @@ namespace TabRepository.Helpers
             return service.Update(subscription.Id, options);
         }
 
-        public static Subscription ActivateSubscription(IConfiguration configuration, StripeSubscription subscription)
+        public Subscription ActivateSubscription(IConfiguration configuration, StripeSubscription subscription)
         {
-            StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
+            StripeConfiguration.SetApiKey(_stripeSecret);
 
             var service = new SubscriptionService();
             var options = new SubscriptionUpdateOptions
@@ -99,24 +121,26 @@ namespace TabRepository.Helpers
             return service.Update(subscription.Id, options);
         }
 
-        public static Subscription GetSubscription(IConfiguration configuration, StripeSubscription subscription)
+        public Subscription GetSubscription(IConfiguration configuration, StripeSubscription subscription)
         {
-            StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
+            StripeConfiguration.SetApiKey(_stripeSecret);
 
             var service = new SubscriptionService();
             return service.Get(subscription.Id, null);
         }
 
-        public static Customer GetCustomer(IConfiguration configuration, StripeCustomer customer)
+        public Customer GetCustomer(IConfiguration configuration, StripeCustomer customer)
         {
-            StripeConfiguration.SetApiKey(configuration["Stripe:TestSecret"]);
+            StripeConfiguration.SetApiKey(_stripeSecret);
 
             var service = new CustomerService();
             return service.Get(customer.Id, null);
         }
 
-        public static Customer UpdateCustomerPayment(IConfiguration configuration, StripeCustomer customer, string paymentToken)
+        public Customer UpdateCustomerPayment(IConfiguration configuration, StripeCustomer customer, string paymentToken)
         {
+            StripeConfiguration.SetApiKey(_stripeSecret);
+
             var options = new CustomerUpdateOptions
             {
                 SourceToken = paymentToken

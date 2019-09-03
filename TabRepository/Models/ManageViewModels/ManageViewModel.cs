@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using TabRepository.Models.AccountViewModels;
+using TabRepository.ViewModels;
 
 namespace TabRepository.Models.ManageViewModels
 {
@@ -49,7 +50,7 @@ namespace TabRepository.Models.ManageViewModels
         [Display(Name = "Last Name")]
         public string Lastname { get; set; }
 
-        public DateTime? SubsriptionExpiration { get; set; }
+        public int TabCount { get; set; }
 
         public int TabVersionCount { get; set; }
 

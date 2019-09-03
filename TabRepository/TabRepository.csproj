@@ -178,9 +178,14 @@
     <Compile Remove="Data\Migrations\20190627173514_AddSecondMessageToNotification.Designer.cs" />
     <Compile Remove="Data\Migrations\20190627202903_AddSecondMessageToNotifications.cs" />
     <Compile Remove="Data\Migrations\20190627202903_AddSecondMessageToNotifications.Designer.cs" />
+    <Compile Remove="Helpers\PayPalProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\ProjectContributors\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="wwwroot\Properties\PublishProfiles\TabCollab.pubxml" />
+    <None Include="wwwroot\Properties\PublishProfiles\TabCollabDev - Web Deploy.pubxml" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="Views\Home\ReportIssue.cshtml">

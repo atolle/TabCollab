@@ -267,3 +267,4 @@ Thumbs.db
 ehthumbs.db
 ehthumbs_vista.db
 *.pubxml
+/ngrok.exe

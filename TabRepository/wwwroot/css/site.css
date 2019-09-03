@@ -1,6 +1,7 @@
 ﻿html {
     height: 100%;
     background-color: black;
+    font-family: 'Open Sans', sans-serif !important;
 }
 
 body {
@@ -1220,6 +1221,10 @@ td {
     color: white;
 }
 
+.fa-question-circle:hover {
+    cursor: pointer;
+}
+
 .notification-item {
     display: flex;
     justify-content: space-between;
@@ -1277,4 +1282,26 @@ td {
 #image-buttons {
     display: flex;
     justify-content: space-around
+}
+
+.features-table {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.btn-upgrade {
+    max-width: 127px;
+}
+
+.green-cell {
+    background-color: rgb(134, 192, 144) !important;    
+}
+
+.table th, .table td {
+    border: 1px solid #dee2e6 !important;
+    vertical-align: middle !important;
+}
+
+.table {    
+    border: 1px solid #dee2e6 !important;
 }

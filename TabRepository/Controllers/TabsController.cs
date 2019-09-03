@@ -75,20 +75,21 @@ namespace TabRepository.Controllers
                             var albumInDb = (Album)_userAuthenticator.CheckUserCreateAccess(Item.Album, viewModel.AlbumId, currentUserId);
 
                             if (albumInDb == null)
-                                return Json(new { error = "Album not found" });
+                                return Json(new { error = "Album not found" });                            
 
-                            // If we own this album we need to make sure we have an active subscription or less than 50 tabs
-
-                            var subscriptionExpiration = _context.Users
-                                .Where(u => u.Id == albumInDb.UserId)
-                                .Select(u => u.SubscriptionExpiration)
-                                .FirstOrDefault();
-
+                            var tabCount = 0;
                             var tabVersionCount = 0;
 
-                            if (albumInDb.User.AccountType == AccountType.Free || (albumInDb.User.AccountType == AccountType.Subscription && (int)(subscriptionExpiration - DateTime.Now).Value.TotalDays < 0))
+                            if (albumInDb.User.AccountType == AccountType.Free)
                             {
-                                // Get a count of total tab versions that this user owns (i.e. their projects)
+                                // Get a count of total tabs and tab versions that this user owns (i.e. their projects)
+                                tabCount = _context.Tabs
+                                    .Include(u => u.User)
+                                    .Include(t => t.Album)
+                                    .Include(t => t.Album.Project)
+                                    .Where(t => t.Album.Project.UserId == albumInDb.UserId)
+                                    .Count();
+
                                 tabVersionCount = _context.TabVersions
                                     .Include(u => u.User)
                                     .Include(v => v.Tab)
@@ -97,38 +98,22 @@ namespace TabRepository.Controllers
                                     .Where(v => v.Tab.Album.Project.UserId == albumInDb.UserId)
                                     .Count();
 
-                                if (tabVersionCount >= 50)
+                                if (tabCount >= 5 || tabVersionCount >= 15)
                                 {
-                                    if (subscriptionExpiration == null)
+                                    int limit = tabCount >= 5 ? 5 : 15;
+                                    string item = tabCount >= 5 ? "tabs" : "tab versions";
+                                    string error;
+
+                                    if (albumInDb.UserId == currentUserId)
                                     {
-                                        string error;
-
-                                        if (albumInDb.UserId == currentUserId)
-                                        {
-                                            error = "<br /><br />You have met the 50 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.";
-                                        }
-                                        else
-                                        {
-                                            error = "<br /><br />The owner has met the 50 allowed free tab versions that are included with the free TabCollab account.";
-                                        }
-
-                                        return Json(new { error = error });
+                                        error = $"<br /><br />You have met the {limit} allowed free {item} that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED {item}, go the the Account page.";
                                     }
                                     else
                                     {
-                                        string error;
-
-                                        if (albumInDb.UserId == currentUserId)
-                                        {
-                                            error = "<br /><br />Your TabCollab subscription has expired. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To renew your subscription, go the the Account page.";
-                                        }
-                                        else
-                                        {
-                                            error = "<br /><br />The owner's TabCollab subscription has expired.";
-                                        }
-
-                                        return Json(new { error = error });
+                                        error = $"<br /><br />The owner has met the {limit} allowed free {item} that are included with the free TabCollab account.";
                                     }
+
+                                    return Json(new { error = error });
                                 }
                             }                          
 
@@ -275,13 +260,22 @@ namespace TabRepository.Controllers
                     .Where(u => u.Id == currentUserId)
                     .FirstOrDefault();
 
+                var tabCount = 0;
                 var tabVersionCount = 0;
                 bool allowNewTabs = true;
-                
+                bool allowNewTabVersions = true;
+         
                 // If the account type is free OR the subscription is expired, check the tab version count
-                if (userInDb.AccountType == AccountType.Free || (userInDb.AccountType == AccountType.Subscription && (int)(userInDb.SubscriptionExpiration - DateTime.Now).Value.TotalDays < 0))
+                if (userInDb.AccountType == AccountType.Free)
                 {
                     // Get a count of total tab versions that this user owns (i.e. their projects)
+                    tabCount = _context.Tabs
+                        .Include(u => u.User)
+                        .Include(t => t.Album)
+                        .Include(t => t.Album.Project)
+                        .Where(t => t.Album.Project.UserId == currentUserId)
+                        .Count();
+
                     tabVersionCount = _context.TabVersions.Include(u => u.User)
                         .Include(v => v.Tab)
                         .Include(v => v.Tab.Album)
@@ -289,18 +283,21 @@ namespace TabRepository.Controllers
                         .Where(v => v.Tab.Album.Project.UserId == currentUserId)
                         .Count();
 
-                    if (tabVersionCount >= 50)
+                    if (tabCount >= 5)
                     {
                         allowNewTabs = false;
+                    }
+
+                    if (tabVersionCount >= 15)
+                    {
+                        allowNewTabVersions = false;
                     }
                 }
 
                 viewModel.TabTutorialShown = userInDb.TabTutorialShown;
                 viewModel.TabTutorialMobileShown = userInDb.TabTutorialMobileShown;
                 viewModel.AllowNewTabs = allowNewTabs;
-                viewModel.SubscriptionExpired = userInDb.SubscriptionExpiration == null ? true : ((int)(userInDb.SubscriptionExpiration - DateTime.Now).Value.TotalDays <= 0 ? true : false);
-                viewModel.SubscriptionExpiration = userInDb.SubscriptionExpiration;
-
+                viewModel.AllowNewTabVersions = allowNewTabVersions;
 
                 foreach (var project in projects)
                 {

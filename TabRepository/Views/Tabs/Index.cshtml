@@ -292,13 +292,33 @@
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
+                <h4 class="modal-title">Tab Limit Reached</h4>
+                <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                You have met the 5 allowed free tabs that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tabs, go the the Account page.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="tab-version-limit-modal" class="modal fade">
+    <div class="modal-dialog text-left">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
                 <h4 class="modal-title">Tab Version Limit Reached</h4>
                 <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                You have met the 50 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.
+                You have met the 15 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -471,6 +491,7 @@
             var True = true,
                 False = false,
                 allowNewTabs = @Model.AllowNewTabs,
+                allowNewTabVersions = @Model.AllowNewTabVersions,
                 tabTutorialShown = @Model.TabTutorialShown,
                 tabTutorialMobileShown = @Model.TabTutorialMobileShown,
                 tabLoader = "<div class='tab-loader-container' style='display: none;'><div class='tab-loader'></div></div>",
@@ -482,12 +503,10 @@
             }
 
             if (!allowNewTabs) {
-                if (@(Model.SubscriptionExpiration != null ? true : false) && @Model.SubscriptionExpired) {
-                    $('#subscription-limit-modal').modal('show');
-                }
-                else {
-                    $('#tab-limit-modal').modal('show');
-                }
+                $('#tab-limit-modal').modal('show');
+            }
+            else if (!allowNewTabVersions) {
+                $('#tab-version-limit-modal').modal('show');
             }
 
             $('footer').show();
@@ -953,7 +972,7 @@
                     $('#tab-button-container').empty().append('<button id="new-tab-button" class="btn btn-primary dashboard-button" disabled>New Tab</button>');
                 }
 
-                if ($(selectedTree)[0].className.includes('owner-tree') && !allowNewTabs) {
+                if ($(selectedTree)[0].className.includes('owner-tree') && !allowNewTabVersions) {
                     $('#new-tabversion-button-container').empty().append('<button id="new-tab-version-button" class="btn btn-primary dashboard-button" disabled>New Tab Version</button>');
                 }
                 else {
@@ -970,7 +989,7 @@
                 $('#project-button-container').empty().append('<button id="new-project-button" class="btn btn-primary dashboard-button">New Project</button>');
                 $('#new-tabversion-button-container').empty().append('<button class="btn btn-primary dashboard-button" disabled>New Tab Version</button>');
 
-                if ($(selectedTree)[0].className.includes('owner-tree') && !allowNewTabs) {
+                if ($(selectedTree)[0].className.includes('owner-tree') && (!allowNewTabs || !allowNewTabVersions)) {
                     $('#tab-button-container').empty().append('<button id="new-tab-button" class="btn btn-primary dashboard-button" disabled>New Tab</button>');
                 }
                 else {

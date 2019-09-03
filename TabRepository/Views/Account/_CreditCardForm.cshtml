@@ -113,8 +113,25 @@
             </div>
         </div>
     </div>
+    <div class="row row-no-margin">
+        <div class="col-md-6">
+            <div class="form-group">
+                <div class="form-label">
+                    <label asp-for="Recurrence"></label>
+                </div>
+                <select class="form-control form-input valid" data-val="true" data-val-required="Recurrence is required" id="Recurrence" name="Recurrence" aria-required="true" aria-invalid="false" aria-describedby="Recurrence-error">
+                    <option value="0">Monthly</option>
+                    <option value="1">Yearly</option>
+                </select>
+                <div class="form-label">
+                    <span asp-validation-for="Recurrence" style="color: red"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6"></div>
+    </div>
     <p>* You subscription will auto-renew each year until you cancel *</p>
-    <p>Amount to be charged: $49.99</p>
+    <p>Amount to be charged: <span id="amount">$4.99</span></p>
     <div class="row row-no-margin">
         <div class="col">
             <div class="form-group">
@@ -125,6 +142,7 @@
     @Html.AntiForgeryToken()
 </form>
 <form asp-controller="Account" asp-action="SubscriptionProcess" asp-route-returnurl="@ViewData["ReturnUrl"]" id="token-form" method="post" hidden>
-    @Html.Hidden("UserId", ViewData["UserId"])    
+    @Html.Hidden("UserId", ViewData["UserId"])
     <input asp-for="PaymentToken" hidden />
+    <input hidden="" type="text" data-val="true" data-val-required="The Recurrence field is required." id="StripeRecurrence" name="StripeRecurrence" value="">
 </form>

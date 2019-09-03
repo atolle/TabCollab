@@ -35,6 +35,8 @@ namespace TabRepository.Controllers
         private FileUploader _fileUploader;
         private readonly IHostingEnvironment _appEnvironment;
         private IConfiguration _configuration;
+        private StripeProcessor _stripeProcessor;
+        private UserAuthenticator _userAuthenticator;
 
         public ManageController(
           UserManager<ApplicationUser> userManager,
@@ -44,7 +46,8 @@ namespace TabRepository.Controllers
           ILoggerFactory loggerFactory,
           ApplicationDbContext context, 
           IHostingEnvironment appEnvironment,
-          IConfiguration configuration)
+          IConfiguration configuration,
+          UserAuthenticator userAuthenticator)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -55,6 +58,8 @@ namespace TabRepository.Controllers
             _appEnvironment = appEnvironment;
             _fileUploader = new FileUploader(context, appEnvironment);
             _configuration = configuration;
+            _stripeProcessor = new StripeProcessor(_appEnvironment, _configuration);
+            _userAuthenticator = userAuthenticator;
         }
 
         //
@@ -82,6 +87,12 @@ namespace TabRepository.Controllers
                 }
 
                 // Get a count of total tab versions that this user owns (i.e. their projects)
+                var tabCount = _context.Tabs.Include(u => u.User)
+                    .Include(t => t.Album)
+                    .Include(t => t.Album.Project)
+                    .Where(t => t.Album.Project.UserId == currentUserId)
+                    .Count();
+
                 var tabVersionCount = _context.TabVersions.Include(u => u.User)
                     .Include(v => v.Tab)
                     .Include(v => v.Tab.Album)
@@ -95,24 +106,12 @@ namespace TabRepository.Controllers
 
                 Models.AccountViewModels.AccountType accountType = _context.Users.Where(u => u.Id == currentUserId).Select(u => u.AccountType).FirstOrDefault();
 
-                var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();
-                var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Status.ToLower() == "active" && s.CustomerId == user.CustomerId).FirstOrDefault();
-
-                if (subscriptionInDb != null)
-                {
-                    if (subscriptionInDb.CancelAtPeriodEnd)
-                    {
-                        subscriptionStatus = SubscriptionStatus.CancelAtPeriodEnd;
-                    }
-                    else
-                    {
-                        subscriptionStatus = SubscriptionStatus.Active;
-                    }
-                }
+                var subscriptionInDb = _userAuthenticator.GetSubscription(user);
+                var customerInDb = _userAuthenticator.GetCustomer(user);
 
                 if (customerInDb != null)
                 {
-                    var customer = StripeProcessor.GetCustomer(_configuration, customerInDb);
+                    var customer = _stripeProcessor.GetCustomer(_configuration, customerInDb);
 
                     creditCardLastFour = (customer.Sources.FirstOrDefault() as Card).Last4;
                     creditCardExpiration = (customer.Sources.FirstOrDefault() as Card).ExpMonth + "/" + (customer.Sources.FirstOrDefault() as Card).ExpYear;
@@ -130,7 +129,7 @@ namespace TabRepository.Controllers
                     Lastname = user.LastName,
                     ImageFileName = user.ImageFileName,
                     ImageFilePath = user.ImageFilePath,
-                    SubsriptionExpiration = user.SubscriptionExpiration,
+                    TabCount = tabCount,
                     TabVersionCount = tabVersionCount,
                     Email = user.Email,
                     SubscriptionStatus = subscriptionStatus,

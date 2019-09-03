@@ -40,6 +40,8 @@ namespace TabRepository.Controllers
         private FileUploader _fileUploader;
         private readonly IHostingEnvironment _appEnvironment;
         private IConfiguration _configuration;
+        private StripeProcessor _stripeProcessor;
+        private UserAuthenticator _userAuthenticator;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -49,7 +51,8 @@ namespace TabRepository.Controllers
             ILoggerFactory loggerFactory,
             ApplicationDbContext context,
             IHostingEnvironment appEnvironment,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            UserAuthenticator userAuthenticator)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -60,6 +63,8 @@ namespace TabRepository.Controllers
             _appEnvironment = appEnvironment;
             _fileUploader = new FileUploader(context, appEnvironment);
             _configuration = configuration;
+            _stripeProcessor = new StripeProcessor(_appEnvironment, _configuration);
+            _userAuthenticator = userAuthenticator;
         }
 
         //
@@ -107,7 +112,7 @@ namespace TabRepository.Controllers
 
                     if (subscriptionInDb != null)
                     {
-                        var subscription = StripeProcessor.GetSubscription(_configuration, subscriptionInDb);
+                        var subscription = _stripeProcessor.GetSubscription(_configuration, subscriptionInDb);
 
                         // If the subscription is no longer active, change to free account
                         if (subscription.Status.ToLower() != "active")
@@ -160,9 +165,6 @@ namespace TabRepository.Controllers
         [ActionName("SubscriptionCancel")]
         public IActionResult SubscriptionCancelGet()
         {
-            // Temporary for beta
-            return RedirectToAction("Index", "Home");
-
             return View("SubscriptionCancel");
         }
 
@@ -173,9 +175,6 @@ namespace TabRepository.Controllers
         {
             try
             {
-                // Temporary for beta
-                return RedirectToAction("Index", "Home");
-
                 string currentUserId = User.GetUserId();
 
                 var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
@@ -188,7 +187,7 @@ namespace TabRepository.Controllers
                 }
 
                 // Get the subscription so we can get the new state
-                var subscription = StripeProcessor.CancelSubscription(_configuration, subscriptionInDb);
+                var subscription = _stripeProcessor.CancelSubscription(_configuration, subscriptionInDb);
 
                 subscriptionInDb.Status = subscription.Status;
                 subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
@@ -214,9 +213,6 @@ namespace TabRepository.Controllers
         [HttpGet]
         public IActionResult Subscribe()
         {
-            // Temporary for beta
-            return RedirectToAction("Index", "Home");
-
             string currentUserId = User.GetUserId();
 
             var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
@@ -238,9 +234,6 @@ namespace TabRepository.Controllers
         [HttpGet]
         public IActionResult UpdatePayment()
         {
-            // Temporary for beta
-            return RedirectToAction("Index", "Home");
-
             string currentUserId = User.GetUserId();
 
             var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
@@ -263,10 +256,7 @@ namespace TabRepository.Controllers
         public IActionResult UpdatePayment(StripePaymentViewModel model)
         {
             try
-            {
-                // Temporary for beta
-                return RedirectToAction("Index", "Home");
-
+            {                
                 if (ModelState.IsValid)
                 {
                     string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
@@ -278,7 +268,7 @@ namespace TabRepository.Controllers
                     // Update customer's payment
                     if (customerInDb != null)
                     {
-                        var customer = StripeProcessor.UpdateCustomerPayment(_configuration, customerInDb, model.PaymentToken);
+                        var customer = _stripeProcessor.UpdateCustomerPayment(_configuration, customerInDb, model.PaymentToken);
                       
                         return PartialView("_UpdateCreditCardConfirmation");
                     }
@@ -309,21 +299,18 @@ namespace TabRepository.Controllers
         {
             try
             {
-                // Temporary for beta
-                return RedirectToAction("Index", "Home");
-
                 if (ModelState.IsValid)
                 {
-                    string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
+                    string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;                    
 
-                    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+                    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();                    
 
                     var productInDb = _context.StripeProducts.Where(p => p.Name == "TabCollab").FirstOrDefault();
 
                     // No product so we need to create one
                     if (productInDb == null)
                     {
-                        var product = StripeProcessor.CreateProduct(_configuration);
+                        var product = _stripeProcessor.CreateProduct(_configuration);
 
                         productInDb = new StripeProduct
                         {
@@ -335,12 +322,13 @@ namespace TabRepository.Controllers
                         _context.SaveChanges();
                     }
 
-                    var planInDb = _context.StripePlans.Where(p => p.Nickname == "TabCollab Standard Subscription").FirstOrDefault();
+                    // Hardcoded to Pro for now until Composers tier is added
+                    var planInDb = _context.StripePlans.Where(p => p.Nickname == $"TabCollab Pro {model.StripeRecurrence.ToString()} Subscription").FirstOrDefault();
 
                     // No plan so we need to create one
                     if (planInDb == null)
                     {
-                        var plan = StripeProcessor.CreatePlan(_configuration, productInDb);
+                        var plan = _stripeProcessor.CreatePlan(_configuration, productInDb, model.StripeRecurrence);
 
                         planInDb = new StripePlan
                         {
@@ -358,7 +346,7 @@ namespace TabRepository.Controllers
                     // No customer so we need to create one
                     if (customerInDb == null)
                     {
-                        var customer = StripeProcessor.CreateCustomer(_configuration, userInDb, model.PaymentToken);
+                        var customer = _stripeProcessor.CreateCustomer(_configuration, userInDb, model.PaymentToken);
 
                         customerInDb = new StripeCustomer
                         {
@@ -375,7 +363,7 @@ namespace TabRepository.Controllers
                     // We already have a customer, so updat their payment info
                     else
                     {
-                        var customer = StripeProcessor.UpdateCustomerPayment(_configuration, customerInDb, model.PaymentToken);
+                        var customer = _stripeProcessor.UpdateCustomerPayment(_configuration, customerInDb, model.PaymentToken);
                     }
 
                     var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.CustomerId == customerInDb.Id && s.Status.ToLower() == "active").FirstOrDefault();
@@ -385,7 +373,7 @@ namespace TabRepository.Controllers
                     {
                         Stripe.Subscription subscription = null;
 
-                        subscription = StripeProcessor.CreateSubscription(_configuration, planInDb, customerInDb, userInDb);
+                        subscription = _stripeProcessor.CreateSubscription(_configuration, planInDb, customerInDb, userInDb);
 
                         subscriptionInDb = new StripeSubscription
                         {
@@ -396,15 +384,14 @@ namespace TabRepository.Controllers
                             CancelAtPeriodEnd = subscription.CancelAtPeriodEnd
                         };
 
-                        customerInDb.SubscriptionId = subscription.Id;
+                        customerInDb.SubscriptionId = subscription.Id;                       
 
                         _context.StripeSubscriptions.Add(subscriptionInDb);
                         _context.SaveChanges();
 
                         if (subscriptionInDb.Status.ToLower() == "active")
                         {
-                            userInDb.AccountType = Models.AccountViewModels.AccountType.Subscription;
-                            userInDb.SubscriptionExpiration = subscription.CurrentPeriodEnd;
+                            userInDb.AccountType = Models.AccountViewModels.AccountType.Pro;                      
 
                             _context.SaveChanges();
 
@@ -418,7 +405,7 @@ namespace TabRepository.Controllers
                     // If we have an active subscription, we should be reactivating it
                     else if (subscriptionInDb.CancelAtPeriodEnd)
                     {
-                        var subscription = StripeProcessor.ActivateSubscription(_configuration, subscriptionInDb);
+                        var subscription = _stripeProcessor.ActivateSubscription(_configuration, subscriptionInDb);
 
                         subscriptionInDb.Status = subscription.Status;
                         subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
@@ -499,21 +486,19 @@ namespace TabRepository.Controllers
                         FirstName = model.FirstName,
                         LastName = model.LastName,
                         Bio = "",
-                        AccountType = Models.AccountViewModels.AccountType.Free,
-                        SubscriptionExpiration = null
+                        AccountType = Models.AccountViewModels.AccountType.Free
                     };
                     var result = await _userManager.CreateAsync(user, model.Password);
                     if (result.Succeeded)
                     {
                         string partialView = "_RegisterConfirmation";
-
-                        // Temporary for beta
-                        //if (model.AccountType == Models.AccountViewModels.AccountType.Subscription)
-                        //{
-                        //    partialView = "_CreditCardForm";
-                        //    ViewBag.UserId = user.Id;
-                        //    ViewBag.FromRegistration = true;
-                        //}
+                        
+                        if (model.AccountType == Models.AccountViewModels.AccountType.Pro)
+                        {
+                            partialView = "_CreditCardForm";
+                            ViewBag.UserId = user.Id;
+                            ViewBag.FromRegistration = true;
+                        }
 
                         // Save profile image if it was added
                         if (model.CroppedImage != null)

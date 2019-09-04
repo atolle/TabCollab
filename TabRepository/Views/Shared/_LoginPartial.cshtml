@@ -30,8 +30,11 @@
             </li>
             @if (UserManager.Users.Where(u => u.Id == User.GetUserId()).FirstOrDefault().AccountType == AccountType.Free)
             {
-                <li class="nav-item">
+                @*Temporary for Beta <li class="nav-item">
                     <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary btn-upgrade nav-link">Upgrade to Pro</a>
+                </li>*@
+                <li class="nav-item">
+                    <a asp-controller="Home" asp-action="PerksOfUpgrading" class="btn btn-outline-primary btn-perks nav-link">Perks of Upgrading</a>
                 </li>
             }
             <li class="nav-item">

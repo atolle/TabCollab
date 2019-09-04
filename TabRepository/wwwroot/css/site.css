@@ -1124,6 +1124,17 @@ td {
     border-color: rgb(134, 192, 144) !important;
 }
 
+.btn-outline-danger {
+    color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
+.btn-outline-danger:hover {
+    color: #ffffff !important;
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
 .btn-outline-primary.checked {
     color: #ffffff !important;
     background-color: rgb(134, 192, 144) !important;
@@ -1293,6 +1304,10 @@ td {
     max-width: 127px;
 }
 
+.btn-perks {
+    max-width: 154px;
+}
+
 .green-cell {
     background-color: rgb(134, 192, 144) !important;    
 }
@@ -1304,4 +1319,8 @@ td {
 
 .table {    
     border: 1px solid #dee2e6 !important;
+}
+
+.perk-component {
+    max-width: 875px;
 }

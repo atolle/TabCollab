@@ -38,10 +38,31 @@
                     {
                         <h3>Pro Account</h3>
                         <h6>@(Model.Interval == "month" ? "Monthly" : "Yearly")</h6>
+                        <table class="table table-striped table-dark table-hover tabversions-table" style="margin-top: 20px; margin-bottom: 20px; text-align: center">
+                            <thead>
+                                <tr>
+                                    <th width="40%"><div class="table-header">Item</div></th>
+                                    <th width="30%"><div class="table-header">Count</div></th>
+                                    <th width="30%"><div class="table-header">Remaining</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Tabs</td>
+                                    <td>@Model.TabCount</td>
+                                    <td>&#8734</td>
+                                </tr>
+                                <tr>
+                                    <td>Tab Versions</td>
+                                    <td>@Model.TabVersionCount</td>
+                                    <td>&#8734</td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <div class="subscription-btn-container">
                             @if (Model.SubscriptionStatus == SubscriptionStatus.Active)
                             {
-                                <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-danger dashboard-button">Cancel Auto-Renew</a>
+                                <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-outline-danger dashboard-button">Cancel Auto-Renew</a>
                                 @if (Model.CreditCardLast4 != null)
                                 {
                                     <a asp-controller="Account" asp-action="UpdatePayment" class="btn btn-default dashboard-button">Update Credit Card<br />************@Model.CreditCardLast4 @Model.CreditCardExpiration</a>
@@ -65,7 +86,8 @@
                         @if (Model.AccountType == AccountType.Free)
                         {
                             <div class="subscription-btn-container">
-                                <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary dashboard-button">Upgrade to Pro</a>
+                                <a asp-controller="Home" asp-action="PerksOfUpgrading" class="btn btn-outline-primary dashboard-button">Perks of Upgrading</a>
+                                @*Temporary for Beta <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary dashboard-button">Upgrade to Pro</a>*@
                             </div>
                         }
                     </div>
@@ -176,21 +198,21 @@
                                 traditional: 'true',
                                 url: href
                             })
-                            .then(function (response) {
-                                if (!response.success) {
-                                    bootbox.alert("Subscription auto-renew cancellation failed. Please contact TabCollab support at support@tabcollab.com.");
-                                }
-                                else {
-                                    bootbox.alert("Subscription auto-renew has been canceled.");
-                                    $('#btn-cancel-subscription').remove();
-                                    $('.subscription-btn-container').html('<a class="btn btn-primary dashboard-button" href="/Account/Subscribe">Activate Auto-Renew</a>');
-                                    $('#subscription-renewal-expiration').html('Expiration');
-                                }
-                            })
-                            .fail(function (error) {
-                                bootbox.alert("Unable to update subscription. Error: " + error.statusText);
-                                enableSubmitButton();
-                            })
+                                .then(function (response) {
+                                    if (!response.success) {
+                                        bootbox.alert("Subscription auto-renew cancellation failed. Please contact TabCollab support at support@tabcollab.com.");
+                                    }
+                                    else {
+                                        bootbox.alert("Subscription auto-renew has been canceled.");
+                                        $('#btn-cancel-subscription').remove();
+                                        $('.subscription-btn-container').html('<a class="btn btn-primary dashboard-button" href="/Account/Subscribe">Activate Auto-Renew</a>');
+                                        $('#subscription-renewal-expiration').html('Expiration');
+                                    }
+                                })
+                                .fail(function (error) {
+                                    bootbox.alert("Unable to update subscription. Error: " + error.statusText);
+                                    enableSubmitButton();
+                                })
                         }
                         else {
                             bootbox.alert("Subscription not canceled.");
@@ -246,28 +268,28 @@
                         contentType: false,
                         processData: false
                     })
-                    .then(function (response) {
-                        submitButton.html(submitButtonHtml);
+                        .then(function (response) {
+                            submitButton.html(submitButtonHtml);
 
-                        form.reset();
+                            form.reset();
 
-                        $('#image-upload').croppie('destroy');
+                            $('#image-upload').croppie('destroy');
 
-                        // Re-disable all of our fields
-                        submitButton.addClass('disabled');
-                        $('#Firstname').prop('disabled', true);
-                        $('#Firstname').val(response.firstName);
-                        $('#Lastname').prop('disabled', true);
-                        $('#Lastname').val(response.lastName);
-                        $('#Email').prop('disabled', true);
-                        $('#Email').val(response.email);
-                        $('#Image').addClass('disabled');
-                        $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
-                    })
-                    .fail(function (error) {
-                        bootbox.alert("Unable to update account information.<br /><br />Error: " + error.statusText);
-                        submitButton.html(submitButtonHtml);
-                    })
+                            // Re-disable all of our fields
+                            submitButton.addClass('disabled');
+                            $('#Firstname').prop('disabled', true);
+                            $('#Firstname').val(response.firstName);
+                            $('#Lastname').prop('disabled', true);
+                            $('#Lastname').val(response.lastName);
+                            $('#Email').prop('disabled', true);
+                            $('#Email').val(response.email);
+                            $('#Image').addClass('disabled');
+                            $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
+                        })
+                        .fail(function (error) {
+                            bootbox.alert("Unable to update account information.<br /><br />Error: " + error.statusText);
+                            submitButton.html(submitButtonHtml);
+                        })
                 });
             });
         });

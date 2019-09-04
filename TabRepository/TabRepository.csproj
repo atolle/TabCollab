@@ -188,6 +188,9 @@
     <None Include="wwwroot\Properties\PublishProfiles\TabCollabDev - Web Deploy.pubxml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Update="Views\Home\PerksOfUpgrading.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Views\Home\ReportIssue.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

@@ -165,6 +165,9 @@ namespace TabRepository.Controllers
         [ActionName("SubscriptionCancel")]
         public IActionResult SubscriptionCancelGet()
         {
+            // Temporary for Beta
+            return RedirectToAction("Index", "Home");
+
             return View("SubscriptionCancel");
         }
 
@@ -175,6 +178,9 @@ namespace TabRepository.Controllers
         {
             try
             {
+                // Temporary for Beta
+                return new StatusCodeResult(StatusCodes.Status404NotFound);
+
                 string currentUserId = User.GetUserId();
 
                 var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
@@ -213,6 +219,9 @@ namespace TabRepository.Controllers
         [HttpGet]
         public IActionResult Subscribe()
         {
+            // Temporary for Beta
+            return RedirectToAction("Index", "Home");
+
             string currentUserId = User.GetUserId();
 
             var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
@@ -234,6 +243,9 @@ namespace TabRepository.Controllers
         [HttpGet]
         public IActionResult UpdatePayment()
         {
+            // Temporary for Beta
+            return RedirectToAction("Index", "Home");
+
             string currentUserId = User.GetUserId();
 
             var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
@@ -256,7 +268,10 @@ namespace TabRepository.Controllers
         public IActionResult UpdatePayment(StripePaymentViewModel model)
         {
             try
-            {                
+            {
+                // Temporary for Beta
+                return new StatusCodeResult(StatusCodes.Status404NotFound);
+
                 if (ModelState.IsValid)
                 {
                     string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
@@ -299,6 +314,9 @@ namespace TabRepository.Controllers
         {
             try
             {
+                // Temporary for Beta
+                return new StatusCodeResult(StatusCodes.Status404NotFound);
+
                 if (ModelState.IsValid)
                 {
                     string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;                    
@@ -494,12 +512,13 @@ namespace TabRepository.Controllers
                     {
                         string partialView = "_RegisterConfirmation";
                         
-                        if (model.AccountType == Models.AccountViewModels.AccountType.Pro)
-                        {
-                            partialView = "_CreditCardForm";
-                            ViewBag.UserId = user.Id;
-                            ViewBag.FromRegistration = true;
-                        }
+                        // Temporary for Beta
+                        //if (model.AccountType == Models.AccountViewModels.AccountType.Pro)
+                        //{
+                        //    partialView = "_CreditCardForm";
+                        //    ViewBag.UserId = user.Id;
+                        //    ViewBag.FromRegistration = true;
+                        //}
 
                         // Save profile image if it was added
                         if (model.CroppedImage != null)

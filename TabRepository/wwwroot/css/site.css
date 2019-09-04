@@ -1324,3 +1324,7 @@ td {
 .perk-component {
     max-width: 875px;
 }
+
+.btn-account-type {
+    margin-bottom: 10px;
+}

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using TabRepository.Models.AccountViewModels;
 
 namespace TabRepository.ViewModels
 {
@@ -43,7 +44,11 @@ namespace TabRepository.ViewModels
         [Required]
         public string PaymentToken { get; set; }
 
-        [Required(ErrorMessage = "Recurrence is required")]
-        public SubscriptionInterval Recurrence { get; set; }
+        [Required(ErrorMessage = "Interval is required")]
+        public SubscriptionInterval Interval { get; set; }
+
+        [Required(ErrorMessage = "Account Type is required")]
+        [Display(Name = "Account Type")]
+        public AccountType AccountType { get; set; }
     }
 }

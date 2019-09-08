@@ -49,20 +49,20 @@
                                 <div id="free-btn" class="btn btn-outline-primary btn-account-type" style="width: 100%">Free</div>
                             </div>
                             <div class="col">
-                                <div id="subscription-btn" class="btn btn-outline-primary disabled btn-account-type" style="width: 100%">Pro (coming soon)</div>
+                                <div id="subscription-btn" class="btn btn-outline-primary btn-account-type" style="width: 100%">Pro</div>
                             </div>
                             <div class="col">
                                 <div id="composer-btn" class="btn btn-outline-primary disabled btn-account-type" style="width: 100%">Composer (coming soon)</div>
                             </div>
                         </div>
                         <input type="radio" id="free-radio" asp-for="AccountType" value="0" style="opacity: 0" />
-                        @*<input type="radio" id="subscription-radio" asp-for="AccountType" value="1" style="opacity: 0" />*@
+                        <input type="radio" id="subscription-radio" asp-for="AccountType" value="1" style="opacity: 0" />
                         <table id="features-table" class="table table-striped table-dark table-hover tabversions-table features-table" style="display: none">
                             <thead>
                                 <tr>
                                     <th width="25%"><div class="table-header"></div>Feature</th>
                                     <th width="25%"><div class="table-header">Free</div></th>
-                                    <th width="25%"><div class="table-header">Pro (coming soon)</div></th>
+                                    <th width="25%"><div class="table-header">Pro</div></th>
                                     <th width="25%"><div class="table-header">Composer (coming soon)</div></th>
                                 </tr>
                             </thead>
@@ -319,7 +319,7 @@
 
                 // Insert the token into the form so it gets submitted to the server:
                 $('#PaymentToken').val(token);
-                $('#StripeRecurrence').val($('#Recurrence').val());
+                $('#StripeInterval').val($('#Interval').val());
 
                 $.ajax({
                     url: form.action,
@@ -497,6 +497,7 @@
                     else {
                         $('.flex-container-row').html(response);
                         $.validator.unobtrusive.parse($("#payment-form"));
+                        $('#total').html('$' + (parseFloat($('#price').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
                     }
                 })
                 .fail(function (error) {
@@ -571,12 +572,16 @@
             onResize();
         });
 
-        $(document).on("change", "#Recurrence", function () {
+        $(document).on("change", "#Interval", function () {
             if (this.value == 0) {
-                $('#amount').html('$4.99');
+                $('#price').html('$4.99');
+                $('#interval').html('Monthly');
+                $('#total').html('$' + (parseFloat($('#price').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
             }
             else {
-                $('#amount').html('$49.99');
+                $('#price').html('$49.99');
+                $('#interval').html('Yearly');
+                $('#total').html('$' + (parseFloat($('#price').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
             }
         });
     });

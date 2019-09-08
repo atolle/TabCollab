@@ -342,7 +342,7 @@ namespace TabRepository.Controllers
                 List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
 
                 // Return a list of all Projects belonging to the current user
-                var projects = _userAuthenticator.GetAllItems(Item.Project, null, currentUserId).Cast<Project>().ToList();
+                var projects = _userAuthenticator.GetAllItems(Item.Project, null, currentUserId).Cast<Project>().OrderByDescending(p => p.UserId == currentUserId).ThenBy(p => p.Name).ToList();
 
                 foreach (var project in projects)
                 {

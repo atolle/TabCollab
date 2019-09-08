@@ -1,7 +1,7 @@
 ﻿html {
     height: 100%;
     background-color: black;
-    font-family: 'Open Sans', sans-serif !important;
+    font-family: "Open Sans", sans-serif !important;
 }
 
 body {
@@ -10,6 +10,7 @@ body {
     padding-bottom: 20px;
     height: 100%;
     color: white;
+    font-family: "Open Sans", sans-serif !important;
 }
 
 .body-content {
@@ -1301,7 +1302,7 @@ td {
 }
 
 .btn-upgrade {
-    max-width: 127px;
+    max-width: 132px;
 }
 
 .btn-perks {
@@ -1327,4 +1328,8 @@ td {
 
 .btn-account-type {
     margin-bottom: 10px;
+}
+
+#credit-card-table {
+    width: 400px;
 }

@@ -6,7 +6,8 @@ namespace TabRepository.Models.AccountViewModels
     public enum AccountType
     {
         Free,
-        Pro
+        Pro,
+        Composer
     }
     public class RegisterViewModel
     {

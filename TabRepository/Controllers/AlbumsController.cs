@@ -276,7 +276,7 @@ namespace TabRepository.Controllers
             try
             {
                 // Return a list of all Projects belonging to the current user
-                var albums = _userAuthenticator.GetAllItems(Item.Album, projectId, currentUserId).Cast<Album>().ToList();
+                var albums = _userAuthenticator.GetAllItems(Item.Album, projectId, currentUserId).Cast<Album>().OrderByDescending(a => a.UserId == currentUserId).ThenBy(a => a.Name).ToList();
 
                 foreach (var album in albums)
                 {

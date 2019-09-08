@@ -44,17 +44,17 @@ namespace TabRepository.Helpers
             return service.Create(options);
         }
 
-        public Plan CreatePlan(IConfiguration configuration, StripeProduct product, SubscriptionInterval recurrence)
+        public Plan CreatePlan(IConfiguration configuration, StripeProduct product, SubscriptionInterval interval)
         {
             StripeConfiguration.SetApiKey(_stripeSecret);            
 
             var options = new PlanCreateOptions
             {
                 ProductId = product.Id,
-                Nickname = $"TabCollab Pro {recurrence.ToString()} Subscription",
-                Interval = recurrence == SubscriptionInterval.Monthly ? "month" : "year",
+                Nickname = $"TabCollab Pro {interval.ToString()} Subscription",
+                Interval = interval == SubscriptionInterval.Monthly ? "month" : "year",
                 Currency = "usd",
-                Amount = recurrence == SubscriptionInterval.Monthly ? 499 : 4999,
+                Amount = interval == SubscriptionInterval.Monthly ? 499 : 4999,
             };
 
             var service = new PlanService();

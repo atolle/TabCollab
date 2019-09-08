@@ -85,9 +85,8 @@
                         }
                         @if (Model.AccountType == AccountType.Free)
                         {
-                            <div class="subscription-btn-container">
-                                <a asp-controller="Home" asp-action="PerksOfUpgrading" class="btn btn-outline-primary dashboard-button">Perks of Upgrading</a>
-                                @*Temporary for Beta <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary dashboard-button">Upgrade to Pro</a>*@
+                            <div class="subscription-btn-container">                                
+                                <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary dashboard-button">Upgrade to Pro</a>
                             </div>
                         }
                     </div>

@@ -165,9 +165,6 @@ namespace TabRepository.Controllers
         [ActionName("SubscriptionCancel")]
         public IActionResult SubscriptionCancelGet()
         {
-            // Temporary for Beta
-            return RedirectToAction("Index", "Home");
-
             return View("SubscriptionCancel");
         }
 
@@ -178,9 +175,6 @@ namespace TabRepository.Controllers
         {
             try
             {
-                // Temporary for Beta
-                return new StatusCodeResult(StatusCodes.Status404NotFound);
-
                 string currentUserId = User.GetUserId();
 
                 var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
@@ -219,9 +213,6 @@ namespace TabRepository.Controllers
         [HttpGet]
         public IActionResult Subscribe()
         {
-            // Temporary for Beta
-            return RedirectToAction("Index", "Home");
-
             string currentUserId = User.GetUserId();
 
             var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
@@ -243,9 +234,6 @@ namespace TabRepository.Controllers
         [HttpGet]
         public IActionResult UpdatePayment()
         {
-            // Temporary for Beta
-            return RedirectToAction("Index", "Home");
-
             string currentUserId = User.GetUserId();
 
             var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
@@ -269,9 +257,6 @@ namespace TabRepository.Controllers
         {
             try
             {
-                // Temporary for Beta
-                return new StatusCodeResult(StatusCodes.Status404NotFound);
-
                 if (ModelState.IsValid)
                 {
                     string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
@@ -314,9 +299,6 @@ namespace TabRepository.Controllers
         {
             try
             {
-                // Temporary for Beta
-                return new StatusCodeResult(StatusCodes.Status404NotFound);
-
                 if (ModelState.IsValid)
                 {
                     string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;                    
@@ -341,12 +323,12 @@ namespace TabRepository.Controllers
                     }
 
                     // Hardcoded to Pro for now until Composers tier is added
-                    var planInDb = _context.StripePlans.Where(p => p.Nickname == $"TabCollab Pro {model.StripeRecurrence.ToString()} Subscription").FirstOrDefault();
+                    var planInDb = _context.StripePlans.Where(p => p.Nickname == $"TabCollab Pro {model.StripeInterval.ToString()} Subscription").FirstOrDefault();
 
                     // No plan so we need to create one
                     if (planInDb == null)
                     {
-                        var plan = _stripeProcessor.CreatePlan(_configuration, productInDb, model.StripeRecurrence);
+                        var plan = _stripeProcessor.CreatePlan(_configuration, productInDb, model.StripeInterval);
 
                         planInDb = new StripePlan
                         {
@@ -507,18 +489,25 @@ namespace TabRepository.Controllers
                         Bio = "",
                         AccountType = Models.AccountViewModels.AccountType.Free
                     };
+
+                    var emailInDb = _context.Users.Where(u => u.Email == model.Email).FirstOrDefault();
+
+                    if (emailInDb != null)
+                    {
+                        return Json(new { error = "Email is already in use." });
+                    }
+
                     var result = await _userManager.CreateAsync(user, model.Password);
                     if (result.Succeeded)
                     {
                         string partialView = "_RegisterConfirmation";
                         
-                        // Temporary for Beta
-                        //if (model.AccountType == Models.AccountViewModels.AccountType.Pro)
-                        //{
-                        //    partialView = "_CreditCardForm";
-                        //    ViewBag.UserId = user.Id;
-                        //    ViewBag.FromRegistration = true;
-                        //}
+                        if (model.AccountType == Models.AccountViewModels.AccountType.Pro)
+                        {
+                            partialView = "_CreditCardForm";
+                            ViewBag.UserId = user.Id;
+                            ViewBag.FromRegistration = true;
+                        }
 
                         // Save profile image if it was added
                         if (model.CroppedImage != null)

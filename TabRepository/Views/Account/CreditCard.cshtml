@@ -17,8 +17,50 @@
             </div>
             <div class="modal-body">
                 <h6 style='text-decoration: underline'>What is Contributor Level?</h6>
-                Contributor Level all comes down to how granular you want to be with your contributors' access to your material. It is the level at which contributors access your data. If the Contributor Level is Project, then the contributor has access to everything inside the Project (all Albums, all Tabs). If the Contributor Level is Tab, then the contributor only has access to the specified Tab.<br /><br />
+                Contibutors are other TabCollab users whom you give permission to contribute to your tabs. Contributor Level all comes down to how granular you want to be with your contributors' access to your material. It is the level at which contributors access your music.<br /><br />If the Contributor Level is Project, then the contributor has access to everything inside the Project (all Albums, all Tabs). If the Contributor Level is Tab, then the contributor only has access to the specified Tab.<br /><br />
                 Composer accounts allow you to be more precise in what you allow contributors to access.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="contributor-modal" class="modal fade">
+    <div class="modal-dialog text-left">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Contributors</h4>
+                <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6 style='text-decoration: underline'>What are Contributors?</h6>
+                Contibutors are other TabCollab users whom you give permission to contribute to your Project, Albums, and Tabs.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="tab-modal" class="modal fade">
+    <div class="modal-dialog text-left">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Tab and Tab Version Counts</h4>
+                <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6 style='text-decoration: underline'>How do Tab and Tab Version counts work?</h6>
+                It all comes down to who is the owner of the Tab. In TabCollab, the user who creates the Project owns everything within that Project. So, Tab and Tab Version are owned by the owner of the Project.<br /><br /> If you create a Project and add Contributors, any new Tabs or new Tab Versions they add to your Project count towards your Tab and Tab Version count. Likewise, any contributions you make to someone else's Projects count towards their account.
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -85,25 +127,37 @@
                         <td class="green-cell">&#8734</td>
                     </tr>
                     <tr>
-                        <td># of Tabs</td>
+                        <td># of Tabs (other users) <i class="fa tab-question fa-question-circle fa-1" /></td>
+                        <td class="green-cell">&#8734</td>
+                        <td class="green-cell">&#8734</td>
+                        <td class="green-cell">&#8734</td>
+                    </tr>
+                    <tr>
+                        <td># of Tab Versions (other users) <i class="fa tab-question fa-question-circle fa-1" /></td>
+                        <td class="green-cell">&#8734</td>
+                        <td class="green-cell">&#8734</td>
+                        <td class="green-cell">&#8734</td>
+                    </tr>
+                    <tr>
+                        <td># of Tabs (your user) <i class="fa tab-question fa-question-circle fa-1" /></td>
                         <td>5</td>
                         <td class="green-cell">&#8734</td>
                         <td class="green-cell">&#8734</td>
                     </tr>
                     <tr>
-                        <td># of Tab Versions</td>
+                        <td># of Tab Versions (your user) <i class="fa tab-question fa-question-circle fa-1" /></td>
                         <td>15 total</td>
                         <td class="green-cell">&#8734</td>
                         <td class="green-cell">&#8734</td>
                     </tr>
                     <tr>
-                        <td># of Contributors</td>
+                        <td># of Contributors <i class="fa contributor-question fa-question-circle fa-1" /></td>
                         <td>2 per Project</td>
                         <td>6 per Project</td>
                         <td class="green-cell">&#8734</td>
                     </tr>
                     <tr>
-                        <td>Contributor Level <i class="fa fa-question-circle fa-1" /></td>
+                        <td>Contributor Level <i class="fa contributor-level-question fa-question-circle fa-1" /></td>
                         <td>Project</td>
                         <td>Project</td>
                         <td class="green-cell">Project<br />Album<br />Tab</td>
@@ -301,8 +355,16 @@
         $(document).ready(function () {
             $('footer').show();
 
-            $(document).on("click", ".fa-question-circle", function (e, data) {
+            $(document).on("click", ".contributor-level-question", function (e, data) {
                 $('#contributor-level-modal').modal('show');
+            });
+
+            $(document).on("click", ".tab-question", function (e, data) {
+                $('#tab-modal').modal('show');
+            });
+
+            $(document).on("click", ".contributor-question", function (e, data) {
+                $('#contributor-modal').modal('show');
             });
 
             $('#total').html('$' + (parseFloat($('#price').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
@@ -331,10 +393,10 @@
 
             Stripe.setPublishableKey('pk_test_mMmjGjT6aetaMgLCCu14fWGm00wC0SGVLv');
 
-            function stripeResponseHandler(status, response) {                
+            function stripeResponseHandler(status, response) {
                 var form = $('#payment-form');
 
-                if (response.error) { 
+                if (response.error) {
                     if (response.error) {
                         if (response.error.param) {
                             switch (response.error.param) {
@@ -359,7 +421,7 @@
 
                         enableSubmitButton();
                     }
-                } else { 
+                } else {
                     // Successful Stripe token creation
                     var token = response.id;
 
@@ -377,41 +439,41 @@
                         contentType: false,
                         processData: false
                     })
-                    .then(function (response) {     
-                        enableSubmitButton();
-                        
-                        if (response.error) {
-                            if (response.param) {
-                                switch (response.param) {
-                                    case 'cvc':
-                                        $('#cvc-error').html(response.error);
-                                        break;
-                                    case 'number':
-                                        $('#number-error').html(response.error);
-                                        break;
-                                    case 'exp_year':
-                                    case 'exp_month':
-                                        $('#exp-error').html(response.error);
-                                        break;
-                                    case 'address_zip':
-                                        $('#zip-error').html(response.error.message);
-                                        break;
-                                    default:
-                                        showFailureBootbox("processing credit card payment", response.error);
-                                        break;
+                        .then(function (response) {
+                            enableSubmitButton();
+
+                            if (response.error) {
+                                if (response.param) {
+                                    switch (response.param) {
+                                        case 'cvc':
+                                            $('#cvc-error').html(response.error);
+                                            break;
+                                        case 'number':
+                                            $('#number-error').html(response.error);
+                                            break;
+                                        case 'exp_year':
+                                        case 'exp_month':
+                                            $('#exp-error').html(response.error);
+                                            break;
+                                        case 'address_zip':
+                                            $('#zip-error').html(response.error.message);
+                                            break;
+                                        default:
+                                            showFailureBootbox("processing credit card payment", response.error);
+                                            break;
+                                    }
+                                }
+                                else {
+                                    showFailureBootbox("processing credit card payment", response.error);
                                 }
                             }
                             else {
-                                showFailureBootbox("processing credit card payment", response.error);
+                                $('.flex-container-row').html(response);
                             }
-                        }
-                        else {
-                            $('.flex-container-row').html(response);
-                        }
-                    })
-                    .fail(function (error) {
-                        showFailureBootbox("processing credit card payment", error.error);
-                    });
+                        })
+                        .fail(function (error) {
+                            showFailureBootbox("processing credit card payment", error.error);
+                        });
                 }
             }
 
@@ -480,7 +542,7 @@
 
             $(document).on('hidden.bs.modal', function () {
                 enableSubmitButton();
-            });      
+            });
 
             function enableSubmitButton() {
                 $('.button-submit-wide').removeClass('disabled');

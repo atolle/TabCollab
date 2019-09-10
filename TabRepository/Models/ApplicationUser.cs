@@ -30,6 +30,8 @@ namespace TabRepository.Models
 
         public string CustomerId { get; set; }
 
+        public DateTime? LastLogin { get; set; }
+
         public virtual StripeCustomer Customer { get; set; }
 
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)

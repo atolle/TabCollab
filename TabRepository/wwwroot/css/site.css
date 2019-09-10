@@ -627,6 +627,13 @@ footer {
     margin-bottom: 10px;
 }
 
+.flex-container {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .flex-container-col {
     min-height: 100%;
     text-align: center;
@@ -1299,6 +1306,10 @@ td {
 .features-table {
     margin-bottom: 20px;
     text-align: center;
+}
+
+#features-table { 
+    max-width: 650px;
 }
 
 .btn-upgrade {

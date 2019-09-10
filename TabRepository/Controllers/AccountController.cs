@@ -127,6 +127,9 @@ namespace TabRepository.Controllers
                         _context.SaveChanges();
                     }
 
+                    userInDb.LastLogin = DateTime.Now;
+                    _context.SaveChanges();
+
                     _logger.LogInformation(1, "User logged in.");
                     return Json(new { url = returnUrl });
                 }

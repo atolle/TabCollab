@@ -24,6 +24,8 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
+using TabRepository.Models.ManageViewModels;
+using static TabRepository.Controllers.ManageController;
 
 namespace TabRepository.Controllers
 {
@@ -447,6 +449,104 @@ namespace TabRepository.Controllers
         }
 
         #endregion
+
+
+        //
+        // GET: /Account/Index
+        [HttpGet]
+        public async Task<IActionResult> Index(ManageMessageId? message = null)
+        {
+            try
+            {
+                string currentUserId = User.GetUserId();
+
+                ViewData["StatusMessage"] =
+                    message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
+                    : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
+                    : message == ManageMessageId.SetTwoFactorSuccess ? "Your two-factor authentication provider has been set."
+                    : message == ManageMessageId.Error ? "An error has occurred."
+                    : message == ManageMessageId.AddPhoneSuccess ? "Your phone number was added."
+                    : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
+                    : "";
+
+                var user = await GetCurrentUserAsync();
+                if (user == null)
+                {
+                    return View("Error");
+                }
+
+                // Get a count of total tab versions that this user owns (i.e. their projects)
+                var tabCount = _context.Tabs.Include(u => u.User)
+                    .Include(t => t.Album)
+                    .Include(t => t.Album.Project)
+                    .Where(t => t.Album.Project.UserId == currentUserId)
+                    .Count();
+
+                var tabVersionCount = _context.TabVersions.Include(u => u.User)
+                    .Include(v => v.Tab)
+                    .Include(v => v.Tab.Album)
+                    .Include(v => v.Tab.Album.Project)
+                    .Where(v => v.Tab.Album.Project.UserId == currentUserId)
+                    .Count();
+
+                SubscriptionStatus subscriptionStatus = SubscriptionStatus.None;
+                string creditCardLastFour = null;
+                string creditCardExpiration = null;
+
+                var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();
+                var subscriptionInDb = _context.StripeSubscriptions
+                    .Include(s => s.Plan)
+                    .Where(s => s.Status.ToLower() == "active" && s.CustomerId == user.CustomerId)
+                    .FirstOrDefault();
+
+                if (subscriptionInDb != null)
+                {
+                    if (subscriptionInDb.CancelAtPeriodEnd)
+                    {
+                        subscriptionStatus = SubscriptionStatus.CancelAtPeriodEnd;
+                    }
+                    else
+                    {
+                        subscriptionStatus = SubscriptionStatus.Active;
+                    }
+                }
+
+                if (customerInDb != null)
+                {
+                    var customer = _stripeProcessor.GetCustomer(_configuration, customerInDb);
+
+                    creditCardLastFour = (customer.Sources.FirstOrDefault() as Card).Last4;
+                    creditCardExpiration = (customer.Sources.FirstOrDefault() as Card).ExpMonth + "/" + (customer.Sources.FirstOrDefault() as Card).ExpYear;
+                }
+
+                var model = new ManageViewModel
+                {
+                    HasPassword = await _userManager.HasPasswordAsync(user),
+                    PhoneNumber = await _userManager.GetPhoneNumberAsync(user),
+                    TwoFactor = await _userManager.GetTwoFactorEnabledAsync(user),
+                    Logins = await _userManager.GetLoginsAsync(user),
+                    BrowserRemembered = await _signInManager.IsTwoFactorClientRememberedAsync(user),
+                    Username = user.UserName,
+                    Firstname = user.FirstName,
+                    Lastname = user.LastName,
+                    ImageFileName = user.ImageFileName,
+                    ImageFilePath = user.ImageFilePath,
+                    TabCount = tabCount,
+                    TabVersionCount = tabVersionCount,
+                    Email = user.Email,
+                    SubscriptionStatus = subscriptionStatus,
+                    AccountType = user.AccountType,
+                    CreditCardExpiration = creditCardExpiration,
+                    CreditCardLast4 = creditCardLastFour,
+                    Interval = subscriptionInDb != null ? subscriptionInDb.Plan.Interval : ""
+                };
+                return View(model);
+            }
+            catch (Exception e)
+            {
+                return View("Error");
+            }
+        }
 
         //
         // GET: /Account/Register
@@ -994,6 +1094,11 @@ namespace TabRepository.Controllers
             {
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
+        }
+
+        private Task<ApplicationUser> GetCurrentUserAsync()
+        {
+            return _userManager.GetUserAsync(HttpContext.User);
         }
 
         #endregion

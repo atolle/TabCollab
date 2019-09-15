@@ -12,7 +12,7 @@
                     @if (Model.AccountType == AccountType.Free)
                     {
                         <h3>Free Account</h3>
-                        <table class="table table-striped table-dark table-hover tabversions-table" style="margin-top: 20px; margin-bottom: 20px; text-align: center">
+                        <table class="table table-striped table-dark table-hover tabversions-table" style="margin-bottom: 10px; text-align: center">
                             <thead>
                                 <tr>
                                     <th width="40%"><div class="table-header">Item</div></th>
@@ -38,7 +38,7 @@
                     {
                         <h3>Pro Account</h3>
                         <h6>@(Model.Interval == "month" ? "Monthly" : "Yearly")</h6>
-                        <table class="table table-striped table-dark table-hover tabversions-table" style="margin-top: 20px; margin-bottom: 20px; text-align: center">
+                        <table class="table table-striped table-dark table-hover tabversions-table" style="margin-bottom: 10px; text-align: center">
                             <thead>
                                 <tr>
                                     <th width="40%"><div class="table-header">Item</div></th>
@@ -59,37 +59,41 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <div class="subscription-btn-container">
-                            @if (Model.SubscriptionStatus == SubscriptionStatus.Active)
-                            {
-                                <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-outline-danger dashboard-button">Cancel Auto-Renew</a>
-                                @if (Model.CreditCardLast4 != null)
-                                {
-                                    <a asp-controller="Account" asp-action="UpdatePayment" class="btn btn-default dashboard-button">Update Credit Card<br />************@Model.CreditCardLast4 @Model.CreditCardExpiration</a>
-                                }
-                            }
-                            else if (Model.SubscriptionStatus == SubscriptionStatus.CancelAtPeriodEnd)
-                            {
-                                <a asp-controller="Account" asp-action="Subscribe" class="btn btn-primary dashboard-button">Activate Auto-Renew</a>
-                            }
+                    }
+                    @if (Model.HasPassword)
+                    {
+                        <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default dashboard-button">Change Password</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default dashboard-button">Create Password</a>
+                    }
+                    @if (Model.AccountType == AccountType.Free)
+                    {
+                        <div>
+                            <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary dashboard-button">Upgrade to Pro</a>
                         </div>
                     }
-                    <div style="display: flex; justify-content: space-between;">
-                        @if (Model.HasPassword)
-                        {
-                            <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default dashboard-button">Change Password</a>
-                        }
-                        else
-                        {
-                            <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default dashboard-button">Create Password</a>
-                        }
-                        @if (Model.AccountType == AccountType.Free)
-                        {
-                            <div class="subscription-btn-container">                                
-                                <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary dashboard-button">Upgrade to Pro</a>
+                    else if (Model.AccountType == AccountType.Pro)
+                    {
+                        <div style="margin-top: 20px; margin-bottom: 30px">
+                            <h6>Manage Subscription</h6>
+                            <div class="subscription-btn-container">
+                                @if (Model.SubscriptionStatus == SubscriptionStatus.Active)
+                                {
+                                    <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-outline-danger dashboard-button">Cancel Auto-Renew</a>
+                                    @if (Model.CreditCardLast4 != null)
+                                    {
+                                        <a asp-controller="Account" asp-action="UpdatePayment" class="btn btn-default dashboard-button">Update Credit Card<br />************@Model.CreditCardLast4 @Model.CreditCardExpiration</a>
+                                    }
+                                }
+                                else if (Model.SubscriptionStatus == SubscriptionStatus.CancelAtPeriodEnd)
+                                {
+                                    <a asp-controller="Account" asp-action="Subscribe" class="btn btn-primary dashboard-button">Activate Auto-Renew</a>
+                                }
                             </div>
-                        }
-                    </div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>

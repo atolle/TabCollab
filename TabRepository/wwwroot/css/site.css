@@ -1344,3 +1344,11 @@ td {
 #credit-card-table {
     max-width: 400px;
 }
+
+.subscription-btn-container {
+    border-width: 1px;
+    border-color: white;
+    border-style: solid;
+    padding-top: 10px;
+    margin-bottom: 10px;
+}

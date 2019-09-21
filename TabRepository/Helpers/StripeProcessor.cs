@@ -88,7 +88,9 @@ namespace TabRepository.Helpers
             options = new SubscriptionCreateOptions
             {
                 CustomerId = customer.Id,
-                Items = items                
+                Items = items
+                // Uncomment TrialEnd for Stripe testing
+                //,TrialEnd = DateTime.Now.Add(new TimeSpan(0, 1, 0)).ToUniversalTime()
             };
 
             options.AddExtraParam("enable_incomplete_payments", "false");
@@ -137,6 +139,14 @@ namespace TabRepository.Helpers
             return service.Get(customer.Id, null);
         }
 
+        public Customer GetCustomer(IConfiguration configuration, string customerId)
+        {
+            StripeConfiguration.SetApiKey(_stripeSecret);
+
+            var service = new CustomerService();
+            return service.Get(customerId, null);
+        }
+
         public Customer UpdateCustomerPayment(IConfiguration configuration, StripeCustomer customer, string paymentToken)
         {
             StripeConfiguration.SetApiKey(_stripeSecret);
@@ -147,6 +157,14 @@ namespace TabRepository.Helpers
             };
             var service = new CustomerService();
             return service.Update(customer.Id, options);
+        }
+
+        public Charge GetCharge(IConfiguration configuration, string chargeId)
+        {
+            StripeConfiguration.SetApiKey(_stripeSecret);
+
+            var service = new ChargeService();
+            return service.Get(chargeId, null);
         }
     }
 }

@@ -179,6 +179,12 @@
     <Compile Remove="Data\Migrations\20190627173514_AddSecondMessageToNotification.Designer.cs" />
     <Compile Remove="Data\Migrations\20190627202903_AddSecondMessageToNotifications.cs" />
     <Compile Remove="Data\Migrations\20190627202903_AddSecondMessageToNotifications.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190920025009_AddStripeInvoice.cs" />
+    <Compile Remove="Data\Migrations\20190920025009_AddStripeInvoice.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190920025446_AddStripeInvoice.cs" />
+    <Compile Remove="Data\Migrations\20190920025446_AddStripeInvoice.Designer.cs" />
+    <Compile Remove="Data\Migrations\20190920033508_AddStripeInvoice.cs" />
+    <Compile Remove="Data\Migrations\20190920033508_AddStripeInvoice.Designer.cs" />
     <Compile Remove="Helpers\PayPalProcessor.cs" />
   </ItemGroup>
   <ItemGroup>

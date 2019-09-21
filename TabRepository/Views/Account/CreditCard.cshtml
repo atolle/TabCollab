@@ -317,8 +317,8 @@
                             <td><span id="interval">Monthly</span></td>
                         </tr>
                         <tr>
-                            <td>Price</td>
-                            <td><span id="price">$4.99</span></td>
+                            <td>Subtotal</td>
+                            <td><span id="subtotal">$4.99</span></td>
                         </tr>
                         <tr>
                             <td>Tax</td>
@@ -342,6 +342,9 @@
             <form asp-controller="Account" asp-action="SubscriptionProcess" asp-route-returnurl="@ViewData["ReturnUrl"]" id="token-form" method="post" hidden>
                 <input asp-for="PaymentToken" hidden />
                 <input hidden="" type="text" data-val="true" data-val-required="The Interval field is required." id="StripeInterval" name="StripeInterval" value="">
+                <input hidden="" type="text" data-val="true" data-val-required="The Subtotal field is required." id="Subtotal" name="Subtotal" value="">
+                <input hidden="" type="text" data-val="true" data-val-required="The Tax field is required." id="Tax" name="Tax" value="">
+                <input hidden="" type="text" data-val="true" data-val-required="The Zipcode field is required." id="Zipcode" name="Zipcode" value="">
             </form>
         </div>
     </div>
@@ -367,7 +370,7 @@
                 $('#contributor-modal').modal('show');
             });
 
-            $('#total').html('$' + (parseFloat($('#price').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
+            $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
 
             $('#AccountType').on("change", function () {
                 if (this.value == 1) {
@@ -380,14 +383,14 @@
 
             $('#Interval').on("change", function () {
                 if (this.value == 0) {
-                    $('#price').html('$4.99');
+                    $('#subtotal').html('$4.99');
                     $('#interval').html('Monthly');
-                    $('#total').html('$' + (parseFloat($('#price').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
+                    $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
                 }
                 else {
-                    $('#price').html('$49.99');
+                    $('#subtotal').html('$49.99');
                     $('#interval').html('Yearly');
-                    $('#total').html('$' + (parseFloat($('#price').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
+                    $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
                 }
             });
 
@@ -430,6 +433,9 @@
                     // Insert the token into the form so it gets submitted to the server:
                     $('#PaymentToken').val(token);
                     $('#StripeInterval').val($('#Interval').val());
+                    $('#Subtotal').val($('#subtotal').html().substring(1));
+                    $('#Tax').val($('#tax').html().substring(1));
+                    $('#Zipcode').val($('#Zip').val());
 
                     $.ajax({
                         url: form.action,
@@ -456,7 +462,7 @@
                                             $('#exp-error').html(response.error);
                                             break;
                                         case 'address_zip':
-                                            $('#zip-error').html(response.error.message);
+                                            $('#zip-error').html(response.error);
                                             break;
                                         default:
                                             showFailureBootbox("processing credit card payment", response.error);

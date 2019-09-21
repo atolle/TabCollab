@@ -19,7 +19,9 @@ namespace TabRepository.Models
 
         public virtual StripeCustomer Customer { get; set; }
 
-        public virtual StripePlan Plan { get; set; }        
+        public virtual StripePlan Plan { get; set; } 
+        
+        public virtual ICollection<StripeInvoice> Invoice { get; set; }
     }
 
     public enum SubscriptionStatus

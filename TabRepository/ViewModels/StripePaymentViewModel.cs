@@ -15,5 +15,14 @@ namespace TabRepository.ViewModels
 
         [Required]
         public SubscriptionInterval StripeInterval { get; set; }
+
+        [Required]
+        public double Subtotal { get; set; }
+
+        [Required]
+        public double Tax { get; set; }
+
+        [Required]
+        public string Zipcode { get; set; }
     }
 }

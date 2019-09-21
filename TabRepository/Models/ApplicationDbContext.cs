@@ -95,6 +95,11 @@ namespace TabRepository.Data
                 .HasForeignKey<StripeCustomer>(c => c.SubscriptionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.Entity<StripeSubscription>()
+                .HasMany(s => s.Invoice)
+                .WithOne(i => i.Subscription)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.Entity<ApplicationUser>()
                 .HasOne(u => u.Customer)
                 .WithOne(c => c.User)
@@ -116,6 +121,7 @@ namespace TabRepository.Data
         public DbSet<StripePlan> StripePlans { get; set; }
         public DbSet<StripeSubscription> StripeSubscriptions { get; set; }
         public DbSet<StripeCustomer> StripeCustomers { get; set; }
+        public DbSet<StripeInvoice> StripeInvoices { get; set; }
 
         public ApplicationDbContext()
             : base()

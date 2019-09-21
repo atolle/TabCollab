@@ -472,7 +472,7 @@ namespace TabRepository.Controllers
                 var user = await GetCurrentUserAsync();
                 if (user == null)
                 {
-                    return View("Error");
+                    return RedirectToAction("Error", "Home", new { code = 500 });
                 }
 
                 // Get a count of total tab versions that this user owns (i.e. their projects)
@@ -544,7 +544,7 @@ namespace TabRepository.Controllers
             }
             catch (Exception e)
             {
-                return View("Error");
+                return RedirectToAction("Error", "Home", new { code = 500 });
             }
         }
 

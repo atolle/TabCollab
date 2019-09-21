@@ -382,6 +382,9 @@
                 // Insert the token into the form so it gets submitted to the server:
                 $('#PaymentToken').val(token);
                 $('#StripeInterval').val($('#Interval').val());
+                $('#Subtotal').val($('#subtotal').html().substring(1));
+                $('#Tax').val($('#tax').html().substring(1));
+                $('#Zipcode').val($('#Zip').val());
 
                 $.ajax({
                     url: form.action,
@@ -408,7 +411,7 @@
                                         $('#exp-error').html(response.error);
                                         break;
                                     case 'address_zip':
-                                        $('#zip-error').html(response.error.message);
+                                        $('#zip-error').html(response.error);
                                         break;
                                 }
                             }
@@ -559,7 +562,7 @@
                     else {
                         $('.flex-container-row').html(response);
                         $.validator.unobtrusive.parse($("#payment-form"));
-                        $('#total').html('$' + (parseFloat($('#price').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
+                        $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
                     }
                 })
                 .fail(function (error) {
@@ -636,14 +639,14 @@
 
         $(document).on("change", "#Interval", function () {
             if (this.value == 0) {
-                $('#price').html('$4.99');
+                $('#subtotal').html('$4.99');
                 $('#interval').html('Monthly');
-                $('#total').html('$' + (parseFloat($('#price').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
+                $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
             }
             else {
-                $('#price').html('$49.99');
+                $('#subtotal').html('$49.99');
                 $('#interval').html('Yearly');
-                $('#total').html('$' + (parseFloat($('#price').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
+                $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
             }
         });
     });

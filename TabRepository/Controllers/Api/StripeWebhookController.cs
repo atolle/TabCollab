@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Stripe;
 using TabRepository.Data;
 using TabRepository.Helpers;
+using TabRepository.Models;
 
 namespace TabRepository.Controllers.Api
 {
@@ -43,6 +44,7 @@ namespace TabRepository.Controllers.Api
             var stripeEvent = EventUtility.ParseEvent(json);
 
             string subscriptionId = "";
+            string invoiceId = "";           
 
             switch (stripeEvent.Type)
             {
@@ -52,11 +54,70 @@ namespace TabRepository.Controllers.Api
                     break;
                 case "invoice.payment_succeeded":
                 case "invoice.payment_failed":
+                case "invoice.finalized":
+                case "invoice.created":
                     subscriptionId = (stripeEvent.Data.Object as Invoice).SubscriptionId;
+                    invoiceId = (stripeEvent.Data.Object as Invoice).Id;
                     break;
             }
-            
+
             var subscriptionInDb = _context.StripeSubscriptions.Include(s => s.Customer).Where(s => s.Id == subscriptionId).FirstOrDefault();
+            var invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
+
+            if (stripeEvent.Type == "invoice.created")
+            {
+                invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
+
+                if (invoiceInDb == null)
+                {
+                    invoiceInDb = CreateInvoice(stripeEvent.Data.Object as Invoice);
+
+                    _context.StripeInvoices.Add(invoiceInDb);
+                    _context.SaveChanges();
+                }
+            }
+
+            if (stripeEvent.Type == "invoice.payment_succeeded")
+            {                
+                Charge charge = _stripeProcessor.GetCharge(_configuration, (stripeEvent.Data.Object as Invoice).ChargeId);
+
+                invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
+
+                if (invoiceInDb == null)
+                {
+                    invoiceInDb = CreateInvoice(stripeEvent.Data.Object as Invoice);
+
+                    _context.StripeInvoices.Add(invoiceInDb);
+                    _context.SaveChanges();
+                }
+
+                invoiceInDb.ChargeId = charge.Id;
+                invoiceInDb.ReceiptURL = charge.ReceiptUrl;
+                invoiceInDb.DatePaid = DateTime.Now;
+                invoiceInDb.PaymentStatus = PaymentStatus.Paid;
+                invoiceInDb.PaymentStatusText = charge.Outcome.SellerMessage;
+
+                _context.SaveChanges();
+            }
+            else if (stripeEvent.Type == "invoice.payment_failed")
+            {
+                Charge charge = _stripeProcessor.GetCharge(_configuration, (stripeEvent.Data.Object as Invoice).ChargeId);
+
+                invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
+
+                if (invoiceInDb == null)
+                {
+                    invoiceInDb = CreateInvoice(stripeEvent.Data.Object as Invoice);
+
+                    _context.StripeInvoices.Add(invoiceInDb);
+                    _context.SaveChanges();
+                }
+
+                invoiceInDb.PaymentStatus = PaymentStatus.Failed;
+                invoiceInDb.PaymentStatusText = charge.Outcome.SellerMessage;
+
+                _context.SaveChanges();
+            }
 
             // We need to make sure that the subscription for this message is still active
             if (subscriptionInDb != null)
@@ -78,6 +139,22 @@ namespace TabRepository.Controllers.Api
             }
 
             return new StatusCodeResult(StatusCodes.Status200OK);
+        }
+
+        private StripeInvoice CreateInvoice(Invoice invoice)
+        {
+            StripeInvoice stripeInvoice = new StripeInvoice
+            {
+                Id = invoice.Id,
+                SubscriptionId = invoice.SubscriptionId,
+                Subtotal = invoice.Subtotal,
+                Tax = invoice.Tax ?? default(double),
+                DateCreated = DateTime.Now,
+                DateDue = invoice.DueDate ?? DateTime.Now,
+                PaymentStatus = PaymentStatus.Unpaid
+            };
+
+            return stripeInvoice;
         }
     }
 }

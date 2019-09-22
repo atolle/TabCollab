@@ -395,7 +395,7 @@ namespace TabRepository.Controllers
                         _context.StripeSubscriptions.Add(subscriptionInDb);
                         _context.SaveChanges();
 
-                        if (subscriptionInDb.Status.ToLower() == "active")
+                        if (subscriptionInDb.Status.ToLower() == "active" || subscriptionInDb.Status.ToLower() == "trialing")
                         {
                             userInDb.AccountType = Models.AccountViewModels.AccountType.Pro;                      
 

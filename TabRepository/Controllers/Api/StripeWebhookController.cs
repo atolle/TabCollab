@@ -23,6 +23,7 @@ namespace TabRepository.Controllers.Api
         private IConfiguration _configuration;
         private IHostingEnvironment _env;
         private StripeProcessor _stripeProcessor;
+        private static readonly object _newInvoiceLock = new object();
 
         public StripeWebhookController(ApplicationDbContext context, IConfiguration configuration, IHostingEnvironment env)
         {
@@ -61,62 +62,83 @@ namespace TabRepository.Controllers.Api
                     break;
             }
 
-            var subscriptionInDb = _context.StripeSubscriptions.Include(s => s.Customer).Where(s => s.Id == subscriptionId).FirstOrDefault();
-            var invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
+            var subscriptionInDb = _context.StripeSubscriptions.Include(s => s.Customer).Where(s => s.Id == subscriptionId).FirstOrDefault();            
 
             if (stripeEvent.Type == "invoice.created")
             {
-                invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
-
-                if (invoiceInDb == null)
+                lock (_newInvoiceLock)
                 {
-                    invoiceInDb = CreateInvoice(stripeEvent.Data.Object as Invoice);
+                    var invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
 
-                    _context.StripeInvoices.Add(invoiceInDb);
-                    _context.SaveChanges();
+                    if (invoiceInDb == null)
+                    {
+                        invoiceInDb = CreateInvoice(stripeEvent.Data.Object as Invoice);
+
+                        _context.StripeInvoices.Add(invoiceInDb);
+                        _context.SaveChanges();
+                    }
                 }
             }
 
             if (stripeEvent.Type == "invoice.payment_succeeded")
-            {                
-                Charge charge = _stripeProcessor.GetCharge(_configuration, (stripeEvent.Data.Object as Invoice).ChargeId);
-
-                invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
-
-                if (invoiceInDb == null)
+            {
+                lock (_newInvoiceLock)
                 {
-                    invoiceInDb = CreateInvoice(stripeEvent.Data.Object as Invoice);
+                    var invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
 
-                    _context.StripeInvoices.Add(invoiceInDb);
-                    _context.SaveChanges();
+                    if (invoiceInDb == null)
+                    {
+                        invoiceInDb = CreateInvoice(stripeEvent.Data.Object as Invoice);
+
+                        _context.StripeInvoices.Add(invoiceInDb);
+                        _context.SaveChanges();
+                    }
+
+                    if (subscriptionInDb.Status.ToLower() == "trialing")
+                    {
+                        invoiceInDb.ChargeId = "";
+                        invoiceInDb.ReceiptURL = "";
+                        invoiceInDb.DatePaid = DateTime.Now;
+                        invoiceInDb.PaymentStatus = PaymentStatus.Unpaid;
+                        invoiceInDb.PaymentStatusText = "Trialing";
+
+                        _context.SaveChanges();
+                    }
+                    else
+                    {
+                        Charge charge = _stripeProcessor.GetCharge(_configuration, (stripeEvent.Data.Object as Invoice).ChargeId);
+
+                        invoiceInDb.ChargeId = charge.Id;
+                        invoiceInDb.ReceiptURL = charge.ReceiptUrl;
+                        invoiceInDb.DatePaid = DateTime.Now;
+                        invoiceInDb.PaymentStatus = PaymentStatus.Paid;
+                        invoiceInDb.PaymentStatusText = charge.Outcome.SellerMessage;
+
+                        _context.SaveChanges();
+                    }
                 }
-
-                invoiceInDb.ChargeId = charge.Id;
-                invoiceInDb.ReceiptURL = charge.ReceiptUrl;
-                invoiceInDb.DatePaid = DateTime.Now;
-                invoiceInDb.PaymentStatus = PaymentStatus.Paid;
-                invoiceInDb.PaymentStatusText = charge.Outcome.SellerMessage;
-
-                _context.SaveChanges();
             }
             else if (stripeEvent.Type == "invoice.payment_failed")
             {
-                Charge charge = _stripeProcessor.GetCharge(_configuration, (stripeEvent.Data.Object as Invoice).ChargeId);
-
-                invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
-
-                if (invoiceInDb == null)
+                lock (_newInvoiceLock)
                 {
-                    invoiceInDb = CreateInvoice(stripeEvent.Data.Object as Invoice);
+                    Charge charge = _stripeProcessor.GetCharge(_configuration, (stripeEvent.Data.Object as Invoice).ChargeId);
 
-                    _context.StripeInvoices.Add(invoiceInDb);
+                    var invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
+
+                    if (invoiceInDb == null)
+                    {
+                        invoiceInDb = CreateInvoice(stripeEvent.Data.Object as Invoice);
+
+                        _context.StripeInvoices.Add(invoiceInDb);
+                        _context.SaveChanges();
+                    }
+
+                    invoiceInDb.PaymentStatus = PaymentStatus.Failed;
+                    invoiceInDb.PaymentStatusText = charge.FailureMessage;
+
                     _context.SaveChanges();
                 }
-
-                invoiceInDb.PaymentStatus = PaymentStatus.Failed;
-                invoiceInDb.PaymentStatusText = charge.Outcome.SellerMessage;
-
-                _context.SaveChanges();
             }
 
             // We need to make sure that the subscription for this message is still active
@@ -126,7 +148,7 @@ namespace TabRepository.Controllers.Api
                 var subscription = _stripeProcessor.GetSubscription(_configuration, subscriptionInDb);
                 subscriptionInDb.Status = subscription.Status.ToLower();
 
-                if (subscription.Status.ToLower() == "active")
+                if (subscription.Status.ToLower() == "active" || subscription.Status.ToLower() == "trialing")
                 {
                     userInDb.AccountType = Models.AccountViewModels.AccountType.Pro;
                 }

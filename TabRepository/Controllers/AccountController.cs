@@ -450,6 +450,48 @@ namespace TabRepository.Controllers
 
         #endregion
 
+        [HttpGet]
+        public IActionResult Billing()
+        {
+            try
+            {
+                string currentUserId = User.GetUserId();
+                List<BillingViewModel> viewModel = new List<BillingViewModel>();
+
+                var invoices = _context.StripeInvoices                    
+                    .Include(i => i.Subscription)
+                    .ThenInclude(s => s.Customer)
+                    .Include(i => i.Subscription)
+                    .ThenInclude(s => s.Plan)
+                    .Where(i => i.Subscription.Customer.UserId == currentUserId)
+                    .OrderByDescending(i => i.DateCreated)
+                    .ToList();
+
+                foreach (StripeInvoice invoice in invoices)
+                {
+                    BillingViewModel vm = new BillingViewModel()
+                    {
+                        Subtotal = invoice.Subtotal,
+                        Tax = invoice.Tax,
+                        ReceiptURL = invoice.ReceiptURL,
+                        DateCreated = invoice.DateCreated,
+                        DateDue = invoice.DateDue,
+                        DatePaid = invoice.DatePaid,
+                        PaymentStatus = invoice.PaymentStatus,
+                        PaymentStatusText = invoice.PaymentStatusText,
+                        Interval = invoice.Subscription.Plan.Interval.ToLower() == "month" ? SubscriptionInterval.Monthly : SubscriptionInterval.Yearly
+                    };
+
+                    viewModel.Add(vm);
+                }
+
+                return View(viewModel);
+            }
+            catch (Exception e)
+            {
+                return RedirectToAction("Error", "Home", new { code = 500 });
+            }
+        }
 
         //
         // GET: /Account/Index

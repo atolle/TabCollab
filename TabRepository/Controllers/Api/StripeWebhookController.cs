@@ -173,7 +173,7 @@ namespace TabRepository.Controllers.Api
                 Tax = invoice.Tax ?? default(double),
                 DateCreated = DateTime.Now,
                 DateDue = invoice.DueDate ?? DateTime.Now,
-                PaymentStatus = PaymentStatus.Unpaid
+                PaymentStatus = PaymentStatus.Unpaid            
             };
 
             return stripeInvoice;

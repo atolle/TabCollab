@@ -1,15 +1,10 @@
 ﻿using System;
+using TabRepository.Models;
 
-namespace TabRepository.Models
+namespace TabRepository.ViewModels
 {
-    public class StripeInvoice
+    public class BillingViewModel
     {
-        public string Id { get; set; }
-
-        public string SubscriptionId { get; set; }
-
-        public string ChargeId { get; set; }
-
         public double Subtotal { get; set; }
 
         public double Tax { get; set; }
@@ -26,13 +21,6 @@ namespace TabRepository.Models
 
         public string PaymentStatusText { get; set; }
 
-        public virtual StripeSubscription Subscription { get; set; }
-    }
-
-    public enum PaymentStatus
-    {
-        Unpaid,
-        Paid,
-        Failed
+        public SubscriptionInterval Interval { get; set; }
     }
 }

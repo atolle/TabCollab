@@ -1,0 +1,106 @@
+﻿@model IEnumerable<TabRepository.ViewModels.BillingViewModel>
+@{
+    ViewData["Title"] = "Billing";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (Model.Count() > 0)
+{
+    <div class="container-fluid list-container" style="display: flex; flex-direction: column;">
+        <div class="row list-row" style="margin-top: 50px;">
+            @foreach (var invoice in Model)
+            {
+                <div class="col-lg-4" align="center">
+                    <div class="card card-profile">
+                        <div class="card-body text-center">
+                            <h3 style="margin-bottom: 1rem;">Invoice</h3>
+                            <p>Date: @invoice.DateCreated</p>
+                            @if (invoice.PaymentStatus == PaymentStatus.Unpaid)
+                            {
+                                <p>Due: @invoice.DateDue</p>
+                            }
+                            else if (invoice.PaymentStatus == PaymentStatus.Paid)
+                            {
+                                <p style="color: rgb(134, 192, 144)"><strong>Paid</strong></p>
+                            }
+                            else if (invoice.PaymentStatus == PaymentStatus.Failed)
+                            {
+                                <p style="color: red"><strong>Payment Failed</strong></p>
+                            }
+                            <div class="show-items-icon-container">
+                                <i class="fa fa-lg fa-chevron-down show-buttons-icon"></i>
+                            </div>
+                            <div class="item-container" style="text-align: left">
+                                <p>Invoice Interval: @invoice.Interval.ToString()</p>
+                                @if (invoice.PaymentStatus != PaymentStatus.Unpaid)
+                                {
+                                    <p>Due: @invoice.DateDue</p>
+                                    <p>Payment message: @invoice.PaymentStatusText</p>
+                                }
+                                <p>Subtotal: @String.Format("{0:c}",  invoice.Subtotal / 100)</p>
+                                <p>Tax: @String.Format("{0:c}", invoice.Tax / 100)</p>
+                                <p>Total: @String.Format("{0:c}", (invoice.Subtotal / 100) + (invoice.Tax / 100))</p>
+                                @if (invoice.PaymentStatus == PaymentStatus.Paid)
+                                {
+                                    <p>Receipt: <a style="color: unset;" href="@invoice.ReceiptURL" target="_blank"><i class="fa fa-lg fa-file-pdf-o"></i></a></p>
+                                }
+                            </div>
+                            <div class="hide-items-icon-container">
+                                <i class="fa fa-lg fa-chevron-up hide-buttons-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="container-fluid list-container" style="display: flex; flex-direction: row;">
+        <div class="flex-container-row empty-list">
+            <div class="flex-container-col">
+                <h2 style="color: grey">You don't have any invoices.</h2>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+@section scripts
+    {
+    <script>
+        $(document).ready(function () {
+            $('hr').show();
+            $('footer').show();
+
+            $(document).on("click", ".show-buttons-icon", function (e, data) {
+                // Only show tooltips on non-touchscreens
+                if (!('ontouchstart' in window)) {
+                    $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+                }
+
+                var parent = $(this).parent();
+
+                $(parent).hide();
+                $(parent).siblings('.item-container').show(200);
+                // Wait until the expansion animation is complete to show the buttons
+                setTimeout(function () {
+                    $(parent).siblings('.item-container').children().css("visibility", "visible");
+                }, 200)
+                $(parent).siblings('.hide-items-icon-container').show();
+            });
+
+            $(document).on("click", ".hide-buttons-icon", function (e, data) {
+
+                var parent = $(this).parent();
+
+                $(parent).hide();
+                $(parent).siblings('.item-container').children().css("visibility", "hidden");
+                $(parent).siblings('.item-container').hide(200);
+                $(parent).siblings('.show-items-icon-container').show();
+            });
+        });
+    </script>
+}

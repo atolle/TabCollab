@@ -120,6 +120,7 @@
     </form>
     <form asp-controller="Account" asp-action="UpdatePayment" asp-route-returnurl="@ViewData["ReturnUrl"]" id="token-form" method="post" hidden>
         <input asp-for="PaymentToken" hidden />
+        <input hidden="" type="text" data-val="true" data-val-required="The Zipcode field is required." id="Zipcode" name="Zipcode" value="">
     </form>
 </div>
 
@@ -169,6 +170,7 @@
 
                     // Insert the token into the form so it gets submitted to the server:
                     $('#PaymentToken').val(token);
+                    $('#Zipcode').val($('#Zip').val());
 
                     $.ajax({
                         url: form.action,

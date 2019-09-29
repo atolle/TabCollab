@@ -7,12 +7,17 @@ namespace TabRepository.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropColumn(
+                name: "CustomerId",
+                table: "StripeSubscriptions");
+
             migrationBuilder.CreateTable(
                 name: "StripeInvoices",
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
                     SubscriptionId = table.Column<string>(nullable: true),
+                    CustomerId = table.Column<string>(nullable: true),
                     ChargeId = table.Column<string>(nullable: true),
                     Subtotal = table.Column<double>(nullable: false),
                     Tax = table.Column<double>(nullable: false),
@@ -27,12 +32,23 @@ namespace TabRepository.Migrations
                 {
                     table.PrimaryKey("PK_StripeInvoices", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_StripeInvoices_StripeCustomers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "StripeCustomers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_StripeInvoices_StripeSubscriptions_SubscriptionId",
                         column: x => x.SubscriptionId,
                         principalTable: "StripeSubscriptions",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StripeInvoices_CustomerId",
+                table: "StripeInvoices",
+                column: "CustomerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_StripeInvoices_SubscriptionId",
@@ -44,6 +60,11 @@ namespace TabRepository.Migrations
         {
             migrationBuilder.DropTable(
                 name: "StripeInvoices");
+
+            migrationBuilder.AddColumn<string>(
+                name: "CustomerId",
+                table: "StripeSubscriptions",
+                nullable: true);
         }
     }
 }

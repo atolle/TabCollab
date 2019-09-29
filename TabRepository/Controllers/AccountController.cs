@@ -110,18 +110,22 @@ namespace TabRepository.Controllers
                 if (result.Succeeded)
                 {
                     var userInDb = _context.Users.Where(u => u.UserName.ToLower() == model.Username.ToLower()).FirstOrDefault();
-                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Status == "active" && s.CustomerId == _context.StripeCustomers.Where(c => c.UserId == userInDb.Id).Select(c => c.Id).FirstOrDefault()).FirstOrDefault();                    
+                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due") && s.Id == _context.StripeCustomers.Where(c => c.UserId == userInDb.Id).Select(c => c.SubscriptionId).FirstOrDefault()).FirstOrDefault();                    
 
                     if (subscriptionInDb != null)
                     {
                         var subscription = _stripeProcessor.GetSubscription(_configuration, subscriptionInDb);
 
+                        subscriptionInDb.Status = subscription.Status;
+                        subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
+
                         // If the subscription is no longer active, change to free account
-                        if (subscription.Status.ToLower() != "active")
+                        if (subscription.Status.ToLower() != "active" && subscription.Status.ToLower() != "trialing" && subscription.Status.ToLower() != "past_due")
                         {
                             userInDb.AccountType = Models.AccountViewModels.AccountType.Free;
-                            _context.SaveChanges();
                         }
+
+                        _context.SaveChanges();
                     }
                     else
                     { 
@@ -184,7 +188,7 @@ namespace TabRepository.Controllers
 
                 var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-                var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Status.ToLower() == "active" && s.CustomerId == _context.StripeCustomers.Where(c => c.UserId == currentUserId).Select(c => c.Id).FirstOrDefault()).FirstOrDefault();
+                var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due") && s.Id == _context.StripeCustomers.Where(c => c.UserId == currentUserId).Select(c => c.SubscriptionId).FirstOrDefault()).FirstOrDefault();
 
                 if (subscriptionInDb == null)
                 {
@@ -222,7 +226,7 @@ namespace TabRepository.Controllers
 
             var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-            var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Status.ToLower() == "active" && s.Customer.UserId == currentUserId).FirstOrDefault();
+            var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due") && s.Customer.UserId == currentUserId).FirstOrDefault();
 
             if (subscriptionInDb == null)
             {
@@ -243,7 +247,7 @@ namespace TabRepository.Controllers
 
             var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-            var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Status.ToLower() == "active" && s.Customer.UserId == currentUserId).FirstOrDefault();
+            var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due") && s.Customer.UserId == currentUserId).FirstOrDefault();
 
             if (subscriptionInDb != null)
             {
@@ -372,7 +376,7 @@ namespace TabRepository.Controllers
                         var customer = _stripeProcessor.UpdateCustomerPayment(_configuration, customerInDb, model.PaymentToken);
                     }
 
-                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.CustomerId == customerInDb.Id && s.Status.ToLower() == "active").FirstOrDefault();
+                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Id == customerInDb.SubscriptionId && (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due")).FirstOrDefault();
 
                     // No active subscription so we need to create one
                     if (subscriptionInDb == null)
@@ -384,7 +388,6 @@ namespace TabRepository.Controllers
                         subscriptionInDb = new StripeSubscription
                         {
                             Id = subscription.Id,
-                            CustomerId = customerInDb.Id,
                             PlanId = planInDb.Id,
                             Status = subscription.Status,
                             CancelAtPeriodEnd = subscription.CancelAtPeriodEnd
@@ -395,7 +398,7 @@ namespace TabRepository.Controllers
                         _context.StripeSubscriptions.Add(subscriptionInDb);
                         _context.SaveChanges();
 
-                        if (subscriptionInDb.Status.ToLower() == "active" || subscriptionInDb.Status.ToLower() == "trialing")
+                        if (subscriptionInDb.Status.ToLower() == "active" || subscriptionInDb.Status.ToLower() == "trialing" || subscriptionInDb.Status.ToLower() == "past_due")
                         {
                             userInDb.AccountType = Models.AccountViewModels.AccountType.Pro;                      
 
@@ -459,11 +462,10 @@ namespace TabRepository.Controllers
                 List<BillingViewModel> viewModel = new List<BillingViewModel>();
 
                 var invoices = _context.StripeInvoices                    
-                    .Include(i => i.Subscription)
-                    .ThenInclude(s => s.Customer)
+                    .Include(i => i.Customer)
                     .Include(i => i.Subscription)
                     .ThenInclude(s => s.Plan)
-                    .Where(i => i.Subscription.Customer.UserId == currentUserId)
+                    .Where(i => i.Customer.UserId == currentUserId)
                     .OrderByDescending(i => i.DateCreated)
                     .ToList();
 
@@ -479,7 +481,7 @@ namespace TabRepository.Controllers
                         DatePaid = invoice.DatePaid,
                         PaymentStatus = invoice.PaymentStatus,
                         PaymentStatusText = invoice.PaymentStatusText,
-                        Interval = invoice.Subscription.Plan.Interval.ToLower() == "month" ? SubscriptionInterval.Monthly : SubscriptionInterval.Yearly
+                        Interval = invoice.Subscription == null ? SubscriptionInterval.None : (invoice.Subscription.Plan.Interval.ToLower() == "month" ? SubscriptionInterval.Monthly : SubscriptionInterval.Yearly)
                     };
 
                     viewModel.Add(vm);
@@ -538,14 +540,15 @@ namespace TabRepository.Controllers
                 var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();
                 var subscriptionInDb = _context.StripeSubscriptions
                     .Include(s => s.Plan)
-                    .Where(s => s.Status.ToLower() == "active" && s.CustomerId == user.CustomerId)
+                    .Include(s => s.Customer)
+                    .Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due") && s.Customer.Id == user.CustomerId)
                     .FirstOrDefault();
 
                 if (subscriptionInDb != null)
                 {
-                    if (subscriptionInDb.CancelAtPeriodEnd)
+                    if (subscriptionInDb.Status.ToLower() == "past_due")
                     {
-                        subscriptionStatus = SubscriptionStatus.CancelAtPeriodEnd;
+                        subscriptionStatus = SubscriptionStatus.PastDue;
                     }
                     else
                     {
@@ -580,7 +583,8 @@ namespace TabRepository.Controllers
                     AccountType = user.AccountType,
                     CreditCardExpiration = creditCardExpiration,
                     CreditCardLast4 = creditCardLastFour,
-                    Interval = subscriptionInDb != null ? subscriptionInDb.Plan.Interval : ""
+                    Interval = subscriptionInDb != null ? subscriptionInDb.Plan.Interval : "",
+                    CancelAtPeriodEnd = subscriptionInDb != null ? subscriptionInDb.CancelAtPeriodEnd : default(bool)
                 };
                 return View(model);
             }

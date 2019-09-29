@@ -16,5 +16,7 @@ namespace TabRepository.Models
         public virtual ApplicationUser User { get; set; }
 
         public virtual StripeSubscription Subscription { get; set; }
+
+        public virtual ICollection<StripeInvoice> Invoice { get; set; }
     }
 }

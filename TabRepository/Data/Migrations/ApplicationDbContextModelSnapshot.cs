@@ -381,6 +381,8 @@ namespace TabRepository.Migrations
 
                     b.Property<string>("ChargeId");
 
+                    b.Property<string>("CustomerId");
+
                     b.Property<DateTime>("DateCreated");
 
                     b.Property<DateTime?>("DateDue");
@@ -400,6 +402,8 @@ namespace TabRepository.Migrations
                     b.Property<double>("Tax");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
 
                     b.HasIndex("SubscriptionId");
 
@@ -442,8 +446,6 @@ namespace TabRepository.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<bool>("CancelAtPeriodEnd");
-
-                    b.Property<string>("CustomerId");
 
                     b.Property<string>("PlanId");
 
@@ -680,10 +682,14 @@ namespace TabRepository.Migrations
 
             modelBuilder.Entity("TabRepository.Models.StripeInvoice", b =>
                 {
+                    b.HasOne("TabRepository.Models.StripeCustomer", "Customer")
+                        .WithMany("Invoice")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("TabRepository.Models.StripeSubscription", "Subscription")
                         .WithMany("Invoice")
-                        .HasForeignKey("SubscriptionId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("SubscriptionId");
                 });
 
             modelBuilder.Entity("TabRepository.Models.StripePlan", b =>

@@ -8,6 +8,8 @@ namespace TabRepository.Models
 
         public string SubscriptionId { get; set; }
 
+        public string CustomerId { get; set; }
+
         public string ChargeId { get; set; }
 
         public double Subtotal { get; set; }
@@ -27,6 +29,8 @@ namespace TabRepository.Models
         public string PaymentStatusText { get; set; }
 
         public virtual StripeSubscription Subscription { get; set; }
+
+        public virtual StripeCustomer Customer { get; set; }
     }
 
     public enum PaymentStatus

@@ -68,5 +68,7 @@ namespace TabRepository.Models.ManageViewModels
         public string CreditCardLast4 { get; set; }
 
         public string Interval { get; set; }
+
+        public bool CancelAtPeriodEnd { get; set; }
     }
 }

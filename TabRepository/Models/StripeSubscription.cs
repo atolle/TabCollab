@@ -9,8 +9,6 @@ namespace TabRepository.Models
     {
         public string Id { get; set; }
 
-        public string CustomerId { get; set; }
-
         public string PlanId { get; set; }
 
         public string Status { get; set; }
@@ -26,9 +24,8 @@ namespace TabRepository.Models
 
     public enum SubscriptionStatus
     {
-        Active,
-        Canceled,
-        CancelAtPeriodEnd,
+        Active,        
+        PastDue,        
         None
     }
 }

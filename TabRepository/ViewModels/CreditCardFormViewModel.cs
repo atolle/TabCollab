@@ -10,6 +10,7 @@ namespace TabRepository.ViewModels
 {
     public enum SubscriptionInterval
     {
+        None,
         Monthly,
         Yearly
     }

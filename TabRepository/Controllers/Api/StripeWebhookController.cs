@@ -57,13 +57,14 @@ namespace TabRepository.Controllers.Api
                 case "invoice.payment_failed":
                 case "invoice.finalized":
                 case "invoice.created":
+                case "invoice.updated":
                     subscriptionId = (stripeEvent.Data.Object as Invoice).SubscriptionId;
                     invoiceId = (stripeEvent.Data.Object as Invoice).Id;
                     break;
             }
 
             var subscriptionInDb = _context.StripeSubscriptions.Include(s => s.Customer).Where(s => s.Id == subscriptionId).FirstOrDefault();            
-
+            
             if (stripeEvent.Type == "invoice.created")
             {
                 lock (_newInvoiceLock)
@@ -77,6 +78,28 @@ namespace TabRepository.Controllers.Api
                         _context.StripeInvoices.Add(invoiceInDb);
                         _context.SaveChanges();
                     }
+                }
+            }
+
+            if (stripeEvent.Type == "invoice.updated")
+            {
+                lock (_newInvoiceLock)
+                {
+                    var invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
+
+                    if (invoiceInDb == null)
+                    {
+                        invoiceInDb = CreateInvoice(stripeEvent.Data.Object as Invoice);
+
+                        _context.StripeInvoices.Add(invoiceInDb);
+                        _context.SaveChanges();
+                    }
+
+                    invoiceInDb.DateDue = (stripeEvent.Data.Object as Invoice).DueDate;
+                    invoiceInDb.Subtotal = (stripeEvent.Data.Object as Invoice).Subtotal;
+                    invoiceInDb.Tax = (stripeEvent.Data.Object as Invoice).Tax ?? default(double);
+
+                    _context.SaveChanges();
                 }
             }
 
@@ -94,7 +117,7 @@ namespace TabRepository.Controllers.Api
                         _context.SaveChanges();
                     }
 
-                    if (subscriptionInDb.Status.ToLower() == "trialing")
+                    if (subscriptionInDb != null && subscriptionInDb.Status.ToLower() == "trialing")
                     {
                         invoiceInDb.ChargeId = "";
                         invoiceInDb.ReceiptURL = "";
@@ -118,7 +141,8 @@ namespace TabRepository.Controllers.Api
                     }
                 }
             }
-            else if (stripeEvent.Type == "invoice.payment_failed")
+
+            if (stripeEvent.Type == "invoice.payment_failed")
             {
                 lock (_newInvoiceLock)
                 {
@@ -148,7 +172,8 @@ namespace TabRepository.Controllers.Api
                 var subscription = _stripeProcessor.GetSubscription(_configuration, subscriptionInDb);
                 subscriptionInDb.Status = subscription.Status.ToLower();
 
-                if (subscription.Status.ToLower() == "active" || subscription.Status.ToLower() == "trialing")
+                // Subscriptions need to be active, trialing, or past due, in which case we will retry payment and then subscription status becomes canceled
+                if (subscription.Status.ToLower() == "active" || subscription.Status.ToLower() == "trialing" || subscription.Status.ToLower() == "past_due")
                 {
                     userInDb.AccountType = Models.AccountViewModels.AccountType.Pro;
                 }
@@ -173,8 +198,9 @@ namespace TabRepository.Controllers.Api
                 Tax = invoice.Tax ?? default(double),
                 DateCreated = DateTime.Now,
                 DateDue = invoice.DueDate ?? DateTime.Now,
-                PaymentStatus = PaymentStatus.Unpaid            
-            };
+                PaymentStatus = PaymentStatus.Unpaid,
+                CustomerId = invoice.CustomerId
+            };            
 
             return stripeInvoice;
         }

@@ -384,7 +384,10 @@
                 $('#StripeInterval').val($('#Interval').val());
                 $('#Subtotal').val($('#subtotal').html().substring(1));
                 $('#Tax').val($('#tax').html().substring(1));
-                $('#Zipcode').val($('#Zip').val());
+                $('#StripeAddress').val($('#Address').val());
+                $('#StripeCity').val($('#City').val());
+                $('#StripeState').val($('#State').val());
+                $('#StripeZip').val($('#Zip').val());
 
                 $.ajax({
                     url: form.action,
@@ -393,39 +396,37 @@
                     cache: false,
                     contentType: false,
                     processData: false
-                })
-                    .then(function (response) {
-                        enableSubmitButton();
+                }).then(function (response) {
+                    enableSubmitButton();
 
-                        if (response.error) {
-                            if (response.param) {
-                                switch (response.param) {
-                                    case 'cvc':
-                                        $('#cvc-error').html(response.error);
-                                        break;
-                                    case 'number':
-                                        $('#number-error').html(response.error);
-                                        break;
-                                    case 'exp_year':
-                                    case 'exp_month':
-                                        $('#exp-error').html(response.error);
-                                        break;
-                                    case 'address_zip':
-                                        $('#zip-error').html(response.error);
-                                        break;
-                                }
-                            }
-                            else {
-                                showFailureBootbox("registering", response.error);
+                    if (response.error) {
+                        if (response.param) {
+                            switch (response.param) {
+                                case 'cvc':
+                                    $('#cvc-error').html(response.error);
+                                    break;
+                                case 'number':
+                                    $('#number-error').html(response.error);
+                                    break;
+                                case 'exp_year':
+                                case 'exp_month':
+                                    $('#exp-error').html(response.error);
+                                    break;
+                                case 'address_zip':
+                                    $('#zip-error').html(response.error);
+                                    break;
                             }
                         }
                         else {
-                            $('.flex-container-row').html(response);
+                            showFailureBootbox("registering", response.error);
                         }
-                    })
-                    .fail(function (error) {
-                        showFailureBootbox("registering", error.error);
-                    });
+                    }
+                    else {
+                        $('.flex-container-row').html(response);
+                    }
+                }).fail(function (error) {
+                    showFailureBootbox("registering", error.error);
+                });
             }
         }
 
@@ -579,19 +580,53 @@
             $('.button-submit-wide').addClass('disabled');
             $('.validation-error').html('');
 
-            Stripe.card.createToken({
-                number: $('#CardNumber').val(),
-                cvc: $('#CVC').val(),
-                exp_month: $('#Month').val(),
-                exp_year: $('#Year').val(),
-                address_zip: $('#Zip').val()
-            }, stripeResponseHandler);
+            // If we haven't gotten a tax rate yet, request it
+            if ($('#tax-status').html().includes('fa-times')) {
+                $('#tax-status').html('<div class="loader"></div>');
+                $.ajax({
+                    url: 'CalculateTaxRate?address=' + $('#Address').val() + '&city=' + $('#City').val() + '&state=' + $('#State').val() + '&zip=' + $('#Zip').val(),
+                    type: 'GET'
+                }).then(function (response) {
+                    if (response.error) {
+                        $('#tax-status').html('<i style="color: red" class="fa fa-times fa-lg" />');
+                        showFailureBootbox("calculating tax", response.error);
+                        enableSubmitButton();
+                    }
+                    else {
+                        let subtotal = $('#subtotal').html().substring(1);
+                        $('#tax').html('$' + parseFloat(response.taxRate * subtotal).toFixed(2));
+                        $('#total').html('$' + (parseFloat(subtotal) + parseFloat($('#tax').html().substring(1))).toFixed(2));
+                        $('#tax-status').html('<i style="color: rgb(134,192,144)" class="fa fa-check fa-lg" />');
+                        enableSubmitButton();
+                    }
+                }).fail(function (error) {
+                    $('#tax-status').html('<i style="color: red" class="fa fa-times fa-lg" />');
+                    showFailureBootbox("calculating tax", error.error);
+                    enableSubmitButton();
+                });
+            }
+            else {
+                Stripe.card.createToken({
+                    number: $('#CardNumber').val(),
+                    cvc: $('#CVC').val(),
+                    exp_month: $('#Month').val(),
+                    exp_year: $('#Year').val(),
+                    address_zip: $('#Zip').val()
+                }, stripeResponseHandler);
+            }
         });
 
         function enableSubmitButton() {
             if ($('#payment-form').length) {
-                $('.button-submit-wide').html('Subscribe');
                 $('.button-submit-wide').removeClass('disabled');
+
+                // If we haven't gotten a tax rate, the label should be Calculate Tax
+                if ($('#tax-status').html().includes('fa-times')) {
+                    $('.button-submit-wide').html('Calculate Tax');
+                }
+                else {
+                    $('.button-submit-wide').html('Subscribe');
+                }
             }
             else {
                 $('.button-submit-wide').html('Register');

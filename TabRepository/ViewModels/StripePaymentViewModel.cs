@@ -23,6 +23,15 @@ namespace TabRepository.ViewModels
         public double Tax { get; set; }
 
         [Required]
-        public string Zipcode { get; set; }
+        public string StripeAddress { get; set; }
+
+        [Required]
+        public string StripeCity { get; set; }
+
+        [Required]
+        public string StripeState { get; set; }
+
+        [Required]
+        public string StripeZip { get; set; }
     }
 }

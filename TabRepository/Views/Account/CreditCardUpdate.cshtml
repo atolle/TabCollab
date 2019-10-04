@@ -10,7 +10,7 @@
         <h2>Update Credit Card</h2>
         @Html.Hidden("UserId", ViewData["UserId"])
         <div class="row row-no-margin">
-            <div class="col-md-6">
+            <div class="col">
                 <div class="form-group owner">
                     <div class="form-label">
                         <label asp-for="CardName"></label>
@@ -22,6 +22,60 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="row row-no-margin">
+            <div class="col">
+                <div class="form-group owner">
+                    <div class="form-label">
+                        <label asp-for="Address"></label>
+                    </div>
+                    <input asp-for="Address" class="form-control form-input" />
+                    <div class="form-label">
+                        <span asp-validation-for="Address" style="color: red"></span>
+                        <span id="address-error" class="validation-error" style="color: red"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-no-margin">
+            <div class="col-md-5">
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="City"></label>
+                    </div>
+                    <input asp-for="City" class="form-control form-input" />
+                    <div class="form-label">
+                        <span asp-validation-for="City" style="color: red"></span>
+                        <span id="city-error" class="validation-error" style="color: red"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="State"></label>
+                    </div>
+                    <input asp-for="State" class="form-control form-input" />
+                    <div class="form-label">
+                        <span asp-validation-for="State" style="color: red"></span>
+                        <span id="state-error" class="validation-error" style="color: red"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form-group">
+                    <div class="form-label">
+                        <label asp-for="Zip"></label>
+                    </div>
+                    <input asp-for="Zip" class="form-control form-input" />
+                    <div class="form-label">
+                        <span asp-validation-for="Zip" style="color: red"></span>
+                        <span id="zip-error" class="validation-error" style="color: red"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-no-margin">
             <div class="col-md-6">
                 <div class="form-group owner">
                     <div class="form-label">
@@ -34,8 +88,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row row-no-margin">
             <div class="col-md-6">
                 <div class="form-group">
                     <div class="form-label">
@@ -45,18 +97,6 @@
                     <div class="form-label">
                         <span asp-validation-for="CVC" style="color: red"></span>
                         <span id="cvc-error" class="validation-error" style="color: red"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <div class="form-label">
-                        <label asp-for="Zip"></label>
-                    </div>
-                    <input asp-for="Zip" class="form-control form-input" />
-                    <div class="form-label">
-                        <span asp-validation-for="Zip" style="color: red"></span>
-                        <span id="zip-error" class="validation-error" style="color: red"></span>
                     </div>
                 </div>
             </div>
@@ -120,7 +160,10 @@
     </form>
     <form asp-controller="Account" asp-action="UpdatePayment" asp-route-returnurl="@ViewData["ReturnUrl"]" id="token-form" method="post" hidden>
         <input asp-for="PaymentToken" hidden />
-        <input hidden="" type="text" data-val="true" data-val-required="The Zipcode field is required." id="Zipcode" name="Zipcode" value="">
+        <input hidden="" type="text" data-val="true" data-val-required="The Zipcode field is required." id="StripeZip" name="StripeZip" value="">
+        <input hidden="" type="text" data-val="true" data-val-required="The Address field is required" id="StripeAddress" name="StripeAddress" value="">
+        <input hidden="" type="text" data-val="true" data-val-required="The City field is required." id="StripeCity" name="StripeCity" value="">
+        <input hidden="" type="text" data-val="true" data-val-required="The State field is required." id="StripeState" name="StripeState" value="">
     </form>
 </div>
 
@@ -170,7 +213,10 @@
 
                     // Insert the token into the form so it gets submitted to the server:
                     $('#PaymentToken').val(token);
-                    $('#Zipcode').val($('#Zip').val());
+                    $('#StripeAddress').val($('#Address').val());
+                    $('#StripeCity').val($('#City').val());
+                    $('#StripeState').val($('#State').val());
+                    $('#StripeZip').val($('#Zip').val());
 
                     $.ajax({
                         url: form.action,
@@ -272,13 +318,28 @@
 
                 $('.validation-error').html('');
 
-                Stripe.card.createToken({
-                    number: $('#CardNumber').val(),
-                    cvc: $('#CVC').val(),
-                    exp_month: $('#Month').val(),
-                    exp_year: $('#Year').val(),
-                    address_zip: $('#Zip').val()
-                }, stripeResponseHandler);
+                $.ajax({
+                    url: 'CalculateTaxRate?address=' + $('#Address').val() + '&city=' + $('#City').val() + '&state=' + $('#State').val() + '&zip=' + $('#Zip').val(),
+                    type: 'GET'
+                }).then(function (response) {
+                    if (response.error) {
+                        showFailureBootbox("validating address", response.error);
+                        enableSubmitButton();
+                    }
+                    else {
+                        // Address is valid, so create the Stripe token
+                        Stripe.card.createToken({
+                            number: $('#CardNumber').val(),
+                            cvc: $('#CVC').val(),
+                            exp_month: $('#Month').val(),
+                            exp_year: $('#Year').val(),
+                            address_zip: $('#Zip').val()
+                        }, stripeResponseHandler);
+                    }
+                }).fail(function (error) {
+                    showFailureBootbox("validating address", error.error);
+                    enableSubmitButton();
+                });
             });
 
             $(document).on('hidden.bs.modal', function () {

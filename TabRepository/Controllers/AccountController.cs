@@ -26,6 +26,7 @@ using Microsoft.EntityFrameworkCore;
 using Stripe;
 using TabRepository.Models.ManageViewModels;
 using static TabRepository.Controllers.ManageController;
+using Avalara.AvaTax.RestClient;
 
 namespace TabRepository.Controllers
 {
@@ -44,6 +45,7 @@ namespace TabRepository.Controllers
         private IConfiguration _configuration;
         private StripeProcessor _stripeProcessor;
         private UserAuthenticator _userAuthenticator;
+        private readonly List<string> _taxableStates = new List<string> { "texas", "tx" };
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -110,7 +112,7 @@ namespace TabRepository.Controllers
                 if (result.Succeeded)
                 {
                     var userInDb = _context.Users.Where(u => u.UserName.ToLower() == model.Username.ToLower()).FirstOrDefault();
-                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due") && s.Id == _context.StripeCustomers.Where(c => c.UserId == userInDb.Id).Select(c => c.SubscriptionId).FirstOrDefault()).FirstOrDefault();                    
+                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.Id == _context.StripeCustomers.Where(c => c.UserId == userInDb.Id).Select(c => c.SubscriptionId).FirstOrDefault()).FirstOrDefault();                    
 
                     if (subscriptionInDb != null)
                     {
@@ -188,11 +190,11 @@ namespace TabRepository.Controllers
 
                 var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-                var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due") && s.Id == _context.StripeCustomers.Where(c => c.UserId == currentUserId).Select(c => c.SubscriptionId).FirstOrDefault()).FirstOrDefault();
+                var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.Id == _context.StripeCustomers.Where(c => c.UserId == currentUserId).Select(c => c.SubscriptionId).FirstOrDefault()).FirstOrDefault();
 
                 if (subscriptionInDb == null)
                 {
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);                     
+                    return Json(new { error = "Active subscription does not exist" });
                 }
 
                 // Get the subscription so we can get the new state
@@ -202,7 +204,7 @@ namespace TabRepository.Controllers
                 subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
 
                 // If the subscription is no longer active, set to free account
-                if (subscription.Status.ToLower() != "active")
+                if (subscription.Status.ToLower() != "active" && subscription.Status.ToLower() != "past_due" && subscription.Status.ToLower() != "trialing")
                 {
                     userInDb.AccountType = Models.AccountViewModels.AccountType.Free;
                 }
@@ -213,7 +215,45 @@ namespace TabRepository.Controllers
             }
             catch (Exception e)
             {
-                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                return Json(new { error = e.Message });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult SubscriptionReactivate()
+        {
+            try
+            {
+                string currentUserId = User.GetUserId();
+
+                var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+                var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.Id == _context.StripeCustomers.Where(c => c.UserId == currentUserId).Select(c => c.SubscriptionId).FirstOrDefault()).FirstOrDefault();
+
+                if (subscriptionInDb == null)
+                {
+                    return Json(new { error = "Active subscription does not exist" });
+                }              
+
+                var subscription = _stripeProcessor.ActivateSubscription(_configuration, subscriptionInDb);
+
+                subscriptionInDb.Status = subscription.Status;
+                subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
+
+                _context.SaveChanges();
+
+                if (subscriptionInDb.Status.ToLower() == "active" || subscriptionInDb.Status.ToLower() == "past_due" || subscriptionInDb.Status.ToLower() == "trialing")
+                {
+                    return Json(new { success = true });
+                }
+                else
+                {
+                    return Json(new { error = "Active subscription does not exist" });
+                }
+            }
+            catch (Exception e)
+            {
+                return Json(new { error = e.Message });
             }
         }
 
@@ -226,7 +266,7 @@ namespace TabRepository.Controllers
 
             var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-            var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due") && s.Customer.UserId == currentUserId).FirstOrDefault();
+            var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.Customer.UserId == currentUserId).FirstOrDefault();
 
             if (subscriptionInDb == null)
             {
@@ -247,7 +287,7 @@ namespace TabRepository.Controllers
 
             var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-            var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due") && s.Customer.UserId == currentUserId).FirstOrDefault();
+            var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.Customer.UserId == currentUserId).FirstOrDefault();
 
             if (subscriptionInDb != null)
             {
@@ -272,12 +312,42 @@ namespace TabRepository.Controllers
 
                     var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
 
-                    var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();
+                    var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();                    
 
                     // Update customer's payment
                     if (customerInDb != null)
                     {
                         var customer = _stripeProcessor.UpdateCustomerPayment(_configuration, customerInDb, model.PaymentToken);
+
+                        var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Id == customerInDb.SubscriptionId && (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing")).FirstOrDefault();
+
+                        // Update the tax rate for the subscription, if we have one
+                        if (subscriptionInDb != null)
+                        {
+                            StripeTaxRate taxRateInDb = null;
+
+                            var taxRate = createTaxRate(model.StripeAddress, model.StripeCity, model.StripeState, model.StripeZip);
+
+                            if (taxRate != null)
+                            {
+                                taxRateInDb = new StripeTaxRate
+                                {
+                                    Id = taxRate.Id,
+                                    SubscriptionId = subscriptionInDb.Id,
+                                    Percentage = taxRate.Percentage,
+                                    StripeDescription = taxRate.Description,
+                                    StripeJurisdicion = taxRate.Jurisdiction,
+                                    State = model.StripeState,
+                                    Zip = model.StripeZip
+                                };
+                            }
+
+                            var subscription = _stripeProcessor.UpdateSubscription(_configuration, subscriptionInDb.Id, taxRate);
+
+                            subscriptionInDb.Status = subscription.Status;
+                            _context.StripeTaxRates.Add(taxRateInDb);
+                            _context.SaveChanges();
+                        }                                                
                       
                         return PartialView("_UpdateCreditCardConfirmation");
                     }
@@ -370,20 +440,36 @@ namespace TabRepository.Controllers
                         _context.StripeCustomers.Add(customerInDb);
                         _context.SaveChanges();
                     }
-                    // We already have a customer, so updat their payment info
+                    // We already have a customer, so update their payment info. This can happen if payment fails initially
                     else
                     {
                         var customer = _stripeProcessor.UpdateCustomerPayment(_configuration, customerInDb, model.PaymentToken);
                     }
 
-                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Id == customerInDb.SubscriptionId && (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due")).FirstOrDefault();
+                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.Id == customerInDb.SubscriptionId && (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing")).FirstOrDefault();
 
                     // No active subscription so we need to create one
                     if (subscriptionInDb == null)
                     {
                         Stripe.Subscription subscription = null;
+                        StripeTaxRate taxRateInDb = null;
 
-                        subscription = _stripeProcessor.CreateSubscription(_configuration, planInDb, customerInDb, userInDb);
+                        var taxRate = createTaxRate(model.StripeAddress, model.StripeCity, model.StripeState, model.StripeZip);
+
+                        if (taxRate != null)
+                        {
+                            taxRateInDb = new StripeTaxRate
+                            {
+                                Id = taxRate.Id,
+                                Percentage = taxRate.Percentage,
+                                StripeDescription = taxRate.Description,
+                                StripeJurisdicion = taxRate.Jurisdiction,
+                                State = model.StripeState,
+                                Zip = model.StripeZip
+                            };
+                        }
+
+                        subscription = _stripeProcessor.CreateSubscription(_configuration, planInDb, customerInDb, userInDb, taxRate);
 
                         subscriptionInDb = new StripeSubscription
                         {
@@ -393,9 +479,15 @@ namespace TabRepository.Controllers
                             CancelAtPeriodEnd = subscription.CancelAtPeriodEnd
                         };
 
-                        customerInDb.SubscriptionId = subscription.Id;                       
+                        if (taxRateInDb != null)
+                        {
+                            taxRateInDb.SubscriptionId = subscriptionInDb.Id;
+                        }
 
+                        customerInDb.SubscriptionId = subscription.Id;                       
+                        
                         _context.StripeSubscriptions.Add(subscriptionInDb);
+                        _context.StripeTaxRates.Add(taxRateInDb);
                         _context.SaveChanges();
 
                         if (subscriptionInDb.Status.ToLower() == "active" || subscriptionInDb.Status.ToLower() == "trialing" || subscriptionInDb.Status.ToLower() == "past_due")
@@ -411,26 +503,7 @@ namespace TabRepository.Controllers
                             return PartialView("_SubscriptionFailure");
                         }
                     }
-                    // If we have an active subscription, we should be reactivating it
-                    else if (subscriptionInDb.CancelAtPeriodEnd)
-                    {
-                        var subscription = _stripeProcessor.ActivateSubscription(_configuration, subscriptionInDb);
-
-                        subscriptionInDb.Status = subscription.Status;
-                        subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
-
-                        _context.SaveChanges();
-
-                        if (subscriptionInDb.Status.ToLower() == "active")
-                        {
-                            return PartialView("_SubscriptionConfirmation");
-                        }
-                        else
-                        {
-                            return PartialView("_SubscriptionFailure");
-                        }
-                    }
-                    // If neither of the above, then we shouldn't be here
+                    // If we have an active subscription, we shouldn't be here
                     else
                     {
                         return new StatusCodeResult(StatusCodes.Status500InternalServerError);
@@ -452,6 +525,55 @@ namespace TabRepository.Controllers
         }
 
         #endregion
+
+        private TaxRate createTaxRate(string address, string city, string state, string zip)
+        {           
+            var currentUserId = User.GetUserId();
+            var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+            // Create a client and set up authentication
+            var client = new AvaTaxClient("TabCollab", "1.0", Environment.MachineName, AvaTaxEnvironment.Production)
+                .WithSecurity(_configuration["AvalaraTax:Username"], _configuration["AvalaraTax:Password"]);
+
+            var rate = client.TaxRatesByAddress(address, null, null, city, state, zip, "us");
+
+            if (!_taxableStates.Contains(state.ToLower()) || rate.rates.Count == 0)
+            {
+                return null;
+            }
+
+            List<string> descriptions = rate.rates.Select(r => r.name).ToList();
+
+            return _stripeProcessor.CreateTaxRate(_configuration, userInDb, String.Join(" | ", descriptions), state.ToUpper() + " - " + city.ToUpper(), rate.totalRate * 100);
+        }
+
+        [HttpGet]
+        public IActionResult CalculateTaxRate(string address, string city, string state, string zip)
+        {
+            try
+            {               
+                // Create a client and set up authentication
+                var client = new AvaTaxClient("TabCollab", "1.0", Environment.MachineName, AvaTaxEnvironment.Production)
+                    .WithSecurity(_configuration["AvalaraTax:Username"], _configuration["AvalaraTax:Password"]);
+
+                var rate = client.TaxRatesByAddress(address, null, null, city, state, zip, "us");
+
+                if (!_taxableStates.Contains(state.ToLower()) || rate.rates.Count == 0)
+                {
+                    return Json(new { taxRate = 0.00m,  });
+                }
+
+                return Json(new { taxRate = rate.totalRate });
+            }
+            catch (AvaTaxError e)
+            {
+                return Json(new { error = e.error.error.message });
+            }
+            catch (Exception e)
+            {
+                return Json(new { error = e.Message });
+            }
+        }
 
         [HttpGet]
         public IActionResult Billing()
@@ -541,7 +663,7 @@ namespace TabRepository.Controllers
                 var subscriptionInDb = _context.StripeSubscriptions
                     .Include(s => s.Plan)
                     .Include(s => s.Customer)
-                    .Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due") && s.Customer.Id == user.CustomerId)
+                    .Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.Customer.Id == user.CustomerId)
                     .FirstOrDefault();
 
                 if (subscriptionInDb != null)

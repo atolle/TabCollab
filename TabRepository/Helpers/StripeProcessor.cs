@@ -33,7 +33,7 @@ namespace TabRepository.Helpers
 
         public Product CreateProduct(IConfiguration configuration)
         {
-            StripeConfiguration.SetApiKey(_stripeSecret);
+            StripeConfiguration.ApiKey = _stripeSecret;
 
             var options = new ProductCreateOptions
             {
@@ -46,11 +46,11 @@ namespace TabRepository.Helpers
 
         public Plan CreatePlan(IConfiguration configuration, StripeProduct product, SubscriptionInterval interval)
         {
-            StripeConfiguration.SetApiKey(_stripeSecret);            
+            StripeConfiguration.ApiKey = _stripeSecret;            
 
             var options = new PlanCreateOptions
             {
-                ProductId = product.Id,
+                Product = product.Id,
                 Nickname = $"TabCollab Pro {interval.ToString()} Subscription",
                 Interval = interval == SubscriptionInterval.Monthly ? "month" : "year",
                 Currency = "usd",
@@ -63,20 +63,36 @@ namespace TabRepository.Helpers
 
         public Customer CreateCustomer(IConfiguration configuration, ApplicationUser user, string paymentToken)
         {
-            StripeConfiguration.SetApiKey(_stripeSecret);
+            StripeConfiguration.ApiKey = _stripeSecret;
 
             var options = new CustomerCreateOptions
             {
                 Email = user.Email,
-                SourceToken = paymentToken
+                Source = paymentToken
             };
             var service = new CustomerService();
             return service.Create(options);
         }
 
-        public Subscription CreateSubscription(IConfiguration configuration, StripePlan plan, StripeCustomer customer, ApplicationUser user)
+        public TaxRate CreateTaxRate(IConfiguration configuration, ApplicationUser user, string description, string jurisdiction, decimal? percentage)
         {
-            StripeConfiguration.SetApiKey(_stripeSecret);
+            StripeConfiguration.ApiKey = _stripeSecret;
+
+            var options = new TaxRateCreateOptions
+            {
+                DisplayName = "Sales Tax",
+                Description = description,
+                Jurisdiction = jurisdiction,
+                Percentage = percentage,
+                Inclusive = false,
+            };
+            var service = new TaxRateService();
+            return service.Create(options);
+        }
+
+        public Subscription CreateSubscription(IConfiguration configuration, StripePlan plan, StripeCustomer customer, ApplicationUser user, TaxRate taxRate)
+        {
+            StripeConfiguration.ApiKey = _stripeSecret;
 
             var items = new List<SubscriptionItemOption>
             {
@@ -85,13 +101,27 @@ namespace TabRepository.Helpers
 
             SubscriptionCreateOptions options = null;
 
-            options = new SubscriptionCreateOptions
+            if (taxRate != null)
             {
-                CustomerId = customer.Id,
-                Items = items
-                // Uncomment TrialEnd for Stripe testing
-                //,TrialEnd = DateTime.Now.Add(new TimeSpan(0, 1, 0)).ToUniversalTime()
-            };
+                options = new SubscriptionCreateOptions
+                {
+                    CustomerId = customer.Id,
+                    Items = items,
+                    DefaultTaxRates = new List<string> { taxRate.Id }
+                    // Uncomment TrialEnd for Stripe testing
+                    //,TrialEnd = DateTime.Now.Add(new TimeSpan(0, 1, 0)).ToUniversalTime()
+                };
+            }
+            else
+            {
+                options = new SubscriptionCreateOptions
+                {
+                    CustomerId = customer.Id,
+                    Items = items
+                    // Uncomment TrialEnd for Stripe testing
+                    //,TrialEnd = DateTime.Now.Add(new TimeSpan(0, 1, 0)).ToUniversalTime()
+                };
+            }
 
             options.AddExtraParam("enable_incomplete_payments", "false");
 
@@ -99,9 +129,29 @@ namespace TabRepository.Helpers
             return service.Create(options);
         }
 
+        public Subscription UpdateSubscription(IConfiguration configuration, string subscriptionId, TaxRate taxRate)
+        {
+            StripeConfiguration.ApiKey = _stripeSecret;
+
+            SubscriptionUpdateOptions options = null;
+
+            if (taxRate != null)
+            {
+                options = new SubscriptionUpdateOptions
+                {
+                    DefaultTaxRates = new List<string> { taxRate.Id }
+                    // Uncomment TrialEnd for Stripe testing
+                    //,TrialEnd = DateTime.Now.Add(new TimeSpan(0, 1, 0)).ToUniversalTime()
+                };
+            }
+
+            var service = new SubscriptionService();
+            return service.Update(subscriptionId, options);
+        }
+
         public Subscription CancelSubscription(IConfiguration configuration, StripeSubscription subscription)
         {
-            StripeConfiguration.SetApiKey(_stripeSecret);
+            StripeConfiguration.ApiKey = _stripeSecret;
 
             var service = new SubscriptionService();
             var options = new SubscriptionUpdateOptions
@@ -113,7 +163,7 @@ namespace TabRepository.Helpers
 
         public Subscription ActivateSubscription(IConfiguration configuration, StripeSubscription subscription)
         {
-            StripeConfiguration.SetApiKey(_stripeSecret);
+            StripeConfiguration.ApiKey = _stripeSecret;
 
             var service = new SubscriptionService();
             var options = new SubscriptionUpdateOptions
@@ -125,7 +175,7 @@ namespace TabRepository.Helpers
 
         public Subscription GetSubscription(IConfiguration configuration, StripeSubscription subscription)
         {
-            StripeConfiguration.SetApiKey(_stripeSecret);
+            StripeConfiguration.ApiKey = _stripeSecret;
 
             var service = new SubscriptionService();
             return service.Get(subscription.Id, null);
@@ -133,7 +183,7 @@ namespace TabRepository.Helpers
 
         public Customer GetCustomer(IConfiguration configuration, StripeCustomer customer)
         {
-            StripeConfiguration.SetApiKey(_stripeSecret);
+            StripeConfiguration.ApiKey = _stripeSecret;
 
             var service = new CustomerService();
             return service.Get(customer.Id, null);
@@ -141,7 +191,7 @@ namespace TabRepository.Helpers
 
         public Customer GetCustomer(IConfiguration configuration, string customerId)
         {
-            StripeConfiguration.SetApiKey(_stripeSecret);
+            StripeConfiguration.ApiKey = _stripeSecret;
 
             var service = new CustomerService();
             return service.Get(customerId, null);
@@ -149,11 +199,11 @@ namespace TabRepository.Helpers
 
         public Customer UpdateCustomerPayment(IConfiguration configuration, StripeCustomer customer, string paymentToken)
         {
-            StripeConfiguration.SetApiKey(_stripeSecret);
+            StripeConfiguration.ApiKey = _stripeSecret;
 
             var options = new CustomerUpdateOptions
             {
-                SourceToken = paymentToken
+                Source = paymentToken
             };
             var service = new CustomerService();
             return service.Update(customer.Id, options);
@@ -161,7 +211,7 @@ namespace TabRepository.Helpers
 
         public Charge GetCharge(IConfiguration configuration, string chargeId)
         {
-            StripeConfiguration.SetApiKey(_stripeSecret);
+            StripeConfiguration.ApiKey = _stripeSecret;
 
             var service = new ChargeService();
             return service.Get(chargeId, null);

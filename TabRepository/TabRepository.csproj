@@ -162,7 +162,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.0.0" />
     <PackageReference Include="SendGrid" Version="9.9.0" />
-    <PackageReference Include="Stripe.net" Version="25.9.0" />
+    <PackageReference Include="Stripe.net" Version="29.5.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup><!--<DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0" />
@@ -191,6 +191,8 @@
     <Compile Remove="Data\Migrations\20190925015034_AddStripeInvoice.Designer.cs" />
     <Compile Remove="Data\Migrations\20190925030155_AddStripeInvoice.cs" />
     <Compile Remove="Data\Migrations\20190925030155_AddStripeInvoice.Designer.cs" />
+    <Compile Remove="Data\Migrations\20191004025034_AddStripeTaxRate.cs" />
+    <Compile Remove="Data\Migrations\20191004025034_AddStripeTaxRate.Designer.cs" />
     <Compile Remove="Helpers\PayPalProcessor.cs" />
   </ItemGroup>
   <ItemGroup>

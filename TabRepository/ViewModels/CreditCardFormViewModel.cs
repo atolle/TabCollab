@@ -10,18 +10,27 @@ namespace TabRepository.ViewModels
 {
     public enum SubscriptionInterval
     {
-        None,
         Monthly,
-        Yearly
+        Yearly,
+        None 
     }
 
     public class CreditCardFormViewModel
     {
         public string UserId { get; set; }
 
-        [Required(ErrorMessage = "Card Holder is required")]
-        [Display(Name = "Card Holder")]
+        [Required(ErrorMessage = "Name is required")]
+        [Display(Name = "Name")]
         public string CardName { get; set; }
+
+        [Required(ErrorMessage = "Address is required")]
+        public string Address { get; set; }
+
+        [Required(ErrorMessage = "City is required")]
+        public string City { get; set; }
+
+        [Required(ErrorMessage = "State is required")]
+        public string State { get; set; }
 
         [Required(ErrorMessage = "Card Number is required")]
         [CreditCard]

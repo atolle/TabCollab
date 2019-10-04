@@ -91,7 +91,7 @@
                                 {
                                     @if (Model.CancelAtPeriodEnd)
                                     {
-                                        <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary dashboard-button">Activate Auto-Renew</a>
+                                        <a asp-controller="Account" asp-action="SubscriptionReactivate" id="btn-reactivate-subscription" class="btn btn-outline-primary dashboard-button">Activate Auto-Renew</a>
                                     }
                                     else
                                     {
@@ -199,6 +199,45 @@
                 submitButton.removeClass('disabled');
             });
 
+            $(document).on("click", "#btn-reactivate-subscription", function (e, data) {
+                e.preventDefault();
+
+                var href = this.href,
+                    that = this;
+
+                bootbox.prompt("Confirm Reactivate Subscription Auto-Renew", function (result) {
+                    if (result != null) {
+                        if (result.toLowerCase() == 'yes') {
+                            $.ajax({
+                                type: 'POST',
+                                dataType: 'json',
+                                traditional: 'true',
+                                url: href
+                            }).then(function (response) {
+                                    if (response.error) {
+                                        showFailureBootbox("reactivating subscription", response.error);
+                                    }
+                                    else {
+                                        bootbox.alert("Subscription auto-renew has been reactivated.");
+                                        $('#btn-reactivate-subscription').remove();
+                                        $('.subscription-btn-container').html('<a href="/Account/SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-outline-danger dashboard-button">Cancel Auto-Renew</a><a class="btn btn-default dashboard-button" href="/Account/Billing">Billing</a>');
+                                    }
+                            }).fail(function (error) {
+                                showFailureBootbox("reactivating subscription", response.error);
+                                enableSubmitButton();
+                            })
+                        }
+                        else {
+                            bootbox.alert("Subscription auto-renew not reactivated.");
+                        }
+                    }
+                });
+
+                // CSS change to make the title display properly and add prompt text
+                $('.modal-header').css('display', 'unset');
+                $('.bootbox-body').prepend('<p>Please confirm you wish to reactivate your subscription auto-renew.<br />Confirm by typing "yes" below:</p>');
+            });
+
             $(document).on("click", "#btn-cancel-subscription", function (e, data) {
                 e.preventDefault();
 
@@ -213,25 +252,22 @@
                                 dataType: 'json',
                                 traditional: 'true',
                                 url: href
+                            }).then(function (response) {
+                                if (response.error) {                                    
+                                    showFailureBootbox("canceling subscription auto-renew", response.error);
+                                }
+                                else {
+                                    bootbox.alert("Subscription auto-renew has been canceled.");
+                                    $('#btn-cancel-subscription').remove();
+                                    $('.subscription-btn-container').html('<a class="btn btn-outline-primary dashboard-button" href="/Account/Subscribe">Activate Auto-Renew</a><a class="btn btn-default dashboard-button" href="/Account/Billing">Billing</a>');                                        
+                                }
+                            }).fail(function (error) {
+                                showFailureBootbox("canceling subscription auto-renew", error);
+                                enableSubmitButton();
                             })
-                                .then(function (response) {
-                                    if (!response.success) {
-                                        bootbox.alert("Subscription auto-renew cancellation failed. Please contact TabCollab support at support@tabcollab.com.");
-                                    }
-                                    else {
-                                        bootbox.alert("Subscription auto-renew has been canceled.");
-                                        $('#btn-cancel-subscription').remove();
-                                        $('.subscription-btn-container').html('<a class="btn btn-outline-primary dashboard-button" href="/Account/Subscribe">Activate Auto-Renew</a><a class="btn btn-default dashboard-button" href="/Account/Billing">Billing</a>');
-                                        $('#subscription-renewal-expiration').html('Expiration');
-                                    }
-                                })
-                                .fail(function (error) {
-                                    bootbox.alert("Unable to update subscription. Error: " + error.statusText);
-                                    enableSubmitButton();
-                                })
                         }
                         else {
-                            bootbox.alert("Subscription not canceled.");
+                            bootbox.alert("Subscription auto-renew not canceled.");
                         }
                     }
                 });
@@ -283,29 +319,27 @@
                         cache: false,
                         contentType: false,
                         processData: false
+                    }).then(function (response) {
+                        submitButton.html(submitButtonHtml);
+
+                        form.reset();
+
+                        $('#image-upload').croppie('destroy');
+
+                        // Re-disable all of our fields
+                        submitButton.addClass('disabled');
+                        $('#Firstname').prop('disabled', true);
+                        $('#Firstname').val(response.firstName);
+                        $('#Lastname').prop('disabled', true);
+                        $('#Lastname').val(response.lastName);
+                        $('#Email').prop('disabled', true);
+                        $('#Email').val(response.email);
+                        $('#Image').addClass('disabled');
+                        $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
+                    }).fail(function (error) {
+                        bootbox.alert("Unable to update account information.<br /><br />Error: " + error.statusText);
+                        submitButton.html(submitButtonHtml);
                     })
-                        .then(function (response) {
-                            submitButton.html(submitButtonHtml);
-
-                            form.reset();
-
-                            $('#image-upload').croppie('destroy');
-
-                            // Re-disable all of our fields
-                            submitButton.addClass('disabled');
-                            $('#Firstname').prop('disabled', true);
-                            $('#Firstname').val(response.firstName);
-                            $('#Lastname').prop('disabled', true);
-                            $('#Lastname').val(response.lastName);
-                            $('#Email').prop('disabled', true);
-                            $('#Email').val(response.email);
-                            $('#Image').addClass('disabled');
-                            $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
-                        })
-                        .fail(function (error) {
-                            bootbox.alert("Unable to update account information.<br /><br />Error: " + error.statusText);
-                            submitButton.html(submitButtonHtml);
-                        })
                 });
             });
         });

@@ -100,8 +100,13 @@ namespace TabRepository.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<StripeSubscription>()
-                .HasMany(s => s.Invoice)
+                .HasMany(s => s.Invoices)
                 .WithOne(i => i.Subscription);
+
+            builder.Entity<StripeSubscription>()
+                .HasMany(s => s.TaxRates)
+                .WithOne(t => t.Subscription)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<ApplicationUser>()
                 .HasOne(u => u.Customer)
@@ -125,6 +130,7 @@ namespace TabRepository.Data
         public DbSet<StripeSubscription> StripeSubscriptions { get; set; }
         public DbSet<StripeCustomer> StripeCustomers { get; set; }
         public DbSet<StripeInvoice> StripeInvoices { get; set; }
+        public DbSet<StripeTaxRate> StripeTaxRates { get; set; }
 
         public ApplicationDbContext()
             : base()

@@ -103,7 +103,7 @@
 
 <div class="flex-container-row">
     <div class="row row-no-margin">
-        <div class="col-lg-6" align="center">
+        <div class="col" align="center">
             <table id="features-table" class="table table-striped table-dark table-hover tabversions-table features-table">
                 <thead>
                     <tr>
@@ -173,11 +173,15 @@
                 </thead>
             </table>
         </div>
-        <div class="col-lg-6" align="center">
+    </div>
+</div>
+<div class="flex-container-row">
+    <div class="row row-no-margin" style="width: 100%">
+        <div class="col-md-6" align="center">
             <form id="payment-form" class="form-horizontal">
                 @Html.Hidden("UserId", ViewData["UserId"])
                 <div class="row row-no-margin">
-                    <div class="col-md-6">
+                    <div class="col">
                         <div class="form-group owner">
                             <div class="form-label">
                                 <label asp-for="CardName"></label>
@@ -189,6 +193,60 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="row row-no-margin">
+                    <div class="col">
+                        <div class="form-group owner">
+                            <div class="form-label">
+                                <label asp-for="Address"></label>
+                            </div>
+                            <input asp-for="Address" class="form-control form-input" />
+                            <div class="form-label">
+                                <span asp-validation-for="Address" style="color: red"></span>
+                                <span id="address-error" class="validation-error" style="color: red"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row row-no-margin">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <div class="form-label">
+                                <label asp-for="City"></label>
+                            </div>
+                            <input asp-for="City" class="form-control form-input" />
+                            <div class="form-label">
+                                <span asp-validation-for="City" style="color: red"></span>
+                                <span id="city-error" class="validation-error" style="color: red"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <div class="form-label">
+                                <label asp-for="State"></label>
+                            </div>
+                            <input asp-for="State" class="form-control form-input" />
+                            <div class="form-label">
+                                <span asp-validation-for="State" style="color: red"></span>
+                                <span id="state-error" class="validation-error" style="color: red"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <div class="form-label">
+                                <label asp-for="Zip"></label>
+                            </div>
+                            <input asp-for="Zip" class="form-control form-input" />
+                            <div class="form-label">
+                                <span asp-validation-for="Zip" style="color: red"></span>
+                                <span id="zip-error" class="validation-error" style="color: red"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row row-no-margin">
                     <div class="col-md-6">
                         <div class="form-group owner">
                             <div class="form-label">
@@ -201,8 +259,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="row row-no-margin">
                     <div class="col-md-6">
                         <div class="form-group">
                             <div class="form-label">
@@ -212,18 +268,6 @@
                             <div class="form-label">
                                 <span asp-validation-for="CVC" style="color: red"></span>
                                 <span id="cvc-error" class="validation-error" style="color: red"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <div class="form-label">
-                                <label asp-for="Zip"></label>
-                            </div>
-                            <input asp-for="Zip" class="form-control form-input" />
-                            <div class="form-label">
-                                <span asp-validation-for="Zip" style="color: red"></span>
-                                <span id="zip-error" class="validation-error" style="color: red"></span>
                             </div>
                         </div>
                     </div>
@@ -306,7 +350,30 @@
                     </div>
                 </div>
                 <p>* Your subscription will auto-renew until you cancel *</p>
-                <table id="credit-card-table" class="table table-striped table-dark table-hover">
+                <div class="row row-no-margin">
+                    <div class="col">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-default button-submit-wide">Calculate Tax</button>
+                        </div>
+                    </div>
+                </div>
+                @Html.AntiForgeryToken()
+            </form>
+            <form asp-controller="Account" asp-action="SubscriptionProcess" asp-route-returnurl="@ViewData["ReturnUrl"]" id="token-form" method="post" hidden>
+                <input asp-for="PaymentToken" hidden />
+                <input hidden="" type="text" data-val="true" data-val-required="The Interval field is required." id="StripeInterval" name="StripeInterval" value="">
+                <input hidden="" type="text" data-val="true" data-val-required="The Subtotal field is required." id="Subtotal" name="Subtotal" value="">
+                <input hidden="" type="text" data-val="true" data-val-required="The Tax field is required." id="Tax" name="Tax" value="">
+                <input hidden="" type="text" data-val="true" data-val-required="The Zipcode field is required." id="StripeZip" name="StripeZip" value="">
+                <input hidden="" type="text" data-val="true" data-val-required="The Address field is required" id="StripeAddress" name="StripeAddress" value="">
+                <input hidden="" type="text" data-val="true" data-val-required="The City field is required." id="StripeCity" name="StripeCity" value="">
+                <input hidden="" type="text" data-val="true" data-val-required="The State field is required." id="StripeState" name="StripeState" value="">                
+            </form>
+        </div>
+        <div class="col-md-6" style="display: flex; align-items: center; justify-content: center"align="center">
+            <div style="width: 100%;">
+                <h3 style="margin-bottom: 20px">Payment Summary</h3>
+                <table id="payment-summary-table" class="table table-striped table-dark table-hover">
                     <tbody>
                         <tr>
                             <td>Account Type</td>
@@ -322,7 +389,7 @@
                         </tr>
                         <tr>
                             <td>Tax</td>
-                            <td><span id="tax">$0.00</span></td>
+                            <td><span id="tax">$0.00</span><span class="pull-right" id="tax-status"><i style="color: red" class="fa fa-times fa-lg" /></span></td>
                         </tr>
                         <tr>
                             <td><strong>Total</strong></td>
@@ -330,122 +397,109 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="row row-no-margin">
-                    <div class="col">
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-default button-submit-wide">Upgrade Account</button>
-                        </div>
-                    </div>
-                </div>
-                @Html.AntiForgeryToken()
-            </form>
-            <form asp-controller="Account" asp-action="SubscriptionProcess" asp-route-returnurl="@ViewData["ReturnUrl"]" id="token-form" method="post" hidden>
-                <input asp-for="PaymentToken" hidden />
-                <input hidden="" type="text" data-val="true" data-val-required="The Interval field is required." id="StripeInterval" name="StripeInterval" value="">
-                <input hidden="" type="text" data-val="true" data-val-required="The Subtotal field is required." id="Subtotal" name="Subtotal" value="">
-                <input hidden="" type="text" data-val="true" data-val-required="The Tax field is required." id="Tax" name="Tax" value="">
-                <input hidden="" type="text" data-val="true" data-val-required="The Zipcode field is required." id="Zipcode" name="Zipcode" value="">
-            </form>
+            </div>
         </div>
     </div>
 </div>
 
-@section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-    <script src="~/lib/jquery.payment/lib/jquery.payment.min.js"></script>
-    <script src="https://js.stripe.com/v2/"></script>
-    <script>
-        $(document).ready(function () {
-            $('footer').show();
+    @section Scripts {
+        @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+        <script src="~/lib/jquery.payment/lib/jquery.payment.min.js"></script>
+        <script src="https://js.stripe.com/v2/"></script>
+        <script>
+            $(document).ready(function () {
+                $('footer').show();
 
-            $(document).on("click", ".contributor-level-question", function (e, data) {
-                $('#contributor-level-modal').modal('show');
-            });
+                $(document).on("click", ".contributor-level-question", function (e, data) {
+                    $('#contributor-level-modal').modal('show');
+                });
 
-            $(document).on("click", ".tab-question", function (e, data) {
-                $('#tab-modal').modal('show');
-            });
+                $(document).on("click", ".tab-question", function (e, data) {
+                    $('#tab-modal').modal('show');
+                });
 
-            $(document).on("click", ".contributor-question", function (e, data) {
-                $('#contributor-modal').modal('show');
-            });
+                $(document).on("click", ".contributor-question", function (e, data) {
+                    $('#contributor-modal').modal('show');
+                });
 
-            $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
+                $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
 
-            $('#AccountType').on("change", function () {
-                if (this.value == 1) {
-                    $('#account-type').html('Pro');
-                }
-                else {
-                    $('#account-type').html('Composer');
-                }
-            });
-
-            $('#Interval').on("change", function () {
-                if (this.value == 0) {
-                    $('#subtotal').html('$4.99');
-                    $('#interval').html('Monthly');
-                    $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
-                }
-                else {
-                    $('#subtotal').html('$49.99');
-                    $('#interval').html('Yearly');
-                    $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
-                }
-            });
-
-            Stripe.setPublishableKey('pk_test_mMmjGjT6aetaMgLCCu14fWGm00wC0SGVLv');
-
-            function stripeResponseHandler(status, response) {
-                var form = $('#payment-form');
-
-                if (response.error) {
-                    if (response.error) {
-                        if (response.error.param) {
-                            switch (response.error.param) {
-                                case 'cvc':
-                                    $('#cvc-error').html(response.error.message);
-                                    break;
-                                case 'number':
-                                    $('#number-error').html(response.error.message);
-                                    break;
-                                case 'exp_year':
-                                case 'exp_month':
-                                    $('#exp-error').html(response.error.message);
-                                    break;
-                                case 'address_zip':
-                                    $('#zip-error').html(response.error.message);
-                                    break;
-                            }
-                        }
-                        else {
-                            showFailureBootbox("processing credit card payment", response.error.message);
-                        }
-
-                        enableSubmitButton();
+                $('#AccountType').on("change", function () {
+                    if (this.value == 1) {
+                        $('#account-type').html('Pro');
                     }
-                } else {
-                    // Successful Stripe token creation
-                    var token = response.id;
+                    else {
+                        $('#account-type').html('Composer');
+                    }
+                });
 
-                    form = $('#token-form')[0];
+                $('#Interval').on("change", function () {
+                    if (this.value == 0) {
+                        $('#subtotal').html('$4.99');
+                        $('#interval').html('Monthly');
+                        $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
+                    }
+                    else {
+                        $('#subtotal').html('$49.99');
+                        $('#interval').html('Yearly');
+                        $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
+                    }
+                });
 
-                    // Insert the token into the form so it gets submitted to the server:
-                    $('#PaymentToken').val(token);
-                    $('#StripeInterval').val($('#Interval').val());
-                    $('#Subtotal').val($('#subtotal').html().substring(1));
-                    $('#Tax').val($('#tax').html().substring(1));
-                    $('#Zipcode').val($('#Zip').val());
+                Stripe.setPublishableKey('pk_test_mMmjGjT6aetaMgLCCu14fWGm00wC0SGVLv');
 
-                    $.ajax({
-                        url: form.action,
-                        type: 'POST',
-                        data: new FormData(form),
-                        cache: false,
-                        contentType: false,
-                        processData: false
-                    })
-                        .then(function (response) {
+                function stripeResponseHandler(status, response) {
+                    var form = $('#payment-form');
+
+                    if (response.error) {
+                        if (response.error) {
+                            if (response.error.param) {
+                                switch (response.error.param) {
+                                    case 'cvc':
+                                        $('#cvc-error').html(response.error.message);
+                                        break;
+                                    case 'number':
+                                        $('#number-error').html(response.error.message);
+                                        break;
+                                    case 'exp_year':
+                                    case 'exp_month':
+                                        $('#exp-error').html(response.error.message);
+                                        break;
+                                    case 'address_zip':
+                                        $('#zip-error').html(response.error.message);
+                                        break;
+                                }
+                            }
+                            else {
+                                showFailureBootbox("processing credit card payment", response.error.message);
+                            }
+
+                            enableSubmitButton();
+                        }
+                    } else {
+                        // Successful Stripe token creation
+                        var token = response.id;
+
+                        form = $('#token-form')[0];
+
+                        // Insert the token into the form so it gets submitted to the server:
+                        $('#PaymentToken').val(token);
+                        $('#StripeInterval').val($('#Interval').val());
+                        $('#Subtotal').val($('#subtotal').html().substring(1));
+                        $('#Tax').val($('#tax').html().substring(1));
+                        $('#StripeAddress').val($('#Address').val());
+                        $('#StripeCity').val($('#City').val());
+                        $('#StripeState').val($('#State').val());
+                        $('#StripeZip').val($('#Zip').val());
+
+                        $.ajax({
+                            url: form.action,
+                            type: 'POST',
+                            data: new FormData(form),
+                            cache: false,
+                            contentType: false,
+                            processData: false
+                        }).then(function (response) {
                             enableSubmitButton();
 
                             if (response.error) {
@@ -477,84 +531,113 @@
                                 $('#account-details').remove();
                                 $('.flex-container-row').html(response);
                             }
-                        })
-                        .fail(function (error) {
+                        }).fail(function (error) {
                             showFailureBootbox("processing credit card payment", error.error);
                         });
+                    }
                 }
-            }
 
-            // Check card type
-            $(document).on("keyup", "#CardNumber", function () {
-                validateCardNumber(this);
-            });
+                // Check card type
+                $(document).on("keyup", "#CardNumber", function () {
+                    validateCardNumber(this);
+                });
 
-            // Check card type
-            $(document).on("paste", "#CardNumber", function () {
-                var that = this;
-                setTimeout(function () {
-                    validateCardNumber(that);
-                }, 0);
-            });
+                // Check card type
+                $(document).on("paste", "#CardNumber", function () {
+                    var that = this;
+                    setTimeout(function () {
+                        validateCardNumber(that);
+                    }, 0);
+                });
 
-            function validateCardNumber(event) {
-                var $amex = $('#amex'),
-                    $visa = $('#visa'),
-                    $mastercard = $('#mastercard'),
-                    $discover = $('#discover'),
-                    $cardNumber = $(event);
+                function validateCardNumber(event) {
+                    var $amex = $('#amex'),
+                        $visa = $('#visa'),
+                        $mastercard = $('#mastercard'),
+                        $discover = $('#discover'),
+                        $cardNumber = $(event);
 
-                $amex.removeClass('transparent');
-                $visa.removeClass('transparent');
-                $mastercard.removeClass('transparent');
-                $discover.removeClass('transparent');
+                    $amex.removeClass('transparent');
+                    $visa.removeClass('transparent');
+                    $mastercard.removeClass('transparent');
+                    $discover.removeClass('transparent');
 
-                if ($.payment.cardType($cardNumber.val()) == 'visa') {
-                    $mastercard.addClass('transparent');
-                    $amex.addClass('transparent');
-                    $discover.addClass('transparent');
-                } else if ($.payment.cardType($cardNumber.val()) == 'amex') {
-                    $mastercard.addClass('transparent');
-                    $visa.addClass('transparent');
-                    $discover.addClass('transparent');
-                } else if ($.payment.cardType($cardNumber.val()) == 'mastercard') {
-                    $amex.addClass('transparent');
-                    $visa.addClass('transparent');
-                    $discover.addClass('transparent');
+                    if ($.payment.cardType($cardNumber.val()) == 'visa') {
+                        $mastercard.addClass('transparent');
+                        $amex.addClass('transparent');
+                        $discover.addClass('transparent');
+                    } else if ($.payment.cardType($cardNumber.val()) == 'amex') {
+                        $mastercard.addClass('transparent');
+                        $visa.addClass('transparent');
+                        $discover.addClass('transparent');
+                    } else if ($.payment.cardType($cardNumber.val()) == 'mastercard') {
+                        $amex.addClass('transparent');
+                        $visa.addClass('transparent');
+                        $discover.addClass('transparent');
+                    }
+                    else if ($.payment.cardType($cardNumber.val()) == 'discover') {
+                        $amex.addClass('transparent');
+                        $visa.addClass('transparent');
+                        $mastercard.addClass('transparent');
+                    }
                 }
-                else if ($.payment.cardType($cardNumber.val()) == 'discover') {
-                    $amex.addClass('transparent');
-                    $visa.addClass('transparent');
-                    $mastercard.addClass('transparent');
+
+                $(document).on("submit", "#payment-form", function (e, data) {
+                    // Show spinner on reset button
+                    $('.button-submit-wide').html('<div class="loader"></div>');
+                    $('.button-submit-wide').addClass('disabled');
+
+                    e.preventDefault();
+
+                    $('.validation-error').html('');
+
+                    // If we haven't gotten a tax rate yet, request it
+                    if ($('#tax-status').html().includes('fa-times')) {
+                        $('#tax-status').html('<div class="loader"></div>');
+                        $.ajax({
+                            url: 'CalculateTaxRate?address=' + $('#Address').val() + '&city=' + $('#City').val() + '&state=' + $('#State').val() + '&zip=' + $('#Zip').val(),
+                            type: 'GET'
+                        }).then(function (response) {                           
+                            if (response.error) {
+                                $('#tax-status').html('<i style="color: red" class="fa fa-times fa-lg" />');
+                                showFailureBootbox("calculating tax", response.error);
+                                enableSubmitButton();
+                            }
+                            else {
+                                let subtotal = $('#subtotal').html().substring(1);
+                                $('#tax').html('$' + parseFloat(response.taxRate * subtotal).toFixed(2));
+                                $('#total').html('$' + (parseFloat(subtotal) + parseFloat($('#tax').html().substring(1))).toFixed(2));
+                                $('#tax-status').html('<i style="color: rgb(134,192,144)" class="fa fa-check fa-lg" />');
+                                enableSubmitButton();
+                            }
+                        }).fail(function (error) {
+                            $('#tax-status').html('<i style="color: red" class="fa fa-times fa-lg" />');
+                            showFailureBootbox("calculating tax", error.error);
+                            enableSubmitButton();
+                        });
+                    }
+                    else {
+                        Stripe.card.createToken({
+                            number: $('#CardNumber').val(),
+                            cvc: $('#CVC').val(),
+                            exp_month: $('#Month').val(),
+                            exp_year: $('#Year').val(),
+                            address_zip: $('#Zip').val()
+                        }, stripeResponseHandler);
+                    }
+                });
+
+                function enableSubmitButton() {
+                    $('.button-submit-wide').removeClass('disabled');
+
+                    // If we haven't gotten a tax rate, the label should be Calculate Tax
+                    if ($('#tax-status').html().includes('fa-times')) {
+                        $('.button-submit-wide').html('Calculate Tax');
+                    }
+                    else {
+                        $('.button-submit-wide').html('Upgrade Account');
+                    }                    
                 }
-            }
-
-            $(document).on("submit", "#payment-form", function (e, data) {
-                // Show spinner on reset button
-                $('.button-submit-wide').html('<div class="loader"></div>');
-                $('.button-submit-wide').addClass('disabled');
-
-                e.preventDefault();
-
-                $('.validation-error').html('');
-
-                Stripe.card.createToken({
-                    number: $('#CardNumber').val(),
-                    cvc: $('#CVC').val(),
-                    exp_month: $('#Month').val(),
-                    exp_year: $('#Year').val(),
-                    address_zip: $('#Zip').val()
-                }, stripeResponseHandler);
             });
-
-            $(document).on('hidden.bs.modal', function () {
-                enableSubmitButton();
-            });
-
-            function enableSubmitButton() {
-                $('.button-submit-wide').removeClass('disabled');
-                $('.button-submit-wide').html('Upgrade Account');
-            }
-        });
-    </script>
-}
+        </script>
+    }

@@ -319,7 +319,7 @@
                 $('.validation-error').html('');
 
                 $.ajax({
-                    url: 'CalculateTaxRate?address=' + $('#Address').val() + '&city=' + $('#City').val() + '&state=' + $('#State').val() + '&zip=' + $('#Zip').val(),
+                    url: 'CalculateTaxRate?address=' + encodeURIComponent($('#Address').val()) + '&city=' + encodeURIComponent($('#City').val()) + '&state=' + encodeURIComponent($('#State').val()) + '&zip=' + encodeURIComponent($('#Zip').val()),
                     type: 'GET'
                 }).then(function (response) {
                     if (response.error) {

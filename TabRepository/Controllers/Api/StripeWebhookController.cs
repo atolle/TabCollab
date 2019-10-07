@@ -70,13 +70,16 @@ namespace TabRepository.Controllers.Api
                 lock (_newInvoiceLock)
                 {
                     var invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
+                    var userInDb = _context.Users.Where(u => u.Id == _context.StripeCustomers.Where(c => c.Id == (stripeEvent.Data.Object as Invoice).CustomerId).Select(c => c.UserId).FirstOrDefault()).FirstOrDefault();
 
                     if (invoiceInDb == null)
-                    {
+                    {                        
                         invoiceInDb = CreateInvoice(stripeEvent.Data.Object as Invoice);
 
                         _context.StripeInvoices.Add(invoiceInDb);
                         _context.SaveChanges();
+
+                        NotificationsController.AddNotification(_context, NotificationType.InvoiceCreated, userInDb, null, null, null, null);
                     }
                 }
             }
@@ -86,6 +89,7 @@ namespace TabRepository.Controllers.Api
                 lock (_newInvoiceLock)
                 {
                     var invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
+                    var userInDb = _context.Users.Where(u => u.Id == _context.StripeCustomers.Where(c => c.Id == (stripeEvent.Data.Object as Invoice).CustomerId).Select(c => c.UserId).FirstOrDefault()).FirstOrDefault();
 
                     if (invoiceInDb == null)
                     {
@@ -100,6 +104,8 @@ namespace TabRepository.Controllers.Api
                     invoiceInDb.Tax = (stripeEvent.Data.Object as Invoice).Tax ?? default(double);
 
                     _context.SaveChanges();
+
+                    NotificationsController.AddNotification(_context, NotificationType.InvoiceUpdated, userInDb, null, null, null, null);
                 }
             }
 
@@ -108,6 +114,8 @@ namespace TabRepository.Controllers.Api
                 lock (_newInvoiceLock)
                 {
                     var invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
+                    var userInDb = _context.Users.Where(u => u.Id == _context.StripeCustomers.Where(c => c.Id == (stripeEvent.Data.Object as Invoice).CustomerId).Select(c => c.UserId).FirstOrDefault()).FirstOrDefault();
+                    bool addNotification = false;
 
                     if (invoiceInDb == null)
                     {
@@ -115,6 +123,8 @@ namespace TabRepository.Controllers.Api
 
                         _context.StripeInvoices.Add(invoiceInDb);
                         _context.SaveChanges();
+
+                        addNotification = true;
                     }
 
                     if (subscriptionInDb != null && subscriptionInDb.Status.ToLower() == "trialing")
@@ -126,6 +136,8 @@ namespace TabRepository.Controllers.Api
                         invoiceInDb.PaymentStatusText = "Trialing";
 
                         _context.SaveChanges();
+
+                        addNotification = true;
                     }
                     else
                     {
@@ -138,6 +150,13 @@ namespace TabRepository.Controllers.Api
                         invoiceInDb.PaymentStatusText = charge.Outcome.SellerMessage;
 
                         _context.SaveChanges();
+
+                        addNotification = true;
+                    }
+
+                    if (addNotification)
+                    {
+                        NotificationsController.AddNotification(_context, NotificationType.InvoicePaid, userInDb, null, null, null, null);
                     }
                 }
             }
@@ -147,8 +166,8 @@ namespace TabRepository.Controllers.Api
                 lock (_newInvoiceLock)
                 {
                     Charge charge = _stripeProcessor.GetCharge(_configuration, (stripeEvent.Data.Object as Invoice).ChargeId);
-
                     var invoiceInDb = _context.StripeInvoices.Where(i => i.Id == invoiceId).FirstOrDefault();
+                    var userInDb = _context.Users.Where(u => u.Id == _context.StripeCustomers.Where(c => c.Id == (stripeEvent.Data.Object as Invoice).CustomerId).Select(c => c.UserId).FirstOrDefault()).FirstOrDefault();
 
                     if (invoiceInDb == null)
                     {
@@ -162,6 +181,8 @@ namespace TabRepository.Controllers.Api
                     invoiceInDb.PaymentStatusText = charge.FailureMessage;
 
                     _context.SaveChanges();
+
+                    NotificationsController.AddNotification(_context, NotificationType.InvoicePaymentFailed, userInDb, null, null, null, null);
                 }
             }
 
@@ -170,11 +191,14 @@ namespace TabRepository.Controllers.Api
             {
                 var userInDb = _context.Users.Where(u => u.Id == subscriptionInDb.Customer.UserId).FirstOrDefault();
                 var subscription = _stripeProcessor.GetSubscription(_configuration, subscriptionInDb);
+                Models.AccountViewModels.AccountType prevAccountType = userInDb.AccountType;
+                string prevSubscriptionStatus = subscriptionInDb.Status;
+
                 subscriptionInDb.Status = subscription.Status.ToLower();
 
                 // Subscriptions need to be active, trialing, or past due, in which case we will retry payment and then subscription status becomes canceled
                 if (subscription.Status.ToLower() == "active" || subscription.Status.ToLower() == "trialing" || subscription.Status.ToLower() == "past_due")
-                {
+                { 
                     userInDb.AccountType = Models.AccountViewModels.AccountType.Pro;
                 }
                 else
@@ -183,6 +207,16 @@ namespace TabRepository.Controllers.Api
                 }
 
                 _context.SaveChanges();
+
+                if (prevAccountType != userInDb.AccountType)
+                {
+                    NotificationsController.AddNotification(_context, NotificationType.AccountTypeChanged, userInDb, null, null, userInDb.AccountType.ToString(), null);
+                }
+
+                if (prevSubscriptionStatus.ToLower() != subscriptionInDb.Status.ToLower())
+                {
+                    NotificationsController.AddNotification(_context, NotificationType.SubscriptionStatusUpdated, userInDb, null, null, subscriptionInDb.Status, null);
+                }
             }
 
             return new StatusCodeResult(StatusCodes.Status200OK);

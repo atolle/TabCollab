@@ -112,7 +112,8 @@ namespace TabRepository.Controllers
                 if (result.Succeeded)
                 {
                     var userInDb = _context.Users.Where(u => u.UserName.ToLower() == model.Username.ToLower()).FirstOrDefault();
-                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.CustomerId == _context.StripeCustomers.Where(c => c.UserId == userInDb.Id).Select(c => c.Id).FirstOrDefault()).FirstOrDefault();                    
+                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.CustomerId == _context.StripeCustomers.Where(c => c.UserId == userInDb.Id).Select(c => c.Id).FirstOrDefault()).FirstOrDefault();
+                    Models.AccountViewModels.AccountType prevAccountType = userInDb.AccountType;
 
                     if (subscriptionInDb != null)
                     {
@@ -122,7 +123,11 @@ namespace TabRepository.Controllers
                         subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
 
                         // If the subscription is no longer active, change to free account
-                        if (subscription.Status.ToLower() != "active" && subscription.Status.ToLower() != "trialing" && subscription.Status.ToLower() != "past_due")
+                        if (subscription.Status.ToLower() == "active" || subscription.Status.ToLower() == "trialing" || subscription.Status.ToLower() == "past_due")
+                        {
+                            userInDb.AccountType = Models.AccountViewModels.AccountType.Pro;
+                        }
+                        else
                         {
                             userInDb.AccountType = Models.AccountViewModels.AccountType.Free;
                         }
@@ -137,6 +142,11 @@ namespace TabRepository.Controllers
 
                     userInDb.LastLogin = DateTime.Now;
                     _context.SaveChanges();
+
+                    if (prevAccountType != userInDb.AccountType)
+                    {
+                        NotificationsController.AddNotification(_context, NotificationType.AccountTypeChanged, userInDb, null, null, userInDb.AccountType.ToString(), null);
+                    }
 
                     _logger.LogInformation(1, "User logged in.");
                     return Json(new { url = returnUrl });
@@ -494,11 +504,18 @@ namespace TabRepository.Controllers
                         
                         _context.SaveChanges();
 
+                        Models.AccountViewModels.AccountType prevAccountType = userInDb.AccountType;
+
                         if (subscriptionInDb.Status.ToLower() == "active" || subscriptionInDb.Status.ToLower() == "trialing" || subscriptionInDb.Status.ToLower() == "past_due")
                         {
-                            userInDb.AccountType = Models.AccountViewModels.AccountType.Pro;                      
+                            userInDb.AccountType = Models.AccountViewModels.AccountType.Pro;                     
 
                             _context.SaveChanges();
+
+                            if (prevAccountType != userInDb.AccountType)
+                            {
+                                NotificationsController.AddNotification(_context, NotificationType.AccountTypeChanged, userInDb, null, null, userInDb.AccountType.ToString(), null);
+                            }
 
                             return PartialView("_SubscriptionConfirmation");
                         }

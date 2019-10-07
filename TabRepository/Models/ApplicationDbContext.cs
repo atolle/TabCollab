@@ -95,9 +95,14 @@ namespace TabRepository.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<StripeCustomer>()
-                .HasOne(c => c.Subscription)
+                .HasMany(c => c.Subscriptions)
                 .WithOne(s => s.Customer)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<StripeCustomer>()                
+                .HasOne(c => c.User)
+                .WithOne(u => u.Customer)
+                .OnDelete(DeleteBehavior.Cascade);                                
 
             builder.Entity<StripeSubscription>()
                 .HasMany(s => s.Invoices)
@@ -111,8 +116,7 @@ namespace TabRepository.Data
             builder.Entity<ApplicationUser>()
                 .HasOne(u => u.Customer)
                 .WithOne(c => c.User)
-                .HasForeignKey<StripeCustomer>(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade);             
         }
 
         public DbSet<Tab> Tabs { get; set; }

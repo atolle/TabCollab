@@ -28,8 +28,6 @@ namespace TabRepository.Models
 
         public AccountType AccountType { get; set; }
 
-        public string CustomerId { get; set; }
-
         public DateTime? LastLogin { get; set; }
 
         public virtual StripeCustomer Customer { get; set; }

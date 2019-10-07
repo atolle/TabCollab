@@ -11,6 +11,8 @@ namespace TabRepository.Models
 
         public string PlanId { get; set; }
 
+        public string CustomerId { get; set; }
+
         public string Status { get; set; }
 
         public bool CancelAtPeriodEnd { get; set; }

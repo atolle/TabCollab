@@ -144,6 +144,16 @@ namespace TabRepository.Helpers
                     //,TrialEnd = DateTime.Now.Add(new TimeSpan(0, 1, 0)).ToUniversalTime()
                 };
             }
+            else
+            {
+                // Tax rate is null, so we need to remove any old tax rates
+                options = new SubscriptionUpdateOptions
+                {
+                    DefaultTaxRates = new List<string>()
+                    // Uncomment TrialEnd for Stripe testing
+                    //,TrialEnd = DateTime.Now.Add(new TimeSpan(0, 1, 0)).ToUniversalTime()
+                };
+            }
 
             var service = new SubscriptionService();
             return service.Update(subscriptionId, options);

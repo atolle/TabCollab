@@ -1058,6 +1058,10 @@ td {
     margin-bottom: 10px;
 }
 
+.account-button {
+    margin: 10px;
+}
+
 .projects-container {
     padding-top: 15px;
 }
@@ -1357,6 +1361,21 @@ td {
     border-width: 1px;
     border-color: white;
     border-style: solid;
-    padding-top: 10px;
     margin-bottom: 10px;
+}
+
+.col-xll-4 {
+    position: relative;
+    width: 100%;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+@media (min-width: 1900px) {
+    .col-xll-4 {
+        -ms-flex: 0 0 33.333333%;
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
 }

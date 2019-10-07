@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TabRepository.Data;
 
 namespace TabRepository.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191005175137_AddStripeTaxRate")]
+    partial class AddStripeTaxRate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -179,6 +181,8 @@ namespace TabRepository.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
+
+                    b.Property<string>("CustomerId");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256);
@@ -355,9 +359,15 @@ namespace TabRepository.Migrations
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("SubscriptionId");
+
                     b.Property<string>("UserId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SubscriptionId")
+                        .IsUnique()
+                        .HasFilter("[SubscriptionId] IS NOT NULL");
 
                     b.HasIndex("UserId")
                         .IsUnique()
@@ -439,15 +449,11 @@ namespace TabRepository.Migrations
 
                     b.Property<bool>("CancelAtPeriodEnd");
 
-                    b.Property<string>("CustomerId");
-
                     b.Property<string>("PlanId");
 
                     b.Property<string>("Status");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
 
                     b.HasIndex("PlanId");
 
@@ -690,6 +696,11 @@ namespace TabRepository.Migrations
 
             modelBuilder.Entity("TabRepository.Models.StripeCustomer", b =>
                 {
+                    b.HasOne("TabRepository.Models.StripeSubscription", "Subscription")
+                        .WithOne("Customer")
+                        .HasForeignKey("TabRepository.Models.StripeCustomer", "SubscriptionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("TabRepository.Models.ApplicationUser", "User")
                         .WithOne("Customer")
                         .HasForeignKey("TabRepository.Models.StripeCustomer", "UserId")
@@ -718,11 +729,6 @@ namespace TabRepository.Migrations
 
             modelBuilder.Entity("TabRepository.Models.StripeSubscription", b =>
                 {
-                    b.HasOne("TabRepository.Models.StripeCustomer", "Customer")
-                        .WithMany("Subscriptions")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("TabRepository.Models.StripePlan", "Plan")
                         .WithMany("Subscriptions")
                         .HasForeignKey("PlanId")

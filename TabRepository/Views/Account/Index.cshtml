@@ -70,16 +70,16 @@
                     }
                     @if (Model.HasPassword)
                     {
-                        <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default dashboard-button">Change Password</a>
+                        <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default account-button">Change Password</a>
                     }
                     else
                     {
-                        <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default dashboard-button">Create Password</a>
+                        <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default account-button">Create Password</a>
                     }
                     @if (Model.AccountType == AccountType.Free)
                     {
                         <div>
-                            <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary dashboard-button">Upgrade to Pro</a>
+                            <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary account-button">Upgrade to Pro</a>
                         </div>
                     }
                     else if (Model.AccountType == AccountType.Pro)
@@ -91,19 +91,19 @@
                                 {
                                     @if (Model.CancelAtPeriodEnd)
                                     {
-                                        <a asp-controller="Account" asp-action="SubscriptionReactivate" id="btn-reactivate-subscription" class="btn btn-outline-primary dashboard-button">Activate Auto-Renew</a>
+                                        <a asp-controller="Account" asp-action="SubscriptionReactivate" id="btn-reactivate-subscription" class="btn btn-outline-primary account-button">Activate Auto-Renew</a>
                                     }
                                     else
                                     {
-                                        <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-outline-danger dashboard-button">Cancel Auto-Renew</a>
+                                        <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-outline-danger account-button">Cancel Auto-Renew</a>
                                         @if (Model.CreditCardLast4 != null)
                                         {
-                                            <a asp-controller="Account" asp-action="UpdatePayment" class="btn btn-default dashboard-button">Update Credit Card<br />************@Model.CreditCardLast4 @Model.CreditCardExpiration</a>
+                                            <a asp-controller="Account" asp-action="UpdatePayment" class="btn btn-default account-button">Update Credit Card<br />************@Model.CreditCardLast4 @Model.CreditCardExpiration</a>
                                         }
                                     }
 
                                 }
-                                <a asp-controller="Account" asp-action="Billing" class="btn btn-default dashboard-button">Billing</a>
+                                <a asp-controller="Account" asp-action="Billing" class="btn btn-default account-button">Billing</a>
                             </div>
                         </div>
                     }
@@ -220,7 +220,7 @@
                                     else {
                                         bootbox.alert("Subscription auto-renew has been reactivated.");
                                         $('#btn-reactivate-subscription').remove();
-                                        $('.subscription-btn-container').html('<a href="/Account/SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-outline-danger dashboard-button">Cancel Auto-Renew</a><a class="btn btn-default dashboard-button" href="/Account/Billing">Billing</a>');
+                                        $('.subscription-btn-container').html('<a id="btn-cancel-subscription" class="btn btn-outline-danger account-button" href="/Account/SubscriptionCancel">Cancel Auto-Renew</a><a class="btn btn-default account-button" href="/Account/UpdatePayment">Update Credit Card</a><a class="btn btn-default account-button" href="/Account/Billing">Billing</a>');
                                     }
                             }).fail(function (error) {
                                 showFailureBootbox("reactivating subscription", response.error);
@@ -259,7 +259,7 @@
                                 else {
                                     bootbox.alert("Subscription auto-renew has been canceled.");
                                     $('#btn-cancel-subscription').remove();
-                                    $('.subscription-btn-container').html('<a class="btn btn-outline-primary dashboard-button" href="/Account/Subscribe">Activate Auto-Renew</a><a class="btn btn-default dashboard-button" href="/Account/Billing">Billing</a>');                                        
+                                    $('.subscription-btn-container').html('<a id="btn-reactivate-subscription" class="btn btn-outline-primary account-button" href="/Account/SubscriptionReactivate">Activate Auto-Renew</a><a class="btn btn-default account-button" href="/Account/Billing">Billing</a>');                                        
                                 }
                             }).fail(function (error) {
                                 showFailureBootbox("canceling subscription auto-renew", error);

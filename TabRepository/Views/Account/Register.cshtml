@@ -319,6 +319,12 @@
             $('#contributor-modal').modal('show');
         });
 
+        $(document).on("change", ".tax-field", function (e, data) {
+            $('.button-submit-wide').html('Calculate Tax');
+            $('.button-submit-wide').removeClass('btn-primary').addClass('btn-default');
+            clearTax();
+        });
+
         // Show information regarding free account
         $(document).on("click", "#free-btn", function (e, data) {
             if (!$(this).hasClass('checked')) {
@@ -562,12 +568,14 @@
                     }
                     else {
                         $('.flex-container-row').html(response);
-                        $.validator.unobtrusive.parse($("#payment-form"));
-                        $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
+                        if ($('#payment-form').length) {
+                            $.validator.unobtrusive.parse($("#payment-form"));
+                            $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
+                        }                        
                     }
                 })
                 .fail(function (error) {
-                    showFailureBootbox("resgistering", error.statusText);
+                    showFailureBootbox("registering", error.statusText);
                 });
             });
         });
@@ -588,7 +596,7 @@
                     type: 'GET'
                 }).then(function (response) {
                     if (response.error) {
-                        $('#tax-status').html('<i style="color: red" class="fa fa-times fa-lg" />');
+                        clearTax();
                         showFailureBootbox("calculating tax", response.error);
                         enableSubmitButton();
                     }
@@ -600,7 +608,7 @@
                         enableSubmitButton();
                     }
                 }).fail(function (error) {
-                    $('#tax-status').html('<i style="color: red" class="fa fa-times fa-lg" />');
+                    clearTax();
                     showFailureBootbox("calculating tax", error.error);
                     enableSubmitButton();
                 });
@@ -623,9 +631,11 @@
                 // If we haven't gotten a tax rate, the label should be Calculate Tax
                 if ($('#tax-status').html().includes('fa-times')) {
                     $('.button-submit-wide').html('Calculate Tax');
+                    $('.button-submit-wide').removeClass('btn-primary').addClass('btn-default');
                 }
                 else {
                     $('.button-submit-wide').html('Subscribe');
+                    $('.button-submit-wide').removeClass('btn-default').addClass('btn-primary');
                 }
             }
             else {
@@ -684,6 +694,12 @@
                 $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)) + parseFloat($('#tax').html().substring(1))).toFixed(2));
             }
         });
+
+        function clearTax() {
+            $('#tax').html('$0.00');
+            $('#total').html('$' + (parseFloat($('#subtotal').html().substring(1)).toFixed(2)));
+            $('#tax-status').html('<i style="color: red" class="fa fa-times fa-lg" />');
+        }
     });
     </script>
 }

@@ -193,6 +193,24 @@
     <Compile Remove="Data\Migrations\20190925030155_AddStripeInvoice.Designer.cs" />
     <Compile Remove="Data\Migrations\20191004025034_AddStripeTaxRate.cs" />
     <Compile Remove="Data\Migrations\20191004025034_AddStripeTaxRate.Designer.cs" />
+    <Compile Remove="Data\Migrations\20191004025444_AddStripeTaxRate.cs" />
+    <Compile Remove="Data\Migrations\20191004025444_AddStripeTaxRate.Designer.cs" />
+    <Compile Remove="Data\Migrations\20191005174256_AddStripeTaxRate.cs" />
+    <Compile Remove="Data\Migrations\20191005174256_AddStripeTaxRate.Designer.cs" />
+    <Compile Remove="Data\Migrations\20191005195431_AddUniqueContraintUserIdOnCustomer.cs" />
+    <Compile Remove="Data\Migrations\20191005195431_AddUniqueContraintUserIdOnCustomer.Designer.cs" />
+    <Compile Remove="Data\Migrations\20191005200134_AddUniqueContraintUserIdOnCustomer.cs" />
+    <Compile Remove="Data\Migrations\20191005200134_AddUniqueContraintUserIdOnCustomer.Designer.cs" />
+    <Compile Remove="Data\Migrations\20191005201113_AddUniqueContraintUserIdOnCustomer.cs" />
+    <Compile Remove="Data\Migrations\20191005201113_AddUniqueContraintUserIdOnCustomer.Designer.cs" />
+    <Compile Remove="Data\Migrations\20191005201344_AddUniqueContraintUserIdOnCustomer.cs" />
+    <Compile Remove="Data\Migrations\20191005201344_AddUniqueContraintUserIdOnCustomer.Designer.cs" />
+    <Compile Remove="Data\Migrations\20191005201753_RemoveCustomerIdFromUser.cs" />
+    <Compile Remove="Data\Migrations\20191005201753_RemoveCustomerIdFromUser.Designer.cs" />
+    <Compile Remove="Data\Migrations\20191005201825_AddUniqueContraintUserIdOnCustomer.cs" />
+    <Compile Remove="Data\Migrations\20191005201825_AddUniqueContraintUserIdOnCustomer.Designer.cs" />
+    <Compile Remove="Data\Migrations\20191005203129_AddUniqueContraintUserIdOnCustomer.cs" />
+    <Compile Remove="Data\Migrations\20191005203129_AddUniqueContraintUserIdOnCustomer.Designer.cs" />
     <Compile Remove="Helpers\PayPalProcessor.cs" />
   </ItemGroup>
   <ItemGroup>

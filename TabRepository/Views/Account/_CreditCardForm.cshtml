@@ -11,15 +11,14 @@
     }
     <div class="row row-no-margin" style="width: 100%">
         <div class="col-md-6" align="center">
-            <form id="payment-form" class="form-horizontal">
-                @Html.Hidden("UserId", ViewData["UserId"])
+            <form id="payment-form" class="form-horizontal">                
                 <div class="row row-no-margin">
                     <div class="col">
                         <div class="form-group owner">
                             <div class="form-label">
                                 <label asp-for="CardName"></label>
                             </div>
-                            <input asp-for="CardName" class="form-control form-input" />
+                            <input asp-for="CardName" class="form-control form-input tax-field" />
                             <div class="form-label">
                                 <span asp-validation-for="CardName" style="color: red"></span>
                                 <span id="name-error" class="validation-error" style="color: red"></span>
@@ -33,7 +32,7 @@
                             <div class="form-label">
                                 <label asp-for="Address"></label>
                             </div>
-                            <input asp-for="Address" class="form-control form-input" />
+                            <input asp-for="Address" class="form-control form-input tax-field" />
                             <div class="form-label">
                                 <span asp-validation-for="Address" style="color: red"></span>
                                 <span id="address-error" class="validation-error" style="color: red"></span>
@@ -47,7 +46,7 @@
                             <div class="form-label">
                                 <label asp-for="City"></label>
                             </div>
-                            <input asp-for="City" class="form-control form-input" />
+                            <input asp-for="City" class="form-control form-input tax-field" />
                             <div class="form-label">
                                 <span asp-validation-for="City" style="color: red"></span>
                                 <span id="city-error" class="validation-error" style="color: red"></span>
@@ -59,7 +58,7 @@
                             <div class="form-label">
                                 <label asp-for="State"></label>
                             </div>
-                            <input asp-for="State" class="form-control form-input" />
+                            <input asp-for="State" class="form-control form-input tax-field" />
                             <div class="form-label">
                                 <span asp-validation-for="State" style="color: red"></span>
                                 <span id="state-error" class="validation-error" style="color: red"></span>
@@ -71,7 +70,7 @@
                             <div class="form-label">
                                 <label asp-for="Zip"></label>
                             </div>
-                            <input asp-for="Zip" class="form-control form-input" />
+                            <input asp-for="Zip" class="form-control form-input tax-field" />
                             <div class="form-label">
                                 <span asp-validation-for="Zip" style="color: red"></span>
                                 <span id="zip-error" class="validation-error" style="color: red"></span>
@@ -159,7 +158,7 @@
                             <div class="form-label">
                                 <label asp-for="AccountType"></label>
                             </div>
-                            <select class="form-control form-input valid" data-val="true" data-val-required="Account Type is required" id="AccountType" name="AccountType" aria-required="true" aria-invalid="false" aria-describedby="AccountType-error">
+                            <select class="form-control form-input valid tax-field" data-val="true" data-val-required="Account Type is required" id="AccountType" name="AccountType" aria-required="true" aria-invalid="false" aria-describedby="AccountType-error">
                                 <option value="1">Pro</option>
                             </select>
                             <div class="form-label">
@@ -172,7 +171,7 @@
                             <div class="form-label">
                                 <label asp-for="Interval"></label>
                             </div>
-                            <select class="form-control form-input valid" data-val="true" data-val-required="Interval is required" id="Interval" name="Interval" aria-required="true" aria-invalid="false" aria-describedby="Interval-error">
+                            <select class="form-control form-input valid tax-field" data-val="true" data-val-required="Interval is required" id="Interval" name="Interval" aria-required="true" aria-invalid="false" aria-describedby="Interval-error">
                                 <option value="0">Monthly</option>
                                 <option value="1">Yearly</option>
                             </select>
@@ -201,6 +200,7 @@
                 <input hidden="" type="text" data-val="true" data-val-required="The Address field is required" id="StripeAddress" name="StripeAddress" value="">
                 <input hidden="" type="text" data-val="true" data-val-required="The City field is required." id="StripeCity" name="StripeCity" value="">
                 <input hidden="" type="text" data-val="true" data-val-required="The State field is required." id="StripeState" name="StripeState" value="">
+                @Html.Hidden("UserId", ViewData["UserId"])
             </form>
         </div>
         <div class="col-md-6" style="display: flex; align-items: center; justify-content: center" align="center">

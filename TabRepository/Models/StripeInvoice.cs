@@ -12,6 +12,8 @@ namespace TabRepository.Models
 
         public string ChargeId { get; set; }
 
+        public string TaxRateId { get; set; }
+
         public double Subtotal { get; set; }
 
         public double Tax { get; set; }
@@ -31,6 +33,8 @@ namespace TabRepository.Models
         public virtual StripeSubscription Subscription { get; set; }
 
         public virtual StripeCustomer Customer { get; set; }
+
+        public virtual StripeTaxRate TaxRate { get; set; }
     }
 
     public enum PaymentStatus

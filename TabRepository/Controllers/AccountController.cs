@@ -551,6 +551,7 @@ namespace TabRepository.Controllers
         {           
             var currentUserId = userId;
             var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+            List<string> descriptions = new List<string>();
 
             // Create a client and set up authentication
             var client = new AvaTaxClient("TabCollab", "1.0", Environment.MachineName, AvaTaxEnvironment.Production)
@@ -558,12 +559,15 @@ namespace TabRepository.Controllers
 
             var rate = client.TaxRatesByAddress(address, null, null, city, state, zip, "us");
 
+            // If this is not a taxable state, create a tax rate of 0.00% so we can still track revenue by state
             if (!_taxableStates.Contains(state.ToLower()) || rate.rates.Count == 0)
             {
-                return null;
+                descriptions = rate.rates.Select(r => r.name).ToList();
+
+                return _stripeProcessor.CreateTaxRate(_configuration, userInDb, String.Join(" | ", descriptions), state.ToUpper() + " - " + city.ToUpper(), 0.00m);
             }
 
-            List<string> descriptions = rate.rates.Select(r => r.name).ToList();
+            descriptions = rate.rates.Select(r => r.name).ToList();
 
             return _stripeProcessor.CreateTaxRate(_configuration, userInDb, String.Join(" | ", descriptions), state.ToUpper() + " - " + city.ToUpper(), rate.totalRate * 100);
         }

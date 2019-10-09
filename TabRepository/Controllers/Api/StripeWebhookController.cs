@@ -98,7 +98,7 @@ namespace TabRepository.Controllers.Api
                         _context.StripeInvoices.Add(invoiceInDb);
                         _context.SaveChanges();
                     }
-
+                    
                     invoiceInDb.DateDue = (stripeEvent.Data.Object as Invoice).DueDate;
                     invoiceInDb.Subtotal = (stripeEvent.Data.Object as Invoice).Subtotal;
                     invoiceInDb.Tax = (stripeEvent.Data.Object as Invoice).Tax ?? default(double);
@@ -143,6 +143,7 @@ namespace TabRepository.Controllers.Api
                     {
                         Charge charge = _stripeProcessor.GetCharge(_configuration, (stripeEvent.Data.Object as Invoice).ChargeId);
 
+                        invoiceInDb.TaxRateId = (stripeEvent.Data.Object as Invoice).DefaultTaxRates[0].Id;
                         invoiceInDb.ChargeId = charge.Id;
                         invoiceInDb.ReceiptURL = charge.ReceiptUrl;
                         invoiceInDb.DatePaid = DateTime.Now;

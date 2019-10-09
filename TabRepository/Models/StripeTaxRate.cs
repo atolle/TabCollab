@@ -24,5 +24,7 @@ namespace TabRepository.Models
         public string Zip { get; set; }
 
         public virtual StripeSubscription Subscription { get; set; }
+
+        public virtual ICollection<StripeInvoice> Invoices { get; set; }
     }
 }

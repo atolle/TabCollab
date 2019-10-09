@@ -116,7 +116,11 @@ namespace TabRepository.Data
             builder.Entity<ApplicationUser>()
                 .HasOne(u => u.Customer)
                 .WithOne(c => c.User)
-                .OnDelete(DeleteBehavior.Cascade);             
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<StripeInvoice>()
+                .HasOne(i => i.TaxRate)
+                .WithMany(t => t.Invoices);
         }
 
         public DbSet<Tab> Tabs { get; set; }

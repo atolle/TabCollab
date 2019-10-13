@@ -92,11 +92,11 @@
                                     {
                                         @if (Model.CancelAtPeriodEnd)
                                         {
-                                            <a asp-controller="Account" asp-action="SubscriptionReactivate" id="btn-reactivate-subscription" class="btn btn-outline-primary account-button">Activate Auto-Renew</a>
+                                            <a asp-controller="Account" asp-action="SubscriptionReactivate" id="btn-reactivate-subscription" class="btn btn-outline-primary account-button disabled">Activate Auto-Renew</a>
                                         }
                                         else
                                         {
-                                            <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-outline-danger account-button">Cancel Auto-Renew</a>
+                                            <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-outline-danger account-button disabled">Cancel Auto-Renew</a>
                                             @if (Model.CreditCardLast4 != null)
                                             {
                                                 <a asp-controller="Account" asp-action="UpdatePayment" class="btn btn-default account-button">Update Credit Card<br />************@Model.CreditCardLast4 @Model.CreditCardExpiration</a>
@@ -181,6 +181,9 @@
     <script src="https://js.stripe.com/v3/"></script>
     <script>
         $(document).ready(function () {
+            $('#btn-reactivate-subscription').removeClass('disabled');
+            $('#btn-cancel-subscription').removeClass('disabled');
+
             var stripe = Stripe('pk_test_mMmjGjT6aetaMgLCCu14fWGm00wC0SGVLv');
 
             $('footer').show();

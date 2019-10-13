@@ -1171,6 +1171,8 @@ td {
 
 .credit-cards-container {
     display: flex;
+    align-items: flex-end;
+    margin-bottom: 3px;
 }
 
 #credit-cards {

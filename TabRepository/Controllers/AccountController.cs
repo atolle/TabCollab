@@ -772,7 +772,7 @@ namespace TabRepository.Controllers
         public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
             try
-            {
+            {                
                 ViewData["ReturnUrl"] = returnUrl;
                 if (ModelState.IsValid)
                 {

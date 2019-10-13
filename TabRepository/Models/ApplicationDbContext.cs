@@ -120,7 +120,7 @@ namespace TabRepository.Data
 
             builder.Entity<StripeInvoice>()
                 .HasOne(i => i.TaxRate)
-                .WithMany(t => t.Invoices);
+                .WithMany(t => t.Invoices);            
         }
 
         public DbSet<Tab> Tabs { get; set; }

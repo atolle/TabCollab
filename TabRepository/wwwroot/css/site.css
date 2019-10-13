@@ -945,7 +945,7 @@ footer {
 }
 
 #tree-table-container {
-    height: 85%;
+    height: calc(100% - 5em);
     display: flex;
     margin: auto;
 }
@@ -1324,6 +1324,10 @@ td {
     max-width: 650px;
 }
 
+#features-table > thead > tr > th, #features-table > tbody > tr > td {
+    height: 6em;
+}
+
 .btn-upgrade {
     max-width: 132px;
 }
@@ -1334,6 +1338,15 @@ td {
 
 .green-cell {
     background-color: rgb(134, 192, 144) !important;    
+}
+
+.infinity {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
 }
 
 .table th, .table td {

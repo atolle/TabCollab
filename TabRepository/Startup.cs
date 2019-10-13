@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using System.Threading;
 using Microsoft.IdentityModel.Protocols;
 using TabRepository.Helpers;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace TabRepository
 {
@@ -30,7 +31,7 @@ namespace TabRepository
             if (env.IsDevelopment())
             {
                 builder.AddUserSecrets<Startup>();
-            }
+            }            
 
             Configuration = builder.Build();
 
@@ -51,7 +52,9 @@ namespace TabRepository
 
             // Add framework services.
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            {                
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));               
+            });
 
             //services.AddDbContext<ApplicationDbContext>(options =>
             //    options.UseSqlServer(Configuration.GetConnectionString("Azure")));

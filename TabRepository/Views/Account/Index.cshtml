@@ -7,164 +7,170 @@
 <div id="page" class="flex-container-col" style="align-items: unset;">
     <div class="row row-no-margin">
         <div class="col" align="center">
-            <div class="row">
-                <div class="col">
-                    @if (Model.AccountType == AccountType.Free)
-                    {
-                        <h3>Free Account</h3>
-                        <table class="table table-striped table-dark table-hover tabversions-table" style="margin-bottom: 10px; text-align: center">
-                            <thead>
-                                <tr>
-                                    <th width="40%"><div class="table-header">Item</div></th>
-                                    <th width="30%"><div class="table-header">Count</div></th>
-                                    <th width="30%"><div class="table-header">Remaining</div></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Tabs</td>
-                                    <td>@Model.TabCount</td>
-                                    <td style="color: @(5 - Model.TabCount < 0 ? "red" : "inherit")">@(5 - Model.TabCount)</td>
-                                </tr>
-                                <tr>
-                                    <td>Tab Versions</td>
-                                    <td>@Model.TabVersionCount</td>
-                                    <td style="color: @(15 - Model.TabVersionCount < 0 ? "red" : "inherit")">@(15 - Model.TabVersionCount)</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    }
-                    else if (Model.AccountType == AccountType.Pro)
-                    {
-                        <h3>Pro Account</h3>
-                        @if (Model.SubscriptionStatus == SubscriptionStatus.Active)
+            <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center">
+                <div class="row">
+                    <div class="col">
+                        @if (Model.AccountType == AccountType.Free)
                         {
-                            <h4 style="color: rgb(134, 192, 144)">Active</h4>
+                            <h3>Free Account</h3>
+                            <table class="table table-striped table-dark table-hover tabversions-table" style="margin-bottom: 10px; text-align: center">
+                                <thead>
+                                    <tr>
+                                        <th width="40%"><div class="table-header">Item</div></th>
+                                        <th width="30%"><div class="table-header">Count</div></th>
+                                        <th width="30%"><div class="table-header">Remaining</div></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Tabs</td>
+                                        <td>@Model.TabCount</td>
+                                        <td style="color: @(5 - Model.TabCount < 0 ? "red" : "inherit")">@(5 - Model.TabCount)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tab Versions</td>
+                                        <td>@Model.TabVersionCount</td>
+                                        <td style="color: @(15 - Model.TabVersionCount < 0 ? "red" : "inherit")">@(15 - Model.TabVersionCount)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         }
-                        else if (Model.SubscriptionStatus == SubscriptionStatus.PastDue)
+                        else if (Model.AccountType == AccountType.Pro)
                         {
-                            <h4 style="color: red">Past Due</h4>
+                            <h3>Pro Account</h3>
+                            @if (Model.SubscriptionStatus == SubscriptionStatus.Active)
+                            {
+                                <h4 style="color: rgb(134, 192, 144)">Active</h4>
+                            }
+                            else if (Model.SubscriptionStatus == SubscriptionStatus.PastDue)
+                            {
+                                <h4 style="color: red">Past Due</h4>
+                            }
+                            <h6>@(Model.Interval == "month" ? "Monthly" : "Yearly")</h6>
+                            <table class="table table-striped table-dark table-hover tabversions-table" style="margin-bottom: 10px; text-align: center">
+                                <thead>
+                                    <tr>
+                                        <th width="40%"><div class="table-header">Item</div></th>
+                                        <th width="30%"><div class="table-header">Count</div></th>
+                                        <th width="30%"><div class="table-header">Remaining</div></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Tabs</td>
+                                        <td>@Model.TabCount</td>
+                                        <td><div class="infinity">&#8734</div></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tab Versions</td>
+                                        <td>@Model.TabVersionCount</td>
+                                        <td><div class="infinity">&#8734</div></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         }
-                        <h6>@(Model.Interval == "month" ? "Monthly" : "Yearly")</h6>
-                        <table class="table table-striped table-dark table-hover tabversions-table" style="margin-bottom: 10px; text-align: center">
-                            <thead>
-                                <tr>
-                                    <th width="40%"><div class="table-header">Item</div></th>
-                                    <th width="30%"><div class="table-header">Count</div></th>
-                                    <th width="30%"><div class="table-header">Remaining</div></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Tabs</td>
-                                    <td>@Model.TabCount</td>
-                                    <td>&#8734</td>
-                                </tr>
-                                <tr>
-                                    <td>Tab Versions</td>
-                                    <td>@Model.TabVersionCount</td>
-                                    <td>&#8734</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    }
-                    @if (Model.HasPassword)
-                    {
-                        <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default account-button">Change Password</a>
-                    }
-                    else
-                    {
-                        <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default account-button">Create Password</a>
-                    }
-                    @if (Model.AccountType == AccountType.Free)
-                    {
-                        <div>
-                            <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary account-button">Upgrade to Pro</a>
-                        </div>
-                    }
-                    else if (Model.AccountType == AccountType.Pro)
-                    {
-                        <div style="margin-top: 20px; margin-bottom: 30px">
-                            <h6>Manage Subscription</h6>
-                            <div class="subscription-btn-container">
-                                @if (Model.SubscriptionStatus == SubscriptionStatus.Active || Model.SubscriptionStatus == SubscriptionStatus.PastDue)
-                                {
-                                    @if (Model.CancelAtPeriodEnd)
-                                    {
-                                        <a asp-controller="Account" asp-action="SubscriptionReactivate" id="btn-reactivate-subscription" class="btn btn-outline-primary account-button">Activate Auto-Renew</a>
-                                    }
-                                    else
-                                    {
-                                        <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-outline-danger account-button">Cancel Auto-Renew</a>
-                                        @if (Model.CreditCardLast4 != null)
-                                        {
-                                            <a asp-controller="Account" asp-action="UpdatePayment" class="btn btn-default account-button">Update Credit Card<br />************@Model.CreditCardLast4 @Model.CreditCardExpiration</a>
-                                        }
-                                    }
-
-                                }
-                                <a asp-controller="Account" asp-action="Billing" class="btn btn-default account-button">Billing</a>
+                        @if (Model.HasPassword)
+                        {
+                            <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default account-button">Change Password</a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default account-button">Create Password</a>
+                        }
+                        @if (Model.AccountType == AccountType.Free)
+                        {
+                            <div>
+                                <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary account-button">Upgrade to Pro</a>
                             </div>
-                        </div>
-                    }
+                        }
+                        else if (Model.AccountType == AccountType.Pro)
+                        {
+                            <div style="margin-top: 20px; margin-bottom: 30px">
+                                <h6>Manage Subscription</h6>
+                                <div class="subscription-btn-container">
+                                    @if (Model.SubscriptionStatus == SubscriptionStatus.Active || Model.SubscriptionStatus == SubscriptionStatus.PastDue)
+                                    {
+                                        @if (Model.CancelAtPeriodEnd)
+                                        {
+                                            <a asp-controller="Account" asp-action="SubscriptionReactivate" id="btn-reactivate-subscription" class="btn btn-outline-primary account-button">Activate Auto-Renew</a>
+                                        }
+                                        else
+                                        {
+                                            <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-outline-danger account-button">Cancel Auto-Renew</a>
+                                            @if (Model.CreditCardLast4 != null)
+                                            {
+                                                <a asp-controller="Account" asp-action="UpdatePayment" class="btn btn-default account-button">Update Credit Card<br />************@Model.CreditCardLast4 @Model.CreditCardExpiration</a>
+                                            }
+                                        }
+
+                                    }
+                                    <a asp-controller="Account" asp-action="Billing" class="btn btn-default account-button">Billing</a>
+                                </div>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col" align="center">
-            <div class="card card-profile" style="margin-bottom: 10px;">
-                <div id="profile-image" class="card-header" style="background-image: url('@(Model.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : Model.ImageFilePath)');"></div>
-                <div class="card-body text-center">
-                    <h3>@Model.Username</h3>
+            <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center">
+                <div class="card card-profile" style="margin-bottom: 10px;">
+                    <div id="profile-image" class="card-header" style="background-image: url('@(Model.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : Model.ImageFilePath)');"></div>
+                    <div class="card-body text-center">
+                        <h3>@Model.Username</h3>
+                    </div>
                 </div>
             </div>
         </div>
         <div id="profile-form-container" class="col" align="center">
-            <form id="profile-form" asp-controller="Manage" asp-action="UpdateProfile" data-ajax="true" data-ajax-method="POST" class="card" style="background-color: unset; border: unset;">
-                <div class="form-group">
-                    <div class="form-label">
-                        <label asp-for="Firstname"></label>
-                    </div>
-                    <input asp-for="Firstname" class="form-control form-input" disabled />
-                    <div class="form-label">
-                        <span asp-validation-for="Firstname" style="color: red"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="form-label">
-                        <label asp-for="Lastname"></label>
-                    </div>
-                    <input asp-for="Lastname" class="form-control form-input" disabled />
-                    <div class="form-label">
-                        <span asp-validation-for="Lastname" style="color: red"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="form-label">
-                        <label asp-for="Email"></label>
-                    </div>
-                    <input asp-for="Email" class="form-control form-input" disabled />
-                    <div class="form-label">
-                        <span asp-validation-for="Email" style="color: red"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="form-label image-upload">
-                        @Html.LabelFor(m => m.Image, "Profile  Image")
-                        <div id="image-upload-container" style="display: none;">
-                            <div id="image-upload"></div>
+            <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center">
+                <form id="profile-form" asp-controller="Manage" asp-action="UpdateProfile" data-ajax="true" data-ajax-method="POST" class="card" style="background-color: unset; border: unset;">
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label asp-for="Firstname"></label>
+                        </div>
+                        <input asp-for="Firstname" class="form-control form-input" disabled />
+                        <div class="form-label">
+                            <span asp-validation-for="Firstname" style="color: red"></span>
                         </div>
                     </div>
-                    @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default form-input file-input disabled" })
-                    <div class="form-label">
-                        <span id="image-error" class="validation-error" style="color: red"></span>
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label asp-for="Lastname"></label>
+                        </div>
+                        <input asp-for="Lastname" class="form-control form-input" disabled />
+                        <div class="form-label">
+                            <span asp-validation-for="Lastname" style="color: red"></span>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <a id="edit-account-button" data-toggle="tooltip" title="Edit account" class="list-icon float-left white-icon"><i class="fa fa-pencil fa-lg"></i></a>
-                    <button id="save-account-button" type="submit" class="btn btn-primary float-right button-save disabled" form="profile-form"> Save</button>
-                </div>
-                @Html.AntiForgeryToken()
-            </form>
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label asp-for="Email"></label>
+                        </div>
+                        <input asp-for="Email" class="form-control form-input" disabled />
+                        <div class="form-label">
+                            <span asp-validation-for="Email" style="color: red"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label image-upload">
+                            @Html.LabelFor(m => m.Image, "Profile  Image")
+                            <div id="image-upload-container" style="display: none;">
+                                <div id="image-upload"></div>
+                            </div>
+                        </div>
+                        @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default form-input file-input disabled" })
+                        <div class="form-label">
+                            <span id="image-error" class="validation-error" style="color: red"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <a id="edit-account-button" data-toggle="tooltip" title="Edit account" class="list-icon float-left white-icon"><i class="fa fa-pencil fa-lg"></i></a>
+                        <button id="save-account-button" type="submit" class="btn btn-primary float-right button-save disabled" form="profile-form"> Save</button>
+                    </div>
+                    @Html.AntiForgeryToken()
+                </form>
+            </div>
         </div>
     </div>
 </div>

@@ -116,7 +116,7 @@ namespace TabRepository.Controllers
 
                             transaction.Commit();
 
-                            return Json(new { name = album.Name, id = album.Id });
+                            return Json(new { name = album.Name, id = album.Id, imageFilePath = album.ImageFilePath });
                         }
                     }
                     else // We're updating an album
@@ -150,7 +150,7 @@ namespace TabRepository.Controllers
                         _context.Albums.Update(albumInDb);
                         _context.SaveChanges();
 
-                        return Json(new { name = albumInDb.Name, id = albumInDb.Id });
+                        return Json(new { name = albumInDb.Name, id = albumInDb.Id, imageFilePath = albumInDb.ImageFilePath });
                     }
                 }
 

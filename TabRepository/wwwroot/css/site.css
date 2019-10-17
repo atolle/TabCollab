@@ -970,6 +970,15 @@ footer {
     box-shadow: unset !important;
 }
 
+.jstree-node {
+    margin-top: 5px !important;
+    margin-bottom: 5px !important;
+}
+
+.jstree-anchor {
+    padding-left: 0px !important;
+}
+
 #splitter {
     width: 10px;
     cursor: col-resize;

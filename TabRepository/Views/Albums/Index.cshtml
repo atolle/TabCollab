@@ -131,6 +131,8 @@ $(document).ready(function () {
                 // Client side validation for dynamic modal injection
                 $.validator.unobtrusive.parse($("#album-form"));
 
+                imageUpload();
+
                 currentModal = $('#album-form-modal');
                 currentModal.modal('show');
             }

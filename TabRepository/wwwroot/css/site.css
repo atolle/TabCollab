@@ -1411,3 +1411,9 @@ td {
         max-width: 33.333333%;
     }
 }
+
+#trackList {
+    max-height: 400px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}

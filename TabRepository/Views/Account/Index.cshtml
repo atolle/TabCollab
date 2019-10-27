@@ -1,0 +1,356 @@
+﻿@model ManageViewModel
+@using TabRepository.Models.AccountViewModels
+@{
+    ViewData["Title"] = "Account";
+}
+
+<div id="page" class="flex-container-col" style="align-items: unset;">
+    <div class="row row-no-margin">
+        <div class="col" align="center">
+            <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center">
+                <div class="row">
+                    <div class="col">
+                        @if (Model.AccountType == AccountType.Free)
+                        {
+                            <h3>Free Account</h3>
+                            <table class="table table-striped table-dark table-hover tabversions-table" style="margin-bottom: 10px; text-align: center">
+                                <thead>
+                                    <tr>
+                                        <th width="40%"><div class="table-header">Item</div></th>
+                                        <th width="30%"><div class="table-header">Count</div></th>
+                                        <th width="30%"><div class="table-header">Remaining</div></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Tabs</td>
+                                        <td>@Model.TabCount</td>
+                                        <td style="color: @(5 - Model.TabCount < 0 ? "red" : "inherit")">@(5 - Model.TabCount)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tab Versions</td>
+                                        <td>@Model.TabVersionCount</td>
+                                        <td style="color: @(15 - Model.TabVersionCount < 0 ? "red" : "inherit")">@(15 - Model.TabVersionCount)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        }
+                        else if (Model.AccountType == AccountType.Pro)
+                        {
+                            <h3>Pro Account</h3>
+                            @if (Model.SubscriptionStatus == SubscriptionStatus.Active)
+                            {
+                                <h4 style="color: rgb(134, 192, 144)">Active</h4>
+                            }
+                            else if (Model.SubscriptionStatus == SubscriptionStatus.PastDue)
+                            {
+                                <h4 style="color: red">Past Due</h4>
+                            }
+                            <h6>@(Model.Interval == "month" ? "Monthly" : "Yearly")</h6>
+                            <table class="table table-striped table-dark table-hover tabversions-table" style="margin-bottom: 10px; text-align: center">
+                                <thead>
+                                    <tr>
+                                        <th width="40%"><div class="table-header">Item</div></th>
+                                        <th width="30%"><div class="table-header">Count</div></th>
+                                        <th width="30%"><div class="table-header">Remaining</div></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Tabs</td>
+                                        <td>@Model.TabCount</td>
+                                        <td>Unlimited</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tab Versions</td>
+                                        <td>@Model.TabVersionCount</td>
+                                        <td>Unlimited</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        }
+                        @if (Model.HasPassword)
+                        {
+                            <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default account-button">Change Password</a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default account-button">Create Password</a>
+                        }
+                        @if (Model.AccountType == AccountType.Free)
+                        {
+                            <div>
+                                <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary account-button">Upgrade to Pro</a>
+                            </div>
+                        }
+                        else if (Model.AccountType == AccountType.Pro)
+                        {
+                            <div style="margin-top: 20px; margin-bottom: 30px">
+                                <h6>Manage Subscription</h6>
+                                <div class="subscription-btn-container">
+                                    @if (Model.SubscriptionStatus == SubscriptionStatus.Active || Model.SubscriptionStatus == SubscriptionStatus.PastDue)
+                                    {
+                                        @if (Model.CancelAtPeriodEnd)
+                                        {
+                                            <a asp-controller="Account" asp-action="SubscriptionReactivate" id="btn-reactivate-subscription" class="btn btn-outline-primary account-button disabled">Activate Auto-Renew</a>
+                                        }
+                                        else
+                                        {
+                                            <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-outline-danger account-button disabled">Cancel Auto-Renew</a>
+                                            @if (Model.CreditCardLast4 != null)
+                                            {
+                                                <a asp-controller="Account" asp-action="UpdatePayment" class="btn btn-default account-button">Update Credit Card<br />************@Model.CreditCardLast4 @Model.CreditCardExpiration</a>
+                                            }
+                                        }
+
+                                    }
+                                    <a asp-controller="Account" asp-action="Billing" class="btn btn-default account-button">Billing</a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col" align="center">
+            <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center">
+                <div class="card card-profile" style="margin-bottom: 10px;">
+                    <div id="profile-image" class="card-header" style="background-image: url('@(Model.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : Model.ImageFilePath)');"></div>
+                    <div class="card-body text-center">
+                        <h3>@Model.Username</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="profile-form-container" class="col" align="center">
+            <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center">
+                <form id="profile-form" asp-controller="Manage" asp-action="UpdateProfile" data-ajax="true" data-ajax-method="POST" class="card" style="background-color: unset; border: unset;">
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label asp-for="Firstname"></label>
+                        </div>
+                        <input asp-for="Firstname" class="form-control form-input" disabled />
+                        <div class="form-label">
+                            <span asp-validation-for="Firstname" style="color: red"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label asp-for="Lastname"></label>
+                        </div>
+                        <input asp-for="Lastname" class="form-control form-input" disabled />
+                        <div class="form-label">
+                            <span asp-validation-for="Lastname" style="color: red"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label asp-for="Email"></label>
+                        </div>
+                        <input asp-for="Email" class="form-control form-input" disabled />
+                        <div class="form-label">
+                            <span asp-validation-for="Email" style="color: red"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label image-upload">
+                            @Html.LabelFor(m => m.Image, "Profile  Image")
+                            <div id="image-upload-container" style="display: none;">
+                                <div id="image-upload"></div>
+                            </div>
+                        </div>
+                        @Html.TextBoxFor(m => m.Image, new { type = "file", @class = "btn btn-default form-input file-input disabled" })
+                        <div class="form-label">
+                            <span id="image-error" class="validation-error" style="color: red"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <a id="edit-account-button" data-toggle="tooltip" title="Edit account" class="list-icon float-left white-icon"><i class="fa fa-pencil fa-lg"></i></a>
+                        <button id="save-account-button" type="submit" class="btn btn-primary float-right button-save disabled" form="profile-form"> Save</button>
+                    </div>
+                    @Html.AntiForgeryToken()
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+    {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        $(document).ready(function () {
+            $('#btn-reactivate-subscription').removeClass('disabled');
+            $('#btn-cancel-subscription').removeClass('disabled');
+
+            var stripe = Stripe('pk_test_mMmjGjT6aetaMgLCCu14fWGm00wC0SGVLv');
+
+            $('footer').show();
+
+            // Only show tooltips on non-touchscreens
+            if (!('ontouchstart' in window)) {
+                $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+            }
+
+            var submitButton = $('#save-account-button')
+
+            imageUpload();
+
+            // Enable account fields for edit
+            $("#page").on("click", "#edit-account-button", function (e, data) {
+                e.preventDefault();
+
+                $('#Firstname').prop('disabled', false);
+                $('#Lastname').prop('disabled', false);
+                $('#Email').prop('disabled', false);
+                $('#Image').removeClass('disabled');
+                submitButton.removeClass('disabled');
+            });
+
+            $(document).on("click", "#btn-reactivate-subscription", function (e, data) {
+                e.preventDefault();
+
+                var href = this.href,
+                    that = this;
+
+                bootbox.prompt("Confirm Reactivate Subscription Auto-Renew", function (result) {
+                    if (result != null) {
+                        if (result.toLowerCase() == 'yes') {
+                            $.ajax({
+                                type: 'POST',
+                                dataType: 'json',
+                                traditional: 'true',
+                                url: href
+                            }).then(function (response) {
+                                    if (response.error) {
+                                        showFailureBootbox("reactivating subscription", response.error);
+                                    }
+                                    else {
+                                        bootbox.alert("Subscription auto-renew has been reactivated.");
+                                        $('#btn-reactivate-subscription').remove();
+                                        $('.subscription-btn-container').html('<a id="btn-cancel-subscription" class="btn btn-outline-danger account-button" href="/Account/SubscriptionCancel">Cancel Auto-Renew</a><a class="btn btn-default account-button" href="/Account/UpdatePayment">Update Credit Card</a><a class="btn btn-default account-button" href="/Account/Billing">Billing</a>');
+                                    }
+                            }).fail(function (error) {
+                                showFailureBootbox("reactivating subscription", response.error);
+                                enableSubmitButton();
+                            })
+                        }
+                        else {
+                            bootbox.alert("Subscription auto-renew not reactivated.");
+                        }
+                    }
+                });
+
+                // CSS change to make the title display properly and add prompt text
+                $('.modal-header').css('display', 'unset');
+                $('.bootbox-body').prepend('<p>Please confirm you wish to reactivate your subscription auto-renew.<br />Confirm by typing "yes" below:</p>');
+            });
+
+            $(document).on("click", "#btn-cancel-subscription", function (e, data) {
+                e.preventDefault();
+
+                var href = this.href,
+                    that = this;
+
+                bootbox.prompt("Confirm Cancel Subscription Auto-Renew", function (result) {
+                    if (result != null) {
+                        if (result.toLowerCase() == 'yes') {
+                            $.ajax({
+                                type: 'POST',
+                                dataType: 'json',
+                                traditional: 'true',
+                                url: href
+                            }).then(function (response) {
+                                if (response.error) {                                    
+                                    showFailureBootbox("canceling subscription auto-renew", response.error);
+                                }
+                                else {
+                                    bootbox.alert("Subscription auto-renew has been canceled.");
+                                    $('#btn-cancel-subscription').remove();
+                                    $('.subscription-btn-container').html('<a id="btn-reactivate-subscription" class="btn btn-outline-primary account-button" href="/Account/SubscriptionReactivate">Activate Auto-Renew</a><a class="btn btn-default account-button" href="/Account/Billing">Billing</a>');                                        
+                                }
+                            }).fail(function (error) {
+                                showFailureBootbox("canceling subscription auto-renew", error);
+                                enableSubmitButton();
+                            })
+                        }
+                        else {
+                            bootbox.alert("Subscription auto-renew not canceled.");
+                        }
+                    }
+                });
+
+                // CSS change to make the title display properly and add prompt text
+                $('.modal-header').css('display', 'unset');
+                $('.bootbox-body').prepend('<p>Are you sure you wish to cancel your subscription auto-renew?<br />Confirm by typing "yes" below:</p>');
+            });
+
+            $(document).on("submit", "#profile-form", function (e, data) {
+                e.preventDefault();
+
+                var $deferred = $.Deferred();
+
+                // Don't submit form if the image is too large
+                if ($('#Image')[0].files.length) {
+                    if ($('#Image')[0].files[0].size > 1000000) {
+                        return
+                    }
+                    $('#image-upload').croppie('result', {
+                        type: 'blob',
+                        size: 'original',
+                        format: 'jpeg'
+                    }).then(function (blob) {
+                        $deferred.resolve(blob);
+                    });
+                }
+                else {
+                    $deferred.resolve();
+                }
+
+                $deferred.then(function (blob) {
+                    var form = e.target;
+                    var formData = new FormData(form);
+
+                    if (blob) {
+                        formData.append('CroppedImage', blob, 'image.jpeg');
+                    }
+
+                    var submitButtonHtml = submitButton.html();
+                    // Show spinner on submit button and disable it
+                    submitButton.html('<div class="loader"></div>');
+                    submitButton.addClass('disabled');
+
+                    $.ajax({
+                        url: form.action,
+                        type: 'POST',
+                        data: formData,
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    }).then(function (response) {
+                        submitButton.html(submitButtonHtml);
+
+                        form.reset();
+
+                        $('#image-upload').croppie('destroy');
+
+                        // Re-disable all of our fields
+                        submitButton.addClass('disabled');
+                        $('#Firstname').prop('disabled', true);
+                        $('#Firstname').val(response.firstName);
+                        $('#Lastname').prop('disabled', true);
+                        $('#Lastname').val(response.lastName);
+                        $('#Email').prop('disabled', true);
+                        $('#Email').val(response.email);
+                        $('#Image').addClass('disabled');
+                        $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
+                    }).fail(function (error) {
+                        bootbox.alert("Unable to update account information.<br /><br />Error: " + error.statusText);
+                        submitButton.html(submitButtonHtml);
+                    })
+                });
+            });
+        });
+    </script>
+}

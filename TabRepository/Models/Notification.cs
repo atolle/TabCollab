@@ -44,6 +44,12 @@ namespace TabRepository.Models
         TabDeleted,
         TabVersionAdded,
         TabVersionDeleted,
-        ContributorAdded
+        ContributorAdded,
+        InvoiceCreated,
+        InvoiceUpdated,
+        InvoicePaid,
+        InvoicePaymentFailed,
+        SubscriptionStatusUpdated,
+        AccountTypeChanged
     }
 }

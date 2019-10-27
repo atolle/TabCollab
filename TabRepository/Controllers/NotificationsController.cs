@@ -61,9 +61,24 @@ namespace TabRepository.Controllers
                         case NotificationType.ContributorAdded:
                             href = Url.Action("Index", "Tabs");
                             break;
+                        case NotificationType.SubscriptionStatusUpdated:
+                        case NotificationType.AccountTypeChanged:
+                            href = Url.Action("Index", "Account");
+                            break;
+                        case NotificationType.InvoiceCreated:
+                        case NotificationType.InvoicePaid:
+                        case NotificationType.InvoicePaymentFailed:
+                        case NotificationType.InvoiceUpdated:
+                            href = Url.Action("Billing", "Account");
+                            break;
                     }
 
-                    string imagePath = notification.FromUser.ImageFilePath == null ? "/images/TabCollab_icon_white_blackcircle_512.png" : notification.FromUser.ImageFilePath;
+                    string imagePath = "/images/TabCollab_icon_white_blackcircle_512.png";
+
+                    if (notification.FromUser != null && notification.FromUser.ImageFilePath != null)
+                    {
+                        imagePath = notification.FromUser.ImageFilePath;
+                    }                    
 
                     html += "<div class='notification' data-notification-id='" + notification.Id + "'> " +
                                 "<a class='list-group-item notification-item' href='" + href + "'>" + 
@@ -189,12 +204,36 @@ namespace TabRepository.Controllers
                     message1 = "Tab Version Deleted";
                     message2 = "Tab: " + parentName;
                     break;
+                case NotificationType.SubscriptionStatusUpdated:
+                    title = "Subscription Status Changed";
+                    message1 = "Subscription status changed to " + objectName;
+                    break;
+                case NotificationType.InvoiceCreated:
+                    title = "Invoice Created";
+                    message1 = "A new invoice has been created";
+                    break;
+                case NotificationType.InvoicePaid:
+                    title = "Invoice Paid";
+                    message1 = "An invoice has been paid";
+                    break;
+                case NotificationType.InvoicePaymentFailed:
+                    title = "Invoice Payment Failed";
+                    message1 = "An invoice payment has failed";
+                    break;
+                case NotificationType.InvoiceUpdated:
+                    title = "Invoice Updated";
+                    message1 = "An invoice has been updated";
+                    break;
+                case NotificationType.AccountTypeChanged:
+                    title = "Account Type Changed";
+                    message1 = "Account type changed to " + objectName;
+                    break;
             }
 
             Notification notification = new Notification()
             {
                 ToUserId = toUser == null ? null : toUser.Id,
-                FromUserId = currentUser.Id,
+                FromUserId = currentUser == null ? null : currentUser.Id,
                 Title = title,
                 Message1 = message1,
                 Message2 = message2,

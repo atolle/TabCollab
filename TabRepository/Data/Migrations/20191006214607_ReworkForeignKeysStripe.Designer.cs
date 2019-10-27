@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TabRepository.Data;
 
 namespace TabRepository.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191006214607_ReworkForeignKeysStripe")]
+    partial class ReworkForeignKeysStripe
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -393,15 +395,11 @@ namespace TabRepository.Migrations
 
                     b.Property<double>("Tax");
 
-                    b.Property<string>("TaxRateId");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("SubscriptionId");
-
-                    b.HasIndex("TaxRateId");
 
                     b.ToTable("StripeInvoices");
                 });
@@ -710,10 +708,6 @@ namespace TabRepository.Migrations
                     b.HasOne("TabRepository.Models.StripeSubscription", "Subscription")
                         .WithMany("Invoices")
                         .HasForeignKey("SubscriptionId");
-
-                    b.HasOne("TabRepository.Models.StripeTaxRate", "TaxRate")
-                        .WithMany("Invoices")
-                        .HasForeignKey("TaxRateId");
                 });
 
             modelBuilder.Entity("TabRepository.Models.StripePlan", b =>

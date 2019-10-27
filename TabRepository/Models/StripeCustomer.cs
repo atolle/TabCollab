@@ -11,10 +11,10 @@ namespace TabRepository.Models
 
         public string UserId { get; set; }
 
-        public string SubscriptionId { get; set; }
-
         public virtual ApplicationUser User { get; set; }
 
-        public virtual StripeSubscription Subscription { get; set; }
+        public virtual ICollection<StripeSubscription> Subscriptions { get; set; }
+
+        public virtual ICollection<StripeInvoice> Invoice { get; set; }
     }
 }

@@ -116,7 +116,7 @@ namespace TabRepository.Controllers
 
                             transaction.Commit();
 
-                            return Json(new { name = album.Name, id = album.Id });
+                            return Json(new { name = album.Name, id = album.Id, imageFilePath = album.ImageFilePath });
                         }
                     }
                     else // We're updating an album
@@ -150,7 +150,7 @@ namespace TabRepository.Controllers
                         _context.Albums.Update(albumInDb);
                         _context.SaveChanges();
 
-                        return Json(new { name = albumInDb.Name, id = albumInDb.Id });
+                        return Json(new { name = albumInDb.Name, id = albumInDb.Id, imageFilePath = albumInDb.ImageFilePath });
                     }
                 }
 
@@ -276,7 +276,7 @@ namespace TabRepository.Controllers
             try
             {
                 // Return a list of all Projects belonging to the current user
-                var albums = _userAuthenticator.GetAllItems(Item.Album, projectId, currentUserId).Cast<Album>().ToList();
+                var albums = _userAuthenticator.GetAllItems(Item.Album, projectId, currentUserId).Cast<Album>().OrderByDescending(a => a.UserId == currentUserId).ThenBy(a => a.Name).ToList();
 
                 foreach (var album in albums)
                 {

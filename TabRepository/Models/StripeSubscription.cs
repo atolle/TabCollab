@@ -9,9 +9,9 @@ namespace TabRepository.Models
     {
         public string Id { get; set; }
 
-        public string CustomerId { get; set; }
-
         public string PlanId { get; set; }
+
+        public string CustomerId { get; set; }
 
         public string Status { get; set; }
 
@@ -19,14 +19,17 @@ namespace TabRepository.Models
 
         public virtual StripeCustomer Customer { get; set; }
 
-        public virtual StripePlan Plan { get; set; }        
+        public virtual StripePlan Plan { get; set; } 
+        
+        public virtual ICollection<StripeInvoice> Invoices { get; set; }
+
+        public virtual ICollection<StripeTaxRate> TaxRates { get; set; }
     }
 
     public enum SubscriptionStatus
     {
-        Active,
-        Canceled,
-        CancelAtPeriodEnd,
+        Active,        
+        PastDue,        
         None
     }
 }

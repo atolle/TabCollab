@@ -89,17 +89,38 @@ namespace TabRepository.Data
                 .WithOne(p => p.Plan)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.Entity<StripeCustomer>()
+                .HasMany(c => c.Invoice)
+                .WithOne(i => i.Customer)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<StripeCustomer>()
+                .HasMany(c => c.Subscriptions)
+                .WithOne(s => s.Customer)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<StripeCustomer>()                
+                .HasOne(c => c.User)
+                .WithOne(u => u.Customer)
+                .OnDelete(DeleteBehavior.Cascade);                                
+
             builder.Entity<StripeSubscription>()
-                .HasOne(s => s.Customer)
-                .WithOne(c => c.Subscription)
-                .HasForeignKey<StripeCustomer>(c => c.SubscriptionId)
+                .HasMany(s => s.Invoices)
+                .WithOne(i => i.Subscription);
+
+            builder.Entity<StripeSubscription>()
+                .HasMany(s => s.TaxRates)
+                .WithOne(t => t.Subscription)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<ApplicationUser>()
                 .HasOne(u => u.Customer)
                 .WithOne(c => c.User)
-                .HasForeignKey<StripeCustomer>(c => c.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<StripeInvoice>()
+                .HasOne(i => i.TaxRate)
+                .WithMany(t => t.Invoices);            
         }
 
         public DbSet<Tab> Tabs { get; set; }
@@ -116,6 +137,8 @@ namespace TabRepository.Data
         public DbSet<StripePlan> StripePlans { get; set; }
         public DbSet<StripeSubscription> StripeSubscriptions { get; set; }
         public DbSet<StripeCustomer> StripeCustomers { get; set; }
+        public DbSet<StripeInvoice> StripeInvoices { get; set; }
+        public DbSet<StripeTaxRate> StripeTaxRates { get; set; }
 
         public ApplicationDbContext()
             : base()

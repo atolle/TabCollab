@@ -6,7 +6,30 @@
 }
 
 <link href="~/css/jstreestyle.css" rel="stylesheet" />
-
+<style type="text/css">
+    @foreach (var project in Model.ProjectIndexViewModels)
+    {
+        <text>
+        .project-@project.Id-image {
+            background-image: url("@(project.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : project.ImageFilePath)") !important;
+            background-size: cover !important;
+            background-repeat: no-repeat !important;
+            background-position: center center !important;
+        }
+        </text>
+        foreach (var album in project.Albums)
+        {
+            <text>
+            .album-@album.Id-image {
+                background-image: url("@(album.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : album.ImageFilePath)") !important;
+                background-size: cover !important;
+                background-repeat: no-repeat !important;
+                background-position: center center !important;
+            }
+            </text>
+        }
+    }
+</style>
 <div id="tutorial-modal" class="modal fade">
     <div class="modal-dialog text-left">
         <!-- Modal content-->
@@ -363,12 +386,12 @@
                             @if (project.IsOwner)
                             {
                                 <ul>
-                                    <li id="project-@project.Id" jstree-type="owner" href="@Url.Action("Delete", "Projects", new { id = project.Id })">
+                                    <li id="project-@project.Id" jstree-type="owner" data-jstree='{"icon":"project-@project.Id-image"}' href="@Url.Action("Delete", "Projects", new { id = project.Id })">
                                         @project.Name
                                         @foreach (var album in project.Albums)
                                         {
                                             <ul>
-                                                <li id="album-@album.Id" jstree-type="owner" data-jstree='{"icon":"/images/cd(16x12).png"}' href="@Url.Action("Delete", "Albums", new { id = album.Id })">
+                                                <li id="album-@album.Id" jstree-type="owner" data-jstree='{"icon":"album-@album.Id-image"}' href="@Url.Action("Delete", "Albums", new { id = album.Id })">
                                                     @album.Name
                                                     @foreach (var tab in album.Tabs)
                                                     {
@@ -392,12 +415,12 @@
                             @if (!project.IsOwner)
                             {
                                 <ul>
-                                    <li id="project-@project.Id" jstree-type="contributor">
+                                    <li id="project-@project.Id" data-jstree='{"icon":"project-@project.Id-image"}' jstree-type="contributor">
                                         @project.Name
                                         @foreach (var album in project.Albums)
                                         {
                                             <ul>
-                                                <li id="album-@album.Id" jstree-type="contributor" data-jstree='{"icon":"/images/cd(16x12).png"}'>
+                                                <li id="album-@album.Id" jstree-type="contributor" data-jstree='{"icon":"album-@album.Id-image"}'>
                                                     @album.Name
                                                     @foreach (var tab in album.Tabs)
                                                     {
@@ -1823,16 +1846,16 @@
                                 var currentNode = $(selectedTree).jstree().get_selected(true)[0];
                                 $(selectedTree).jstree().open_node(currentNode.id, false, false);
                                 if ($(selectedTree)[0].className.includes('owner-tree')) {
-                                    $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
+                                    $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "owner" }, text: ' ' + response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
                                 }
                                 else {
-                                    $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "contributor" }, text: response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
+                                    $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "contributor" }, text: ' ' + response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
                                 }
                                 $(selectedTree).jstree().deselect_node(currentNode.id, false, false);
                                 $(selectedTree).jstree().select_node("tab-" + response.id, false, false);
                             }
                             else {
-                                $(".jstree").jstree('rename_node', tabNode, response.name);
+                                $(".jstree").jstree('rename_node', tabNode, ' ' + response.name);
                             }
                         }
                         else if (form.id === "tabversion-form") {
@@ -1888,16 +1911,33 @@
                                 var currentNode = $(selectedTree).jstree().get_selected(true)[0];
                                 $(selectedTree).jstree().open_node(currentNode.id, false, false);
                                 if ($(selectedTree)[0].className.includes('owner-tree')) {
-                                    $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "owner" }, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);
+                                    $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "owner" }, text: ' ' + response.name, icon: "album-" + response.id + "-image" }, "last", false, false);
                                 }
                                 else {
-                                    $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "contributor" }, text: response.name, icon: "/images/cd(16x12).png" }, "last", false, false);
+                                    $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "contributor" }, text: ' ' + response.name, icon: "album-" + response.id + "-image" }, "last", false, false);
                                 }
                                 $(selectedTree).jstree().deselect_node(currentNode.id, false, false);
                                 $(selectedTree).jstree().select_node("album-" + response.id, false, false);
+
+                                // Dynamically add the style for the node to add the image, which is required by jstree
+                                $("<style> " +
+                                    ".album-" + response.id + "-image {" +
+                                    "background-image: url('" + response.imageFilePath + "')!important;" +
+                                    "background-size: cover !important;" +
+                                    "background-repeat: no-repeat !important;" +
+                                    "background-position: center center !important;" +
+                                    "}" +
+                                    "</style > ").appendTo(document.documentElement);
                             }
                             else {
-                                $(".jstree").jstree('rename_node', albumNode, response.name);
+                                $(".jstree").jstree('rename_node', albumNode, ' ' + response.name);
+
+                                // Dynamically add the style for the node to add the image, which is required by jstree
+                                $(".album-" + response.id + "-image").attr("style",
+                                    "background-image: url('" + response.imageFilePath + "')!important;" +
+                                    "background-size: cover !important;" +
+                                    "background-repeat: no-repeat !important;" +
+                                    "background-position: center center !important;")
                             }
                         }
                         // This will handle new project
@@ -1928,11 +1968,28 @@
                                 if (currentNode != null) {
                                     $('.owner-tree').jstree().deselect_node(currentNode.id, false, false);
                                 }
-                                $('.owner-tree').jstree().create_node("#", { id: "project-" + response.id, text: response.name }, "last", false, false);
+                                $('.owner-tree').jstree().create_node("#", { id: "project-" + response.id, text: ' ' + response.name, icon: "project-" + response.id + "-image" }, "last", false, false);
                                 $('.owner-tree').jstree().select_node("project-" + response.id, false, false);
+
+                                // Dynamically add the style for the node to add the image, which is required by jstree
+                                $("<style> " +
+                                    ".project-" + response.id + "-image {" +
+                                    "background-image: url('" + response.imageFilePath + "')!important;" +
+                                    "background-size: cover !important;" +
+                                    "background-repeat: no-repeat !important;" +
+                                    "background-position: center center !important;" +
+                                    "}" +
+                                    "</style > ").appendTo(document.documentElement);
                             }
                             else {
-                                $(".jstree").jstree('rename_node', projectNode, response.name);
+                                $(".jstree").jstree('rename_node', projectNode, ' ' + response.name); 
+
+                                // Dynamically add the style for the node to add the image, which is required by jstree
+                                $(".project-" + response.id + "-image").attr("style",
+                                    "background-image: url('" + response.imageFilePath + "')!important;" +
+                                    "background-size: cover !important;" +
+                                    "background-repeat: no-repeat !important;" +
+                                    "background-position: center center !important;")
                             }
                         }
                     }

@@ -254,7 +254,7 @@ namespace TabRepository.Controllers
             try
             {
                 // Find projects for which user is owner
-                var projects = _userAuthenticator.GetAllItems(Item.Project, null, currentUserId).Cast<Project>().ToList();
+                var projects = _userAuthenticator.GetAllItems(Item.Project, null, currentUserId).Cast<Project>().OrderBy(p => p.Name).ToList();
 
                 var userInDb = _context.Users
                     .Where(u => u.Id == currentUserId)

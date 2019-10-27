@@ -17,7 +17,7 @@
                 <ul class="list-group notifications" style="display: none;"></ul>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-area="" asp-controller="Manage" asp-action="Index" title="Manage">Account</a>
+                <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Index" title="Account">Account</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Help">Help</a>
@@ -30,11 +30,8 @@
             </li>
             @if (UserManager.Users.Where(u => u.Id == User.GetUserId()).FirstOrDefault().AccountType == AccountType.Free)
             {
-                @*Temporary for Beta <li class="nav-item">
-                    <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary btn-upgrade nav-link">Upgrade to Pro</a>
-                </li>*@
                 <li class="nav-item">
-                    <a asp-controller="Home" asp-action="PerksOfUpgrading" class="btn btn-outline-primary btn-perks nav-link">Perks of Upgrading</a>
+                    <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary btn-upgrade nav-link">Upgrade to Pro</a>
                 </li>
             }
             <li class="nav-item">

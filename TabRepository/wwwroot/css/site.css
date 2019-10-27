@@ -1,7 +1,23 @@
-﻿html {
+﻿* {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+input, input:before, input:after {
+    -webkit-user-select: initial;
+    -khtml-user-select: initial;
+    -moz-user-select: initial;
+    -ms-user-select: initial;
+    user-select: initial;
+}
+
+html {
     height: 100%;
     background-color: black;
-    font-family: 'Open Sans', sans-serif !important;
+    font-family: "Open Sans", sans-serif !important;
 }
 
 body {
@@ -10,6 +26,7 @@ body {
     padding-bottom: 20px;
     height: 100%;
     color: white;
+    font-family: "Open Sans", sans-serif !important;
 }
 
 .body-content {
@@ -626,6 +643,13 @@ footer {
     margin-bottom: 10px;
 }
 
+.flex-container {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .flex-container-col {
     min-height: 100%;
     text-align: center;
@@ -929,7 +953,7 @@ footer {
 }
 
 #tree-table-container {
-    height: 85%;
+    height: calc(100% - 5em);
     display: flex;
     margin: auto;
 }
@@ -944,6 +968,15 @@ footer {
 .jstree-context {
     background: unset !important;
     box-shadow: unset !important;
+}
+
+.jstree-node {
+    margin-top: 5px !important;
+    margin-bottom: 5px !important;
+}
+
+.jstree-anchor {
+    padding-left: 0px !important;
 }
 
 #splitter {
@@ -1040,6 +1073,10 @@ td {
 
 .dashboard-button {
     margin-bottom: 10px;
+}
+
+.account-button {
+    margin: 10px;
 }
 
 .projects-container {
@@ -1151,6 +1188,8 @@ td {
 
 .credit-cards-container {
     display: flex;
+    align-items: flex-end;
+    margin-bottom: 3px;
 }
 
 #credit-cards {
@@ -1300,8 +1339,16 @@ td {
     text-align: center;
 }
 
+#features-table { 
+    max-width: 650px;
+}
+
+#features-table > thead > tr > th, #features-table > tbody > tr > td {
+    height: 6em;
+}
+
 .btn-upgrade {
-    max-width: 127px;
+    max-width: 132px;
 }
 
 .btn-perks {
@@ -1310,6 +1357,15 @@ td {
 
 .green-cell {
     background-color: rgb(134, 192, 144) !important;    
+}
+
+.infinity {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
 }
 
 .table th, .table td {
@@ -1327,4 +1383,37 @@ td {
 
 .btn-account-type {
     margin-bottom: 10px;
+}
+
+#payment-summary-table {
+    max-width: 400px;
+}
+
+.subscription-btn-container {
+    border-width: 1px;
+    border-color: white;
+    border-style: solid;
+    margin-bottom: 10px;
+}
+
+.col-xll-4 {
+    position: relative;
+    width: 100%;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+@media (min-width: 1900px) {
+    .col-xll-4 {
+        -ms-flex: 0 0 33.333333%;
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+}
+
+#trackList {
+    max-height: 400px;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }

@@ -114,7 +114,7 @@ namespace TabRepository.Controllers
 
                             transaction.Commit();
 
-                            return Json(new { name = project.Name, id = project.Id });
+                            return Json(new { name = project.Name, id = project.Id, imageFilePath = project.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : project.ImageFilePath });
                         }
                     }
                     else // We're updating a project
@@ -198,7 +198,7 @@ namespace TabRepository.Controllers
 
                             transaction.Commit();
 
-                            return Json(new { name = projectInDb.Name, id = projectInDb.Id });
+                            return Json(new { name = projectInDb.Name, id = projectInDb.Id, imageFilePath = projectInDb.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : projectInDb.ImageFilePath });
                         }
                     }
                 }
@@ -342,7 +342,7 @@ namespace TabRepository.Controllers
                 List<ProjectIndexViewModel> viewModel = new List<ProjectIndexViewModel>();
 
                 // Return a list of all Projects belonging to the current user
-                var projects = _userAuthenticator.GetAllItems(Item.Project, null, currentUserId).Cast<Project>().ToList();
+                var projects = _userAuthenticator.GetAllItems(Item.Project, null, currentUserId).Cast<Project>().OrderByDescending(p => p.UserId == currentUserId).ThenBy(p => p.Name).ToList();
 
                 foreach (var project in projects)
                 {

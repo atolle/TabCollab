@@ -27,7 +27,7 @@ namespace TabRepository.Helpers
             }
             else
             {
-                _stripeSecret = configuration["Stripe:ProductionSecret"];
+                _stripeSecret = configuration["Stripe:LiveSecret"];
             }
         }
 

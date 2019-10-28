@@ -448,7 +448,7 @@
                 }
             });
 
-            Stripe.setPublishableKey('pk_test_mMmjGjT6aetaMgLCCu14fWGm00wC0SGVLv');
+            Stripe.setPublishableKey('@ViewData["StripeKey"]');
 
             function stripeResponseHandler(status, response) {
                 var form = $('#payment-form');

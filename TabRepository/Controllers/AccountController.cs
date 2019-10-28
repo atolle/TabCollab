@@ -280,6 +280,15 @@ namespace TabRepository.Controllers
 
             if (subscriptionInDb == null)
             {
+                if (_appEnvironment.IsDevelopment())
+                {
+                    ViewData["StripeKey"] = _configuration["Stripe:TestPublishable"];
+                }
+                else
+                {
+                    ViewData["StripeKey"] = _configuration["Stripe:LivePublishable"];
+                }
+
                 return View("CreditCard");
             }            
             else
@@ -760,6 +769,16 @@ namespace TabRepository.Controllers
             else
             {
                 ViewData["ReturnUrl"] = returnUrl;
+
+                if (_appEnvironment.IsDevelopment())
+                {
+                    ViewData["StripeKey"] = _configuration["Stripe:TestPublishable"];
+                }
+                else
+                {
+                    ViewData["StripeKey"] = _configuration["Stripe:LivePublishable"];
+                }
+
                 return View();
             }
         }

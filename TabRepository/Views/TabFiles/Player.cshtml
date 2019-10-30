@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Player";
+    ViewBag.Title = "Player (beta)";
     Layout = "~/Views/Shared/_PlayerLayout.cshtml";
 }
 
@@ -154,6 +154,8 @@
                     value: score.tracks[i].playbackInfo.volume,
                     handle: 'square'
                 })
+
+                at.alphaTab('trackVolume', i, score.tracks[i].playbackInfo.volume);
 
                 trackList.append(li);
             }
@@ -317,6 +319,9 @@
                     value: score.Tracks[i].PlaybackInfo.Volume,
                     handle: 'square'
                 })
+
+                // Set track volume
+                at.alphaTab('trackVolume', i, score.Tracks[i].PlaybackInfo.Volume);
 
                 trackList.append(li);
             }

@@ -44,7 +44,7 @@
                     <div class="col-3">
                         @if (System.IO.Path.GetExtension(t.TabVersion.TabFile.Name).Contains(".gp"))
                         {
-                            <a id="play-tabversion-button" class="white-icon" data-toggle="tooltip" title="Play Tab Version" target="_blank" href="@Url.Action("Player", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-play fa-lg" /></a>
+                            <a id="play-tabversion-button" class="white-icon" data-toggle="tooltip" data-html="true" title="Play Tab Version <sub>beta</sub>" target="_blank" href="@Url.Action("Player", "TabFiles", new { id = t.TabVersion.TabFile.Id })"><i class="fa fa-play fa-lg" /></a>
                         }
                         else
                         {

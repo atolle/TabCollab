@@ -3,13 +3,12 @@
 <div class="tabversion-list">
     @foreach (var t in Model.TabVersions)
     {
-    <div id="tabversion-@t.TabVersion.Id" class="tabversion-panel card">
-        @if (!String.IsNullOrWhiteSpace(t.TabVersion.User.ImageFilePath))
-        {
-            <div><img style="height: 50px; width: 50px; border-radius: 50%; margin-top: 5px;"src="@t.TabVersion.User.ImageFilePath" /></div>
-        }
+    <div id="tabversion-@t.TabVersion.Id" class="tabversion-panel">
+        <div>
+            <img style="height: 100px; width: 100px; border-radius: 50%; padding: 1em"src="@(t.TabVersion.User.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : t.TabVersion.User.ImageFilePath)" />
+        </div>
         <div>Version: @t.TabVersion.Version</div>
-        <div class="row">
+        <div class="row" style="padding: 1em;">
             <div class="col-3">
                 @if (t.IsOwner)
                 {

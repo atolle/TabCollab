@@ -1652,14 +1652,14 @@
             var parent = $(this).parent();
 
             $(parent).hide();
-            $(parent).siblings('.album-list').children('.item-container').show(200);
-            $(parent).siblings('.tab-list').children('.item-container').show(200);
+            $(parent).siblings('.album-list').children('.item-container').slideDown(200);
+            $(parent).siblings('.tab-list').children('.item-container').slideDown(200);
             // Wait until the expansion animation is complete to show the buttons
             setTimeout(function () {
                 $(parent).siblings('.album-list').children('.item-container').children().css("visibility", "visible");
                 $(parent).siblings('.tab-list').children('.item-container').children().css("visibility", "visible");
             }, 200)
-            $(parent).siblings('.hide-items-icon-container').show();
+            $(parent).siblings('.hide-items-icon-container').slideDown();
         });
 
         $("#dashboard").on("click", ".hide-buttons-icon", function (e, data) {
@@ -1668,17 +1668,17 @@
 
             $(parent).hide();
             $(parent).siblings('.album-list').children('.item-container').children().css("visibility", "hidden");
-            $(parent).siblings('.album-list').children('.item-container').hide(200);
+            $(parent).siblings('.album-list').children('.item-container').slideUp(200);
             $(parent).siblings('.tab-list').children('.item-container').children().css("visibility", "hidden");
-            $(parent).siblings('.tab-list').children('.item-container').hide(200);
-            $(parent).siblings('.show-items-icon-container').show();
+            $(parent).siblings('.tab-list').children('.item-container').slideUp(200);
+            $(parent).siblings('.show-items-icon-container').slideDown();
         });
 
         $("#dashboard").on("click", ".show-tabversions", function (e, data) {
             var that = this;
             $(this).hide();
             $(this).siblings('.tabversions-container').empty().append('<div class="loader"></div>')
-            $(this).siblings('.tabversions-container').show();
+            $(this).siblings('.tabversions-container').slideDown();
             var url = '@Url.Action("GetTabVersionsList", "TabVersions")?id=' + $(that).attr('data-tab-id');
 
             $.ajax({
@@ -1690,23 +1690,22 @@
                     showFailureBootbox("retrieving tab versions", response.error);
                 }
                 else {
-                    $(that).siblings('.tabversions-container').hide();
                     $(that).siblings('.tabversions-container').empty().append(response);
-                    $(that).siblings('.tabversions-container').show(200);
+                    $(that).siblings('.tabversions-container').slideDown(200);
                 }
             })
             .fail(function (error) {
                 showFailureBootbox("retrieving tab versions", error.statusText);
             })
 
-            $(this).siblings('.hide-tabversions').show();
+            $(this).siblings('.hide-tabversions').slideDown();
         });
 
         $("#dashboard").on("click", ".hide-tabversions", function (e, data) {
             $(this).hide();
-            $(this).siblings('.tabversions-container').hide(200);
+            $(this).siblings('.tabversions-container').slideUp(200);
             $(this).siblings('.tabversions-container').empty();
-            $(this).siblings('.show-tabversions').show();
+            $(this).siblings('.show-tabversions').slideDown();
         });
 
         $("#dashboard").on("click", "#my-projects", function (e, data) {

@@ -17,15 +17,10 @@
     <tbody>
         @foreach (var t in Model.TabVersions)
         {
-        <tr>
-            @if (String.IsNullOrWhiteSpace(t.TabVersion.User.ImageFilePath))
-            {
-                <td class="user-image-col"></td>
-            }
-            else
-            {
-                <td class="user-image-col"><img class ="tabversion-user-image" src="@t.TabVersion.User.ImageFilePath" /></td>
-            }
+        <tr>            
+            <td class="user-image-col">
+                <img class ="tabversion-user-image" src="@(t.TabVersion.User.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : t.TabVersion.User.ImageFilePath)" />
+            </td>
             <td class="lg-device-col">@t.TabVersion.Description</td>
             <td class="lg-device-col">@t.TabVersion.User.UserName</td>
             <td class="lg-device-col">@t.TabVersion.DateCreated.ToString("g")</td>

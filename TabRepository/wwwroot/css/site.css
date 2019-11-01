@@ -307,6 +307,10 @@ footer {
     min-width: unset !important;
 }
 
+.album-panel {
+    border: solid 1px grey;
+}
+
 .card-profile-img {
     max-width: 100px;
     margin-top: -70px;
@@ -554,6 +558,9 @@ footer {
 
 .tabversion-panel {
     background-color: rgb(24,24,24);
+    margin-bottom: 1em;
+    border-top: solid 1px grey;
+    border-bottom: solid 1px grey;
 }
 
 .white-icon {

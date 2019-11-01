@@ -30,9 +30,9 @@ else
                                 @foreach (var album in project.Albums)
                                 {
                                     <div id="@album.Id" class="item-container">
-                                        <div class="album-panel card-profile">
+                                        <div class="card album-panel card-profile">
                                             <div class="card-header" style="background-image: url('@(album.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : album.ImageFilePath)');"></div>
-                                            <div class="card-body text-center">
+                                            <div style="padding-bottom: 0px;" class="card-body text-center">
                                                 <h5>@album.Name</h5>
                                             </div>
                                             @if (album.Tabs.Count > 0)
@@ -71,7 +71,7 @@ else
                                     </div>
                                 }
                             </div>
-                            <div class="hide-items-icon-container">
+                            <div style="margin-top: -20px;" class="hide-items-icon-container">
                                 <i class="fa fa-chevron-up fa-lg hide-buttons-icon"></i>
                             </div>
                         </div>

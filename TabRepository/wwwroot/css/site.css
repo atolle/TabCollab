@@ -246,11 +246,11 @@ footer {
     position: absolute;
     /*This is relative to the search-form in the navbar*/
     left: 0;
-    right: 0;
+    right: 8px;
     top: 100%;
     z-index: 1;
     max-height: 400px;
-    overflow-y: scroll;
+    overflow-y: auto;
     display: unset !important;
 }
 
@@ -621,7 +621,7 @@ footer {
     max-width: 400px;
     z-index: 2;
     max-height: 400px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .notifications-btn:hover {

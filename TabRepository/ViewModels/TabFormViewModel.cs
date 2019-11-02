@@ -14,7 +14,7 @@ namespace TabRepository.ViewModels
 
         public IFormFile FileData { get; set; }
 
-        [FileExtensions(Extensions = "gp,gpx,gp5,gp4,gp3,tg,txt,tbt,nofile", ErrorMessage = "Invalid file type")]
+        [FileExtensions(Extensions = "gp,gpx,gp5,gp4,gp3,tg,txt,tbt,tab,btab,ptb,tef,nofile", ErrorMessage = "Invalid file type")]
         public string FileName
         {
             get

@@ -116,7 +116,7 @@ namespace TabRepository.Controllers
 
                             transaction.Commit();
 
-                            return Json(new { name = album.Name, id = album.Id, imageFilePath = album.ImageFilePath });
+                            return Json(new { name = album.Name, id = album.Id, imageFilePath = album.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : album.ImageFilePath });
                         }
                     }
                     else // We're updating an album
@@ -150,7 +150,7 @@ namespace TabRepository.Controllers
                         _context.Albums.Update(albumInDb);
                         _context.SaveChanges();
 
-                        return Json(new { name = albumInDb.Name, id = albumInDb.Id, imageFilePath = albumInDb.ImageFilePath });
+                        return Json(new { name = albumInDb.Name, id = albumInDb.Id, imageFilePath = albumInDb.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : albumInDb.ImageFilePath });
                     }
                 }
 

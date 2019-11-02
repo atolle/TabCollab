@@ -1845,7 +1845,7 @@
                                 var currentNode = $(selectedTree).jstree().get_selected(true)[0];
                                 $(selectedTree).jstree().open_node(currentNode.id, false, false);
                                 if ($(selectedTree)[0].className.includes('owner-tree')) {
-                                    $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "owner" }, text: ' ' + response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
+                                    $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "owner", href: "/Tabs/Delete/" + response.id }, text: ' ' + response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
                                 }
                                 else {
                                     $(selectedTree).jstree().create_node(currentNode.id, { id: "tab-" + response.id, li_attr: { "jstree-type": "contributor" }, text: ' ' + response.name, icon: "/images/eighthnote(16x23).png" }, "last", false, false);
@@ -1910,7 +1910,7 @@
                                 var currentNode = $(selectedTree).jstree().get_selected(true)[0];
                                 $(selectedTree).jstree().open_node(currentNode.id, false, false);
                                 if ($(selectedTree)[0].className.includes('owner-tree')) {
-                                    $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "owner" }, text: ' ' + response.name, icon: "album-" + response.id + "-image" }, "last", false, false);
+                                    $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "owner", href: "/Albums/Delete/" + response.id }, text: ' ' + response.name, icon: "album-" + response.id + "-image" }, "last", false, false);
                                 }
                                 else {
                                     $(selectedTree).jstree().create_node(currentNode.id, { id: "album-" + response.id, li_attr: { "jstree-type": "contributor" }, text: ' ' + response.name, icon: "album-" + response.id + "-image" }, "last", false, false);
@@ -1967,7 +1967,7 @@
                                 if (currentNode != null) {
                                     $('.owner-tree').jstree().deselect_node(currentNode.id, false, false);
                                 }
-                                $('.owner-tree').jstree().create_node("#", { id: "project-" + response.id, text: ' ' + response.name, icon: "project-" + response.id + "-image" }, "last", false, false);
+                                $('.owner-tree').jstree().create_node("#", { id: "project-" + response.id, li_attr: { "jstree-type": "owner", href: "/Projects/Delete/" + response.id }, text: ' ' + response.name, icon: "project-" + response.id + "-image" }, "last", false, false);
                                 $('.owner-tree').jstree().select_node("project-" + response.id, false, false);
 
                                 // Dynamically add the style for the node to add the image, which is required by jstree

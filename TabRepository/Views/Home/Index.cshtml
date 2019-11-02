@@ -53,12 +53,12 @@
     {
     <script>
         $(document).ready(function () {
-            $('#navbar-logo').attr('src', '/images/TabCollab_vertical_white.png');
-            $('#navbar-logo').attr('height', '108');
             $('.nav-item').addClass('large-nav-item');
             $('#search-form').addClass('large-nav-item');
+            $('#navbar-logo').hide();
+            $('#navbar-logo-vertical').show();
             $('footer').show();
-            onResize();
+            onResize();            
 
             $('#banner-img').on('load', function () {
                 $('.banner-overlay').show();

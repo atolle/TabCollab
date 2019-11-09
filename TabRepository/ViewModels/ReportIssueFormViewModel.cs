@@ -38,10 +38,12 @@ namespace TabRepository.ViewModels
 
         public List<SelectListItem> DeviceTypes { get; } = new List<SelectListItem>
         {
-            new SelectListItem { Value = "Desktop Computer", Text = "Desktop Computer" },
-            new SelectListItem { Value = "Laptop", Text = "Laptop" },
-            new SelectListItem { Value = "Tablet", Text = "Tablet" },
-            new SelectListItem { Value = "Phone", Text = "Phone" },
+            new SelectListItem { Value = "PC", Text = "PC" },
+            new SelectListItem { Value = "Mac", Text = "Mac" },            
+            new SelectListItem { Value = "Android Phone", Text = "Android Phone" },
+            new SelectListItem { Value = "Android Tablet", Text = "Android Tablet" },
+            new SelectListItem { Value = "iPhone", Text = "iPhone" },
+            new SelectListItem { Value = "iPad", Text = "iPad" },
             new SelectListItem { Value = "Other", Text = "Other" }
         };
 
@@ -55,6 +57,7 @@ namespace TabRepository.ViewModels
             new SelectListItem { Value = "Safari", Text = "Safari" },
             new SelectListItem { Value = "Opera", Text = "Opera" },
             new SelectListItem { Value = "Internet Explorer", Text = "Internet Explorer" },
+            new SelectListItem { Value = "Edge", Text = "Edge" },
             new SelectListItem { Value = "Other", Text = "Other" }
         };
 

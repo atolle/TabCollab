@@ -855,6 +855,7 @@ namespace TabRepository.Controllers
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         var callbackUrl = Url.Action(nameof(ConfirmEmail), "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
                         await _emailSender.SendEmailAsync(
+                            _configuration,
                             model.Email, 
                             "Confirm your account",
                             String.Format(@"
@@ -1068,14 +1069,13 @@ namespace TabRepository.Controllers
                 // Send an email with this link
                 var code = await _userManager.GeneratePasswordResetTokenAsync(userByUsername);
                 var callbackUrl = Url.Action(nameof(ResetPassword), "Account", new { userId = userByUsername.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                await _emailSender.SendEmailAsync(model.Email, "Reset Password",
+                await _emailSender.SendEmailAsync(_configuration, model.Email, "Reset Password",
                    $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>",
                    $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
                 return PartialView("_ForgotPasswordConfirmation");
             }
-
-            // If we got this far, something failed
-            return PartialView("_ForgotPasswordForm", model);
+            
+            return Json(new { error = "An error occurred. Please try again." });
         }
 
         //
@@ -1094,43 +1094,51 @@ namespace TabRepository.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResendConfirmationEmail(ResendConfirmationEmailViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var userByUsername = await _userManager.FindByNameAsync(model.Username);
+                if (ModelState.IsValid)
+                {
+                    var userByUsername = await _userManager.FindByNameAsync(model.Username);
 
-                if (userByUsername == null)
-                {
-                    // Don't reveal that the user does not exist
-                    return PartialView("_ResendConfirmationEmailConfirmation");
-                }
-            
-                if (userByUsername.Email != model.Email)
-                {
-                    // Don't reveal that the email does not match
-                    return PartialView("_ResendConfirmationEmailConfirmation");
-                }
+                    if (userByUsername == null)
+                    {
+                        // Don't reveal that the user does not exist
+                        return PartialView("_ResendConfirmationEmailConfirmation");
+                    }
 
-                // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=532713
-                // Send an email with this link
-                if (!userByUsername.EmailConfirmed)
-                {
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(userByUsername);
-                    var callbackUrl = Url.Action(nameof(ConfirmEmail), "Account", new { userId = userByUsername.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                    await _emailSender.SendEmailAsync(
-                        model.Email,
-                        "Confirm your account",
-                        String.Format(@"
+                    if (userByUsername.Email != model.Email)
+                    {
+                        // Don't reveal that the email does not match
+                        return PartialView("_ResendConfirmationEmailConfirmation");
+                    }
+
+                    // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=532713
+                    // Send an email with this link
+                    if (!userByUsername.EmailConfirmed)
+                    {
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(userByUsername);
+                        var callbackUrl = Url.Action(nameof(ConfirmEmail), "Account", new { userId = userByUsername.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                        await _emailSender.SendEmailAsync(
+                            _configuration,
+                            model.Email,
+                            "Confirm your account",
+                            String.Format(@"
                                 Hi {0}!
 
                                 Thanks for creating your TabCollab account.To start using your account, please verify your email by clicking  <a href='{1}'>here</a>.", model.Username, callbackUrl),
-                        HtmlTemplate.GetConfirmEmailHtml(model.Username, callbackUrl)
-                    );
+                            HtmlTemplate.GetConfirmEmailHtml(model.Username, callbackUrl)
+                        );
+                    }
+                    return PartialView("_ResendConfirmationEmailConfirmation");
                 }
-                return PartialView("_ResendConfirmationEmailConfirmation");
-            }
 
-            // If we got this far, something failed
-            return PartialView("_ResendConfirmationEmailForm", model);
+                // If we got this far, something failed
+                return Json(new { error = "An error has occurred. Please try again." });
+            }
+            catch (Exception e)
+            {
+                return Json(new { error = e.Message });
+            }
         }
 
         //
@@ -1158,29 +1166,33 @@ namespace TabRepository.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return View(model);
-            }
-            var userByUserName = await _userManager.FindByNameAsync(model.Username);
-            if (userByUserName == null)
-            {
-                // Don't reveal that the user does not exist
-                return PartialView("_ResetPasswordConfirmation");
-            }
-            else if (userByUserName.Email != model.Email)
-            {
-                // Don't reveal that the user does not exist
-                return PartialView("_ResetPasswordConfirmation");
-            }
-            var result = await _userManager.ResetPasswordAsync(userByUserName, model.Code, model.Password);
-            if (result.Succeeded)
-            {
-                return PartialView("_ResetPasswordConfirmation");
-            }
-            AddErrors(result);
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+                var userByUserName = await _userManager.FindByNameAsync(model.Username);
+                if (userByUserName == null)
+                {
+                    return Json(new { error = "Username not found" });
+                }
 
-            return PartialView("_ResetPasswordForm", model);
+                var result = await _userManager.ResetPasswordAsync(userByUserName, model.Code, model.Password);
+                if (result.Succeeded)
+                {
+                    return PartialView("_ResetPasswordConfirmation");
+                }
+
+                // If we got here there were errors in user creation
+                var errors = string.Join("<br />", result.Errors.Select(e => e.Description).ToList());
+
+                return Json(new { error = errors });
+            }
+            catch (Exception e)
+            {
+                return Json(new { error = e.Message });
+            }
         }
 
 
@@ -1228,7 +1240,7 @@ namespace TabRepository.Controllers
             var message = "Your security code is: " + code;
             if (model.SelectedProvider == "Email")
             {
-                await _emailSender.SendEmailAsync(await _userManager.GetEmailAsync(user), "Security Code", message, message);
+                await _emailSender.SendEmailAsync(_configuration, await _userManager.GetEmailAsync(user), "Security Code", message, message);
             }
             else if (model.SelectedProvider == "Phone")
             {

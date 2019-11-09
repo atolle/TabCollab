@@ -229,12 +229,13 @@ namespace TabRepository.Controllers
                     _logger.LogInformation(3, "User changed their password successfully.");
                     return PartialView("_ChangePasswordConfirmation");
                 }
-                AddErrors(result);
-                // If we got this far, something failed, redisplay form
-                return PartialView("_ChangePasswordForm", model);
+
+                var errors = string.Join("<br />", result.Errors.Select(e => e.Description).ToList());
+
+                return Json(new { error = errors });
             }
             // If we got this far, something failed, redisplay form
-            return PartialView("_ChangePasswordForm", model);
+            return Json(new { error = "An error has occurred. Please try again." });
         }
 
         //

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using TabRepository.Data;
 using TabRepository.Services;
 using TabRepository.ViewModels;
@@ -15,11 +16,13 @@ namespace TabRepository.Controllers
     {
         private readonly IEmailSender _emailSender;
         private ApplicationDbContext _context;
+        private IConfiguration _configuration;
 
-        public HomeController(IEmailSender emailSender, ApplicationDbContext context)
+        public HomeController(IEmailSender emailSender, ApplicationDbContext context, IConfiguration configuration)
         {
             _emailSender = emailSender;
             _context = context;
+            _configuration = configuration;
         }
 
         public IActionResult Index()
@@ -137,11 +140,11 @@ namespace TabRepository.Controllers
 
                     if (viewModel.Image == null)
                     {
-                        await _emailSender.SendEmailAsync("support@tabcollab.com", "Bug Report", issue.ToString(), issue.ToString());
+                        await _emailSender.SendEmailAsync(_configuration, "support@tabcollab.com", "Bug Report", issue.ToString(), issue.ToString());
                     }
                     else
                     {
-                        await _emailSender.SendEmailAsyncWithAttachment("support@tabcollab.com", "Bug Report", issue.ToString(), issue.ToString(), viewModel.CroppedImage);
+                        await _emailSender.SendEmailAsyncWithAttachment(_configuration, "support@tabcollab.com", "Bug Report", issue.ToString(), issue.ToString(), viewModel.CroppedImage);
                     }
 
                     return PartialView("_ReportIssueConfirmation");

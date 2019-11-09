@@ -52,14 +52,16 @@
             cache: false,
             contentType: false,
             processData: false
-        })
-        .then(function (data) {
-            $('.button-submit-wide').html('Submit');
-            $('#confirmation-email-container').html(data);
-            $.validator.unobtrusive.parse($("#confirmation-email-form"));
-            enableSubmitButton()
-        })
-        .fail(function (error) {
+        }).then(function (response) {
+            enableSubmitButton();
+            if (response.error) {
+                showFailureBootbox("resending confirmation email", response.error);
+            }
+            else {
+                $('#confirmation-email-container').html(response);
+                $.validator.unobtrusive.parse($("#confirmation-email-form"));
+            }
+        }).fail(function (error) {
             bootbox.dialog({
                 message: "An error occurred while submitting the form.<br /><br />Error: " + error.statusText,
                 buttons: {
@@ -73,6 +75,7 @@
     });
 
     function enableSubmitButton() {
+        $('.button-submit-wide').removeClass('disabled');
         $('.button-submit-wide').html('Submit');
     }
 

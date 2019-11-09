@@ -9,10 +9,6 @@ namespace TabRepository.Models.AccountViewModels
     public class ResetPasswordViewModel
     {
         [Required]
-        [EmailAddress]
-        public string Email { get; set; }
-
-        [Required]
         public string Username { get; set; }
 
         [Required]

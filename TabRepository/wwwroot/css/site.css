@@ -1358,6 +1358,10 @@ td {
     max-width: 132px;
 }
 
+.btn-register {
+    max-width: 75px;
+}
+
 .btn-perks {
     max-width: 154px;
 }

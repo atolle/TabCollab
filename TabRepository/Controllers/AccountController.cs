@@ -823,12 +823,13 @@ namespace TabRepository.Controllers
                     {
                         string partialView = "_RegisterConfirmation";
                         
-                        if (model.AccountType == Models.AccountViewModels.AccountType.Pro)
-                        {
-                            partialView = "_CreditCardForm";
-                            ViewBag.UserId = user.Id;
-                            ViewBag.FromRegistration = true;
-                        }
+                        // Temporary
+                        //if (model.AccountType == Models.AccountViewModels.AccountType.Pro)
+                        //{
+                        //    partialView = "_CreditCardForm";
+                        //    ViewBag.UserId = user.Id;
+                        //    ViewBag.FromRegistration = true;
+                        //}
 
                         // Save profile image if it was added
                         if (model.CroppedImage != null)

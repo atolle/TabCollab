@@ -1,23 +1,28 @@
-﻿@{
+﻿@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
-}
-
-<div id="banner" style="position: relative">
+<div id="banner" style="position: relative; margin-bottom: 40px;">
     <img id="banner-img" src="~/images/banner_cropped.png" />
     <div class="banner-overlay banner-text-top-wrapper"><h3 class="banner-text">CREATE YOUR MUSIC</h3></div>
     <div class="banner-overlay banner-text-bottom-wrapper"><h3 class="banner-text">COMMUNITY.</h3></div>
     <hr class="banner-overlay white-divider banner-white-divider" />
 </div>
-<hr class="white-divider" />
-<div style="display: flex; justify-content: center;">
-    <div style="margin: 20px 20px 0px 20px; max-width: 1050px; text-align: justify">
-        <h3 style="text-align: center">Welcome to TabCollab!</h3>
-        <br />
-        <p>TabCollab is a web app that serves as a workspace for your writing process. Do you have dozens and dozens of tab files named things like "new song", "new song v2", "new song v2 final", and so on? How do you keep track of which is your latest version? How do you work on these files with other musicians?</p>
-        <p>With TabCollab, you can keep track of your tabs, collaborate with your bandmates and other musicians, store your tabs in the cloud, and play your tabs with any device with a web browser. It streamlines the writing process so you can stay organized, clearly track what changes have been made to your tabs, and access your tabs from any device.</p>
-        <p>TabCollab was created by musicians for musicians. Create your free account and start tracking your music!
-</div>
-</div>
+@if (!SignInManager.IsSignedIn(User))
+{
+    <hr class="white-divider" />
+    <div style="display: flex; justify-content: center; margin-top: 40px; margin-bottom: 40px;">
+        <div style="margin: 0px 20px 0px 20px; max-width: 1050px; text-align: justify">
+            <h3 style="text-align: center">Welcome to TabCollab!</h3>
+            <br />
+            <p>TabCollab is a web app that serves as a workspace for your writing process. Do you have dozens and dozens of tab files named things like "new song", "new song v2", "new song v2 final", and so on? How do you keep track of which is your latest version? How do you work on these files with other musicians?</p>
+            <p>With TabCollab, you can keep track of your tabs, collaborate with your bandmates and other musicians, store your tabs in the cloud, and play your tabs with any device with a web browser. It streamlines the writing process so you can stay organized, clearly track what changes have been made to your tabs, and access your tabs from any device.</p>
+            <p style="margin-bottom: 35px;">TabCollab was created by musicians for musicians. Create your free account and start tracking your music!</p>
+            <div style="display: flex; justify-content: center;">
+                <a class="btn btn-outline-primary btn-register-wide nav-link" asp-area="" asp-controller="Account" asp-action="Register">Sign Up</a>
+            </div>
+        </div>
+    </div>
+}
 <hr class="white-divider" />
 <div class="row feature-row">
     <hr class="green-divider green-divider-top" />
@@ -58,7 +63,7 @@
             $('#navbar-logo').hide();
             $('#navbar-logo-vertical').show();
             $('footer').show();
-            onResize();            
+            onResize();
 
             $('#banner-img').on('load', function () {
                 $('.banner-overlay').show();

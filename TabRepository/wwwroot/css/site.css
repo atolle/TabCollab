@@ -1362,6 +1362,11 @@ td {
     max-width: 75px;
 }
 
+.btn-register-wide {
+    max-width: 300px;
+    width: 100%;
+}
+
 .btn-perks {
     max-width: 154px;
 }

@@ -1,0 +1,1181 @@
+﻿@using TabRepository.ViewModels
+@model TabIndexViewModel
+@{
+    ViewBag.Title = "Tabs Demo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/css/jstreestyle.css" rel="stylesheet" />
+<style type="text/css">
+    .node-image {
+        background-image: url("/images/TabCollab_icon_white_square_512.png") !important;
+        background-size: cover !important;
+        background-repeat: no-repeat !important;
+        background-position: center center !important;
+    }
+</style>
+<div id="tutorial-modal" class="modal fade">
+    <div class="modal-dialog text-left">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Tabs Page Tutorial</h4>
+                <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="page-1">
+                    <strong>Saving, editing, and deleting are disabled for this demo</strong>
+                    <br /><br />
+                    Welcome to the Tabs page! This is where you will probably spend most of your time on TabCollab. From here, you can:
+                    <p>
+                        <ul>
+                            <li>Create/edit/delete projects, albums, and tabs</li>
+                            <li>Add/edit/delete tab versions</li>
+                            <li>Add/remove contributors</li>
+                            <li>Download and play your tab versions</li>
+                        </ul>
+                    </p>
+                    The next few pages are a brief tutorial to help you get going. You can always re-open the tutorial from the top of this page.
+                </div>
+                <div id="page-2" style="display: none;">
+                    <h6 style='text-decoration: underline'>Creating a New Project</h6>
+                    <p>
+                        To create a new project, select <button class="btn btn-primary dashboard-button">New Project</button>
+                    </p>
+                    <p>
+                        Fill out the fields and upload a project image if you wish. You can also add contributors, which will give other users access to this project. Look for this drop down list:
+                    </p>
+                    <div class="form-group">
+                        <label for="Contributors">Contributors</label>
+                        <select id="contributors-list" class="form-control">
+                            <option value="default" selected="" disabled="" hidden="">Add Contributor</option>
+                        </select>
+                    </div>
+                    <p>
+                        The list of contributors is pulled directly from your friends list, so the drop down list will be empty until you add friends.
+                    </p>
+                    <p>
+                        Once you save the new project, you'll see it in the tree on the left side of the page.
+                    </p>
+                    <div style="display: flex; justify-content: center">
+                        <img src="~/images/first-project.png" />
+                    </div>
+                </div>
+                <div id="page-3" style="display: none;">
+                    <h6 style='text-decoration: underline'>Using the Tree</h6>
+                    <p>
+                        The tree is where you access all of your items:
+                        <ul>
+                            <li>Projects</li>
+                            <li>Albums</li>
+                            <li>Tabs</li>
+                        </ul><span style="color: rgb(134, 192, 144)">My Projects</span> shows projects that you own.<br /><span style="color: rgb(134, 192, 144)">Their Projects</span> shows projects for which you are a contributor. <span style="color: rgb(134, 192, 144)">Their Projects</span> is where your contributors will access your projects.
+                    <p>
+                        <div style="display: flex; justify-content: center">
+                            <img src="~/images/full-tree.png" />
+                        </div>
+                    </p>
+                </div>
+                <div id="page-4" style="display: none;">
+                    <h6 style='text-decoration: underline'>Using the Tree cont.</h6>
+                    <p>
+                        You can delete projects, albums, and tabs by right-clicking them. This right-click functionality is only available for <span style="color: rgb(134, 192, 144)">My Projects</span>.
+                    </p>
+                    <p>
+                        <div style="display: flex; justify-content: center">
+                            <img src="~/images/tree-delete.png" />
+                        </div>
+                    </p>
+                    <p>
+                        You can reorder tabs and albums and move them to different parents by click-dragging.
+                    </p>
+                    <p>
+                        The buttons at the top of the page will change based on which item in the tree you have selected. For example, if you select a tab, you'll see <button class="btn btn-primary dashboard-button">New Tab</button> change to <button class="btn btn-primary dashboard-button">Edit Tab</button>
+                        <br />
+                        You'll also see <button class="btn btn-primary dashboard-button">New Tab Version</button> become available.
+                    </p>
+                </div>
+                <div id="page-5" style="display: none;">
+                    <h6 style='text-decoration: underline'>Creating and Editing Items</h6>
+                    <p>
+                        To create a new item
+                    </p>
+                    <ol>
+                        <li>
+                            Select the item's parent in the tree
+                        </li>
+                        <li>
+                            Select the new item button
+                        </li>
+                    </ol>
+                    <p>
+                        For example: creating a new album
+                    </p>
+                    <ol>
+                        <li>
+                            Select the project in the tree
+                        </li>
+                        <li>
+                            Select <button class="btn btn-primary dashboard-button">New Album</button>
+                        </li>
+                    </ol>
+                    <p>
+                        To edit an item
+                    </p>
+                    <ol>
+                        <li>
+                            Select the item in the tree
+                        </li>
+                        <li>
+                            Select the edit item button
+                        </li>
+                    </ol>
+                    <p>
+                        For example: editing a tab
+                    </p>
+                    <ol>
+                        <li>
+                            Select the tab in the tree
+                        </li>
+                        <li>
+                            Select <button class="btn btn-primary dashboard-button">Edit Tab</button>
+                        </li>
+                    </ol>
+                </div>
+                <div id="page-6" style="display: none;">
+                    <h6 style='text-decoration: underline'>Accessing Tab Versions</h6>
+                    <p>
+                        Tab versions will load when you select a tab in the tree:
+                    <p>
+                        <div style="display: flex; justify-content: center">
+                            <img src="~/images/tabversion-table.png" style="width: 100%;" />
+                        </div>
+                    </p>
+                    <p>
+                        In the tab version table you will see up to four icons:
+                    </p>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="tutorial-icon" style="display: flex; justify-content: center">
+                                <i class="fa fa-pencil fa-lg"></i>
+                            </div>
+                            <p>
+                                The edit button is available for the project owner and the user that uploaded the tab version. Other users will not see this button.
+                            </p>
+                        </div>
+                        <div class="col-6">
+                            <div class="tutorial-icon" style="display: flex; justify-content: center">
+                                <i class="fa fa-download fa-lg"></i>
+                            </div>
+                            <p>
+                                The download button is available for all users.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="tutorial-icon" style="display: flex; justify-content: center">
+                                <i class="fa fa-play fa-lg"><sub style="font-family: 'Open Sans', sans-serif !important; font-size: small;"> beta</sub></i>
+                            </div>
+                            <p>
+                                The play button is available for all users for tabs that are Guitar Pro format versions 3 through 6 (.gp3, .gp4, .gp5, .gpx).
+                            </p>
+                        </div>
+                        <div class="col-6">
+                            <div class="tutorial-icon" style="display: flex; justify-content: center">
+                                <i class="fa fa-times fa-lg"></i>
+                            </div>
+                            <p>
+                                The delete button is available for the project owner and the user that uploaded the tab version. Other users will not see this button.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: space-between">
+                <div>
+                    <button type="button" class="btn btn-default" id="btn-prev">Prev</button>
+                    <button type="button" class="btn btn-default" id="btn-next">Next</button>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="tutorial-mobile-modal" class="modal fade">
+    <div class="modal-dialog text-left">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Tabs Page Tutorial (Mobile)</h4>
+                <button type="button" class="close modal-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="page-1-mobile">
+                    <strong>Saving, editing, and deleting are disabled for this demo</strong>
+                    <br /><br />
+                    Welcome to the Tabs page on mobile! This is where you will probably spend most of your time on TabCollab. From here, you can:
+                    <p>
+                        <ul>
+                            <li>Create tabs</li>
+                            <li>Add/edit/delete tab versions</li>
+                            <li>Download and play your tab versions</li>
+                        </ul>
+                    </p>
+                    The next few pages are a brief tutorial to help you get going. You can always re-open the tutorial from the top of this page.
+                    <br /><br />
+                    <strong>Saving, editing, and deleting are disabled for this demo.</strong>
+                </div>
+                <div id="page-2-mobile" style="display: none;">
+                    <h6 style='text-decoration: underline'>Accessing Tabs</h6>
+                    <p>
+                        The mobile Tab page is organized by
+                        <ul>
+                            <li>Projects</li>
+                            <li>Albums</li>
+                            <li>Tabs</li>
+                            <li>Tab Versions</li>
+                        </ul>
+                    </p>
+                    <p>
+                        You expand Projects to access Albums, expand Albums to access Tabs, expand Tabs to access Tab Versions.
+                    </p>
+                </div>
+                <div id="page-3-mobile" style="display: none;">
+                    <h6 style='text-decoration: underline'>Creating Tabs and Tab Versions</h6>
+                    <p>
+                        Create new Tabs via <i class="fa fa-plus fa-3x"></i>
+                    </p>
+                    <p>
+                        You have to have at least one Project with one Album to create a new Tab or Tab Version.
+                    </p>
+                    <p>
+                        You will be prompted to select the Project and then the Album for your new Tab or Tab Version.
+                    </p>
+                    <p>
+                        You can create a new Tab via <i class="fa fa-plus fa-3x"></i> at the top of the Tab list, or create a new Tab Version by selecting a Tab.
+                    </p>
+                    <div style="display: flex; justify-content: center">
+                        <img src="~/images/tab-selection-mobile.png" />
+                    </div>
+                </div>               
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: space-between">
+                <div>
+                    <button type="button" class="btn btn-default" id="btn-prev-mobile">Prev</button>
+                    <button type="button" class="btn btn-default" id="btn-next-mobile">Next</button>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-container">
+    <div id="dashboard">
+        <div class="buttons-container" style="display: none; justify-content: space-between">
+            <div>
+                <div id="project-button-container" class="btn-group">
+                    <button id="new-project-button" data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Project</button>
+                </div>
+                <div id="album-button-container" class="btn-group">
+                    <button class="btn btn-primary dashboard-button demo-btn" data-toggle="tooltip" title="Disabled For Demo">New Album</button>
+                </div>
+            </div>
+            <div>
+                <button id="btn-tutorial" class="btn btn-info dashboard-button">Show Tutorial</button>
+            </div>
+            <div>
+                <div id="new-tabversion-button-container" class="pull-right btn-group">
+                    <button class="btn btn-primary dashboard-button demo-btn" data-toggle="tooltip" title="Disabled For Demo">New Tab Version</button>
+                </div>
+                <div id="tab-button-container" class="pull-right btn-group">
+                    <button class="btn btn-primary dashboard-button demo-btn" data-toggle="tooltip" title="Disabled For Demo">New Tab</button>
+                </div>
+            </div>
+        </div>
+        <div id="tree-table-container" style="display: none;">
+            <div class="tree-wrapper-container">
+                <div class="tab">
+                    <button id="my-projects" class="btn btn-tab tablinks active">My Projects</button>
+                    <button id="contributor-projects" class="btn btn-tab tablinks">Their Projects</button>
+                </div>
+                <div class="tree-wrapper-my-projects">
+                    <div class="jstree owner-tree" jstree-type="owner">
+                        <ul>
+                            <li id="project-node" jstree-type="owner" data-jstree='{"icon":"node-image"}'>
+                                Demo Project
+                                <ul>
+                                    <li id="album-node" jstree-type="owner" data-jstree='{"icon":"node-image"}'>
+                                        Demo Album
+                                        <ul>
+                                            <li id="tab-node" jstree-type="owner" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>Demo Tab</li>
+                                        </ul>                                                
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="tree-wrapper-their-projects" style="display: none;">
+                    <div class="jstree contributor-tree" jstree-type="contributor">
+                        <ul>
+                            <li id="project-node-contributor" data-jstree='{"icon":"node-image"}' jstree-type="contributor">
+                                Friend's Project
+                                <ul>
+                                    <li id="album-node-contributor" jstree-type="contributor" data-jstree='{"icon":"node-image"}'>
+                                        Friend's Album
+                                        <ul>
+                                            <li id="tab-node-contributor" jstree-type="contributor" data-jstree='{"icon":"/images/eighthnote(16x23).png"}'>Friend's Tab</li>
+                                        </ul>                                                
+                                    </li>
+                                </ul>                                       
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="splitter"></div>
+            <div id="tabversions-table-container">
+                <div class="tab-loader-container" style="display: none;">
+                    <div class="tab-loader"></div>
+                </div>
+                <table class="table table-striped table-dark table-hover tabversions-table">
+                    <thead>
+                        <tr>
+                            <th class="user-image-col" width="5%"></th>
+                            <th class="lg-device-col" width="30%"><div class="table-header">Description</div></th>
+                            <th class="lg-device-col" width="%"><div class="table-header">Contributor</div></th>
+                            <th class="lg-device-col" width="20%"><div class="table-header">Date Added</div></th>
+                            <th width="10%"><div class="table-header">Ver</div></th>
+                            <th width="20%"></th>
+                        </tr>
+                    </thead>                    
+                    <tbody class="my-table" style="display: none">
+                        <tr>
+                            <td class="user-image-col">
+                                <img class="my-image tabversion-user-image" src="/images/TabCollab_icon_white_square_512.png" style="height: 27px;">
+                            </td>
+                            <td class="lg-device-col">Initial upload</td>
+                            <td class="lg-device-col">Username</td>
+                            <td class="lg-device-col">11/2/2019 7:48 AM</td>
+                            <td>1</td>
+                            <td id="edit-cell" align="center">
+                                <div class="row">
+                                    <div class="col-3">
+                                        <a id="edit-tabversion-button" class="white-icon demo-btn" data-toggle="tooltip" title="" data-original-title="Disabled For Demo"><i class="fa fa-pencil fa-lg"></i></a>
+                                    </div>
+                                    <div class="col-3">
+                                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="" href="~/files/Song1.gp5" download data-original-title="Download Tab Version"><i class="fa fa-download fa-lg"></i></a>
+                                    </div>
+                                    <div class="col-3">
+                                        <a id="play-tabversion-button" class="white-icon" data-toggle="tooltip" data-html="true" title="" target="_blank" href="/TabFiles/DemoPlayer" data-original-title="Play Tab Version <sub>beta</sub>"><i class="fa fa-play fa-lg"></i></a>
+                                    </div>
+                                    <div class="col-3">
+                                        <a id="delete-tabversion-button" class="white-icon demo-btn" data-toggle="tooltip" title="" data-original-title="Disabled For Demo"><i class="fa fa-times fa-lg"></i></a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="user-image-col">
+                                <img class="my-image tabversion-user-image" src="/images/TabCollab_icon_white_square_512.png" style="height: 27px;">
+                            </td>
+                            <td class="lg-device-col">Added solo</td>
+                            <td class="lg-device-col">Username</td>
+                            <td class="lg-device-col">11/2/2019 7:48 AM</td>
+                            <td>2</td>
+                            <td id="edit-cell" align="center">
+                                <div class="row">
+                                    <div class="col-3">
+                                        <a id="edit-tabversion-button" class="white-icon demo-btn" data-toggle="tooltip" title="" data-original-title="Disabled For Demo"><i class="fa fa-pencil fa-lg"></i></a>
+                                    </div>
+                                    <div class="col-3">
+                                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="" href="~/files/Song1.gp5" download data-original-title="Download Tab Version"><i class="fa fa-download fa-lg"></i></a>
+                                    </div>
+                                    <div class="col-3">
+                                        <a id="play-tabversion-button" class="white-icon" data-toggle="tooltip" data-html="true" title="" target="_blank" href="/TabFiles/DemoPlayer" data-original-title="Play Tab Version <sub>beta</sub>"><i class="fa fa-play fa-lg"></i></a>
+                                    </div>
+                                    <div class="col-3">
+                                        <a id="delete-tabversion-button" class="white-icon demo-btn" data-toggle="tooltip" title="" data-original-title="Disabled For Demo"><i class="fa fa-times fa-lg"></i></a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody class="contributor-table" style="display: none">
+                        <tr>
+                            <td class="user-image-col">
+                                <img class="contributor-image tabversion-user-image" src="/images/TabCollab_icon_white_square_512.png" style="height: 27px;">
+                            </td>
+                            <td class="lg-device-col">Initial upload</td>
+                            <td class="lg-device-col">Username</td>
+                            <td class="lg-device-col">11/2/2019 7:48 AM</td>
+                            <td>1</td>
+                            <td id="edit-cell" align="center">
+                                <div class="row">
+                                    <div class="col-3">
+                                        <a id="edit-tabversion-button" class="white-icon demo-btn" data-toggle="tooltip" title="" data-original-title="Disabled For Demo"><i class="fa fa-pencil fa-lg"></i></a>
+                                    </div>
+                                    <div class="col-3">
+                                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="" href="~/files/Song1.gp5" download data-original-title="Download Tab Version"><i class="fa fa-download fa-lg"></i></a>
+                                    </div>
+                                    <div class="col-3">
+                                        <a id="play-tabversion-button" class="white-icon" data-toggle="tooltip" data-html="true" title="" target="_blank" href="/TabFiles/DemoPlayer" data-original-title="Play Tab Version <sub>beta</sub>"><i class="fa fa-play fa-lg"></i></a>
+                                    </div>
+                                    <div class="col-3">
+                                        <a id="delete-tabversion-button" class="white-icon demo-btn" data-toggle="tooltip" title="" data-original-title="Disabled For Demo"><i class="fa fa-times fa-lg"></i></a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="user-image-col">
+                                <img class="contributor-image tabversion-user-image" src="/images/TabCollab_icon_white_square_512.png" style="height: 27px;">
+                            </td>
+                            <td class="lg-device-col">Added solo</td>
+                            <td class="lg-device-col">Username</td>
+                            <td class="lg-device-col">11/2/2019 7:48 AM</td>
+                            <td>2</td>
+                            <td id="edit-cell" align="center">
+                                <div class="row">
+                                    <div class="col-3">
+                                        <a id="edit-tabversion-button" class="white-icon demo-btn" data-toggle="tooltip" title="" data-original-title="Disabled For Demo"><i class="fa fa-pencil fa-lg"></i></a>
+                                    </div>
+                                    <div class="col-3">
+                                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="" href="~/files/Song1.gp5" download data-original-title="Download Tab Version"><i class="fa fa-download fa-lg"></i></a>
+                                    </div>
+                                    <div class="col-3">
+                                        <a id="play-tabversion-button" class="white-icon" data-toggle="tooltip" data-html="true" title="" target="_blank" href="/TabFiles/DemoPlayer" data-original-title="Play Tab Version <sub>beta</sub>"><i class="fa fa-play fa-lg"></i></a>
+                                    </div>
+                                    <div class="col-3">
+                                        <a id="delete-tabversion-button" class="white-icon demo-btn" data-toggle="tooltip" title="" data-original-title="Disabled For Demo"><i class="fa fa-times fa-lg"></i></a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="user-image-col">
+                                <img class="contributor-image tabversion-user-image" src="/images/TabCollab_icon_white_square_512.png" style="height: 27px;">
+                            </td>
+                            <td class="lg-device-col">Added drums</td>
+                            <td class="lg-device-col">Username</td>
+                            <td class="lg-device-col">11/2/2019 7:48 AM</td>
+                            <td>3</td>
+                            <td id="edit-cell" align="center">
+                                <div class="row">
+                                    <div class="col-3">
+                                        <a id="edit-tabversion-button" class="white-icon demo-btn" data-toggle="tooltip" title="" data-original-title="Disabled For Demo"><i class="fa fa-pencil fa-lg"></i></a>
+                                    </div>
+                                    <div class="col-3">
+                                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="" href="~/files/Song1.gp5" download data-original-title="Download Tab Version"><i class="fa fa-download fa-lg"></i></a>
+                                    </div>
+                                    <div class="col-3">
+                                        <a id="play-tabversion-button" class="white-icon" data-toggle="tooltip" data-html="true" title="" target="_blank" href="/TabFiles/DemoPlayer" data-original-title="Play Tab Version <sub>beta</sub>"><i class="fa fa-play fa-lg"></i></a>
+                                    </div>
+                                    <div class="col-3">
+                                        <a id="delete-tabversion-button" class="white-icon demo-btn" data-toggle="tooltip" title="" data-original-title="Disabled For Demo"><i class="fa fa-times fa-lg"></i></a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="flex-container-col list-loader-wrapper">
+            <div class="list-loader"></div>
+        </div>
+        <div class="projects-container row list-row" style="display: none;">
+            <div class="mobile-button-container" style="display: flex; justify-content: space-between; margin-top: 5px;">
+                <div>
+                    <a id="new-tab-mobile-button" class="demo-btn add-button"><i class="fa fa-plus fa-3x"></i></a>
+                </div>
+                <div>
+                    <button id="btn-tutorial-mobile" class="btn btn-info dashboard-button" style="margin-top: 7px;">Show Tutorial</button>
+                </div>
+            </div>
+            <div class="col-md-4" align="center">
+                <div class="card card-profile">
+                    <div class="card-header" style="background-image: url('/images/TabCollab_icon_white_square_512.png');"></div>
+                    <div class="card-body text-center">
+                        <h3>Demo Project</h3>
+                        <p></p>
+                        <div class="albums-container">
+                            <div class="show-items-icon-container">
+                                <i class="fa fa-chevron-down fa-lg show-buttons-icon"></i>
+                            </div>
+                            <div class="album-list">
+                                <div id="1" class="item-container">
+                                    <div class="card album-panel card-profile">
+                                        <div class="card-header" style="background-image: url('/images/TabCollab_icon_white_square_512.png');"></div>
+                                        <div style="padding-bottom: 0px;" class="card-body text-center">
+                                            <h5>Demo Album</h5>
+                                        </div>
+                                        <div class="tabs-container">
+                                            <div class="show-items-icon-container">
+                                                <i class="fa fa-chevron-down show-buttons-icon"></i>
+                                            </div>
+                                            <p></p>
+                                            <div class="tab-list">
+                                                <div id="1" class="item-container">
+                                                    <div class="row tab-panel-row">
+                                                        <div class="card tab-panel">
+                                                            <h6 style="padding: 10px; margin-bottom: 0px;">Demo Tab</h6>
+                                                            <div data-tab-id="1" class="show-items-icon-container show-tabversions">
+                                                                <i class="fa fa-chevron-down show-buttons-icon"></i>
+                                                            </div>
+                                                            <div class="tabversions-container" style="display: none;">
+                                                                <div class="tabversion-list">
+                                                                    <div class="tabversion-panel">
+                                                                        <div>
+                                                                            <img style="height: 100px; width: 100px; border-radius: 50%; padding: 1em" src="/images/TabCollab_icon_white_square_512.png">
+                                                                        </div>
+                                                                        <div>Version: 1</div>
+                                                                        <div class="row" style="padding: 1em;">
+                                                                            <div class="col-3">
+                                                                                <div id="edit-tabversion-button" class="demo-btn"><i class="fa fa-pencil fa-lg"></i></div>
+                                                                            </div>
+                                                                            <div class="col-3">
+                                                                                <a id="download-tabversion-button" class="white-icon" href="~/files/Song1.gp5" download><i class="fa fa-download fa-lg"></i></a>
+                                                                            </div>
+                                                                            <div class="col-3">
+                                                                                <a id="play-tabversion-button" class="white-icon" target="_blank" href="/TabFiles/DemoPlayer"><i class="fa fa-play fa-lg"></i></a>
+                                                                            </div>
+                                                                            <div class="col-3">
+                                                                                <div id="delete-tabversion-button" class="demo-btn"><i class="fa fa-times fa-lg"></i></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="tabversion-panel">
+                                                                        <div>
+                                                                            <img style="height: 100px; width: 100px; border-radius: 50%; padding: 1em" src="/images/TabCollab_icon_white_square_512.png">
+                                                                        </div>
+                                                                        <div>Version: 2</div>
+                                                                        <div class="row" style="padding: 1em;">
+                                                                            <div class="col-3">
+                                                                                <a id="edit-tabversion-button" class="demo-btn"><i class="fa fa-pencil fa-lg"></i></a>
+                                                                            </div>
+                                                                            <div class="col-3">
+                                                                                <a id="download-tabversion-button" class="white-icon" href="~/files/Song1.gp5" download><i class="fa fa-download fa-lg"></i></a>
+                                                                            </div>
+                                                                            <div class="col-3">
+                                                                                <a id="play-tabversion-button" class="white-icon" target="_blank" href="/TabFiles/DemoPlayer"><i class="fa fa-play fa-lg"></i></a>
+                                                                            </div>
+                                                                            <div class="col-3">
+                                                                                <a id="delete-tabversion-button" class="demo-btn"><i class="fa fa-times fa-lg"></i></a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="hide-items-icon-container hide-tabversions">
+                                                                <i class="fa fa-chevron-up hide-buttons-icon"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="hide-items-icon-container">
+                                                <i class="fa fa-chevron-up hide-buttons-icon"></i>
+                                            </div>
+                                            <p></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-top: -20px;" class="hide-items-icon-container">
+                                <i class="fa fa-chevron-up fa-lg hide-buttons-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" align="center">
+                <div class="card card-profile">
+                    <div class="card-header" style="background-image: url('/images/TabCollab_icon_white_square_512.png');"></div>
+                    <div class="card-body text-center">
+                        <h3>Friend's Project</h3>
+                        <p></p>
+                        <div class="albums-container">
+                            <div class="show-items-icon-container">
+                                <i class="fa fa-chevron-down fa-lg show-buttons-icon"></i>
+                            </div>
+                            <div class="album-list">
+                                <div id="1" class="item-container">
+                                    <div class="card album-panel card-profile">
+                                        <div class="card-header" style="background-image: url('/images/TabCollab_icon_white_square_512.png');"></div>
+                                        <div style="padding-bottom: 0px;" class="card-body text-center">
+                                            <h5>Friend's Album</h5>
+                                        </div>
+                                        <div class="tabs-container">
+                                            <div class="show-items-icon-container">
+                                                <i class="fa fa-chevron-down show-buttons-icon"></i>
+                                            </div>
+                                            <p></p>
+                                            <div class="tab-list">
+                                                <div id="1" class="item-container">
+                                                    <div class="row tab-panel-row">
+                                                        <div class="card tab-panel">
+                                                            <h6 style="padding: 10px; margin-bottom: 0px;">Friend's Tab</h6>
+                                                            <div data-tab-id="1" class="show-items-icon-container show-tabversions">
+                                                                <i class="fa fa-chevron-down show-buttons-icon"></i>
+                                                            </div>
+                                                            <div class="tabversions-container" style="display: none;">
+                                                                <div class="tabversion-list">
+                                                                    <div class="tabversion-panel">
+                                                                        <div>
+                                                                            <img style="height: 100px; width: 100px; border-radius: 50%; padding: 1em" src="/images/TabCollab_icon_white_square_512.png">
+                                                                        </div>
+                                                                        <div>Version: 1</div>
+                                                                        <div class="row" style="padding: 1em;">
+                                                                            <div class="col-3">
+                                                                                <a id="edit-tabversion-button" class="demo-btn"><i class="fa fa-pencil fa-lg"></i></a>
+                                                                            </div>
+                                                                            <div class="col-3">
+                                                                                <a id="download-tabversion-button" class="white-icon" href="~/files/Song1.gp5" download><i class="fa fa-download fa-lg"></i></a>
+                                                                            </div>
+                                                                            <div class="col-3">
+                                                                                <a id="play-tabversion-button" class="white-icon" target="_blank" href="/TabFiles/DemoPlayer"><i class="fa fa-play fa-lg"></i></a>
+                                                                            </div>
+                                                                            <div class="col-3">
+                                                                                <a id="delete-tabversion-button" class="demo-btn"><i class="fa fa-times fa-lg"></i></a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="tabversion-panel">
+                                                                        <div>
+                                                                            <img style="height: 100px; width: 100px; border-radius: 50%; padding: 1em" src="/images/TabCollab_icon_white_square_512.png">
+                                                                        </div>
+                                                                        <div>Version: 2</div>
+                                                                        <div class="row" style="padding: 1em;">
+                                                                            <div class="col-3">
+                                                                                <a id="edit-tabversion-button" class="demo-btn"><i class="fa fa-pencil fa-lg"></i></a>
+                                                                            </div>
+                                                                            <div class="col-3">
+                                                                                <a id="download-tabversion-button" class="white-icon" href="~/files/Song1.gp5" download><i class="fa fa-download fa-lg"></i></a>
+                                                                            </div>
+                                                                            <div class="col-3">
+                                                                                <a id="play-tabversion-button" class="white-icon" target="_blank" href="/TabFiles/DemoPlayer"><i class="fa fa-play fa-lg"></i></a>
+                                                                            </div>
+                                                                            <div class="col-3">
+                                                                                <a id="delete-tabversion-button" class="demo-btn"><i class="fa fa-times fa-lg"></i></a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="hide-items-icon-container hide-tabversions">
+                                                                <i class="fa fa-chevron-up hide-buttons-icon"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="hide-items-icon-container">
+                                                <i class="fa fa-chevron-up hide-buttons-icon"></i>
+                                            </div>
+                                            <p></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-top: -20px;" class="hide-items-icon-container">
+                                <i class="fa fa-chevron-up fa-lg hide-buttons-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+    {
+    <script src="~/js/jstree.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+    <script src="~/lib/jquery-resizable/dist/jquery-resizable.min.js"></script>
+
+    <script>
+        var original_parent;
+
+        $(document).ready(function () {           
+            var True = true,
+                False = false,
+                tabTutorialShown = false,
+                tabTutorialMobileShown = false,
+                tabLoader = "<div class='tab-loader-container' style='display: none;'><div class='tab-loader'></div></div>",
+                currentPage = 1;   
+
+            // Only show tooltips on non-touchscreens
+            if (!('ontouchstart' in window)) {
+                $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+            }
+
+            $('footer').show();
+
+            onResize(true);
+
+//
+// Tutorials
+//
+            if ($(window).width() > 600 && !tabTutorialShown) {
+                $('#tutorial-modal').modal('show');
+            }
+            else if ($(window).width() <= 600 && !tabTutorialMobileShown) {
+                $('#tutorial-mobile-modal').modal('show');
+            }
+
+            $('#btn-next').on('click', function () {
+                if ($('#page-1').is(':visible')) {
+                    $('#page-1').hide();
+                    $('#page-2').show();
+                }
+                else if ($('#page-2').is(':visible')) {
+                    $('#page-2').hide();
+                    $('#page-3').show();
+                }
+                else if ($('#page-3').is(':visible')) {
+                    $('#page-3').hide();
+                    $('#page-4').show();
+                }
+                else if ($('#page-4').is(':visible')) {
+                    $('#page-4').hide();
+                    $('#page-5').show();
+                }
+                else if ($('#page-5').is(':visible')) {
+                    $('#page-5').hide();
+                    $('#page-6').show();
+                    $('#tutorial-modal').find('.modal-dialog').css('max-width', '700px');
+                }
+                else if ($('#page-6').is(':visible')) {
+                    $('#page-6').hide();
+                    $('#page-1').show();
+                    $('#tutorial-modal').find('.modal-dialog').css('max-width', '500px');
+                }
+            });
+
+            $('#btn-prev').on('click', function () {
+                if ($('#page-1').is(':visible')) {
+                    $('#page-1').hide();
+                    $('#page-6').show();
+                    $('#tutorial-modal').find('.modal-dialog').css('max-width', '700px');
+                }
+                else if ($('#page-2').is(':visible')) {
+                    $('#page-2').hide();
+                    $('#page-1').show();
+                }
+                else if ($('#page-3').is(':visible')) {
+                    $('#page-3').hide();
+                    $('#page-2').show();
+                }
+                else if ($('#page-4').is(':visible')) {
+                    $('#page-4').hide();
+                    $('#page-3').show();
+                }
+                else if ($('#page-5').is(':visible')) {
+                    $('#page-5').hide();
+                    $('#page-4').show();
+                }
+                else if ($('#page-6').is(':visible')) {
+                    $('#page-6').hide();
+                    $('#page-5').show();
+                    $('#tutorial-modal').find('.modal-dialog').css('max-width', '500px');
+                }
+            });
+
+            $('#btn-next-mobile').on('click', function () {
+                if ($('#page-1-mobile').is(':visible')) {
+                    $('#page-1-mobile').hide();
+                    $('#page-2-mobile').show();
+                }
+                else if ($('#page-2-mobile').is(':visible')) {
+                    $('#page-2-mobile').hide();
+                    $('#page-3-mobile').show();
+                }
+                else if ($('#page-3-mobile').is(':visible')) {
+                    $('#page-3-mobile').hide();
+                    $('#page-1-mobile').show();
+                }
+            });
+
+            $('#btn-prev-mobile').on('click', function () {
+                if ($('#page-1-mobile').is(':visible')) {
+                    $('#page-1-mobile').hide();
+                    $('#page-3-mobile').show();
+                    $('#tutorial-modal').find('.modal-dialog').css('max-width', '700px');
+                }
+                else if ($('#page-2-mobile').is(':visible')) {
+                    $('#page-2-mobile').hide();
+                    $('#page-1-mobile').show();
+                }
+                else if ($('#page-3-mobile').is(':visible')) {
+                    $('#page-3-mobile').hide();
+                    $('#page-2-mobile').show();
+                }
+            });
+
+            $('#btn-tutorial').on('click', function () {
+                $('#tutorial-modal').modal('show');
+            });
+
+            $('#btn-tutorial-mobile').on('click', function () {
+                $('#tutorial-mobile-modal').modal('show');
+            });
+//
+// End Tutorials
+//
+
+//
+// JSTree Methods
+//
+            $(function () {
+                $(".jstree").jstree({
+                    "core": {
+                        "check_callback": function (operation, node, node_parent, node_position, more) {
+                            if (operation == 'move_node') {
+                                if (node_parent.id == '#') {
+                                    return false;
+                                }
+                                // Don't allow nodes to be moved between trees
+                                else if ((node.li_attr['jstree-type'].includes('owner') && node_parent.li_attr['jstree-type'].includes('contributor')) || (node.li_attr['jstree-type'].includes('contributor') && node_parent.li_attr['jstree-type'].includes('owner'))) {
+                                    return false;
+                                }
+                                else {
+                                    // Only allow albums to be moved beneath projects
+                                    if (node.id.includes('album') && !node_parent.id.includes('project')) {
+                                        return false;
+                                    }
+                                    // Only allow tabs to be moved beneath albums
+                                    else if (node.id.includes('tab') && !node_parent.id.includes('album')) {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
+                        }
+                    },
+                    "dnd": {
+                        "is_draggable": function (node) {
+                            // Don't allow users to move projects or any node in the contributor tree
+                            if (node[0].id.includes('project') || node[0].li_attr['jstree-type'].includes('contributor')) {
+                                return false;
+                            }
+                            else {
+                                var ownerTree = $('.owner-tree').jstree(true);
+                                original_parent = ownerTree.get_node(node[0].parent);
+                                return true;
+                            }
+                        }
+                    },
+                    "contextmenu": {
+                        items: customMenu
+                    },
+                    "plugins": ["dnd", "contextmenu"]
+                });
+            })
+
+            function customMenu(node) {
+                var thatNode = node;
+                // The default set of all items
+                var items = {
+                    deleteItem: { // The "delete" menu item
+                        label: "Delete",
+                        action: function () {
+                            bootbox.alert("Create your free account to access this functionality!")
+                        }
+                    }
+                };
+
+                // Don't allow contributor nodes to be deleted
+                if (node.li_attr['jstree-type'].includes('contributor')) {
+                    delete items.deleteItem;
+                }
+
+                return items;
+            }
+
+            // Horizontal resizing of treeviews and table
+            $(".tree-wrapper-container").resizable({
+                handleSelector: "#splitter",
+                resizeHeight: false,
+                onDrag: function (e, $el, newWidth, newHeight, opt) {
+                    if ($(document).width() < 650) {
+                        // limit box size
+                        if (newWidth > 200) {
+                            newWidth = 200;
+                        }
+                    }
+                    else {
+                        // limit box size
+                        if (newWidth > 500) {
+                            newWidth = 500;
+                        }
+                    }
+
+                    $el.width(newWidth);
+
+                    // Call onResize to resize the user images
+                    onResize(false);
+
+                    // explicitly return **false** if you don't want
+                    // auto-height computation to occur
+                    return false;
+                }
+            });
+
+        var currentModal, selectedTree;
+
+        // Selecting a node
+        // When a node is selected determine if it is a tab or project and display the corresponding table
+        // Tab: Tab versions table, Project: Empty table
+        $(".jstree").on("select_node.jstree", function (e, data) {
+            if ($(this).hasClass('owner-tree')) {
+                $('.contributor-tree').jstree("deselect_all");
+            }
+            else {
+                $('.owner-tree').jstree("deselect_all");
+            }
+
+            selectedTree = $(this);
+
+            // This syntax is needed to get nodeId in "tab 1" format instead of ["tab 1"] format
+            var nodeId = $(this).jstree().get_selected(true)[0].id;
+
+            if (nodeId.substring(0, 3) == 'tab') {
+                $('.tabversions-table').hide();
+                $('.tab-loader-container').show();
+                nodeId = nodeId.substring(4);
+                parentNodeId = data.instance.get_node(data.node.parent).id.substring(6);
+
+                $('#project-button-container').empty().append('<button id="new-project-button" data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Project</button>');
+                $('#album-button-container').empty().append('<button data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Album</button>');
+                $('#tab-button-container').empty().append('<button id="new-tab-button" data-toggle="tooltip" title="Disabled For Demo"class="btn btn-primary dashboard-button demo-btn">Edit Tab</button>');                
+                $('#new-tabversion-button-container').empty().append('<button data-toggle="tooltip" title="Disabled For Demo" id="new-tab-version-button" class="btn btn-primary dashboard-button demo-btn">New Tab Version</button>');                
+                
+                setTimeout(_ => {                    
+                    $('.tab-loader-container').hide();
+                    $('.tabversions-table').show();
+                    if ($(selectedTree)[0].className.includes('owner-tree')) {
+                        $('.my-table').show();
+                        $('.contributor-table').hide();
+                    }
+                    else {
+                        $('.my-table').hide();
+                        $('.contributor-table').show();
+                    }
+
+                    onResize(false);
+                }, 1000);                
+            }
+            else if (nodeId.substring(0, 5) == 'album') {
+                nodeId = nodeId.substring(6);
+                parentNodeId = data.instance.get_node(data.node.parent).id.substring(8);
+                $('#project-button-container').empty().append('<button id="new-project-button" data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Project</button>');
+                $('#new-tabversion-button-container').empty().append('<button data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Tab Version</button>');
+                $('#tab-button-container').empty().append('<button id="new-tab-button" data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Tab</button>');
+                $('#album-button-container').empty().append('<button id="edit-album-button" data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">Edit Album</button>');                
+
+                $('.my-table').hide();
+                $('.contributor-table').hide();
+
+                onResize(false);
+            }
+            else if (nodeId.substring(0, 7) == 'project') {
+                nodeId = nodeId.substring(8);
+                $('#album-button-container').empty().append('<button id="edit-album-button" data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Album</button>');                
+                $('#tab-button-container').empty().append('<button data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Tab</button>');
+                $('#new-tabversion-button-container').empty().append('<button data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Tab Version</button>');
+                $('#project-button-container').empty().append('<button id="new-project-button" data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">Edit Project</button>');                
+                
+                $('.my-table').hide();
+                $('.contributor-table').hide();
+
+                onResize(false);
+            }
+
+            // Only show tooltips on non-touchscreens
+            if (!('ontouchstart' in window)) {
+                $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+            }
+        });
+//
+// End JSTree Methods
+//
+
+
+// 
+// Click Events
+//      
+        $("#dashboard").on("click", ".demo-btn", function (e, data) {
+            bootbox.alert("Create your free account to access this functionality!");
+        });
+
+        $("#dashboard").on("click", ".show-buttons-icon", function (e, data) {
+            $('html,body').animate({
+                scrollTop: $(this).parent().parent().offset().top
+            }, 750);
+        });
+
+        $("#dashboard").on("click", ".hide-buttons-icon", function (e, data) {
+            $('html,body').animate({
+                scrollTop: $(this).closest('.card').offset().top
+            }, 500);
+        });
+
+        $("#dashboard").on("click", ".show-buttons-icon", function (e, data) {
+            // Only show tooltips on non-touchscreens
+            if (!('ontouchstart' in window)) {
+                $('[data-toggle="tooltip"]').tooltip({ trigger: "hover" });
+            }
+
+            var parent = $(this).parent();
+
+            $(parent).hide();
+            $(parent).siblings('.album-list').children('.item-container').slideDown(200);
+            $(parent).siblings('.tab-list').children('.item-container').slideDown(200);
+            // Wait until the expansion animation is complete to show the buttons
+            setTimeout(function () {
+                $(parent).siblings('.album-list').children('.item-container').children().css("visibility", "visible");
+                $(parent).siblings('.tab-list').children('.item-container').children().css("visibility", "visible");
+            }, 200)
+            $(parent).siblings('.hide-items-icon-container').slideDown();
+        });
+
+        $("#dashboard").on("click", ".hide-buttons-icon", function (e, data) {
+
+            var parent = $(this).parent();
+
+            $(parent).hide();
+            $(parent).siblings('.album-list').children('.item-container').children().css("visibility", "hidden");
+            $(parent).siblings('.album-list').children('.item-container').slideUp(200);
+            $(parent).siblings('.tab-list').children('.item-container').children().css("visibility", "hidden");
+            $(parent).siblings('.tab-list').children('.item-container').slideUp(200);
+            $(parent).siblings('.show-items-icon-container').slideDown();
+        });
+
+        $("#dashboard").on("click", ".show-tabversions", function (e, data) {
+            var that = this;
+            $(this).hide();
+            $(this).siblings('.tabversions-container').slideDown();            
+            $(this).siblings('.tabversions-container').slideDown(200);
+            $(this).siblings('.hide-tabversions').slideDown();
+        });
+
+        $("#dashboard").on("click", ".hide-tabversions", function (e, data) {
+            $(this).hide();
+            $(this).siblings('.tabversions-container').slideUp(200);
+            $(this).siblings('.show-tabversions').slideDown();
+        });
+
+        $("#dashboard").on("click", "#my-projects", function (e, data) {
+            $('#my-projects').addClass('active');
+            $('#contributor-projects').removeClass('active');
+            $('.tree-wrapper-my-projects').show();
+            $('.tree-wrapper-their-projects').hide();
+        });
+
+        $("#dashboard").on("click", "#contributor-projects", function (e, data) {
+            $('#contributor-projects').addClass('active');
+            $('#my-projects').removeClass('active');
+            $('.tree-wrapper-their-projects').show();
+            $('.tree-wrapper-my-projects').hide();
+        });
+//
+// End Click Events 
+//
+
+
+//
+// Misc Methods
+//
+        // Make sure the treeview/table height is set properly on resize
+        function onResize(setTreeWidth) {
+            var dashboardHeight = $('#dashboard').outerHeight();
+            var buttonContainerHeight = $('.buttons-container').outerHeight();
+            var treeTableContainerHeight = ((dashboardHeight - buttonContainerHeight) / dashboardHeight) * 100;            
+
+            if ($(window).width() <= 600) {
+                // Don't make any changes if we're already in mobile view
+                if ($('.projects-container').is(":visible")) {
+                    return;
+                }
+
+                $('.buttons-container').hide();
+                $('#tree-table-container').hide();
+
+                $('.list-loader-wrapper').show();
+
+                setTimeout(_ => {
+                    $('.list-loader-wrapper').hide();
+                    // Handles the transition between mobile view and full screen view
+                    $('.dashboard-container').css('min-height', '100%');
+                    $('.dashboard-container').css('height', 'unset');
+
+                    $('.projects-container').show();
+                }, 1500);               
+            }
+            else {
+                $('.buttons-container').show();
+                $('#tree-table-container').show();
+                $('.projects-container').hide(); 
+
+                if ($('.tabversions-table').width() < 883) {
+                    $('.user-image-col').hide();
+                }
+                else {
+                    $('.user-image-col').show();
+                }
+
+                if ($(window).width() < 760) {
+                    $('.lg-device-col').hide();
+                }
+                else {
+                    $('.lg-device-col').show();
+                }
+
+                // Handles the transition between mobile view and full screen view
+                $('.dashboard-container').css('min-height', 'unset');
+                $('.dashboard-container').css('height', '100%');
+
+                $('.list-loader-wrapper').hide();
+            }
+
+            if (setTreeWidth) {
+                if ($(window).width() >= 760 && $(window).width() < 1150) {
+                    $('.tree-wrapper-container').css('width', '35%');
+                }
+                else if ($(window).width() < 760) {
+                    $('.tree-wrapper-container').css('width', '50%');
+                }
+                else {
+                    $('.tree-wrapper-container').css('width', '20%');
+                }
+            }
+
+            $('.my-image').css('height', $('.my-image').css('width'));
+            $('.contributor-image').css('height', $('.contributor-image').css('width'));
+        };
+
+        window.addEventListener("resize", function () {
+            onResize(true);
+        });
+
+//
+// End Misc Methods
+//
+    });
+</script>
+}
+

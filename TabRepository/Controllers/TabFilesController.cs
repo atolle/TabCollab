@@ -88,6 +88,13 @@ namespace TabRepository.Controllers
             }
         }
 
+        [AllowAnonymous]
+        public ActionResult DemoPlayer()
+        {
+            ViewBag.Demo = true;
+            return View("Player");
+        }
+
         // GET: TabFile
         public ActionResult Player(int id)
         {

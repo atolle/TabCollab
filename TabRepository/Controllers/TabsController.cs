@@ -244,6 +244,12 @@ namespace TabRepository.Controllers
             }                       
         }
 
+        [AllowAnonymous]
+        public ActionResult Demo()
+        {
+            return View();
+        }
+
         public ActionResult Index()
         {
             string currentUserId = User.GetUserId();

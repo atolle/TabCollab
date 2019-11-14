@@ -297,7 +297,7 @@
         grecaptcha.ready(function () {
             grecaptcha.execute('6LeLxbQUAAAAAKwu6kOAvAESdUxF92qrudialxI9', { action: 'homepage' }).then(function (token) {
                 document.getElementById("ReCaptchaToken").value = token;
-                $('.button-submit-wide').html('Register');
+                $('.button-submit-wide').html('Sign Up');
                 if (document.getElementById('AgreeToTerms').checked) {
                     $('.button-submit-wide').removeClass('disabled');
                 }
@@ -561,7 +561,7 @@
                         grecaptcha.ready(function () {
                             grecaptcha.execute('6LeLxbQUAAAAAKwu6kOAvAESdUxF92qrudialxI9', { action: 'homepage' }).then(function (token) {
                                 document.getElementById("ReCaptchaToken").value = token;
-                                $('.button-submit-wide').html('Register');
+                                $('.button-submit-wide').html('Sign Up');
                                 if (document.getElementById('AgreeToTerms').checked) {
                                     $('.button-submit-wide').removeClass('disabled');
                                 }
@@ -641,7 +641,7 @@
                 }
             }
             else {
-                $('.button-submit-wide').html('Register');
+                $('.button-submit-wide').html('Sign Up');
                 $('#AgreeToTerms').change();
             }
         }

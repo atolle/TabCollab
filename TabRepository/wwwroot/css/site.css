@@ -576,6 +576,14 @@ footer {
     color: white;
 }
 
+.demo-btn {
+    opacity: .5;
+}
+
+.demo-btn:hover {
+    cursor: default !important;
+}
+
 .list-icon {
     margin-left: 15px;
     margin-right: 15px;

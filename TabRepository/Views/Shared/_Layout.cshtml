@@ -1,4 +1,6 @@
 ﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 <!DOCTYPE html>
 <html>
 <head>
@@ -37,6 +39,10 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
+                    @if (!SignInManager.IsSignedIn(User))
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Tabs" asp-action="Demo">Demo</a></li>
+                    }
                     <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Tabs" asp-action="Index">Tabs</a></li>
                     <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Projects" asp-action="Index">Projects</a></li>
                     <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Albums" asp-action="Index">Albums</a></li>

@@ -14,8 +14,16 @@
     </div>
 </div>
 
-<div id="alphaTab" class="alphaTab" style="overflow-x: hidden" data-file="@Url.Action("Download", "TabFiles", new { ViewBag.Id })" data-tracks="0"
-     data-player="@Url.Content("~/misc/default.sf2")" data-player-offset="[-10,-70]"></div>
+@if (ViewBag.Demo == true)
+{
+    <div id="alphaTab" class="alphaTab" style="overflow-x: hidden" data-file="/files/Song1.gp5" data-tracks="0"
+         data-player="@Url.Content("~/misc/default.sf2")" data-player-offset="[-10,-70]"></div>
+}
+else
+{
+    <div id="alphaTab" class="alphaTab" style="overflow-x: hidden" data-file="@Url.Action("Download", "TabFiles", new { ViewBag.Id })" data-tracks="0"
+         data-player="@Url.Content("~/misc/default.sf2")" data-player-offset="[-10,-70]"></div>
+}
 
 @section scripts
     {

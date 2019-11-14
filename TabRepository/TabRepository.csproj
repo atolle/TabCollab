@@ -239,6 +239,9 @@
     <Content Update="Views\Home\_ReportIssueConfirmation.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+    <Content Update="Views\Tabs\Demo.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
   </ItemGroup>
   
   <Target Name="PrepublishScript" BeforeTargets="PerpareForPublish">

@@ -81,7 +81,7 @@
                 <div id="page-4" style="display: none;">
                     <h6 style='text-decoration: underline'>Using the Tree cont.</h6>
                     <p>
-                        You can delete projects, albums, and tabs by right-clicking them. This right-click functionality is only available for <span style="color: rgb(134, 192, 144)">My Projects</span>.
+                        You can delete projects, albums, and tabs by right-clicking them. This right-click feature is only available for <span style="color: rgb(134, 192, 144)">My Projects</span>.
                     </p>
                     <p>
                         <div style="display: flex; justify-content: center">
@@ -230,8 +230,6 @@
                         </ul>
                     </p>
                     The next few pages are a brief tutorial to help you get going. You can always re-open the tutorial from the top of this page.
-                    <br /><br />
-                    <strong>Saving, editing, and deleting are disabled for this demo.</strong>
                 </div>
                 <div id="page-2-mobile" style="display: none;">
                     <h6 style='text-decoration: underline'>Accessing Tabs</h6>
@@ -288,7 +286,7 @@
                     <button id="new-project-button" data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Project</button>
                 </div>
                 <div id="album-button-container" class="btn-group">
-                    <button class="btn btn-primary dashboard-button demo-btn" data-toggle="tooltip" title="Disabled For Demo">New Album</button>
+                    <button id="new-album-button" class="btn btn-primary dashboard-button demo-btn" data-toggle="tooltip" title="Disabled For Demo">New Album</button>
                 </div>
             </div>
             <div>
@@ -296,10 +294,10 @@
             </div>
             <div>
                 <div id="new-tabversion-button-container" class="pull-right btn-group">
-                    <button class="btn btn-primary dashboard-button demo-btn" data-toggle="tooltip" title="Disabled For Demo">New Tab Version</button>
+                    <button id="new-tabversion-button" class="btn btn-primary dashboard-button demo-btn" data-toggle="tooltip" title="Disabled For Demo">New Tab Version</button>
                 </div>
                 <div id="tab-button-container" class="pull-right btn-group">
-                    <button class="btn btn-primary dashboard-button demo-btn" data-toggle="tooltip" title="Disabled For Demo">New Tab</button>
+                    <button id="new-tab-button" class="btn btn-primary dashboard-button demo-btn" data-toggle="tooltip" title="Disabled For Demo">New Tab</button>
                 </div>
             </div>
         </div>
@@ -375,7 +373,7 @@
                                         <a id="edit-tabversion-button" class="white-icon demo-btn" data-toggle="tooltip" title="" data-original-title="Disabled For Demo"><i class="fa fa-pencil fa-lg"></i></a>
                                     </div>
                                     <div class="col-3">
-                                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="" href="~/files/Song1.gp5" download data-original-title="Download Tab Version"><i class="fa fa-download fa-lg"></i></a>
+                                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="" href="~/files/Demo.gp5" download data-original-title="Download Tab Version"><i class="fa fa-download fa-lg"></i></a>
                                     </div>
                                     <div class="col-3">
                                         <a id="play-tabversion-button" class="white-icon" data-toggle="tooltip" data-html="true" title="" target="_blank" href="/TabFiles/DemoPlayer" data-original-title="Play Tab Version <sub>beta</sub>"><i class="fa fa-play fa-lg"></i></a>
@@ -400,7 +398,7 @@
                                         <a id="edit-tabversion-button" class="white-icon demo-btn" data-toggle="tooltip" title="" data-original-title="Disabled For Demo"><i class="fa fa-pencil fa-lg"></i></a>
                                     </div>
                                     <div class="col-3">
-                                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="" href="~/files/Song1.gp5" download data-original-title="Download Tab Version"><i class="fa fa-download fa-lg"></i></a>
+                                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="" href="~/files/Demo.gp5" download data-original-title="Download Tab Version"><i class="fa fa-download fa-lg"></i></a>
                                     </div>
                                     <div class="col-3">
                                         <a id="play-tabversion-button" class="white-icon" data-toggle="tooltip" data-html="true" title="" target="_blank" href="/TabFiles/DemoPlayer" data-original-title="Play Tab Version <sub>beta</sub>"><i class="fa fa-play fa-lg"></i></a>
@@ -427,7 +425,7 @@
                                         <a id="edit-tabversion-button" class="white-icon demo-btn" data-toggle="tooltip" title="" data-original-title="Disabled For Demo"><i class="fa fa-pencil fa-lg"></i></a>
                                     </div>
                                     <div class="col-3">
-                                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="" href="~/files/Song1.gp5" download data-original-title="Download Tab Version"><i class="fa fa-download fa-lg"></i></a>
+                                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="" href="~/files/Demo.gp5" download data-original-title="Download Tab Version"><i class="fa fa-download fa-lg"></i></a>
                                     </div>
                                     <div class="col-3">
                                         <a id="play-tabversion-button" class="white-icon" data-toggle="tooltip" data-html="true" title="" target="_blank" href="/TabFiles/DemoPlayer" data-original-title="Play Tab Version <sub>beta</sub>"><i class="fa fa-play fa-lg"></i></a>
@@ -442,7 +440,7 @@
                             <td class="user-image-col">
                                 <img class="contributor-image tabversion-user-image" src="/images/TabCollab_icon_white_square_512.png" style="height: 27px;">
                             </td>
-                            <td class="lg-device-col">Added solo</td>
+                            <td class="lg-device-col">Changed second riff</td>
                             <td class="lg-device-col">Username</td>
                             <td class="lg-device-col">11/2/2019 7:48 AM</td>
                             <td>2</td>
@@ -452,7 +450,7 @@
                                         <a id="edit-tabversion-button" class="white-icon demo-btn" data-toggle="tooltip" title="" data-original-title="Disabled For Demo"><i class="fa fa-pencil fa-lg"></i></a>
                                     </div>
                                     <div class="col-3">
-                                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="" href="~/files/Song1.gp5" download data-original-title="Download Tab Version"><i class="fa fa-download fa-lg"></i></a>
+                                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="" href="~/files/Demo.gp5" download data-original-title="Download Tab Version"><i class="fa fa-download fa-lg"></i></a>
                                     </div>
                                     <div class="col-3">
                                         <a id="play-tabversion-button" class="white-icon" data-toggle="tooltip" data-html="true" title="" target="_blank" href="/TabFiles/DemoPlayer" data-original-title="Play Tab Version <sub>beta</sub>"><i class="fa fa-play fa-lg"></i></a>
@@ -477,7 +475,7 @@
                                         <a id="edit-tabversion-button" class="white-icon demo-btn" data-toggle="tooltip" title="" data-original-title="Disabled For Demo"><i class="fa fa-pencil fa-lg"></i></a>
                                     </div>
                                     <div class="col-3">
-                                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="" href="~/files/Song1.gp5" download data-original-title="Download Tab Version"><i class="fa fa-download fa-lg"></i></a>
+                                        <a id="download-tabversion-button" class="white-icon" data-toggle="tooltip" title="" href="~/files/Demo.gp5" download data-original-title="Download Tab Version"><i class="fa fa-download fa-lg"></i></a>
                                     </div>
                                     <div class="col-3">
                                         <a id="play-tabversion-button" class="white-icon" data-toggle="tooltip" data-html="true" title="" target="_blank" href="/TabFiles/DemoPlayer" data-original-title="Play Tab Version <sub>beta</sub>"><i class="fa fa-play fa-lg"></i></a>
@@ -546,7 +544,7 @@
                                                                                 <div id="edit-tabversion-button" class="demo-btn"><i class="fa fa-pencil fa-lg"></i></div>
                                                                             </div>
                                                                             <div class="col-3">
-                                                                                <a id="download-tabversion-button" class="white-icon" href="~/files/Song1.gp5" download><i class="fa fa-download fa-lg"></i></a>
+                                                                                <a id="download-tabversion-button" class="white-icon" href="~/files/Demo.gp5" download><i class="fa fa-download fa-lg"></i></a>
                                                                             </div>
                                                                             <div class="col-3">
                                                                                 <a id="play-tabversion-button" class="white-icon" target="_blank" href="/TabFiles/DemoPlayer"><i class="fa fa-play fa-lg"></i></a>
@@ -566,7 +564,7 @@
                                                                                 <a id="edit-tabversion-button" class="demo-btn"><i class="fa fa-pencil fa-lg"></i></a>
                                                                             </div>
                                                                             <div class="col-3">
-                                                                                <a id="download-tabversion-button" class="white-icon" href="~/files/Song1.gp5" download><i class="fa fa-download fa-lg"></i></a>
+                                                                                <a id="download-tabversion-button" class="white-icon" href="~/files/Demo.gp5" download><i class="fa fa-download fa-lg"></i></a>
                                                                             </div>
                                                                             <div class="col-3">
                                                                                 <a id="play-tabversion-button" class="white-icon" target="_blank" href="/TabFiles/DemoPlayer"><i class="fa fa-play fa-lg"></i></a>
@@ -642,7 +640,7 @@
                                                                                 <a id="edit-tabversion-button" class="demo-btn"><i class="fa fa-pencil fa-lg"></i></a>
                                                                             </div>
                                                                             <div class="col-3">
-                                                                                <a id="download-tabversion-button" class="white-icon" href="~/files/Song1.gp5" download><i class="fa fa-download fa-lg"></i></a>
+                                                                                <a id="download-tabversion-button" class="white-icon" href="~/files/Demo.gp5" download><i class="fa fa-download fa-lg"></i></a>
                                                                             </div>
                                                                             <div class="col-3">
                                                                                 <a id="play-tabversion-button" class="white-icon" target="_blank" href="/TabFiles/DemoPlayer"><i class="fa fa-play fa-lg"></i></a>
@@ -662,7 +660,27 @@
                                                                                 <a id="edit-tabversion-button" class="demo-btn"><i class="fa fa-pencil fa-lg"></i></a>
                                                                             </div>
                                                                             <div class="col-3">
-                                                                                <a id="download-tabversion-button" class="white-icon" href="~/files/Song1.gp5" download><i class="fa fa-download fa-lg"></i></a>
+                                                                                <a id="download-tabversion-button" class="white-icon" href="~/files/Demo.gp5" download><i class="fa fa-download fa-lg"></i></a>
+                                                                            </div>
+                                                                            <div class="col-3">
+                                                                                <a id="play-tabversion-button" class="white-icon" target="_blank" href="/TabFiles/DemoPlayer"><i class="fa fa-play fa-lg"></i></a>
+                                                                            </div>
+                                                                            <div class="col-3">
+                                                                                <a id="delete-tabversion-button" class="demo-btn"><i class="fa fa-times fa-lg"></i></a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="tabversion-panel">
+                                                                        <div>
+                                                                            <img style="height: 100px; width: 100px; border-radius: 50%; padding: 1em" src="/images/TabCollab_icon_white_square_512.png">
+                                                                        </div>
+                                                                        <div>Version: 3</div>
+                                                                        <div class="row" style="padding: 1em;">
+                                                                            <div class="col-3">
+                                                                                <a id="edit-tabversion-button" class="demo-btn"><i class="fa fa-pencil fa-lg"></i></a>
+                                                                            </div>
+                                                                            <div class="col-3">
+                                                                                <a id="download-tabversion-button" class="white-icon" href="~/files/Demo.gp5" download><i class="fa fa-download fa-lg"></i></a>
                                                                             </div>
                                                                             <div class="col-3">
                                                                                 <a id="play-tabversion-button" class="white-icon" target="_blank" href="/TabFiles/DemoPlayer"><i class="fa fa-play fa-lg"></i></a>
@@ -893,7 +911,7 @@
                     deleteItem: { // The "delete" menu item
                         label: "Delete",
                         action: function () {
-                            bootbox.alert("Create your free account to access this functionality!")
+                            bootbox.alert("Create your free account to access this feature!")
                         }
                     }
                 };
@@ -941,6 +959,7 @@
         // When a node is selected determine if it is a tab or project and display the corresponding table
         // Tab: Tab versions table, Project: Empty table
         $(".jstree").on("select_node.jstree", function (e, data) {
+
             if ($(this).hasClass('owner-tree')) {
                 $('.contributor-tree').jstree("deselect_all");
             }
@@ -956,13 +975,10 @@
             if (nodeId.substring(0, 3) == 'tab') {
                 $('.tabversions-table').hide();
                 $('.tab-loader-container').show();
-                nodeId = nodeId.substring(4);
-                parentNodeId = data.instance.get_node(data.node.parent).id.substring(6);
 
-                $('#project-button-container').empty().append('<button id="new-project-button" data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Project</button>');
-                $('#album-button-container').empty().append('<button data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Album</button>');
-                $('#tab-button-container').empty().append('<button id="new-tab-button" data-toggle="tooltip" title="Disabled For Demo"class="btn btn-primary dashboard-button demo-btn">Edit Tab</button>');                
-                $('#new-tabversion-button-container').empty().append('<button data-toggle="tooltip" title="Disabled For Demo" id="new-tab-version-button" class="btn btn-primary dashboard-button demo-btn">New Tab Version</button>');                
+                $('#new-project-button').html('New Project');
+                $('#new-tab-button').html('Edit Tab');
+                $('#new-album-button').html('New Album');                                
                 
                 setTimeout(_ => {                    
                     $('.tab-loader-container').hide();
@@ -980,12 +996,9 @@
                 }, 1000);                
             }
             else if (nodeId.substring(0, 5) == 'album') {
-                nodeId = nodeId.substring(6);
-                parentNodeId = data.instance.get_node(data.node.parent).id.substring(8);
-                $('#project-button-container').empty().append('<button id="new-project-button" data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Project</button>');
-                $('#new-tabversion-button-container').empty().append('<button data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Tab Version</button>');
-                $('#tab-button-container').empty().append('<button id="new-tab-button" data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Tab</button>');
-                $('#album-button-container').empty().append('<button id="edit-album-button" data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">Edit Album</button>');                
+                $('#new-project-button').html('New Project');
+                $('#new-tab-button').html('New Tab');                
+                $('#new-album-button').html('Edit Album');                
 
                 $('.my-table').hide();
                 $('.contributor-table').hide();
@@ -993,11 +1006,9 @@
                 onResize(false);
             }
             else if (nodeId.substring(0, 7) == 'project') {
-                nodeId = nodeId.substring(8);
-                $('#album-button-container').empty().append('<button id="edit-album-button" data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Album</button>');                
-                $('#tab-button-container').empty().append('<button data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Tab</button>');
-                $('#new-tabversion-button-container').empty().append('<button data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">New Tab Version</button>');
-                $('#project-button-container').empty().append('<button id="new-project-button" data-toggle="tooltip" title="Disabled For Demo" class="btn btn-primary dashboard-button demo-btn">Edit Project</button>');                
+                $('#new-project-button').html('Edit Project');
+                $('#new-tab-button').html('New Tab');
+                $('#new-album-button').html('New Album');                 
                 
                 $('.my-table').hide();
                 $('.contributor-table').hide();
@@ -1019,7 +1030,7 @@
 // Click Events
 //      
         $("#dashboard").on("click", ".demo-btn", function (e, data) {
-            bootbox.alert("Create your free account to access this functionality!");
+            bootbox.alert("Create your free account to access this feature!");
         });
 
         $("#dashboard").on("click", ".show-buttons-icon", function (e, data) {

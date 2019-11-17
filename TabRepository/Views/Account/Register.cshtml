@@ -79,10 +79,7 @@
 
 <div class="flex-container-row">
     <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" id="register-form" data-ajax="true" method="post" enctype="multipart/form-data" class="form-horizontal">
-        <h2>Sign Up</h2>
-        <h4>Create your free account</h4>
-        <input type="radio" asp-for="AccountType" value="0" style="opacity: 0" checked hidden/>
-        @*Temporary
+        <h2>Sign Up</h2>       
         <div class="row row-no-margin">
             <div class="col">
                 <div class="form-group" style="margin-bottom: 0px;">
@@ -173,7 +170,7 @@
                 </div>
                 <span asp-validation-for="AccountType" style="color: red"></span>
             </div>
-        </div>*@
+        </div>
         <div class="row row-no-margin">
             <div class="col-md-6">
                 <div class="form-group">

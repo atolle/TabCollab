@@ -9,8 +9,7 @@
                 <div class="card card-profile">
                     <div class="card-header" style="background-image: url('@(user.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : user.ImageFilePath)');"></div>
                     <div class="card-body text-center">
-                        <h3>@user.Username</h3>
-                        <p class="m-b">@user.FirstName @user.LastName</p>
+                        <h3 style="margin-bottom: 1.25rem;">@user.Username</h3>
                         <div>
                             @if (!@user.IsCurrentUser)
                             {

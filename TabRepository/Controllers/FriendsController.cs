@@ -46,12 +46,12 @@ namespace TabRepository.Controllers
 
             var users = _context
                 .Users
-                .Where(u => u.UserName.StartsWith(searchString) || u.FirstName.StartsWith(searchString) || u.LastName.StartsWith(searchString) || (u.FirstName + " " + u.LastName).StartsWith(searchString))
+                .Where(u => u.UserName.StartsWith(searchString))
                 .OrderBy(u => u.UserName);
 
             foreach (ApplicationUser user in users)
             {
-                usernames.Add(new { firstName = user.FirstName, lastName = user.LastName, username = user.UserName });
+                usernames.Add(new { username = user.UserName });
             }
 
             return Json(usernames);
@@ -74,13 +74,13 @@ namespace TabRepository.Controllers
                         from f in _context.Friends.Where(f => (u.Id == f.User1Id && currentUserId == f.User2Id) || (u.Id == f.User2Id && currentUserId == f.User1Id)).DefaultIfEmpty()
                         where u.UserName.ToLower() == searchString.ToLower()
                         orderby u.UserName
-                        select new { u.Id, u.UserName, u.FirstName, u.LastName, u.ImageFilePath, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status }
+                        select new { u.Id, u.UserName, u.ImageFilePath, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status }
                         :
                         from u in _context.Users
                         from f in _context.Friends.Where(f => (u.Id == f.User1Id && currentUserId == f.User2Id) || (u.Id == f.User2Id && currentUserId == f.User1Id)).DefaultIfEmpty()
-                        where u.UserName.StartsWith(searchString) || u.FirstName.StartsWith(searchString) || u.LastName.StartsWith(searchString) || (u.FirstName + " " + u.LastName).StartsWith(searchString)
+                        where u.UserName.StartsWith(searchString)
                         orderby u.UserName
-                        select new { u.Id, u.UserName, u.FirstName, u.LastName, u.ImageFilePath, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status };
+                        select new { u.Id, u.UserName, u.ImageFilePath, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status };
 
             List<FriendViewModel> viewModel = new List<FriendViewModel>();
 
@@ -89,8 +89,6 @@ namespace TabRepository.Controllers
                 var vm = new FriendViewModel();
 
                 vm.Username = user.UserName;
-                vm.FirstName = user.FirstName;
-                vm.LastName = user.LastName;
                 vm.Status = user.Status;
                 vm.ImageFilePath = user.ImageFilePath;
                 
@@ -406,7 +404,7 @@ namespace TabRepository.Controllers
                 var friends = from u in _context.Users
                               from f in _context.Friends.Where(f => (u.Id == f.User1Id && currentUserId == f.User2Id) || (u.Id == f.User2Id && currentUserId == f.User1Id))
                               orderby f.Status, u.UserName
-                              select new { u.Id, u.UserName, u.FirstName, u.LastName, u.ImageFilePath, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status };
+                              select new { u.Id, u.UserName, u.ImageFilePath, f.ActingUserId, f.User1Id, f.User2Id, Status = f.Status == null ? FriendStatus.None : f.Status };
 
                 List<FriendViewModel> viewModel = new List<FriendViewModel>();
 
@@ -417,8 +415,6 @@ namespace TabRepository.Controllers
                         var vm = new FriendViewModel();
 
                         vm.Username = user.UserName;
-                        vm.FirstName = user.FirstName;
-                        vm.LastName = user.LastName;
                         vm.Status = user.Status;
                         vm.ImageFilePath = user.ImageFilePath;
 

@@ -734,8 +734,6 @@ namespace TabRepository.Controllers
                     Logins = await _userManager.GetLoginsAsync(user),
                     BrowserRemembered = await _signInManager.IsTwoFactorClientRememberedAsync(user),
                     Username = user.UserName,
-                    Firstname = user.FirstName,
-                    Lastname = user.LastName,
                     ImageFileName = user.ImageFileName,
                     ImageFilePath = user.ImageFilePath,
                     TabCount = tabCount,
@@ -805,8 +803,6 @@ namespace TabRepository.Controllers
                     {
                         UserName = model.Username,
                         Email = model.Email,
-                        FirstName = model.FirstName,
-                        LastName = model.LastName,
                         Bio = "",
                         AccountType = Models.AccountViewModels.AccountType.Free
                     };

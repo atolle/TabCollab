@@ -44,12 +44,6 @@ namespace TabRepository.Models.ManageViewModels
 
         public string Username { get; set; }
 
-        [Display(Name = "First Name")]
-        public string Firstname { get; set; }
-
-        [Display(Name = "Last Name")]
-        public string Lastname { get; set; }
-
         public int TabCount { get; set; }
 
         public int TabVersionCount { get; set; }

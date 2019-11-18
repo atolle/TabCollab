@@ -340,8 +340,6 @@ namespace TabRepository.Controllers
                 user.ImageFilePath = file.Path;
             }
 
-            user.FirstName = viewModel.Firstname;
-            user.LastName = viewModel.Lastname;
             user.Email = viewModel.Email;
 
             _context.SaveChanges();

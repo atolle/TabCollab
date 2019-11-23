@@ -15,7 +15,7 @@
         }
         listItems.Add(new SelectListItem
         {
-            Text = f.FirstName + " " + f.LastName + " (" + f.UserName + ")",
+            Text = f.UserName,
             Value = f.UserName
         });
     }
@@ -82,7 +82,7 @@
                             {
                                 @foreach (UserViewModel user in Model.Contributors)
                                 {
-                                    var name = user.FirstName + " " + user.LastName + " (" + user.Username + ")";
+                                    var name = user.Username;
                                     <input type='hidden' class='form-control contributor form-input' name='' value='@user.Username'>
                                     <div data-username='@user.Username' data-text='@name' class='contributor-btn btn btn-default'><div class="contributor-text">@name</div><i class='fa fa-times contributor-x' /></div>                                
                                 }

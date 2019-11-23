@@ -204,7 +204,15 @@ namespace TabRepository.Controllers
                                 _context.SaveChanges();
                             }
 
-                            NotificationsController.AddNotification(_context, NotificationType.TabAdded, null, tab.Album.ProjectId, userInDb, tab.Name, tab.Album.Name);
+                            NotificationsController.AddNotification(
+                                _context, 
+                                NotificationType.TabAdded, 
+                                null, 
+                                tab.Album.ProjectId, 
+                                userInDb, 
+                                tab.Name, 
+                                tab.Album.Name
+                            );
 
                             transaction.Commit();
 
@@ -367,7 +375,15 @@ namespace TabRepository.Controllers
                     _context.Tabs.Remove(tabInDb);
                     _context.SaveChanges();
 
-                    NotificationsController.AddNotification(_context, NotificationType.TabDeleted, null, tabInDb.Album.ProjectId, userInDb, tabInDb.Name, tabInDb.Album.Name);
+                    NotificationsController.AddNotification(
+                        _context, 
+                        NotificationType.TabDeleted, 
+                        null, 
+                        tabInDb.Album.ProjectId, 
+                        userInDb, 
+                        tabInDb.Name, 
+                        tabInDb.Album.Name
+                    );
 
                     transaction.Commit();
                 }

@@ -79,7 +79,15 @@ namespace TabRepository.Controllers.Api
                         _context.StripeInvoices.Add(invoiceInDb);
                         _context.SaveChanges();
 
-                        NotificationsController.AddNotification(_context, NotificationType.InvoiceCreated, userInDb, null, null, null, null);
+                        NotificationsController.AddNotification(
+                            _context, 
+                            NotificationType.InvoiceCreated, 
+                            userInDb, 
+                            null, 
+                            null, 
+                            null, 
+                            null
+                        );
                     }
                 }
             }
@@ -105,7 +113,15 @@ namespace TabRepository.Controllers.Api
 
                     _context.SaveChanges();
 
-                    NotificationsController.AddNotification(_context, NotificationType.InvoiceUpdated, userInDb, null, null, null, null);
+                    NotificationsController.AddNotification(
+                        _context, 
+                        NotificationType.InvoiceUpdated, 
+                        userInDb, 
+                        null, 
+                        null, 
+                        null, 
+                        null
+                    );
                 }
             }
 
@@ -157,7 +173,15 @@ namespace TabRepository.Controllers.Api
 
                     if (addNotification)
                     {
-                        NotificationsController.AddNotification(_context, NotificationType.InvoicePaid, userInDb, null, null, null, null);
+                        NotificationsController.AddNotification(
+                            _context, 
+                            NotificationType.InvoicePaid, 
+                            userInDb, 
+                            null, 
+                            null, 
+                            null, 
+                            null
+                        );
                     }
                 }
             }
@@ -183,7 +207,15 @@ namespace TabRepository.Controllers.Api
 
                     _context.SaveChanges();
 
-                    NotificationsController.AddNotification(_context, NotificationType.InvoicePaymentFailed, userInDb, null, null, null, null);
+                    NotificationsController.AddNotification(
+                        _context, 
+                        NotificationType.InvoicePaymentFailed, 
+                        userInDb, 
+                        null, 
+                        null, 
+                        null, 
+                        null
+                    );
                 }
             }
 
@@ -211,12 +243,28 @@ namespace TabRepository.Controllers.Api
 
                 if (prevAccountType != userInDb.AccountType)
                 {
-                    NotificationsController.AddNotification(_context, NotificationType.AccountTypeChanged, userInDb, null, null, userInDb.AccountType.ToString(), null);
+                    NotificationsController.AddNotification(
+                        _context, 
+                        NotificationType.AccountTypeChanged, 
+                        userInDb, 
+                        null, 
+                        null, 
+                        userInDb.AccountType.ToString(), 
+                        null
+                    );
                 }
 
                 if (prevSubscriptionStatus.ToLower() != subscriptionInDb.Status.ToLower())
                 {
-                    NotificationsController.AddNotification(_context, NotificationType.SubscriptionStatusUpdated, userInDb, null, null, subscriptionInDb.Status, null);
+                    NotificationsController.AddNotification(
+                        _context, 
+                        NotificationType.SubscriptionStatusUpdated, 
+                        userInDb, 
+                        null, 
+                        null, 
+                        subscriptionInDb.Status, 
+                        null
+                    );
                 }
             }
 

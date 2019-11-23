@@ -112,7 +112,15 @@ namespace TabRepository.Controllers
                             _context.Albums.Add(album);
                             _context.SaveChanges();
 
-                            NotificationsController.AddNotification(_context, NotificationType.AlbumAdded, null, album.ProjectId, userInDb, album.Name, album.Project.Name);
+                            NotificationsController.AddNotification(
+                                _context, 
+                                NotificationType.AlbumAdded, 
+                                null, 
+                                album.ProjectId, 
+                                userInDb, 
+                                album.Name, 
+                                album.Project.Name
+                            );
 
                             transaction.Commit();
 
@@ -192,7 +200,15 @@ namespace TabRepository.Controllers
                     _context.Albums.Remove(albumInDb);
                     _context.SaveChanges();
 
-                    NotificationsController.AddNotification(_context, NotificationType.AlbumDeleted, null, albumInDb.ProjectId, userInDb, albumInDb.Name, albumInDb.Project.Name);
+                    NotificationsController.AddNotification(
+                        _context, 
+                        NotificationType.AlbumDeleted, 
+                        null, 
+                        albumInDb.ProjectId, 
+                        userInDb, 
+                        albumInDb.Name, 
+                        albumInDb.Project.Name
+                    );
 
                     transaction.Commit();
 

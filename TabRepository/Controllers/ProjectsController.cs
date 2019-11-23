@@ -114,6 +114,16 @@ namespace TabRepository.Controllers
 
                             transaction.Commit();
 
+                            NotificationsController.AddNotification(
+                                _context,
+                                NotificationType.ProjectAdded,
+                                null,
+                                project.Id,
+                                userInDb,
+                                project.Name,
+                                null
+                            );
+
                             return Json(new { name = project.Name, id = project.Id, imageFilePath = project.ImageFilePath == null ? "/images/TabCollab_icon_white_square_512.png" : project.ImageFilePath });
                         }
                     }
@@ -182,7 +192,15 @@ namespace TabRepository.Controllers
 
                                         _context.ProjectContributors.Add(contributor);
 
-                                        NotificationsController.AddNotification(_context, NotificationType.ContributorAdded, null, projectInDb.Id, userInDb, user.Username, projectInDb.Name);
+                                        NotificationsController.AddNotification(
+                                            _context, 
+                                            NotificationType.ContributorAdded, 
+                                            null, 
+                                            projectInDb.Id, 
+                                            userInDb, 
+                                            user.Username, 
+                                            projectInDb.Name
+                                        );
                                     }
                                 }
                             }

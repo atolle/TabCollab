@@ -145,7 +145,15 @@ namespace TabRepository.Controllers
 
                     if (prevAccountType != userInDb.AccountType)
                     {
-                        NotificationsController.AddNotification(_context, NotificationType.AccountTypeChanged, userInDb, null, null, userInDb.AccountType.ToString(), null);
+                        NotificationsController.AddNotification(
+                            _context, 
+                            NotificationType.AccountTypeChanged, 
+                            userInDb, 
+                            null, 
+                            null, 
+                            userInDb.AccountType.ToString(), 
+                            null
+                        );
                     }
 
                     _logger.LogInformation(1, "User logged in.");
@@ -523,7 +531,15 @@ namespace TabRepository.Controllers
 
                             if (prevAccountType != userInDb.AccountType)
                             {
-                                NotificationsController.AddNotification(_context, NotificationType.AccountTypeChanged, userInDb, null, null, userInDb.AccountType.ToString(), null);
+                                NotificationsController.AddNotification(
+                                    _context, 
+                                    NotificationType.AccountTypeChanged, 
+                                    userInDb, 
+                                    null, 
+                                    null, 
+                                    userInDb.AccountType.ToString(), 
+                                    null
+                                );
                             }
 
                             return PartialView("_SubscriptionConfirmation");

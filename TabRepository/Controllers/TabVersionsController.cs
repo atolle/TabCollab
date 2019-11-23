@@ -172,7 +172,15 @@ namespace TabRepository.Controllers
                                 _context.SaveChanges();
                             }
 
-                            NotificationsController.AddNotification(_context, NotificationType.TabVersionAdded, null, tabVersion.Tab.Album.ProjectId, userInDb, tabVersion.Version.ToString(), tabVersion.Tab.Name);
+                            NotificationsController.AddNotification(
+                                _context, 
+                                NotificationType.TabVersionAdded, 
+                                null, 
+                                tabVersion.Tab.Album.ProjectId, 
+                                userInDb, 
+                                tabVersion.Version.ToString(), 
+                                tabVersion.Tab.Name
+                            );
 
                             transaction.Commit();
 
@@ -356,7 +364,15 @@ namespace TabRepository.Controllers
                     _context.TabVersions.Remove(tabVersionInDb);
                     _context.SaveChanges();
 
-                    NotificationsController.AddNotification(_context, NotificationType.TabVersionDeleted, null, tabVersionInDb.Tab.Album.ProjectId, userInDb, tabVersionInDb.Version.ToString(), tabVersionInDb.Tab.Name);
+                    NotificationsController.AddNotification(
+                        _context, 
+                        NotificationType.TabVersionDeleted, 
+                        null, 
+                        tabVersionInDb.Tab.Album.ProjectId, 
+                        userInDb, 
+                        tabVersionInDb.Version.ToString(), 
+                        tabVersionInDb.Tab.Name
+                    );
 
                     transaction.Commit();
 

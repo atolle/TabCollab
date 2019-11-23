@@ -31,9 +31,8 @@ namespace TabRepository.Controllers
 
             try
             {
-                var notifications = _context.NotificationUsers
-                    .Where(n => n.UserId == currentUserId)
-                    .Select(n => n.Notification)
+                var notifications = _context.Notifications
+                    .Where(n => n.ToUserId == currentUserId && n.IsRead == false)
                     .Include(n => n.FromUser)
                     .OrderByDescending(n => n.Timestamp)
                     .ToList();
@@ -90,14 +89,14 @@ namespace TabRepository.Controllers
                                         "<div class='notification-message'>" + notification.Message2 + "</div>" +
                                     "</div>" +
                                     "<div style='display: flex; justify-content: center; width: 30px'>" +
-                                        "<i class='fa fa-times fa-lg notification-delete-btn' data-notification-id='" + notification.Id + "'/>" +
+                                        "<i class='fa fa-times fa-lg notification-read-btn' data-notification-id='" + notification.Id + "'/>" +
                                     "</div>" +                                                                        
                                 "</a>" + 
                             "</div>";
                     count++;
                 }
                 
-                html += "<div class='notification notification-delete-all-btn'><a class='clear-btn pull-right' href='#'>Clear</a></div>";
+                html += "<div class='notification notification-read-all-btn'><a class='clear-btn pull-right' href='#'>Clear</a></div>";
 
                 return Json(new { html, count });
             }
@@ -107,17 +106,19 @@ namespace TabRepository.Controllers
             }
         }
 
-        public ActionResult DeleteNotificationForUser(int notificationId)
+        public ActionResult ReadNotification(int notificationId)
         {
             string currentUserId = User.GetUserId();
 
             try
             {
-                var notification = _context.NotificationUsers.Where(n => n.UserId == currentUserId && n.Notification.Id == notificationId).FirstOrDefault();
+                var notification = _context.Notifications.Where(n => n.ToUserId == currentUserId && n.Id == notificationId).FirstOrDefault();
 
                 if (notification != null)
                 {
-                    _context.NotificationUsers.Remove(notification);
+                    notification.IsRead = true;
+
+                    _context.Notifications.Update(notification);
 
                     _context.SaveChanges();
                 }
@@ -130,17 +131,22 @@ namespace TabRepository.Controllers
             }
         }
 
-        public ActionResult DeleteAllNotificationsForUser()
+        public ActionResult ReadAllNotifications()
         {
             string currentUserId = User.GetUserId();
 
             try
             {
-                var notifications = _context.NotificationUsers.Where(n => n.UserId == currentUserId).ToList();
+                var notifications = _context.Notifications.Where(n => n.ToUserId == currentUserId && n.IsRead == false).ToList();
 
                 if (notifications != null)
                 {
-                    _context.NotificationUsers.RemoveRange(notifications);
+                    foreach (var notification in notifications)
+                    {
+                        notification.IsRead = true;
+
+                        _context.Notifications.Update(notification);
+                    }
 
                     _context.SaveChanges();
                 }
@@ -153,7 +159,15 @@ namespace TabRepository.Controllers
             }
         }
 
-        public static void AddNotification(ApplicationDbContext context, NotificationType notificationType, ApplicationUser toUser, int? projectId, ApplicationUser currentUser, string objectName, string parentName)
+        public static void AddNotification(
+            ApplicationDbContext context, 
+            NotificationType notificationType, 
+            ApplicationUser toUser, 
+            int? projectId, 
+            ApplicationUser fromUser, 
+            string objectName, 
+            string parentName
+        )
         {
             string title = "";
             string message1 = "";
@@ -161,6 +175,10 @@ namespace TabRepository.Controllers
 
             switch (notificationType)
             {
+                case NotificationType.ProjectAdded:
+                    title = "Project Added";
+                    message1 = "Project Added: " + objectName;
+                    break;
                 case NotificationType.AlbumAdded:
                     title = "Album Added";
                     message1 = "Album Added: " + objectName;
@@ -178,11 +196,11 @@ namespace TabRepository.Controllers
                     break;
                 case NotificationType.FriendAccepted:
                     title = "Friend Accepted";
-                    message1 = "Friend Accepted: " + currentUser.UserName;
+                    message1 = "Friend Accepted: " + fromUser.UserName;
                     break;
                 case NotificationType.FriendRequested:
                     title = "Friend Request";
-                    message1 = "Friend Request: " + currentUser.UserName;
+                    message1 = "Friend Request: " + fromUser.UserName;
                     break;
                 case NotificationType.TabAdded:
                     title = "Tab Added";
@@ -230,71 +248,76 @@ namespace TabRepository.Controllers
                     break;
             }
 
-            Notification notification = new Notification()
+            // If toUser is null then this is an update that should be going out to contributors
+            if (toUser == null)
             {
-                ToUserId = toUser == null ? null : toUser.Id,
-                FromUserId = currentUser == null ? null : currentUser.Id,
-                Title = title,
-                Message1 = message1,
-                Message2 = message2,
-                Timestamp = DateTime.Now,
-                ProjectId = projectId,
-                NotificationType = notificationType
-            };
-
-            context.Notifications.Add(notification);
-            context.SaveChanges();
-
-            if (projectId != null)
-            {
-                var contributors = context
-                    .ProjectContributors
-                    .Where(c => c.ProjectId == projectId && c.UserId != currentUser.Id)
-                    .ToList();                
-
-                foreach (ProjectContributor contributor in contributors)
+                if (projectId != null)
                 {
-                    NotificationUser notificationUser = new NotificationUser()
+                    var contributors = context
+                        .ProjectContributors
+                        .Where(c => c.ProjectId == projectId && c.UserId != fromUser.Id)
+                        .ToList();
+
+                    foreach (ProjectContributor contributor in contributors)
                     {
-                        UserId = contributor.UserId,
-                        NotificationId = notification.Id,
-                        IsRead = false
-                    };
+                        Notification notification = new Notification()
+                        {
+                            ToUserId = contributor.UserId,
+                            FromUserId = fromUser == null ? null : fromUser.Id,
+                            Title = title,
+                            Message1 = message1,
+                            Message2 = message2,
+                            Timestamp = DateTime.Now,
+                            ProjectId = projectId,
+                            NotificationType = notificationType
+                        };
 
-                    context.NotificationUsers.Add(notificationUser);
-                }
+                        context.Notifications.Add(notification);
+                    }
 
-                var ownerId = context
-                    .Projects
-                    .Where(p => p.Id == projectId && p.UserId != currentUser.Id)
-                    .Select(p => p.UserId)
-                    .FirstOrDefault();
+                    var ownerId = context
+                        .Projects
+                        .Where(p => p.Id == projectId && p.UserId != fromUser.Id)
+                        .Select(p => p.UserId)
+                        .FirstOrDefault();
 
-                if (ownerId != null)
-                {
-                    NotificationUser notificationUser = new NotificationUser()
+                    if (ownerId != null)
                     {
-                        UserId = ownerId,
-                        NotificationId = notification.Id,
-                        IsRead = false
-                    };
+                        Notification notification = new Notification()
+                        {
+                            ToUserId = ownerId,
+                            FromUserId = fromUser == null ? null : fromUser.Id,
+                            Title = title,
+                            Message1 = message1,
+                            Message2 = message2,
+                            Timestamp = DateTime.Now,
+                            ProjectId = projectId,
+                            NotificationType = notificationType
+                        };
 
-                    context.NotificationUsers.Add(notificationUser);
+                        context.Notifications.Add(notification);
+                    }
+
+                    context.SaveChanges();
                 }
             }
             else
             {
-                NotificationUser notificationUser = new NotificationUser()
+                Notification notification = new Notification()
                 {
-                    UserId = toUser.Id,
-                    NotificationId = notification.Id,
-                    IsRead = false
+                    ToUserId = toUser.Id,
+                    FromUserId = fromUser == null ? null : fromUser.Id,
+                    Title = title,
+                    Message1 = message1,
+                    Message2 = message2,
+                    Timestamp = DateTime.Now,
+                    ProjectId = projectId,
+                    NotificationType = notificationType
                 };
 
-                context.NotificationUsers.Add(notificationUser);
+                context.Notifications.Add(notification);
+                context.SaveChanges();
             }
-
-            context.SaveChanges();
         }
     }
 }

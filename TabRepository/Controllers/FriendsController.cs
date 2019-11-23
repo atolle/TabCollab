@@ -167,7 +167,15 @@ namespace TabRepository.Controllers
                             _context.SaveChanges();
                         }
 
-                        NotificationsController.AddNotification(_context, NotificationType.FriendRequested, otherUserInDb, null, currentUserInDb, null, null);
+                        NotificationsController.AddNotification(
+                            _context, 
+                            NotificationType.FriendRequested, 
+                            otherUserInDb, 
+                            null, 
+                            currentUserInDb, 
+                            null, 
+                            null
+                        );
 
                         transaction.Commit();
 
@@ -218,7 +226,15 @@ namespace TabRepository.Controllers
                             _context.SaveChanges();
                         }
 
-                        NotificationsController.AddNotification(_context, NotificationType.FriendAccepted, otherUserInDb, null, currentUserInDb, null, null);
+                        NotificationsController.AddNotification(
+                            _context, 
+                            NotificationType.FriendAccepted, 
+                            otherUserInDb, 
+                            null, 
+                            currentUserInDb, 
+                            null, 
+                            null
+                        );
 
                         transaction.Commit();
 

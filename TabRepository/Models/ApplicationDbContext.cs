@@ -131,7 +131,6 @@ namespace TabRepository.Data
         public DbSet<Album> Albums { get; set; }
         public DbSet<ProjectContributor> ProjectContributors { get; set; }
         public DbSet<Notification> Notifications { get; set; }
-        public DbSet<NotificationUser> NotificationUsers { get; set; }
         public DbSet<UserTabVersion> UserTabVersions { get; set; }
         public DbSet<StripeProduct> StripeProducts { get; set; }
         public DbSet<StripePlan> StripePlans { get; set; }

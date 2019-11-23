@@ -25,6 +25,8 @@ namespace TabRepository.Models
 
         public NotificationType NotificationType { get; set; }
 
+        public bool IsRead { get; set; }
+
         public virtual ApplicationUser ToUser { get; set; }
 
         public virtual ApplicationUser FromUser { get; set; }
@@ -50,6 +52,7 @@ namespace TabRepository.Models
         InvoicePaid,
         InvoicePaymentFailed,
         SubscriptionStatusUpdated,
-        AccountTypeChanged
+        AccountTypeChanged,
+        None
     }
 }

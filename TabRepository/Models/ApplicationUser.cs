@@ -32,6 +32,9 @@ namespace TabRepository.Models
 
         public virtual StripeCustomer Customer { get; set; }
 
+        // This property indicates that the account type does not change automatically
+        public bool AccountTypeLocked { get; set; }
+
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             var authenticationType = "Put authentication type Here";

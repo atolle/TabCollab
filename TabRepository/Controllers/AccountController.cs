@@ -111,49 +111,62 @@ namespace TabRepository.Controllers
                 var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    var userInDb = _context.Users.Where(u => u.UserName.ToLower() == model.Username.ToLower()).FirstOrDefault();
-                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.CustomerId == _context.StripeCustomers.Where(c => c.UserId == userInDb.Id).Select(c => c.Id).FirstOrDefault()).FirstOrDefault();
+                    var userInDb = _context.Users
+                        .Where(u => u.UserName.ToLower() == model.Username.ToLower())
+                        .FirstOrDefault();
+
+                    var subscriptionInDb = _context.StripeSubscriptions
+                        .Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") 
+                        && s.CustomerId == _context.StripeCustomers
+                            .Where(c => c.UserId == userInDb.Id)
+                            .Select(c => c.Id)
+                            .FirstOrDefault())
+                        .FirstOrDefault();
+
                     Models.AccountViewModels.AccountType prevAccountType = userInDb.AccountType;
 
-                    if (subscriptionInDb != null)
+                    if (!userInDb.AccountTypeLocked)
                     {
-                        var subscription = _stripeProcessor.GetSubscription(_configuration, subscriptionInDb);
-
-                        subscriptionInDb.Status = subscription.Status;
-                        subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
-
-                        // If the subscription is no longer active, change to free account
-                        if (subscription.Status.ToLower() == "active" || subscription.Status.ToLower() == "trialing" || subscription.Status.ToLower() == "past_due")
+                        if (subscriptionInDb != null)
                         {
-                            userInDb.AccountType = Models.AccountViewModels.AccountType.Pro;
+                            var subscription = _stripeProcessor.GetSubscription(_configuration, subscriptionInDb);
+
+                            subscriptionInDb.Status = subscription.Status;
+                            subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
+
+                            // If the subscription is no longer active, change to free account
+                            if (subscription.Status.ToLower() == "active" || subscription.Status.ToLower() == "trialing" || subscription.Status.ToLower() == "past_due")
+                            {
+                                userInDb.AccountType = Models.AccountViewModels.AccountType.Pro;
+                            }
+                            else
+                            {
+                                userInDb.AccountType = Models.AccountViewModels.AccountType.Free;
+                            }
+
+                            _context.SaveChanges();
                         }
                         else
                         {
                             userInDb.AccountType = Models.AccountViewModels.AccountType.Free;
+                            _context.SaveChanges();
                         }
 
+                        userInDb.LastLogin = DateTime.Now;
                         _context.SaveChanges();
-                    }
-                    else
-                    { 
-                        userInDb.AccountType = Models.AccountViewModels.AccountType.Free;
-                        _context.SaveChanges();
-                    }
 
-                    userInDb.LastLogin = DateTime.Now;
-                    _context.SaveChanges();
-
-                    if (prevAccountType != userInDb.AccountType)
-                    {
-                        NotificationsController.AddNotification(
-                            _context, 
-                            NotificationType.AccountTypeChanged, 
-                            userInDb, 
-                            null, 
-                            null, 
-                            userInDb.AccountType.ToString(), 
-                            null
-                        );
+                        if (prevAccountType != userInDb.AccountType)
+                        {
+                            NotificationsController.AddNotification(
+                                _context,
+                                NotificationType.AccountTypeChanged,
+                                userInDb,
+                                null,
+                                null,
+                                userInDb.AccountType.ToString(),
+                                null
+                            );
+                        }
                     }
 
                     _logger.LogInformation(1, "User logged in.");

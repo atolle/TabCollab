@@ -55,7 +55,7 @@ namespace TabRepository.Helpers
                             <table style='padding: 40px;'>
                                 <tr>
                                     <td style='padding-bottom: 20px; text-align: center'>
-                                        <img style='width: 150px' src='https://tabcollabdev.azurewebsites.net/images/TabCollab_vertical_white.png'>
+                                        <img style='width: 150px' src='https://tabcollab.com/images/TabCollab_vertical_white.png'>
                                     </td>
                                 </tr>
                                 <tr style='width: 84%; min-height: 60%; background-color: rgb(24, 24, 24); color: white; margin-bottom: 20px; border: 1px solid silver'>
@@ -76,6 +76,71 @@ namespace TabRepository.Helpers
                         </div>
                     </body>
                 </html>", username, callbackUrl);
+        }
+
+        public static string GetDynamicEmailHtml(string username, string message)
+        {
+            return String.Format(@"
+                <html style='font-family: sans-serif;
+                            line-height: 1.15;
+                            -webkit-text-size-adjust: 100%;
+                            -ms-text-size-adjust: 100%;
+                            -ms-overflow-style: scrollbar;
+                            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);'>
+                    <head>
+                        <style type='text/css'>
+                            html {{
+                                font-family: sans-serif;
+                                line-height: 1.15;
+                                -webkit-text-size-adjust: 100%;
+                                -ms-text-size-adjust: 100%;
+                                -ms-overflow-style: scrollbar;
+                                -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+                            }}
+                            button {{
+                                display: inline-block;
+                                font-weight: 400;
+                                text-align: center;
+                                white-space: nowrap;
+                                vertical-align: middle;
+                                -webkit-user-select: none;
+                                -moz-user-select: none;
+                                -ms-user-select: none;
+                                user-select: none;
+                                border: 1px solid transparent;
+                                padding: 0.375rem 0.75rem;
+                                font-size: 1rem;
+                                line-height: 1.5;
+                                transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+                                color: #ffffff !important;
+                                background-color: rgb(134, 192, 144) !important;
+                                border-color: rgb(134, 192, 144) !important;
+                            }}
+                            button:hover {{
+                                cursor: pointer;
+                            }}
+                        </style>
+                    </head>
+                    <body>
+                        <div style='max-width: 600px; background-color: black;'>
+                            <table style='padding: 40px;'>
+                                <tr>
+                                    <td style='padding-bottom: 20px; text-align: center'>
+                                        <img style='width: 150px' src='https://tabcollab.com/images/TabCollab_vertical_white.png'>
+                                    </td>
+                                </tr>
+                                <tr style='width: 84%; min-height: 60%; background-color: rgb(24, 24, 24); color: white; margin-bottom: 20px; border: 1px solid silver'>
+                                    <td style='border: 1px solid silver; margin: 30px 30px 10px 30px; padding: 40px;'>
+                                        <p style='color: white;'>Hi {0}!</p>
+                                        <br>
+                                        <p style='line-height: 1.8; color: white;'>{1}</p>
+                                        <br>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </body>
+                </html>", username, message);
         }
     }
 }

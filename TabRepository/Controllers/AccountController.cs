@@ -915,6 +915,47 @@ namespace TabRepository.Controllers
             }
         }
 
+        [HttpPost]        
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SendEmail(string username, string subject, string message)
+        {
+            try
+            {
+                string currentUserId = User.GetUserId();
+
+                var currentUserInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+                if (currentUserInDb == null || currentUserInDb.UserName.ToLower() != "tolleway")
+                {
+                    return Json(new { error = "Unable to send email." });
+                }
+
+                var toUserInDb = _context.Users.Where(u => u.UserName.ToLower() == username).FirstOrDefault();
+
+                if (toUserInDb == null)
+                {
+                    return Json(new { error = "Unable to send email." });
+                }
+
+                await _emailSender.SendEmailAsync(
+                    _configuration,
+                    toUserInDb.Email,
+                    subject,
+                    String.Format(@"
+                        Hi {0}!
+
+                        {1}", toUserInDb.UserName, message),
+                    HtmlTemplate.GetDynamicEmailHtml(toUserInDb.UserName, message)
+                );
+
+                return Json(new { email = toUserInDb.Email });
+            }
+            catch (Exception e)
+            {
+                return Json(new { error = e.Message });
+            }
+        }
+
         //
         // POST: /Account/Logout
         [HttpPost]

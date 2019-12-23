@@ -155,6 +155,48 @@
             </div>
         </div>
     </div>
+    @if (Model.Username.ToLower() == "tolleway")
+    {
+    <div class="row row-no-margin">
+        <div id="profile-form-container" class="col" align="center">
+            <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center">
+                <form id="send-email-form" asp-controller="Account" asp-action="SendEmail" data-ajax="true" data-ajax-method="POST" class="card" style="background-color: unset; border: unset;">
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label for="Username">Username</label>
+                        </div>
+                        <input class="form-control form-input" type="text" data-val="true" data-val-required="The Username field is required." id="Username" name="Username" value="">
+                        <div class="form-label">
+                            <span style="color: red" class="field-validation-valid" data-valmsg-for="Username" data-valmsg-replace="true"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label for="Subject">Subject</label>
+                        </div>
+                        <input class="form-control form-input" type="text" data-val="true" data-val-required="The Subject field is required." id="Subject" name="Subject" value="">
+                        <div class="form-label">
+                            <span style="color: red" class="field-validation-valid" data-valmsg-for="Subject" data-valmsg-replace="true"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label for="Username">Message</label>
+                        </div>
+                        <textarea class="form-control form-input" type="text" data-val="true" data-val-required="The Message field is required." id="Message" name="Message" value=""></textarea>
+                        <div class="form-label">
+                            <span style="color: red" class="field-validation-valid" data-valmsg-for="Message" data-valmsg-replace="true"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <button id="send-email-button" style="width: 108px; height: 38px;" type="submit" class="btn btn-primary float-right" form="send-email-form">Send Email</button>
+                    </div>
+                    @Html.AntiForgeryToken()
+                </form>
+            </div>
+        </div>
+    </div>
+    }
 </div>
 
 @section scripts
@@ -333,6 +375,48 @@
                     })
                 });
             });
+
+            @if (Model.Username.ToLower() == "tolleway") 
+            {
+                <text>
+                $(document).on("submit", "#send-email-form", function (e, data) {
+                    e.preventDefault();
+
+                    var form = e.target;
+                    var formData = new FormData(form);
+                    var sendEmailButton = $('#send-email-button');
+
+                    var sendEmailButtonHtml = sendEmailButton.html();
+                    // Show spinner on submit button and disable it
+                    sendEmailButton.html('<div class="loader"></div>');
+                    sendEmailButton.addClass('disabled');
+
+                    $.ajax({
+                        url: form.action,
+                        type: 'POST',
+                        data: formData,
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    }).then(function (response) {
+                        if (response.error) {
+                            showFailureBootbox("sending email", response.error);
+                        }
+                        else {
+                            bootbox.alert("Email sent to " + response.email);
+                            form.reset();
+                        }
+
+                        sendEmailButton.html(sendEmailButtonHtml);
+                        sendEmailButton.removeClass('disabled');
+                    }).fail(function (error) {
+                        bootbox.alert("Unable to update account information.<br /><br />Error: " + error.statusText);
+                        sendEmailButton.html(sendEmailButtonHtml);
+                        sendEmailButton.removeClass('disabled');
+                    })
+                });
+                </text>
+            }
         });
     </script>
 }

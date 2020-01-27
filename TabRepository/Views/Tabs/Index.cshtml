@@ -1672,6 +1672,15 @@
             $(parent).siblings('.tab-list').children('.item-container').children().css("visibility", "hidden");
             $(parent).siblings('.tab-list').children('.item-container').slideUp(200);
             $(parent).siblings('.show-items-icon-container').slideDown();
+            });
+
+        $("#dashboard").on("keypress", ".show-buttons-icon, .hide-buttons-icon", function (e, data) {
+            var key = e.which;
+            if (key === 13)  // the enter key code
+            {
+                $(this).click();
+                return false;
+            }
         });
 
         $("#dashboard").on("click", ".show-tabversions", function (e, data) {

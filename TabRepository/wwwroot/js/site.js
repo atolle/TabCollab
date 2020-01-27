@@ -90,8 +90,8 @@ function GetNotificationPanel() {
         })
         .fail(function (error) {
 
-        })
-};
+        });
+}
 
 $(document).on('click', '.notifications-btn', function (e) {
     if (notificationCount > 0) {
@@ -102,6 +102,15 @@ $(document).on('click', '.notifications-btn', function (e) {
         else {
             $('.notifications-btn').css("color", "gray");
         }
+    }
+});
+
+$(document).on("keypress", ".notifications-btn, .notification-read-btn", function (e, data) {
+    var key = e.which;
+    if (key === 13)  // the enter key code
+    {
+        $(this).click();
+        return false;
     }
 });
 

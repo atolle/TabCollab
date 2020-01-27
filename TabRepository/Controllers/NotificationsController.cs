@@ -89,7 +89,7 @@ namespace TabRepository.Controllers
                                         "<div class='notification-message'>" + notification.Message2 + "</div>" +
                                     "</div>" +
                                     "<div style='display: flex; justify-content: center; width: 30px'>" +
-                                        "<i class='fa fa-times fa-lg notification-read-btn' data-notification-id='" + notification.Id + "'/>" +
+                                        "<i class='fa fa-times fa-lg notification-read-btn' data-notification-id='" + notification.Id + "' tabindex='0'/>" +
                                     "</div>" +                                                                        
                                 "</a>" + 
                             "</div>";

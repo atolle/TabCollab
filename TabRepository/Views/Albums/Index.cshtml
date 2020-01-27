@@ -169,6 +169,15 @@ $(document).ready(function () {
         $(parent).siblings('.show-items-icon-container').show();
     });
 
+    $(document).on("keypress", ".show-buttons-icon, .hide-buttons-icon", function (e, data) {
+        var key = e.which;
+        if (key === 13)  // the enter key code
+        {
+            $(this).click();
+            return false;
+        }
+    });
+
     $(document).on("click", ".project-selection-panel", function (e, data) {
         e.preventDefault();
 

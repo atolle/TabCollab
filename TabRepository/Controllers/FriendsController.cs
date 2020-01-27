@@ -41,6 +41,11 @@ namespace TabRepository.Controllers
         [HttpPost]
         public ActionResult FuzzySearch(string searchString)
         {
+            if (searchString == null)
+            {
+                return Json(new object());
+            }
+
             searchString = searchString.Trim();
             List<object> usernames = new List<object>();
 

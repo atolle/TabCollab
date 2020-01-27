@@ -24,7 +24,7 @@ else
                     {
                         <div class="albums-container">
                             <div class="show-items-icon-container">
-                                <i class="fa fa-chevron-down fa-lg show-buttons-icon"></i>
+                                <i class="fa fa-chevron-down fa-lg show-buttons-icon" tabindex="0"></i>
                             </div>
                             <div class="album-list">
                                 @foreach (var album in project.Albums)
@@ -39,7 +39,7 @@ else
                                             {
                                                 <div class="tabs-container">
                                                     <div class="show-items-icon-container">
-                                                        <i class="fa fa-chevron-down show-buttons-icon"></i>
+                                                        <i class="fa fa-chevron-down show-buttons-icon" tabindex="0"></i>
                                                     </div>
                                                     <p></p>
                                                     <div class="tab-list">
@@ -50,11 +50,11 @@ else
                                                                     <div class="card tab-panel">
                                                                         <h6 style="padding: 10px; margin-bottom: 0px;">@tab.Name</h6>
                                                                         <div data-tab-id="@tab.Id" class="show-items-icon-container show-tabversions">
-                                                                            <i class="fa fa-chevron-down show-buttons-icon"></i>
+                                                                            <i class="fa fa-chevron-down show-buttons-icon" tabindex="0"></i>
                                                                         </div>
                                                                         <div class="tabversions-container"></div>
                                                                         <div class="hide-items-icon-container hide-tabversions">
-                                                                            <i class="fa fa-chevron-up hide-buttons-icon"></i>
+                                                                            <i class="fa fa-chevron-up hide-buttons-icon"  tabindex="0"></i>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -62,7 +62,7 @@ else
                                                         }
                                                     </div>
                                                     <div class="hide-items-icon-container">
-                                                        <i class="fa fa-chevron-up hide-buttons-icon"></i>
+                                                        <i class="fa fa-chevron-up hide-buttons-icon" tabindex="0"></i>
                                                     </div>
                                                     <p></p>
                                                 </div>
@@ -72,7 +72,7 @@ else
                                 }
                             </div>
                             <div style="margin-top: -20px;" class="hide-items-icon-container">
-                                <i class="fa fa-chevron-up fa-lg hide-buttons-icon"></i>
+                                <i class="fa fa-chevron-up fa-lg hide-buttons-icon" tabindex="0"></i>
                             </div>
                         </div>
                     }

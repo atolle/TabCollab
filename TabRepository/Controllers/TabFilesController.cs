@@ -40,14 +40,14 @@ namespace TabRepository.Controllers
                 // If we are not the owner, are we a contributor?
                 if (tabVersionInDb == null)
                 {
-                    return Json(new { error = "Tab version not found" });
+                    return RedirectToAction("Error", "Home", new { code = 404 });
                 }
 
                 var tabFileInDb = _context.TabFiles.Single(f => f.Id == id);
 
                 if (tabFileInDb == null)
                 {
-                    return Json(new { error = "Tab file not found" });
+                    return RedirectToAction("Error", "Home", new { code = 404 });
                 }
 
                 byte[] fileBytes = tabFileInDb.TabData;
@@ -108,7 +108,7 @@ namespace TabRepository.Controllers
                 // If we are not the owner, are we a contributor?
                 if (tabVersionInDb == null)
                 {
-                    return Json(new { error = "Tab version not found" });
+                    return RedirectToAction("Error", "Home", new { code = 404 });
                 }
 
                 ViewBag.Id = id.ToString();

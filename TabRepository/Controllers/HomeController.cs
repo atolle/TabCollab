@@ -93,13 +93,6 @@ namespace TabRepository.Controllers
             return View(viewModel);
         }
 
-        [HttpGet]
-        [Authorize]
-        public IActionResult PerksOfUpgrading()
-        {
-            return View();
-        }
-
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> ProcessIssue(ReportIssueFormViewModel viewModel)

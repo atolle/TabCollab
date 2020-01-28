@@ -88,17 +88,17 @@ namespace TabRepository.Controllers
                                     .Where(v => v.Tab.Album.Project.UserId == tabInDb.UserId)
                                     .Count();
 
-                                if (tabVersionCount >= 15)
+                                if (tabVersionCount >= 30)
                                 {
                                     string error;
 
                                     if (tabInDb.UserId == currentUserId)
                                     {
-                                        error = "<br /><br />You have met the 15 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.";
+                                        error = "<br /><br />You have met the 30 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.";
                                     }
                                     else
                                     {
-                                        error = "<br /><br />The owner has met the 15 allowed free tab versions that are included with the free TabCollab account.";
+                                        error = "<br /><br />The owner has met the 30 allowed free tab versions that are included with the free TabCollab account.";
                                     }
 
                                     return Json(new { error = error });

@@ -98,10 +98,10 @@ namespace TabRepository.Controllers
                                     .Where(v => v.Tab.Album.Project.UserId == albumInDb.UserId)
                                     .Count();
 
-                                if (tabCount >= 5 || tabVersionCount >= 15)
+                                if (tabCount >= 10 || tabVersionCount >= 30)
                                 {
-                                    int limit = tabCount >= 5 ? 5 : 15;
-                                    string item = tabCount >= 5 ? "tabs" : "tab versions";
+                                    int limit = tabCount >= 10 ? 10 : 30;
+                                    string item = tabCount >= 10 ? "tabs" : "tab versions";
                                     string error;
 
                                     if (albumInDb.UserId == currentUserId)
@@ -297,12 +297,12 @@ namespace TabRepository.Controllers
                         .Where(v => v.Tab.Album.Project.UserId == currentUserId)
                         .Count();
 
-                    if (tabCount >= 5)
+                    if (tabCount >= 10)
                     {
                         allowNewTabs = false;
                     }
 
-                    if (tabVersionCount >= 15)
+                    if (tabVersionCount >= 30)
                     {
                         allowNewTabVersions = false;
                     }

@@ -52,7 +52,8 @@ namespace TabRepository.Controllers
             var users = _context
                 .Users
                 .Where(u => u.UserName.StartsWith(searchString))
-                .OrderBy(u => u.UserName);
+                .OrderBy(u => u.UserName)
+                .Take(10);
 
             foreach (ApplicationUser user in users)
             {
@@ -73,7 +74,9 @@ namespace TabRepository.Controllers
             searchString = searchString.Trim();
             string currentUserId = User.GetUserId();
 
-            var users = exact == true
+            // Require at least 3 characters (arbitrarily chose 3) for wildcard username matching to 
+            // prevent users from accessing large subsets of user list via search (i.e. searching "a")
+            var users = (exact == true || searchString.Length < 3)
                         ?
                         from u in _context.Users
                         from f in _context.Friends.Where(f => (u.Id == f.User1Id && currentUserId == f.User2Id) || (u.Id == f.User2Id && currentUserId == f.User1Id)).DefaultIfEmpty()

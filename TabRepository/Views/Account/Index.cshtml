@@ -77,13 +77,13 @@
                         {
                             <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default account-button">Create Password</a>
                         }
-                        @if (Model.AccountType == AccountType.Free)
+                        @*@if (Model.AccountType == AccountType.Free)
                         {
                             <div>
                                 <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary account-button">Upgrade to Pro</a>
                             </div>
-                        }
-                        else if (Model.AccountType == AccountType.Pro)
+                        }*@
+                        @if (Model.AccountType == AccountType.Pro)
                         {
                             <div style="margin-top: 20px; margin-bottom: 30px">
                                 <h6>Manage Subscription</h6>

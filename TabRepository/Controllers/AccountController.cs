@@ -38,7 +38,6 @@ namespace TabRepository.Controllers
         private readonly IEmailSender _emailSender;
         private readonly ISmsSender _smsSender;
         private readonly ILogger _logger;
-        private readonly string _externalCookieScheme;
         private ApplicationDbContext _context;
         private FileUploader _fileUploader;
         private readonly IHostingEnvironment _appEnvironment;
@@ -201,443 +200,443 @@ namespace TabRepository.Controllers
             return Json(new { error = string.Join("<br />", modelErrors) });
         }
 
-        #region Subscriptions
-
-        [HttpGet]
-        [ActionName("SubscriptionCancel")]
-        public IActionResult SubscriptionCancelGet()
-        {
-            return View("SubscriptionCancel");
-        }
-
-        //
-        //GET: /Account/SubscriptionCancel
-        [HttpPost]
-        public IActionResult SubscriptionCancel()
-        {
-            try
-            {
-                string currentUserId = User.GetUserId();
-
-                var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
-
-                var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.CustomerId == _context.StripeCustomers.Where(c => c.UserId == currentUserId).Select(c => c.Id).FirstOrDefault()).FirstOrDefault();
-
-                if (subscriptionInDb == null)
-                {
-                    return Json(new { error = "Active subscription does not exist" });
-                }
-
-                // Get the subscription so we can get the new state
-                var subscription = _stripeProcessor.CancelSubscription(_configuration, subscriptionInDb);
-
-                subscriptionInDb.Status = subscription.Status;
-                subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
-
-                // If the subscription is no longer active, set to free account
-                if (subscription.Status.ToLower() != "active" && subscription.Status.ToLower() != "past_due" && subscription.Status.ToLower() != "trialing")
-                {
-                    userInDb.AccountType = Models.AccountViewModels.AccountType.Free;
-                }
-
-                _context.SaveChanges();
-
-                return Json(new { success = true });
-            }
-            catch (Exception e)
-            {
-                return Json(new { error = e.Message });
-            }
-        }
-
-        [HttpPost]
-        public IActionResult SubscriptionReactivate()
-        {
-            try
-            {
-                string currentUserId = User.GetUserId();
-
-                var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
-
-                var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.CustomerId == _context.StripeCustomers.Where(c => c.UserId == currentUserId).Select(c => c.Id).FirstOrDefault()).FirstOrDefault();
-
-                if (subscriptionInDb == null)
-                {
-                    return Json(new { error = "Active subscription does not exist" });
-                }              
-
-                var subscription = _stripeProcessor.ActivateSubscription(_configuration, subscriptionInDb);
-
-                subscriptionInDb.Status = subscription.Status;
-                subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
-
-                _context.SaveChanges();
-
-                if (subscriptionInDb.Status.ToLower() == "active" || subscriptionInDb.Status.ToLower() == "past_due" || subscriptionInDb.Status.ToLower() == "trialing")
-                {
-                    return Json(new { success = true });
-                }
-                else
-                {
-                    return Json(new { error = "Active subscription does not exist" });
-                }
-            }
-            catch (Exception e)
-            {
-                return Json(new { error = e.Message });
-            }
-        }
-
-        //
-        // GET: /Account/Subscribe
-        [HttpGet]
-        public IActionResult Subscribe()
-        {
-            string currentUserId = User.GetUserId();
-
-            var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
-
-            var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.Customer.UserId == currentUserId).FirstOrDefault();
-
-            if (subscriptionInDb == null)
-            {
-                if (_appEnvironment.IsDevelopment())
-                {
-                    ViewData["StripeKey"] = _configuration["Stripe:TestPublishable"];
-                }
-                else
-                {
-                    ViewData["StripeKey"] = _configuration["Stripe:LivePublishable"];
-                }
-
-                return View("CreditCard");
-            }            
-            else
-            {                
-                return RedirectToAction("Index", "Home");                
-            }
-        }
-
-        //
-        // GET: /Account/UpdatePayment
-        [HttpGet]
-        public IActionResult UpdatePayment()
-        {
-            string currentUserId = User.GetUserId();
-
-            var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
-
-            var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.Customer.UserId == currentUserId).FirstOrDefault();
-
-            if (subscriptionInDb != null)
-            {
-                return View("CreditCardUpdate");
-            }
-            else
-            {
-                return RedirectToAction("Index", "Home");
-            }
-        }
-
-        //
-        // GET: /Account/UpdatePayment
-        [HttpPost]
-        public IActionResult UpdatePayment(StripePaymentViewModel model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
-
-                    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
-
-                    var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();                    
-
-                    // Update customer's payment
-                    if (customerInDb != null)
-                    {
-                        var customer = _stripeProcessor.UpdateCustomerPayment(_configuration, customerInDb, model.PaymentToken);
-
-                        var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.CustomerId == customerInDb.Id && (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing")).FirstOrDefault();
-
-                        // Update the tax rate for the subscription, if we have one
-                        if (subscriptionInDb != null)
-                        {
-                            StripeTaxRate taxRateInDb = null;
-
-                            var taxRate = createTaxRate(model.StripeAddress, model.StripeCity, model.StripeState, model.StripeZip, currentUserId);
-
-                            if (taxRate != null)
-                            {
-                                taxRateInDb = new StripeTaxRate
-                                {
-                                    Id = taxRate.Id,
-                                    SubscriptionId = subscriptionInDb.Id,
-                                    Percentage = taxRate.Percentage,
-                                    StripeDescription = taxRate.Description,
-                                    StripeJurisdicion = taxRate.Jurisdiction,
-                                    State = model.StripeState,
-                                    Zip = model.StripeZip
-                                };
-                            }
-
-                            var subscription = _stripeProcessor.UpdateSubscription(_configuration, subscriptionInDb.Id, taxRate);
-
-                            subscriptionInDb.Status = subscription.Status;
-
-                            if (taxRateInDb != null)
-                            {
-                                _context.StripeTaxRates.Add(taxRateInDb);
-                            }
-
-                            _context.SaveChanges();
-                        }                                                
-                      
-                        return PartialView("_UpdateCreditCardConfirmation");
-                    }
-                    else
-                    {
-                        return PartialView("_UpdateCreditCardFailure");
-                    }
-                }                
-
-                var modelErrors = ModelState.Values.SelectMany(v => v.Errors.Select(b => b.ErrorMessage)).ToList();
-
-                return Json(new { error = string.Join("<br />", modelErrors) });
-            }
-            catch (Stripe.StripeException e)
-            {
-                return Json(new { param = e.StripeError.Parameter, error = e.StripeError.Message });
-            }
-            catch (Exception e)
-            {
-                return Json(new { error = e.Message });
-            }
-        }
-
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public IActionResult SubscriptionProcess(StripePaymentViewModel model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;                    
-
-                    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();                    
-
-                    var productInDb = _context.StripeProducts.Where(p => p.Name == "TabCollab").FirstOrDefault();
-
-                    // No product so we need to create one
-                    if (productInDb == null)
-                    {
-                        var product = _stripeProcessor.CreateProduct(_configuration);
-
-                        productInDb = new StripeProduct
-                        {
-                            Id = product.Id,
-                            Name = product.Name
-                        };
-
-                        _context.StripeProducts.Add(productInDb);
-                        _context.SaveChanges();
-                    }
-
-                    // Hardcoded to Pro for now until Composers tier is added
-                    var planInDb = _context.StripePlans.Where(p => p.Nickname == $"TabCollab Pro {model.StripeInterval.ToString()} Subscription").FirstOrDefault();
-
-                    // No plan so we need to create one
-                    if (planInDb == null)
-                    {
-                        var plan = _stripeProcessor.CreatePlan(_configuration, productInDb, model.StripeInterval);
-
-                        planInDb = new StripePlan
-                        {
-                            Id = plan.Id,
-                            Nickname = plan.Nickname,
-                            ProductId = productInDb.Id,
-                            Interval = plan.Interval
-                        };
-
-                        _context.StripePlans.Add(planInDb);
-                        _context.SaveChanges();
-                    }
-
-                    var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();
-
-                    // No customer so we need to create one
-                    if (customerInDb == null)
-                    {
-                        var customer = _stripeProcessor.CreateCustomer(_configuration, userInDb, model.PaymentToken);
-
-                        customerInDb = new StripeCustomer
-                        {
-                            Id = customer.Id,
-                            UserId = currentUserId
-                        };
-
-                        _context.StripeCustomers.Add(customerInDb);
-                        _context.SaveChanges();
-                    }
-                    // We already have a customer, so update their payment info. This can happen if payment fails initially
-                    else
-                    {
-                        var customer = _stripeProcessor.UpdateCustomerPayment(_configuration, customerInDb, model.PaymentToken);
-                    }
-
-                    var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.CustomerId == customerInDb.Id && (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing")).FirstOrDefault();
-
-                    // No active subscription so we need to create one
-                    if (subscriptionInDb == null)
-                    {
-                        Stripe.Subscription subscription = null;
-                        StripeTaxRate taxRateInDb = null;
-
-                        var taxRate = createTaxRate(model.StripeAddress, model.StripeCity, model.StripeState, model.StripeZip, currentUserId);
-
-                        if (taxRate != null)
-                        {
-                            taxRateInDb = new StripeTaxRate
-                            {
-                                Id = taxRate.Id,
-                                Percentage = taxRate.Percentage,
-                                StripeDescription = taxRate.Description,
-                                StripeJurisdicion = taxRate.Jurisdiction,
-                                State = model.StripeState,
-                                Zip = model.StripeZip
-                            };
-                        }
-
-                        subscription = _stripeProcessor.CreateSubscription(_configuration, planInDb, customerInDb, userInDb, taxRate);
-
-                        subscriptionInDb = new StripeSubscription
-                        {
-                            Id = subscription.Id,
-                            PlanId = planInDb.Id,
-                            Status = subscription.Status,
-                            CancelAtPeriodEnd = subscription.CancelAtPeriodEnd,
-                            CustomerId = customerInDb.Id
-                        };
-
-                        if (taxRateInDb != null)
-                        {
-                            taxRateInDb.SubscriptionId = subscriptionInDb.Id;
-                            _context.StripeTaxRates.Add(taxRateInDb);
-                        }
-
-                        customerInDb.Id = subscription.CustomerId;                       
-                        
-                        _context.StripeSubscriptions.Add(subscriptionInDb);
-                        
-                        _context.SaveChanges();
-
-                        Models.AccountViewModels.AccountType prevAccountType = userInDb.AccountType;
-
-                        if (subscriptionInDb.Status.ToLower() == "active" || subscriptionInDb.Status.ToLower() == "trialing" || subscriptionInDb.Status.ToLower() == "past_due")
-                        {
-                            userInDb.AccountType = Models.AccountViewModels.AccountType.Pro;                     
-
-                            _context.SaveChanges();
-
-                            if (prevAccountType != userInDb.AccountType)
-                            {
-                                NotificationsController.AddNotification(
-                                    _context, 
-                                    NotificationType.AccountTypeChanged, 
-                                    userInDb, 
-                                    null, 
-                                    null, 
-                                    userInDb.AccountType.ToString(), 
-                                    null
-                                );
-                            }
-
-                            return PartialView("_SubscriptionConfirmation");
-                        }
-                        else
-                        {
-                            return PartialView("_SubscriptionFailure");
-                        }
-                    }
-                    // If we have an active subscription, we shouldn't be here
-                    else
-                    {
-                        return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-                    }
-                }
-
-                var modelErrors = ModelState.Values.SelectMany(v => v.Errors.Select(b => b.ErrorMessage)).ToList();
-
-                return Json(new { error = string.Join("<br />", modelErrors) });
-            }
-            catch (Stripe.StripeException e)
-            {
-                return Json(new { param = e.StripeError.Parameter, error = e.StripeError.Message });
-            }
-            catch (Exception e)
-            {
-                return Json(new { error = e.Message });
-            }
-        }
-
-        #endregion
-
-        private TaxRate createTaxRate(string address, string city, string state, string zip, string userId)
-        {           
-            var currentUserId = userId;
-            var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
-            List<string> descriptions = new List<string>();
-
-            // Create a client and set up authentication
-            var client = new AvaTaxClient("TabCollab", "1.0", Environment.MachineName, AvaTaxEnvironment.Production)
-                .WithSecurity(_configuration["AvalaraTax:Username"], _configuration["AvalaraTax:Password"]);
-
-            var rate = client.TaxRatesByAddress(address, null, null, city, state, zip, "us");
-
-            // If this is not a taxable state, create a tax rate of 0.00% so we can still track revenue by state
-            if (!_taxableStates.Contains(state.ToLower()) || rate.rates.Count == 0)
-            {
-                descriptions = rate.rates.Select(r => r.name).ToList();
-
-                return _stripeProcessor.CreateTaxRate(_configuration, userInDb, String.Join(" | ", descriptions), state.ToUpper() + " - " + city.ToUpper(), 0.00m);
-            }
-
-            descriptions = rate.rates.Select(r => r.name).ToList();
-
-            return _stripeProcessor.CreateTaxRate(_configuration, userInDb, String.Join(" | ", descriptions), state.ToUpper() + " - " + city.ToUpper(), rate.totalRate * 100);
-        }
-
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult CalculateTaxRate(string address, string city, string state, string zip)
-        {
-            try
-            {               
-                // Create a client and set up authentication
-                var client = new AvaTaxClient("TabCollab", "1.0", Environment.MachineName, AvaTaxEnvironment.Production)
-                    .WithSecurity(_configuration["AvalaraTax:Username"], _configuration["AvalaraTax:Password"]);
-
-                var rate = client.TaxRatesByAddress(address, null, null, city, state, zip, "us");
-
-                if (!_taxableStates.Contains(state.ToLower()) || rate.rates.Count == 0)
-                {
-                    return Json(new { taxRate = 0.00m,  });
-                }
-
-                return Json(new { taxRate = rate.totalRate });
-            }
-            catch (AvaTaxError e)
-            {
-                return Json(new { error = e.error.error.message });
-            }
-            catch (Exception e)
-            {
-                return Json(new { error = e.Message });
-            }
-        }
+        //#region Subscriptions
+
+        //[HttpGet]
+        //[ActionName("SubscriptionCancel")]
+        //public IActionResult SubscriptionCancelGet()
+        //{
+        //    return View("SubscriptionCancel");
+        //}
+
+        ////
+        ////GET: /Account/SubscriptionCancel
+        //[HttpPost]
+        //public IActionResult SubscriptionCancel()
+        //{
+        //    try
+        //    {
+        //        string currentUserId = User.GetUserId();
+
+        //        var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+        //        var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.CustomerId == _context.StripeCustomers.Where(c => c.UserId == currentUserId).Select(c => c.Id).FirstOrDefault()).FirstOrDefault();
+
+        //        if (subscriptionInDb == null)
+        //        {
+        //            return Json(new { error = "Active subscription does not exist" });
+        //        }
+
+        //        // Get the subscription so we can get the new state
+        //        var subscription = _stripeProcessor.CancelSubscription(_configuration, subscriptionInDb);
+
+        //        subscriptionInDb.Status = subscription.Status;
+        //        subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
+
+        //        // If the subscription is no longer active, set to free account
+        //        if (subscription.Status.ToLower() != "active" && subscription.Status.ToLower() != "past_due" && subscription.Status.ToLower() != "trialing")
+        //        {
+        //            userInDb.AccountType = Models.AccountViewModels.AccountType.Free;
+        //        }
+
+        //        _context.SaveChanges();
+
+        //        return Json(new { success = true });
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return Json(new { error = e.Message });
+        //    }
+        //}
+
+        //[HttpPost]
+        //public IActionResult SubscriptionReactivate()
+        //{
+        //    try
+        //    {
+        //        string currentUserId = User.GetUserId();
+
+        //        var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+        //        var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.CustomerId == _context.StripeCustomers.Where(c => c.UserId == currentUserId).Select(c => c.Id).FirstOrDefault()).FirstOrDefault();
+
+        //        if (subscriptionInDb == null)
+        //        {
+        //            return Json(new { error = "Active subscription does not exist" });
+        //        }
+
+        //        var subscription = _stripeProcessor.ActivateSubscription(_configuration, subscriptionInDb);
+
+        //        subscriptionInDb.Status = subscription.Status;
+        //        subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
+
+        //        _context.SaveChanges();
+
+        //        if (subscriptionInDb.Status.ToLower() == "active" || subscriptionInDb.Status.ToLower() == "past_due" || subscriptionInDb.Status.ToLower() == "trialing")
+        //        {
+        //            return Json(new { success = true });
+        //        }
+        //        else
+        //        {
+        //            return Json(new { error = "Active subscription does not exist" });
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return Json(new { error = e.Message });
+        //    }
+        //}
+
+
+        //// GET: /Account/Subscribe
+        //[HttpGet]
+        //public IActionResult Subscribe()
+        //{
+        //    string currentUserId = User.GetUserId();
+
+        //    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+        //    var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.Customer.UserId == currentUserId).FirstOrDefault();
+
+        //    if (subscriptionInDb == null)
+        //    {
+        //        if (_appEnvironment.IsDevelopment())
+        //        {
+        //            ViewData["StripeKey"] = _configuration["Stripe:TestPublishable"];
+        //        }
+        //        else
+        //        {
+        //            ViewData["StripeKey"] = _configuration["Stripe:LivePublishable"];
+        //        }
+
+        //        return View("CreditCard");
+        //    }
+        //    else
+        //    {
+        //        return RedirectToAction("Index", "Home");
+        //    }
+        //}
+
+
+        //// GET: /Account/UpdatePayment
+        //[HttpGet]
+        //public IActionResult UpdatePayment()
+        //{
+        //    string currentUserId = User.GetUserId();
+
+        //    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+        //    var subscriptionInDb = _context.StripeSubscriptions.Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") && s.Customer.UserId == currentUserId).FirstOrDefault();
+
+        //    if (subscriptionInDb != null)
+        //    {
+        //        return View("CreditCardUpdate");
+        //    }
+        //    else
+        //    {
+        //        return RedirectToAction("Index", "Home");
+        //    }
+        //}
+
+
+        //// GET: /Account/UpdatePayment
+        //[HttpPost]
+        //public IActionResult UpdatePayment(StripePaymentViewModel model)
+        //{
+        //    try
+        //    {
+        //        if (ModelState.IsValid)
+        //        {
+        //            string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
+
+        //            var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+        //            var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();
+
+        //            // Update customer's payment
+        //            if (customerInDb != null)
+        //            {
+        //                var customer = _stripeProcessor.UpdateCustomerPayment(_configuration, customerInDb, model.PaymentToken);
+
+        //                var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.CustomerId == customerInDb.Id && (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing")).FirstOrDefault();
+
+        //                // Update the tax rate for the subscription, if we have one
+        //                if (subscriptionInDb != null)
+        //                {
+        //                    StripeTaxRate taxRateInDb = null;
+
+        //                    var taxRate = createTaxRate(model.StripeAddress, model.StripeCity, model.StripeState, model.StripeZip, currentUserId);
+
+        //                    if (taxRate != null)
+        //                    {
+        //                        taxRateInDb = new StripeTaxRate
+        //                        {
+        //                            Id = taxRate.Id,
+        //                            SubscriptionId = subscriptionInDb.Id,
+        //                            Percentage = taxRate.Percentage,
+        //                            StripeDescription = taxRate.Description,
+        //                            StripeJurisdicion = taxRate.Jurisdiction,
+        //                            State = model.StripeState,
+        //                            Zip = model.StripeZip
+        //                        };
+        //                    }
+
+        //                    var subscription = _stripeProcessor.UpdateSubscription(_configuration, subscriptionInDb.Id, taxRate);
+
+        //                    subscriptionInDb.Status = subscription.Status;
+
+        //                    if (taxRateInDb != null)
+        //                    {
+        //                        _context.StripeTaxRates.Add(taxRateInDb);
+        //                    }
+
+        //                    _context.SaveChanges();
+        //                }
+
+        //                return PartialView("_UpdateCreditCardConfirmation");
+        //            }
+        //            else
+        //            {
+        //                return PartialView("_UpdateCreditCardFailure");
+        //            }
+        //        }
+
+        //        var modelErrors = ModelState.Values.SelectMany(v => v.Errors.Select(b => b.ErrorMessage)).ToList();
+
+        //        return Json(new { error = string.Join("<br />", modelErrors) });
+        //    }
+        //    catch (Stripe.StripeException e)
+        //    {
+        //        return Json(new { param = e.StripeError.Parameter, error = e.StripeError.Message });
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return Json(new { error = e.Message });
+        //    }
+        //}
+
+        //[HttpPost]
+        //[AllowAnonymous]
+        //[ValidateAntiForgeryToken]
+        //public IActionResult SubscriptionProcess(StripePaymentViewModel model)
+        //{
+        //    try
+        //    {
+        //        if (ModelState.IsValid)
+        //        {
+        //            string currentUserId = model.UserId == null ? User.GetUserId() : model.UserId;
+
+        //            var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+
+        //            var productInDb = _context.StripeProducts.Where(p => p.Name == "TabCollab").FirstOrDefault();
+
+        //            // No product so we need to create one
+        //            if (productInDb == null)
+        //            {
+        //                var product = _stripeProcessor.CreateProduct(_configuration);
+
+        //                productInDb = new StripeProduct
+        //                {
+        //                    Id = product.Id,
+        //                    Name = product.Name
+        //                };
+
+        //                _context.StripeProducts.Add(productInDb);
+        //                _context.SaveChanges();
+        //            }
+
+        //            // Hardcoded to Pro for now until Composers tier is added
+        //            var planInDb = _context.StripePlans.Where(p => p.Nickname == $"TabCollab Pro {model.StripeInterval.ToString()} Subscription").FirstOrDefault();
+
+        //            // No plan so we need to create one
+        //            if (planInDb == null)
+        //            {
+        //                var plan = _stripeProcessor.CreatePlan(_configuration, productInDb, model.StripeInterval);
+
+        //                planInDb = new StripePlan
+        //                {
+        //                    Id = plan.Id,
+        //                    Nickname = plan.Nickname,
+        //                    ProductId = productInDb.Id,
+        //                    Interval = plan.Interval
+        //                };
+
+        //                _context.StripePlans.Add(planInDb);
+        //                _context.SaveChanges();
+        //            }
+
+        //            var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();
+
+        //            // No customer so we need to create one
+        //            if (customerInDb == null)
+        //            {
+        //                var customer = _stripeProcessor.CreateCustomer(_configuration, userInDb, model.PaymentToken);
+
+        //                customerInDb = new StripeCustomer
+        //                {
+        //                    Id = customer.Id,
+        //                    UserId = currentUserId
+        //                };
+
+        //                _context.StripeCustomers.Add(customerInDb);
+        //                _context.SaveChanges();
+        //            }
+        //            // We already have a customer, so update their payment info. This can happen if payment fails initially
+        //            else
+        //            {
+        //                var customer = _stripeProcessor.UpdateCustomerPayment(_configuration, customerInDb, model.PaymentToken);
+        //            }
+
+        //            var subscriptionInDb = _context.StripeSubscriptions.Where(s => s.CustomerId == customerInDb.Id && (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing")).FirstOrDefault();
+
+        //            // No active subscription so we need to create one
+        //            if (subscriptionInDb == null)
+        //            {
+        //                Stripe.Subscription subscription = null;
+        //                StripeTaxRate taxRateInDb = null;
+
+        //                var taxRate = createTaxRate(model.StripeAddress, model.StripeCity, model.StripeState, model.StripeZip, currentUserId);
+
+        //                if (taxRate != null)
+        //                {
+        //                    taxRateInDb = new StripeTaxRate
+        //                    {
+        //                        Id = taxRate.Id,
+        //                        Percentage = taxRate.Percentage,
+        //                        StripeDescription = taxRate.Description,
+        //                        StripeJurisdicion = taxRate.Jurisdiction,
+        //                        State = model.StripeState,
+        //                        Zip = model.StripeZip
+        //                    };
+        //                }
+
+        //                subscription = _stripeProcessor.CreateSubscription(_configuration, planInDb, customerInDb, userInDb, taxRate);
+
+        //                subscriptionInDb = new StripeSubscription
+        //                {
+        //                    Id = subscription.Id,
+        //                    PlanId = planInDb.Id,
+        //                    Status = subscription.Status,
+        //                    CancelAtPeriodEnd = subscription.CancelAtPeriodEnd,
+        //                    CustomerId = customerInDb.Id
+        //                };
+
+        //                if (taxRateInDb != null)
+        //                {
+        //                    taxRateInDb.SubscriptionId = subscriptionInDb.Id;
+        //                    _context.StripeTaxRates.Add(taxRateInDb);
+        //                }
+
+        //                customerInDb.Id = subscription.CustomerId;
+
+        //                _context.StripeSubscriptions.Add(subscriptionInDb);
+
+        //                _context.SaveChanges();
+
+        //                Models.AccountViewModels.AccountType prevAccountType = userInDb.AccountType;
+
+        //                if (subscriptionInDb.Status.ToLower() == "active" || subscriptionInDb.Status.ToLower() == "trialing" || subscriptionInDb.Status.ToLower() == "past_due")
+        //                {
+        //                    userInDb.AccountType = Models.AccountViewModels.AccountType.Pro;
+
+        //                    _context.SaveChanges();
+
+        //                    if (prevAccountType != userInDb.AccountType)
+        //                    {
+        //                        NotificationsController.AddNotification(
+        //                            _context,
+        //                            NotificationType.AccountTypeChanged,
+        //                            userInDb,
+        //                            null,
+        //                            null,
+        //                            userInDb.AccountType.ToString(),
+        //                            null
+        //                        );
+        //                    }
+
+        //                    return PartialView("_SubscriptionConfirmation");
+        //                }
+        //                else
+        //                {
+        //                    return PartialView("_SubscriptionFailure");
+        //                }
+        //            }
+        //            // If we have an active subscription, we shouldn't be here
+        //            else
+        //            {
+        //                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        //            }
+        //        }
+
+        //        var modelErrors = ModelState.Values.SelectMany(v => v.Errors.Select(b => b.ErrorMessage)).ToList();
+
+        //        return Json(new { error = string.Join("<br />", modelErrors) });
+        //    }
+        //    catch (Stripe.StripeException e)
+        //    {
+        //        return Json(new { param = e.StripeError.Parameter, error = e.StripeError.Message });
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return Json(new { error = e.Message });
+        //    }
+        //}
+
+        //private TaxRate createTaxRate(string address, string city, string state, string zip, string userId)
+        //{
+        //    var currentUserId = userId;
+        //    var userInDb = _context.Users.Where(u => u.Id == currentUserId).FirstOrDefault();
+        //    List<string> descriptions = new List<string>();
+
+        //    // Create a client and set up authentication
+        //    var client = new AvaTaxClient("TabCollab", "1.0", Environment.MachineName, AvaTaxEnvironment.Production)
+        //        .WithSecurity(_configuration["AvalaraTax:Username"], _configuration["AvalaraTax:Password"]);
+
+        //    var rate = client.TaxRatesByAddress(address, null, null, city, state, zip, "us");
+
+        //    // If this is not a taxable state, create a tax rate of 0.00% so we can still track revenue by state
+        //    if (!_taxableStates.Contains(state.ToLower()) || rate.rates.Count == 0)
+        //    {
+        //        descriptions = rate.rates.Select(r => r.name).ToList();
+
+        //        return _stripeProcessor.CreateTaxRate(_configuration, userInDb, String.Join(" | ", descriptions), state.ToUpper() + " - " + city.ToUpper(), 0.00m);
+        //    }
+
+        //    descriptions = rate.rates.Select(r => r.name).ToList();
+
+        //    return _stripeProcessor.CreateTaxRate(_configuration, userInDb, String.Join(" | ", descriptions), state.ToUpper() + " - " + city.ToUpper(), rate.totalRate * 100);
+        //}
+
+        //[HttpGet]
+        //[AllowAnonymous]
+        //public IActionResult CalculateTaxRate(string address, string city, string state, string zip)
+        //{
+        //    try
+        //    {
+        //        // Create a client and set up authentication
+        //        var client = new AvaTaxClient("TabCollab", "1.0", Environment.MachineName, AvaTaxEnvironment.Production)
+        //            .WithSecurity(_configuration["AvalaraTax:Username"], _configuration["AvalaraTax:Password"]);
+
+        //        var rate = client.TaxRatesByAddress(address, null, null, city, state, zip, "us");
+
+        //        if (!_taxableStates.Contains(state.ToLower()) || rate.rates.Count == 0)
+        //        {
+        //            return Json(new { taxRate = 0.00m, });
+        //        }
+
+        //        return Json(new { taxRate = rate.totalRate });
+        //    }
+        //    catch (AvaTaxError e)
+        //    {
+        //        return Json(new { error = e.error.error.message });
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return Json(new { error = e.Message });
+        //    }
+        //}
+
+        //#endregion
 
         [HttpGet]
         public IActionResult Billing()

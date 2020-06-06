@@ -28,12 +28,12 @@
             <li class="nav-item">
                 <a id="btn-install" style="display: none" class="btn-install nav-link">Install</a>
             </li>
-            @if (UserManager.Users.Where(u => u.Id == User.GetUserId()).FirstOrDefault().AccountType == AccountType.Free)
+            @*@if (UserManager.Users.Where(u => u.Id == User.GetUserId()).FirstOrDefault().AccountType == AccountType.Free)
             {
                 <li class="nav-item">
                     <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary btn-upgrade nav-link">Upgrade to Pro</a>
                 </li>
-            }
+            }*@
             <li class="nav-item">
                 <button type="submit" class="btn btn-link navbar-btn navbar-link nav-link">Log out</button>
             </li>

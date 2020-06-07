@@ -25,6 +25,7 @@ namespace TabRepository
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile("appsettings.production.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables();      
 
             Configuration = builder.Build();

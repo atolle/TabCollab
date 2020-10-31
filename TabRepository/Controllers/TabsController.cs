@@ -75,47 +75,7 @@ namespace TabRepository.Controllers
                             var albumInDb = (Album)_userAuthenticator.CheckUserCreateAccess(Item.Album, viewModel.AlbumId, currentUserId);
 
                             if (albumInDb == null)
-                                return Json(new { error = "Album not found" });                            
-
-                            var tabCount = 0;
-                            var tabVersionCount = 0;
-
-                            if (albumInDb.User.AccountType == AccountType.Free)
-                            {
-                                // Get a count of total tabs and tab versions that this user owns (i.e. their projects)
-                                tabCount = _context.Tabs
-                                    .Include(u => u.User)
-                                    .Include(t => t.Album)
-                                    .Include(t => t.Album.Project)
-                                    .Where(t => t.Album.Project.UserId == albumInDb.UserId)
-                                    .Count();
-
-                                tabVersionCount = _context.TabVersions
-                                    .Include(u => u.User)
-                                    .Include(v => v.Tab)
-                                    .Include(v => v.Tab.Album)
-                                    .Include(v => v.Tab.Album.Project)
-                                    .Where(v => v.Tab.Album.Project.UserId == albumInDb.UserId)
-                                    .Count();
-
-                                if (tabCount >= 10 || tabVersionCount >= 30)
-                                {
-                                    int limit = tabCount >= 10 ? 10 : 30;
-                                    string item = tabCount >= 10 ? "tabs" : "tab versions";
-                                    string error;
-
-                                    if (albumInDb.UserId == currentUserId)
-                                    {
-                                        error = $"<br /><br />You have met the {limit} allowed free {item} that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED {item}, go the the Account page.";
-                                    }
-                                    else
-                                    {
-                                        error = $"<br /><br />The owner has met the {limit} allowed free {item} that are included with the free TabCollab account.";
-                                    }
-
-                                    return Json(new { error = error });
-                                }
-                            }                          
+                                return Json(new { error = "Album not found" });
 
                             int order = 0;
 
@@ -274,39 +234,8 @@ namespace TabRepository.Controllers
                     .Where(u => u.Id == currentUserId)
                     .FirstOrDefault();
 
-                var tabCount = 0;
-                var tabVersionCount = 0;
                 bool allowNewTabs = true;
                 bool allowNewTabVersions = true;
-         
-                // If the account type is free OR the subscription is expired, check the tab version count
-                if (userInDb.AccountType == AccountType.Free)
-                {
-                    // Get a count of total tab versions that this user owns (i.e. their projects)
-                    tabCount = _context.Tabs
-                        .Include(u => u.User)
-                        .Include(t => t.Album)
-                        .Include(t => t.Album.Project)
-                        .Where(t => t.Album.Project.UserId == currentUserId)
-                        .Count();
-
-                    tabVersionCount = _context.TabVersions.Include(u => u.User)
-                        .Include(v => v.Tab)
-                        .Include(v => v.Tab.Album)
-                        .Include(v => v.Tab.Album.Project)
-                        .Where(v => v.Tab.Album.Project.UserId == currentUserId)
-                        .Count();
-
-                    if (tabCount >= 10)
-                    {
-                        allowNewTabs = false;
-                    }
-
-                    if (tabVersionCount >= 30)
-                    {
-                        allowNewTabVersions = false;
-                    }
-                }
 
                 viewModel.TabTutorialShown = userInDb.TabTutorialShown;
                 viewModel.TabTutorialMobileShown = userInDb.TabTutorialMobileShown;

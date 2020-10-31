@@ -114,59 +114,8 @@ namespace TabRepository.Controllers
                         .Where(u => u.UserName.ToLower() == model.Username.ToLower())
                         .FirstOrDefault();
 
-                    var subscriptionInDb = _context.StripeSubscriptions
-                        .Where(s => (s.Status.ToLower() == "active" || s.Status.ToLower() == "past_due" || s.Status.ToLower() == "trialing") 
-                        && s.CustomerId == _context.StripeCustomers
-                            .Where(c => c.UserId == userInDb.Id)
-                            .Select(c => c.Id)
-                            .FirstOrDefault())
-                        .FirstOrDefault();
-
-                    Models.AccountViewModels.AccountType prevAccountType = userInDb.AccountType;
-
-                    if (!userInDb.AccountTypeLocked)
-                    {
-                        if (subscriptionInDb != null)
-                        {
-                            var subscription = _stripeProcessor.GetSubscription(_configuration, subscriptionInDb);
-
-                            subscriptionInDb.Status = subscription.Status;
-                            subscriptionInDb.CancelAtPeriodEnd = subscription.CancelAtPeriodEnd;
-
-                            // If the subscription is no longer active, change to free account
-                            if (subscription.Status.ToLower() == "active" || subscription.Status.ToLower() == "trialing" || subscription.Status.ToLower() == "past_due")
-                            {
-                                userInDb.AccountType = Models.AccountViewModels.AccountType.Pro;
-                            }
-                            else
-                            {
-                                userInDb.AccountType = Models.AccountViewModels.AccountType.Free;
-                            }
-
-                            _context.SaveChanges();
-                        }
-                        else
-                        {
-                            userInDb.AccountType = Models.AccountViewModels.AccountType.Free;
-                            _context.SaveChanges();
-                        }
-
-                        userInDb.LastLogin = DateTime.Now;
-                        _context.SaveChanges();
-
-                        if (prevAccountType != userInDb.AccountType)
-                        {
-                            NotificationsController.AddNotification(
-                                _context,
-                                NotificationType.AccountTypeChanged,
-                                userInDb,
-                                null,
-                                null,
-                                userInDb.AccountType.ToString(),
-                                null
-                            );
-                        }
-                    }
+                    userInDb.LastLogin = DateTime.Now;
+                    _context.SaveChanges();
 
                     _logger.LogInformation(1, "User logged in.");
                     return Json(new { url = returnUrl });
@@ -831,8 +780,7 @@ namespace TabRepository.Controllers
                     {
                         UserName = model.Username,
                         Email = model.Email,
-                        Bio = "",
-                        AccountType = Models.AccountViewModels.AccountType.Free
+                        Bio = ""
                     };
 
                     var emailInDb = _context.Users.Where(u => u.Email == model.Email).FirstOrDefault();
@@ -847,13 +795,6 @@ namespace TabRepository.Controllers
                     {
                         string partialView = "_RegisterConfirmation";
                         
-                        if (model.AccountType == Models.AccountViewModels.AccountType.Pro)
-                        {
-                            partialView = "_CreditCardForm";
-                            ViewBag.UserId = user.Id;
-                            ViewBag.FromRegistration = true;
-                        }
-
                         // Save profile image if it was added
                         if (model.CroppedImage != null)
                         {

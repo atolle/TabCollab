@@ -75,36 +75,6 @@ namespace TabRepository.Controllers
                             // If we own this tab we need to make sure we have an active subscription or less than 50 tabs
                             var customerInDb = _context.StripeCustomers.Where(c => c.UserId == currentUserId).FirstOrDefault();
 
-                            var tabVersionCount = 0;
-
-                            if (tabInDb.User.AccountType == Models.AccountViewModels.AccountType.Free)
-                            {
-                                // Get a count of total tab versions that this user owns (i.e. their projects)
-                                tabVersionCount = _context.TabVersions
-                                    .Include(u => u.User)
-                                    .Include(v => v.Tab)
-                                    .Include(v => v.Tab.Album)
-                                    .Include(v => v.Tab.Album.Project)
-                                    .Where(v => v.Tab.Album.Project.UserId == tabInDb.UserId)
-                                    .Count();
-
-                                if (tabVersionCount >= 30)
-                                {
-                                    string error;
-
-                                    if (tabInDb.UserId == currentUserId)
-                                    {
-                                        error = "<br /><br />You have met the 30 allowed free tab versions that are included with the free TabCollab account. You can continue to contribute to the projects of other musicians and view/edit your existing tabs.<br /><br />To upgrade your account to have UNLIMITED tab versions, go the the Account page.";
-                                    }
-                                    else
-                                    {
-                                        error = "<br /><br />The owner has met the 30 allowed free tab versions that are included with the free TabCollab account.";
-                                    }
-
-                                    return Json(new { error = error });
-                                }
-                            }
-
                             TabFile tabFile = new TabFile();
 
                             if (viewModel.FileData.Length > 0)

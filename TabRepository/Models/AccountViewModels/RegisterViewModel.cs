@@ -50,10 +50,6 @@ namespace TabRepository.Models.AccountViewModels
             }
         }
 
-        [Required(ErrorMessage = "Account Type is required")]
-        [Display(Name = "Account Type")]
-        public AccountType? AccountType { get; set; }
-
         [Required]
         [Display(Name = "I agree to the Terms of Service and Privacy Policy")]
         public bool AgreeToTerms { get; set; }

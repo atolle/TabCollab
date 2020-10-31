@@ -10,65 +10,28 @@
             <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center">
                 <div class="row">
                     <div class="col">
-                        @if (Model.AccountType == AccountType.Free)
-                        {
-                            <h3>Free Account</h3>
-                            <table class="table table-striped table-dark table-hover tabversions-table" style="margin-bottom: 10px; text-align: center">
-                                <thead>
-                                    <tr>
-                                        <th width="40%"><div class="table-header">Item</div></th>
-                                        <th width="30%"><div class="table-header">Count</div></th>
-                                        <th width="30%"><div class="table-header">Remaining</div></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Tabs</td>
-                                        <td>@Model.TabCount</td>
-                                        <td style="color: @(10 - Model.TabCount < 0 ? "red" : "inherit")">@(10 - Model.TabCount)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Tab Versions</td>
-                                        <td>@Model.TabVersionCount</td>
-                                        <td style="color: @(30 - Model.TabVersionCount < 0 ? "red" : "inherit")">@(30 - Model.TabVersionCount)</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        }
-                        else if (Model.AccountType == AccountType.Pro)
-                        {
-                            <h3>Pro Account</h3>
-                            @if (Model.SubscriptionStatus == SubscriptionStatus.Active)
-                            {
-                                <h4 style="color: rgb(134, 192, 144)">Active</h4>
-                            }
-                            else if (Model.SubscriptionStatus == SubscriptionStatus.PastDue)
-                            {
-                                <h4 style="color: red">Past Due</h4>
-                            }
-                            <h6>@(Model.Interval == "month" ? "Monthly" : "Yearly")</h6>
-                            <table class="table table-striped table-dark table-hover tabversions-table" style="margin-bottom: 10px; text-align: center">
-                                <thead>
-                                    <tr>
-                                        <th width="40%"><div class="table-header">Item</div></th>
-                                        <th width="30%"><div class="table-header">Count</div></th>
-                                        <th width="30%"><div class="table-header">Remaining</div></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Tabs</td>
-                                        <td>@Model.TabCount</td>
-                                        <td>Unlimited</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Tab Versions</td>
-                                        <td>@Model.TabVersionCount</td>
-                                        <td>Unlimited</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        }
+                        <h6>Tab Counts</h6>
+                        <table class="table table-striped table-dark table-hover tabversions-table" style="margin-bottom: 10px; text-align: center">
+                            <thead>
+                                <tr>
+                                    <th width="40%"><div class="table-header">Item</div></th>
+                                    <th width="30%"><div class="table-header">Count</div></th>
+                                    <th width="30%"><div class="table-header">Remaining</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Tabs</td>
+                                    <td>@Model.TabCount</td>
+                                    <td>Unlimited</td>
+                                </tr>
+                                <tr>
+                                    <td>Tab Versions</td>
+                                    <td>@Model.TabVersionCount</td>
+                                    <td>Unlimited</td>
+                                </tr>
+                            </tbody>
+                        </table>
                         @if (Model.HasPassword)
                         {
                             <a asp-controller="Manage" asp-action="ChangePassword" class="btn btn-default account-button">Change Password</a>
@@ -76,37 +39,6 @@
                         else
                         {
                             <a asp-controller="Manage" asp-action="SetPassword" class="btn btn-default account-button">Create Password</a>
-                        }
-                        @*@if (Model.AccountType == AccountType.Free)
-                        {
-                            <div>
-                                <a asp-controller="Account" asp-action="Subscribe" class="btn btn-outline-primary account-button">Upgrade to Pro</a>
-                            </div>
-                        }*@
-                        @if (Model.AccountType == AccountType.Pro)
-                        {
-                            <div style="margin-top: 20px; margin-bottom: 30px">
-                                <h6>Manage Subscription</h6>
-                                <div class="subscription-btn-container">
-                                    @if (Model.SubscriptionStatus == SubscriptionStatus.Active || Model.SubscriptionStatus == SubscriptionStatus.PastDue)
-                                    {
-                                        @if (Model.CancelAtPeriodEnd)
-                                        {
-                                            <a asp-controller="Account" asp-action="SubscriptionReactivate" id="btn-reactivate-subscription" class="btn btn-outline-primary account-button disabled">Activate Auto-Renew</a>
-                                        }
-                                        else
-                                        {
-                                            <a asp-controller="Account" asp-action="SubscriptionCancel" id="btn-cancel-subscription" class="btn btn-outline-danger account-button disabled">Cancel Auto-Renew</a>
-                                            @if (Model.CreditCardLast4 != null)
-                                            {
-                                                <a asp-controller="Account" asp-action="UpdatePayment" class="btn btn-default account-button">Update Credit Card<br />************@Model.CreditCardLast4 @Model.CreditCardExpiration</a>
-                                            }
-                                        }
-
-                                    }
-                                    <a asp-controller="Account" asp-action="Billing" class="btn btn-default account-button">Billing</a>
-                                </div>
-                            </div>
                         }
                     </div>
                 </div>
@@ -202,13 +134,10 @@
 @section scripts
     {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-    <script src="https://js.stripe.com/v3/"></script>
     <script>
         $(document).ready(function () {
             $('#btn-reactivate-subscription').removeClass('disabled');
             $('#btn-cancel-subscription').removeClass('disabled');
-
-            var stripe = Stripe('pk_test_mMmjGjT6aetaMgLCCu14fWGm00wC0SGVLv');
 
             $('footer').show();
 
@@ -230,84 +159,6 @@
                 $('#Email').prop('disabled', false);
                 $('#Image').removeClass('disabled');
                 submitButton.removeClass('disabled');
-            });
-
-            $(document).on("click", "#btn-reactivate-subscription", function (e, data) {
-                e.preventDefault();
-
-                var href = this.href,
-                    that = this;
-
-                bootbox.prompt("Confirm Reactivate Subscription Auto-Renew", function (result) {
-                    if (result != null) {
-                        if (result.toLowerCase() == 'yes') {
-                            $.ajax({
-                                type: 'POST',
-                                dataType: 'json',
-                                traditional: 'true',
-                                url: href
-                            }).then(function (response) {
-                                    if (response.error) {
-                                        showFailureBootbox("reactivating subscription", response.error);
-                                    }
-                                    else {
-                                        bootbox.alert("Subscription auto-renew has been reactivated.");
-                                        $('#btn-reactivate-subscription').remove();
-                                        $('.subscription-btn-container').html('<a id="btn-cancel-subscription" class="btn btn-outline-danger account-button" href="/Account/SubscriptionCancel">Cancel Auto-Renew</a><a class="btn btn-default account-button" href="/Account/UpdatePayment">Update Credit Card</a><a class="btn btn-default account-button" href="/Account/Billing">Billing</a>');
-                                    }
-                            }).fail(function (error) {
-                                showFailureBootbox("reactivating subscription", response.error);
-                                enableSubmitButton();
-                            })
-                        }
-                        else {
-                            bootbox.alert("Subscription auto-renew not reactivated.");
-                        }
-                    }
-                });
-
-                // CSS change to make the title display properly and add prompt text
-                $('.modal-header').css('display', 'unset');
-                $('.bootbox-body').prepend('<p>Please confirm you wish to reactivate your subscription auto-renew.<br />Confirm by typing "yes" below:</p>');
-            });
-
-            $(document).on("click", "#btn-cancel-subscription", function (e, data) {
-                e.preventDefault();
-
-                var href = this.href,
-                    that = this;
-
-                bootbox.prompt("Confirm Cancel Subscription Auto-Renew", function (result) {
-                    if (result != null) {
-                        if (result.toLowerCase() == 'yes') {
-                            $.ajax({
-                                type: 'POST',
-                                dataType: 'json',
-                                traditional: 'true',
-                                url: href
-                            }).then(function (response) {
-                                if (response.error) {                                    
-                                    showFailureBootbox("canceling subscription auto-renew", response.error);
-                                }
-                                else {
-                                    bootbox.alert("Subscription auto-renew has been canceled.");
-                                    $('#btn-cancel-subscription').remove();
-                                    $('.subscription-btn-container').html('<a id="btn-reactivate-subscription" class="btn btn-outline-primary account-button" href="/Account/SubscriptionReactivate">Activate Auto-Renew</a><a class="btn btn-default account-button" href="/Account/Billing">Billing</a>');                                        
-                                }
-                            }).fail(function (error) {
-                                showFailureBootbox("canceling subscription auto-renew", error);
-                                enableSubmitButton();
-                            })
-                        }
-                        else {
-                            bootbox.alert("Subscription auto-renew not canceled.");
-                        }
-                    }
-                });
-
-                // CSS change to make the title display properly and add prompt text
-                $('.modal-header').css('display', 'unset');
-                $('.bootbox-body').prepend('<p>Are you sure you wish to cancel your subscription auto-renew?<br />Confirm by typing "yes" below:</p>');
             });
 
             $(document).on("submit", "#profile-form", function (e, data) {
@@ -370,7 +221,7 @@
                         $('#Image').addClass('disabled');
                         $("#profile-image").css("background-image", "url(" + response.imageFilePath + ")");
                     }).fail(function (error) {
-                        bootbox.alert("Unable to update account information.<br /><br />Error: " + error.statusText);
+                        bootbox.alert("Unable to update account information.<br /><br />Error: " + error.responseText);
                         submitButton.html(submitButtonHtml);
                     })
                 });
@@ -410,7 +261,7 @@
                         sendEmailButton.html(sendEmailButtonHtml);
                         sendEmailButton.removeClass('disabled');
                     }).fail(function (error) {
-                        bootbox.alert("Unable to update account information.<br /><br />Error: " + error.statusText);
+                        bootbox.alert("Unable to update account information.<br /><br />Error: " + error.responseText);
                         sendEmailButton.html(sendEmailButtonHtml);
                         sendEmailButton.removeClass('disabled');
                     })

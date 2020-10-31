@@ -89,15 +89,6 @@ namespace TabRepository.Controllers
                             // Add contributors
                             if (viewModel.Contributors != null)
                             {
-                                if (userInDb.AccountType == Models.AccountViewModels.AccountType.Free && viewModel.Contributors.Count > 2)
-                                {
-                                    return Json(new { error = "You can only add up to 2 contributors per Project." });
-                                }
-                                else if (userInDb.AccountType == Models.AccountViewModels.AccountType.Pro && viewModel.Contributors.Count > 6)
-                                {
-                                    return Json(new { error = "You can only add up to 6 contributors per Project." });
-                                }
-
                                 foreach (UserViewModel user in viewModel.Contributors)
                                 {
                                     ProjectContributor contributor = new ProjectContributor()
@@ -162,15 +153,6 @@ namespace TabRepository.Controllers
 
                             if (viewModel.Contributors != null)
                             {
-                                if (userInDb.AccountType == Models.AccountViewModels.AccountType.Free && viewModel.Contributors.Count > 2)
-                                {
-                                    return Json(new { error = "You can only add up to 2 contributors per Project." });
-                                }
-                                else if (userInDb.AccountType == Models.AccountViewModels.AccountType.Pro && viewModel.Contributors.Count > 6)
-                                {
-                                    return Json(new { error = "You can only add up to 6 contributors per Project." });
-                                }
-
                                 foreach (UserViewModel user in viewModel.Contributors)
                                 {
                                     var userId = _context.Users.Where(u => u.UserName == user.Username).Select(u => u.Id).FirstOrDefault();
